@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSessionsData } from '@/hooks/useSessionsData';
 import { TrainingCalendar } from '@/components/TrainingCalendar';
-import { CalendarLegend } from '@/components/CalendarLegend';
+import CalendarLegend from '@/components/CalendarLegend';
 import { CalendarStats } from '@/components/CalendarStats';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
