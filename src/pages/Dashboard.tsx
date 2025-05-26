@@ -1,6 +1,5 @@
 
 import React from 'react';
-import AppLayout from '@/components/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
@@ -49,87 +48,85 @@ const Dashboard: React.FC = () => {
   });
 
   return (
-    <AppLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <Button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-            Generate Plan
-          </Button>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <CardTitle>Current Readiness</CardTitle>
-              <CardDescription>Latest readiness score</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {readinessData ? (
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-gray-900 mb-2">
-                    {Math.round(readinessData.score)}%
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {new Date(readinessData.ts).toLocaleDateString()}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center text-gray-500">
-                  No readiness data available
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>7-Day Sleep</CardTitle>
-              <CardDescription>Sleep efficiency trend</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {sleepData.length > 0 ? (
-                <div className="space-y-2">
-                  <div className="text-2xl font-bold">
-                    {Math.round(sleepData[sleepData.length - 1]?.value || 0)}%
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    Latest sleep efficiency
-                  </div>
-                  <div className="h-8 flex items-end space-x-1">
-                    {sleepData.map((point, index) => (
-                      <div
-                        key={index}
-                        className="bg-blue-500 rounded-t flex-1"
-                        style={{ height: `${(point.value / 100) * 100}%` }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center text-gray-500">
-                  No sleep data available
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Load Analysis</CardTitle>
-              <CardDescription>Last 30 sessions</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center text-gray-500">
-                Load vs chronic workload chart
-                <br />
-                <small>Coming soon</small>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <Button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+          Generate Plan
+        </Button>
       </div>
-    </AppLayout>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>Current Readiness</CardTitle>
+            <CardDescription>Latest readiness score</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {readinessData ? (
+              <div className="text-center">
+                <div className="text-4xl font-bold text-gray-900 mb-2">
+                  {Math.round(readinessData.score)}%
+                </div>
+                <div className="text-sm text-gray-500">
+                  {new Date(readinessData.ts).toLocaleDateString()}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center text-gray-500">
+                No readiness data available
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>7-Day Sleep</CardTitle>
+            <CardDescription>Sleep efficiency trend</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {sleepData.length > 0 ? (
+              <div className="space-y-2">
+                <div className="text-2xl font-bold">
+                  {Math.round(sleepData[sleepData.length - 1]?.value || 0)}%
+                </div>
+                <div className="text-sm text-gray-500">
+                  Latest sleep efficiency
+                </div>
+                <div className="h-8 flex items-end space-x-1">
+                  {sleepData.map((point, index) => (
+                    <div
+                      key={index}
+                      className="bg-blue-500 rounded-t flex-1"
+                      style={{ height: `${(point.value / 100) * 100}%` }}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center text-gray-500">
+                No sleep data available
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Load Analysis</CardTitle>
+            <CardDescription>Last 30 sessions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center text-gray-500">
+              Load vs chronic workload chart
+              <br />
+              <small>Coming soon</small>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 };
 
