@@ -44,7 +44,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   console.log('AuthProvider: Current state - user:', !!user, 'profile:', !!profile, 'loading:', loading, 'error:', error);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string): Promise<Profile | null> => {
     try {
       console.log('AuthProvider: Fetching profile for user:', userId);
       setError(null);
@@ -57,7 +57,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (error) {
         console.error('AuthProvider: Error fetching profile:', error);
-        setError(`Profile fetch error: ${error.message}`);
         
         // If profile doesn't exist, try to create it
         if (error.code === 'PGRST116') {
@@ -86,6 +85,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               return newProfile as Profile;
             }
           }
+        } else {
+          setError(`Profile fetch error: ${error.message}`);
         }
         return null;
       }
@@ -101,51 +102,78 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     console.log('AuthProvider: Setting up auth listener');
+    let mounted = true;
     
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (error) {
-        console.error('AuthProvider: Error getting initial session:', error);
-        setError(`Session error: ${error.message}`);
-        setLoading(false);
-        return;
-      }
-      
-      console.log('AuthProvider: Initial session:', !!session);
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        fetchProfile(session.user.id).then((profile) => {
-          console.log('AuthProvider: Initial profile set:', !!profile);
-          setProfile(profile);
-          setLoading(false);
-        });
-      } else {
-        setLoading(false);
-      }
-    });
-
-    // Listen for auth changes
+    // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('AuthProvider: Auth state changed:', event, !!session);
+        
+        if (!mounted) return;
+        
         setSession(session);
         setUser(session?.user ?? null);
         setError(null);
         
         if (session?.user) {
           const userProfile = await fetchProfile(session.user.id);
-          setProfile(userProfile);
+          if (mounted) {
+            setProfile(userProfile);
+            setLoading(false);
+          }
         } else {
-          setProfile(null);
+          if (mounted) {
+            setProfile(null);
+            setLoading(false);
+          }
         }
-        
-        setLoading(false);
       }
     );
 
-    return () => subscription.unsubscribe();
+    // Get initial session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (!mounted) return;
+        
+        if (error) {
+          console.error('AuthProvider: Error getting initial session:', error);
+          setError(`Session error: ${error.message}`);
+          setLoading(false);
+          return;
+        }
+        
+        console.log('AuthProvider: Initial session:', !!session);
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          const profile = await fetchProfile(session.user.id);
+          if (mounted) {
+            setProfile(profile);
+            setLoading(false);
+          }
+        } else {
+          if (mounted) {
+            setLoading(false);
+          }
+        }
+      } catch (error) {
+        console.error('AuthProvider: Error during initialization:', error);
+        if (mounted) {
+          setError('Failed to initialize authentication');
+          setLoading(false);
+        }
+      }
+    };
+
+    getInitialSession();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {

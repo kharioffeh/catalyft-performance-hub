@@ -59,15 +59,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   }
 
   if (!profile) {
-    console.log('AppLayout: No profile, showing error');
+    console.log('AppLayout: No profile, showing profile setup message');
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <div className="max-w-md w-full">
           <Alert>
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Profile Loading</AlertTitle>
+            <AlertTitle>Setting Up Your Profile</AlertTitle>
             <AlertDescription className="mt-2">
-              Your profile is being set up. This may take a moment.
+              Your profile is being created. This usually takes just a moment.
             </AlertDescription>
           </Alert>
           <div className="mt-4 flex gap-2">

@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,11 +16,20 @@ import Dashboard from "./pages/Dashboard";
 import CoachRiskBoard from "./pages/CoachRiskBoard";
 import Subscription from "./pages/Subscription";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 // Role-based redirect component
 const RoleBasedRedirect = () => {
-  const { profile, loading } = useAuth();
+  const { profile, loading, user } = useAuth();
+  
+  console.log('RoleBasedRedirect: user:', !!user, 'profile:', !!profile, 'loading:', loading);
   
   if (loading) {
     return (
@@ -32,10 +42,17 @@ const RoleBasedRedirect = () => {
     );
   }
   
-  if (!profile) {
+  if (!user) {
+    console.log('RoleBasedRedirect: No user, redirecting to auth');
     return <Navigate to="/auth" replace />;
   }
   
+  if (!profile) {
+    console.log('RoleBasedRedirect: No profile, redirecting to auth');
+    return <Navigate to="/auth" replace />;
+  }
+  
+  console.log('RoleBasedRedirect: Redirecting based on role:', profile.role);
   if (profile.role === 'coach') {
     return <Navigate to="/coach" replace />;
   } else {
