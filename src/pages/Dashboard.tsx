@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { AppLayout } from '@/components/AppLayout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -6,9 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 const Dashboard: React.FC = () => {
   const { profile } = useAuth();
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const { data: readinessData } = useQuery({
     queryKey: ['readiness-latest', profile?.id],
@@ -48,9 +50,74 @@ const Dashboard: React.FC = () => {
     enabled: !!profile?.id
   });
 
+  // Get next 7 days of sessions for the plan generation
+  const { data: upcomingSessions = [] } = useQuery({
+    queryKey: ['sessions-7day', profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return [];
+
+      const sevenDaysFromNow = new Date();
+      sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+
+      const { data, error } = await supabase
+        .from('sessions')
+        .select('*')
+        .eq('athlete_uuid', profile.id)
+        .gte('start_ts', new Date().toISOString())
+        .lte('start_ts', sevenDaysFromNow.toISOString())
+        .order('start_ts', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!profile?.id
+  });
+
   const generatePlan = async () => {
-    console.log('Generating training plan...');
-    // This would call an RPC to OpenAI
+    if (!profile?.id) {
+      toast({
+        title: "Error",
+        description: "User profile not found",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    
+    try {
+      console.log('Generating training plan with data:', {
+        readinessData,
+        upcomingSessions
+      });
+
+      const { data, error } = await supabase.functions.invoke('generate-training-plan', {
+        body: {
+          athleteId: profile.id,
+          readinessData: readinessData || {},
+          calendarData: upcomingSessions
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Training plan generated and saved successfully!",
+      });
+
+      console.log('Generated workout plan:', data.workoutPlan);
+
+    } catch (error) {
+      console.error('Error generating plan:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate training plan",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -60,9 +127,10 @@ const Dashboard: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
           <Button 
             onClick={generatePlan}
+            disabled={isGenerating}
             className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl px-6 py-2 shadow-sm"
           >
-            Generate Plan
+            {isGenerating ? 'Generating...' : 'Generate Plan'}
           </Button>
         </div>
 
