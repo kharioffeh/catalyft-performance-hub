@@ -92,12 +92,12 @@ export const ExerciseLibrary: React.FC<ExerciseLibraryProps> = ({
                   <span className="text-sm font-medium">Muscle Groups:</span>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {exercise.muscle_groups.slice(0, 3).map((muscle, index) => (
-                      <Badge key={index} variant="secondary" size="sm" className="capitalize">
+                      <Badge key={index} variant="secondary" className="capitalize text-xs">
                         {muscle.replace('_', ' ')}
                       </Badge>
                     ))}
                     {exercise.muscle_groups.length > 3 && (
-                      <Badge variant="secondary" size="sm">
+                      <Badge variant="secondary" className="text-xs">
                         +{exercise.muscle_groups.length - 3}
                       </Badge>
                     )}
@@ -109,12 +109,12 @@ export const ExerciseLibrary: React.FC<ExerciseLibraryProps> = ({
                     <span className="text-sm font-medium">Equipment:</span>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {exercise.equipment.slice(0, 2).map((eq, index) => (
-                        <Badge key={index} variant="outline" size="sm" className="capitalize">
+                        <Badge key={index} variant="outline" className="capitalize text-xs">
                           {eq.replace('_', ' ')}
                         </Badge>
                       ))}
                       {exercise.equipment.length > 2 && (
-                        <Badge variant="outline" size="sm">
+                        <Badge variant="outline" className="text-xs">
                           +{exercise.equipment.length - 2}
                         </Badge>
                       )}

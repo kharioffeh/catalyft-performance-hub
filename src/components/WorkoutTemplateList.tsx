@@ -64,7 +64,7 @@ export const WorkoutTemplateList: React.FC<WorkoutTemplateListProps> = ({
               </div>
               <div className="flex items-center gap-1">
                 <Target className="w-4 h-4" />
-                <Badge variant={getDifficultyColor(template.difficulty_level)} size="sm">
+                <Badge variant={getDifficultyColor(template.difficulty_level)} className="text-xs">
                   {getDifficultyText(template.difficulty_level)}
                 </Badge>
               </div>
