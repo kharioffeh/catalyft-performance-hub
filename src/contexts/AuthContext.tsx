@@ -40,8 +40,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  console.log('AuthProvider: Current state - user:', !!user, 'profile:', !!profile, 'loading:', loading);
+
   const fetchProfile = async (userId: string) => {
     try {
+      console.log('AuthProvider: Fetching profile for user:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -49,33 +52,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .single();
 
       if (error) {
-        console.error('Error fetching profile:', error);
+        console.error('AuthProvider: Error fetching profile:', error);
         return null;
       }
 
+      console.log('AuthProvider: Profile fetched successfully:', data);
       return data as Profile;
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('AuthProvider: Error fetching profile:', error);
       return null;
     }
   };
 
   useEffect(() => {
+    console.log('AuthProvider: Setting up auth listener');
+    
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('AuthProvider: Initial session:', !!session);
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        fetchProfile(session.user.id).then(setProfile);
+        fetchProfile(session.user.id).then((profile) => {
+          console.log('AuthProvider: Initial profile set:', !!profile);
+          setProfile(profile);
+          setLoading(false);
+        });
+      } else {
+        setLoading(false);
       }
-      
-      setLoading(false);
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('AuthProvider: Auth state changed:', event, !!session);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -94,9 +106,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const signOut = async () => {
+    console.log('AuthProvider: Signing out');
     const { error } = await supabase.auth.signOut();
     if (error) {
-      console.error('Error signing out:', error);
+      console.error('AuthProvider: Error signing out:', error);
     }
   };
 

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { AppLayout } from '@/components/AppLayout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,9 +16,27 @@ const Dashboard: React.FC = () => {
   const { profile } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const { data: subscriptionData } = useQuery({
+  console.log('Dashboard: Rendering with profile:', profile);
+
+  // Early return with loading state if no profile
+  if (!profile) {
+    console.log('Dashboard: No profile found, showing loading...');
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading profile...</p>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  const { data: subscriptionData, error: subscriptionError } = useQuery({
     queryKey: ['subscription', profile?.id],
     queryFn: async () => {
+      console.log('Dashboard: Fetching subscription data for:', profile?.id);
       if (!profile?.id) return null;
 
       const { data, error } = await supabase
@@ -30,30 +49,40 @@ const Dashboard: React.FC = () => {
         .eq('status', 'active')
         .single();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error && error.code !== 'PGRST116') {
+        console.error('Dashboard: Subscription query error:', error);
+        throw error;
+      }
+      console.log('Dashboard: Subscription data:', data);
       return data;
     },
     enabled: !!profile?.id
   });
 
-  const { data: athleteCount } = useQuery({
+  const { data: athleteCount = 0, error: athleteCountError } = useQuery({
     queryKey: ['athlete-count', profile?.id],
     queryFn: async () => {
+      console.log('Dashboard: Fetching athlete count for:', profile?.id);
       if (!profile?.id) return 0;
 
       const { data, error } = await supabase.rpc('get_user_athlete_count', {
         user_uuid: profile.id
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Dashboard: Athlete count error:', error);
+        throw error;
+      }
+      console.log('Dashboard: Athlete count:', data);
       return data || 0;
     },
     enabled: !!profile?.id
   });
 
-  const { data: readinessData } = useQuery({
+  const { data: readinessData, error: readinessError } = useQuery({
     queryKey: ['readiness-latest', profile?.id],
     queryFn: async () => {
+      console.log('Dashboard: Fetching readiness data for:', profile?.id);
       if (!profile?.id) return null;
 
       const { data, error } = await supabase
@@ -64,15 +93,20 @@ const Dashboard: React.FC = () => {
         .limit(1)
         .single();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error && error.code !== 'PGRST116') {
+        console.error('Dashboard: Readiness query error:', error);
+        throw error;
+      }
+      console.log('Dashboard: Readiness data:', data);
       return data;
     },
     enabled: !!profile?.id
   });
 
-  const { data: sleepData = [] } = useQuery({
+  const { data: sleepData = [], error: sleepError } = useQuery({
     queryKey: ['sleep-7day', profile?.id],
     queryFn: async () => {
+      console.log('Dashboard: Fetching sleep data for:', profile?.id);
       if (!profile?.id) return [];
 
       const { data, error } = await supabase
@@ -83,15 +117,20 @@ const Dashboard: React.FC = () => {
         .gte('ts', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
         .order('ts', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Dashboard: Sleep data error:', error);
+        throw error;
+      }
+      console.log('Dashboard: Sleep data:', data);
       return data || [];
     },
     enabled: !!profile?.id
   });
 
-  const { data: upcomingSessions = [] } = useQuery({
+  const { data: upcomingSessions = [], error: sessionsError } = useQuery({
     queryKey: ['sessions-7day', profile?.id],
     queryFn: async () => {
+      console.log('Dashboard: Fetching sessions for:', profile?.id);
       if (!profile?.id) return [];
 
       const sevenDaysFromNow = new Date();
@@ -105,11 +144,22 @@ const Dashboard: React.FC = () => {
         .lte('start_ts', sevenDaysFromNow.toISOString())
         .order('start_ts', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Dashboard: Sessions error:', error);
+        throw error;
+      }
+      console.log('Dashboard: Sessions data:', data);
       return data || [];
     },
     enabled: !!profile?.id
   });
+
+  // Log any query errors
+  if (subscriptionError) console.error('Subscription error:', subscriptionError);
+  if (athleteCountError) console.error('Athlete count error:', athleteCountError);
+  if (readinessError) console.error('Readiness error:', readinessError);
+  if (sleepError) console.error('Sleep error:', sleepError);
+  if (sessionsError) console.error('Sessions error:', sessionsError);
 
   const generatePlan = async () => {
     if (!profile?.id) {
@@ -157,6 +207,8 @@ const Dashboard: React.FC = () => {
       setIsGenerating(false);
     }
   };
+
+  console.log('Dashboard: Rendering main content');
 
   return (
     <AppLayout>

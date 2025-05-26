@@ -11,7 +11,10 @@ interface AppLayoutProps {
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const { user, profile, loading } = useAuth();
 
+  console.log('AppLayout: Rendering with user:', !!user, 'profile:', !!profile, 'loading:', loading);
+
   if (loading) {
+    console.log('AppLayout: Showing loading state');
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -23,8 +26,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   }
 
   if (!user || !profile) {
+    console.log('AppLayout: No user or profile, returning null');
     return null; // Auth will handle redirect
   }
+
+  console.log('AppLayout: Rendering main layout');
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
