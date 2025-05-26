@@ -1,10 +1,11 @@
 
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Calendar } from 'lucide-react';
 
 const Index = () => {
   const { user, profile, loading, signOut } = useAuth();
@@ -33,6 +34,12 @@ const Index = () => {
               <h1 className="text-2xl font-bold text-gray-900">Catalyft AI</h1>
             </div>
             <div className="flex items-center space-x-4">
+              <Link to="/calendar">
+                <Button variant="outline" size="sm">
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Calendar
+                </Button>
+              </Link>
               <span className="text-sm text-gray-600">
                 Welcome, {profile?.full_name || user.email}
               </span>
@@ -81,9 +88,17 @@ const Index = () => {
               <CardDescription>Training sessions and schedule</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600">
-                View your upcoming training sessions and events.
-              </p>
+              <div className="space-y-2">
+                <p className="text-sm text-gray-600">
+                  View your upcoming training sessions and events.
+                </p>
+                <Link to="/calendar">
+                  <Button variant="outline" size="sm" className="w-full">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Open Calendar
+                  </Button>
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </div>

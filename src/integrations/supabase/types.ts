@@ -9,6 +9,65 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      athletes: {
+        Row: {
+          coach_uuid: string | null
+          created_at: string
+          dob: string | null
+          id: string
+          name: string
+          sex: string | null
+          updated_at: string
+        }
+        Insert: {
+          coach_uuid?: string | null
+          created_at?: string
+          dob?: string | null
+          id?: string
+          name: string
+          sex?: string | null
+          updated_at?: string
+        }
+        Update: {
+          coach_uuid?: string | null
+          created_at?: string
+          dob?: string | null
+          id?: string
+          name?: string
+          sex?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "athletes_coach_uuid_fkey"
+            columns: ["coach_uuid"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coaches: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -36,12 +95,173 @@ export type Database = {
         }
         Relationships: []
       }
+      readiness_scores: {
+        Row: {
+          athlete_uuid: string
+          created_at: string
+          id: string
+          score: number
+          ts: string
+        }
+        Insert: {
+          athlete_uuid: string
+          created_at?: string
+          id?: string
+          score: number
+          ts: string
+        }
+        Update: {
+          athlete_uuid?: string
+          created_at?: string
+          id?: string
+          score?: number
+          ts?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "readiness_scores_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sessions: {
+        Row: {
+          athlete_uuid: string
+          coach_uuid: string
+          created_at: string
+          end_ts: string
+          id: string
+          notes: string | null
+          start_ts: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          athlete_uuid: string
+          coach_uuid: string
+          created_at?: string
+          end_ts: string
+          id?: string
+          notes?: string | null
+          start_ts: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          athlete_uuid?: string
+          coach_uuid?: string
+          created_at?: string
+          end_ts?: string
+          id?: string
+          notes?: string | null
+          start_ts?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessions_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sessions_coach_uuid_fkey"
+            columns: ["coach_uuid"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wearable_raw: {
+        Row: {
+          athlete_uuid: string
+          created_at: string
+          id: string
+          metric: string
+          ts: string
+          value: number
+        }
+        Insert: {
+          athlete_uuid: string
+          created_at?: string
+          id?: string
+          metric: string
+          ts: string
+          value: number
+        }
+        Update: {
+          athlete_uuid?: string
+          created_at?: string
+          id?: string
+          metric?: string
+          ts?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wearable_raw_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workout_blocks: {
+        Row: {
+          athlete_uuid: string
+          created_at: string
+          data: Json
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          athlete_uuid: string
+          created_at?: string
+          data: Json
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          athlete_uuid?: string
+          created_at?: string
+          data?: Json
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_blocks_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_current_coach_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      is_current_user_coach: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      user_owns_athlete: {
+        Args: { athlete_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
