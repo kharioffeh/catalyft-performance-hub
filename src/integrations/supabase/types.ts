@@ -294,6 +294,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_all_readiness: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      calculate_readiness: {
+        Args: { target_athlete_uuid: string }
+        Returns: undefined
+      }
       get_current_coach_id: {
         Args: Record<PropertyKey, never>
         Returns: string
