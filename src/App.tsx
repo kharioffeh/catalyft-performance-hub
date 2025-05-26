@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,6 +21,7 @@ import Settings from "./pages/Settings";
 import Athletes from "./pages/Athletes";
 import Subscriptions from "./pages/Subscriptions";
 import NotFound from "./pages/NotFound";
+import Subscription from "./pages/Subscription";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -64,6 +64,7 @@ const AppRoutes = () => {
             <Route path="/settings" element={<PageTransition><Settings /></PageTransition>} />
             <Route path="/athletes" element={<PageTransition><Athletes /></PageTransition>} />
             <Route path="/subscriptions" element={<PageTransition><Subscriptions /></PageTransition>} />
+            <Route path="/subscription" element={<PageTransition><Subscription /></PageTransition>} />
           </Route>
         </Route>
         
