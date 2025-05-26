@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +13,7 @@ import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import CoachRiskBoard from "./pages/CoachRiskBoard";
+import Subscription from "./pages/Subscription";
 
 const queryClient = new QueryClient();
 
@@ -36,7 +36,6 @@ const RoleBasedRedirect = () => {
     return <Navigate to="/auth" replace />;
   }
   
-  // Role-based default routing
   if (profile.role === 'coach') {
     return <Navigate to="/coach" replace />;
   } else {
@@ -52,6 +51,7 @@ const AppRoutes = () => {
       <Route path="/coach" element={<CoachRiskBoard />} />
       <Route path="/calendar" element={<Calendar />} />
       <Route path="/athletes" element={<Athletes />} />
+      <Route path="/subscription" element={<Subscription />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/" element={<RoleBasedRedirect />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

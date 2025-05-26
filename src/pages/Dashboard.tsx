@@ -3,14 +3,53 @@ import { AppLayout } from '@/components/AppLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Crown, Users } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const { profile } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const { data: subscriptionData } = useQuery({
+    queryKey: ['subscription', profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return null;
+
+      const { data, error } = await supabase
+        .from('user_subscriptions')
+        .select(`
+          *,
+          plan:subscription_plans(*)
+        `)
+        .eq('user_id', profile.id)
+        .eq('status', 'active')
+        .single();
+
+      if (error && error.code !== 'PGRST116') throw error;
+      return data;
+    },
+    enabled: !!profile?.id
+  });
+
+  const { data: athleteCount } = useQuery({
+    queryKey: ['athlete-count', profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return 0;
+
+      const { data, error } = await supabase.rpc('get_user_athlete_count', {
+        user_uuid: profile.id
+      });
+
+      if (error) throw error;
+      return data || 0;
+    },
+    enabled: !!profile?.id
+  });
 
   const { data: readinessData } = useQuery({
     queryKey: ['readiness-latest', profile?.id],
@@ -50,7 +89,6 @@ const Dashboard: React.FC = () => {
     enabled: !!profile?.id
   });
 
-  // Get next 7 days of sessions for the plan generation
   const { data: upcomingSessions = [] } = useQuery({
     queryKey: ['sessions-7day', profile?.id],
     queryFn: async () => {
@@ -133,6 +171,59 @@ const Dashboard: React.FC = () => {
             {isGenerating ? 'Generating...' : 'Generate Plan'}
           </Button>
         </div>
+
+        {/* Subscription Status Card */}
+        {subscriptionData ? (
+          <Card className="border-l-4 border-l-green-500">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Crown className="w-5 h-5 text-yellow-500" />
+                Subscription Status
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Badge variant="default" className="mb-2">
+                    {subscriptionData.plan?.name} Plan
+                  </Badge>
+                  <p className="text-sm text-gray-600">
+                    £{subscriptionData.plan?.price_monthly}/month
+                  </p>
+                  {subscriptionData.plan?.athlete_limit && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <Users className="w-4 h-4" />
+                      <span className="text-sm">
+                        {athleteCount}/{subscriptionData.plan.athlete_limit} athletes used
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <Link to="/subscription">
+                  <Button variant="outline" size="sm">
+                    Manage Plan
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="border-l-4 border-l-orange-500">
+            <CardHeader>
+              <CardTitle>No Active Subscription</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 mb-4">
+                Upgrade to unlock AI-powered training plans and advanced features.
+              </p>
+              <Link to="/subscription">
+                <Button className="bg-gradient-to-r from-blue-600 to-purple-600">
+                  View Plans
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Readiness KPI Card */}

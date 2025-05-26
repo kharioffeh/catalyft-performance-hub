@@ -1,15 +1,15 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, User } from 'lucide-react';
+import { Plus, User, Crown } from 'lucide-react';
 import WhoopIntegration from '@/components/WhoopIntegration';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Athlete {
   id: string;
@@ -24,6 +24,7 @@ const Athletes = () => {
   const [athletes, setAthletes] = useState<Athlete[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [canAddMore, setCanAddMore] = useState(true);
   const [newAthlete, setNewAthlete] = useState({
     name: '',
     dob: '',
@@ -34,8 +35,24 @@ const Athletes = () => {
   useEffect(() => {
     if (profile?.role === 'coach') {
       fetchAthletes();
+      checkAthleteLimit();
     }
   }, [profile]);
+
+  const checkAthleteLimit = async () => {
+    if (!profile?.id) return;
+
+    try {
+      const { data, error } = await supabase.rpc('can_add_athlete', {
+        user_uuid: profile.id
+      });
+
+      if (error) throw error;
+      setCanAddMore(data);
+    } catch (error) {
+      console.error('Error checking athlete limit:', error);
+    }
+  };
 
   const fetchAthletes = async () => {
     try {
@@ -60,6 +77,15 @@ const Athletes = () => {
 
   const addAthlete = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!canAddMore) {
+      toast({
+        title: "Athlete Limit Reached",
+        description: "Please upgrade your plan to add more athletes.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     try {
       const { data: coachData } = await supabase
@@ -91,6 +117,7 @@ const Athletes = () => {
       setNewAthlete({ name: '', dob: '', sex: '' });
       setShowAddForm(false);
       fetchAthletes();
+      checkAthleteLimit();
     } catch (error) {
       console.error('Error adding athlete:', error);
       toast({
@@ -126,7 +153,10 @@ const Athletes = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <h1 className="text-2xl font-bold text-gray-900">Athletes</h1>
-            <Button onClick={() => setShowAddForm(true)}>
+            <Button 
+              onClick={() => setShowAddForm(true)}
+              disabled={!canAddMore}
+            >
               <Plus className="w-4 h-4 mr-2" />
               Add Athlete
             </Button>
@@ -135,6 +165,18 @@ const Athletes = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {!canAddMore && (
+          <Alert className="mb-6 border-orange-200 bg-orange-50">
+            <Crown className="h-4 w-4 text-orange-600" />
+            <AlertDescription className="text-orange-800">
+              You've reached your athlete limit for your current plan. 
+              <Link to="/subscription" className="ml-1 underline font-medium">
+                Upgrade your plan
+              </Link> to add more athletes.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {showAddForm && (
           <Card className="mb-6">
             <CardHeader>

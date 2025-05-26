@@ -178,6 +178,89 @@ export type Database = {
           },
         ]
       }
+      subscription_plans: {
+        Row: {
+          athlete_limit: number | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          price_monthly: number
+          stripe_price_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          athlete_limit?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          price_monthly: number
+          stripe_price_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          athlete_limit?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          price_monthly?: number
+          stripe_price_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_subscriptions: {
+        Row: {
+          athlete_count: number | null
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          plan_id: string | null
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          athlete_count?: number | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          athlete_count?: number | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wearable_raw: {
         Row: {
           athlete_uuid: string
@@ -302,9 +385,17 @@ export type Database = {
         Args: { target_athlete_uuid: string }
         Returns: undefined
       }
+      can_add_athlete: {
+        Args: { user_uuid: string }
+        Returns: boolean
+      }
       get_current_coach_id: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_user_athlete_count: {
+        Args: { user_uuid: string }
+        Returns: number
       }
       is_current_user_coach: {
         Args: Record<PropertyKey, never>
