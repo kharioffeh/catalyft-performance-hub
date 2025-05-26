@@ -4,6 +4,7 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import listPlugin from '@fullcalendar/list';
 import { getEventColor, handleEventDrop, handleEventResize } from '@/utils/calendarUtils';
 import { QueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
@@ -26,9 +27,10 @@ interface TrainingCalendarProps {
   sessions: Session[];
   isLoading: boolean;
   queryClient: QueryClient;
+  isMobile?: boolean;
 }
 
-export const TrainingCalendar = ({ sessions, isLoading, queryClient }: TrainingCalendarProps) => {
+export const TrainingCalendar = ({ sessions, isLoading, queryClient, isMobile = false }: TrainingCalendarProps) => {
   const { profile } = useAuth();
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
@@ -65,12 +67,12 @@ export const TrainingCalendar = ({ sessions, isLoading, queryClient }: TrainingC
   return (
     <>
       <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        initialView="timeGridWeek"
+        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+        initialView={isMobile ? "listWeek" : "timeGridWeek"}
         headerToolbar={{
           left: 'prev,next today',
           center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+          right: isMobile ? 'listWeek,dayGridMonth' : 'dayGridMonth,timeGridWeek,timeGridDay'
         }}
         events={calendarEvents}
         editable={profile?.role === 'coach'}
