@@ -36,6 +36,8 @@ const queryClient = new QueryClient({
 const RoleBasedRedirect = () => {
   const { profile, loading, user } = useAuth();
   
+  console.log('RoleBasedRedirect - user:', !!user, 'profile:', profile, 'loading:', loading);
+  
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -47,8 +49,20 @@ const RoleBasedRedirect = () => {
     );
   }
   
-  if (!user || !profile) {
+  if (!user) {
     return <Navigate to="/home" replace />;
+  }
+  
+  if (!profile) {
+    // If we have a user but no profile yet, wait a bit more
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Setting up your profile...</p>
+        </div>
+      </div>
+    );
   }
   
   if (profile.role === 'coach') {

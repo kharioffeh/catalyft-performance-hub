@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,7 +18,7 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -30,8 +29,20 @@ const Login: React.FC = () => {
           description: error.message,
           variant: "destructive",
         });
-      } else {
-        navigate('/');
+      } else if (data.user) {
+        // Fetch user profile to determine role
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single();
+
+        // Redirect based on role
+        if (profile?.role === 'coach') {
+          navigate('/coach');
+        } else {
+          navigate('/dashboard');
+        }
       }
     } catch (error) {
       toast({
@@ -107,7 +118,18 @@ const Login: React.FC = () => {
               type="button"
               variant="outline"
               className="w-full mt-4"
-              onClick={handleGoogleSignIn}
+              onClick={async () => {
+                const { error } = await supabase.auth.signInWithOAuth({
+                  provider: 'google',
+                });
+                if (error) {
+                  toast({
+                    title: "Google sign in failed",
+                    description: error.message,
+                    variant: "destructive",
+                  });
+                }
+              }}
             >
               Sign in with Google
             </Button>
