@@ -127,29 +127,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const setupAuth = async (session: Session | null) => {
+    console.log('AuthProvider: Setting up auth with session:', !!session);
     setSession(session);
     setUser(session?.user ?? null);
     setError(null);
     
     if (session?.user) {
-      setLoading(true);
-      const userProfile = await fetchProfile(session.user.id);
-      setProfile(userProfile);
-      
-      // If profile fetch/creation fails after 3 seconds, stop loading to prevent infinite hang
-      setTimeout(() => {
+      try {
+        const userProfile = await fetchProfile(session.user.id);
+        setProfile(userProfile);
+        
         if (!userProfile) {
-          console.log('AuthProvider: Profile setup timeout, setting loading to false');
-          setLoading(false);
           setError('Unable to set up user profile. Please try refreshing the page.');
         }
-      }, 3000);
-      
-      setLoading(false);
+      } catch (error) {
+        console.error('AuthProvider: Error setting up profile:', error);
+        setError('Failed to load user profile');
+      }
     } else {
       setProfile(null);
-      setLoading(false);
     }
+    
+    setLoading(false);
   };
 
   useEffect(() => {

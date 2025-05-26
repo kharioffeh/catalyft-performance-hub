@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,15 +30,42 @@ const Login: React.FC = () => {
           description: error.message,
           variant: "destructive",
         });
-      } else if (data.user) {
+        setLoading(false);
+        return;
+      }
+
+      if (data.user) {
+        console.log('Login successful, fetching profile for redirect');
+        
+        // Fetch user profile to determine role
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          // Default to dashboard if profile fetch fails
+          navigate('/dashboard');
+        } else {
+          // Navigate based on role
+          if (profileData.role === 'coach') {
+            console.log('Redirecting to coach dashboard');
+            navigate('/coach');
+          } else {
+            console.log('Redirecting to athlete dashboard');
+            navigate('/dashboard');
+          }
+        }
+
         toast({
           title: "Success",
           description: "Signed in successfully!",
         });
-        // Don't manually navigate - let RoleBasedRedirect handle it
-        console.log('Login successful, AuthContext will handle redirect');
       }
     } catch (error) {
+      console.error('Login error:', error);
       toast({
         title: "Error",
         description: "An unexpected error occurred",
