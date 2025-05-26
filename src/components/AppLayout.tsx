@@ -3,15 +3,18 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Sidebar } from '@/components/Sidebar';
 import { TopBar } from '@/components/TopBar';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { AlertCircle } from 'lucide-react';
 
 interface AppLayoutProps {
   children: React.ReactNode;
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, error, signOut } = useAuth();
 
-  console.log('AppLayout: Rendering with user:', !!user, 'profile:', !!profile, 'loading:', loading);
+  console.log('AppLayout: Rendering with user:', !!user, 'profile:', !!profile, 'loading:', loading, 'error:', error);
 
   if (loading) {
     console.log('AppLayout: Showing loading state');
@@ -25,9 +28,59 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     );
   }
 
-  if (!user || !profile) {
-    console.log('AppLayout: No user or profile, returning null');
+  if (error) {
+    console.log('AppLayout: Showing error state:', error);
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="max-w-md w-full">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Authentication Error</AlertTitle>
+            <AlertDescription className="mt-2">
+              {error}
+            </AlertDescription>
+          </Alert>
+          <div className="mt-4 flex gap-2">
+            <Button onClick={() => window.location.reload()} variant="outline">
+              Retry
+            </Button>
+            <Button onClick={signOut} variant="outline">
+              Sign Out
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    console.log('AppLayout: No user, returning null');
     return null; // Auth will handle redirect
+  }
+
+  if (!profile) {
+    console.log('AppLayout: No profile, showing error');
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="max-w-md w-full">
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Profile Loading</AlertTitle>
+            <AlertDescription className="mt-2">
+              Your profile is being set up. This may take a moment.
+            </AlertDescription>
+          </Alert>
+          <div className="mt-4 flex gap-2">
+            <Button onClick={() => window.location.reload()} variant="outline">
+              Refresh
+            </Button>
+            <Button onClick={signOut} variant="outline">
+              Sign Out
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   console.log('AppLayout: Rendering main layout');

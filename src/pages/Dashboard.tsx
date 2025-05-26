@@ -10,13 +10,28 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Crown, Users } from 'lucide-react';
+import { Crown, Users, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Dashboard: React.FC = () => {
-  const { profile } = useAuth();
+  const { profile, error: authError } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
 
-  console.log('Dashboard: Rendering with profile:', profile);
+  console.log('Dashboard: Rendering with profile:', profile, 'authError:', authError);
+
+  // Show auth error if present
+  if (authError) {
+    return (
+      <AppLayout>
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Authentication error: {authError}
+          </AlertDescription>
+        </Alert>
+      </AppLayout>
+    );
+  }
 
   // Early return with loading state if no profile
   if (!profile) {

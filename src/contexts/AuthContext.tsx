@@ -17,6 +17,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  error: string | null;
   signOut: () => Promise<void>;
 }
 
@@ -39,12 +40,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  console.log('AuthProvider: Current state - user:', !!user, 'profile:', !!profile, 'loading:', loading);
+  console.log('AuthProvider: Current state - user:', !!user, 'profile:', !!profile, 'loading:', loading, 'error:', error);
 
   const fetchProfile = async (userId: string) => {
     try {
       console.log('AuthProvider: Fetching profile for user:', userId);
+      setError(null);
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -53,13 +57,44 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (error) {
         console.error('AuthProvider: Error fetching profile:', error);
+        setError(`Profile fetch error: ${error.message}`);
+        
+        // If profile doesn't exist, try to create it
+        if (error.code === 'PGRST116') {
+          console.log('AuthProvider: Profile not found, attempting to create...');
+          const { data: userData } = await supabase.auth.getUser();
+          if (userData.user) {
+            const { data: newProfile, error: createError } = await supabase
+              .from('profiles')
+              .insert([
+                {
+                  id: userId,
+                  email: userData.user.email || '',
+                  full_name: userData.user.user_metadata?.full_name || null,
+                  role: userData.user.user_metadata?.role || 'athlete'
+                }
+              ])
+              .select()
+              .single();
+            
+            if (createError) {
+              console.error('AuthProvider: Error creating profile:', createError);
+              setError(`Profile creation error: ${createError.message}`);
+              return null;
+            } else {
+              console.log('AuthProvider: Profile created successfully:', newProfile);
+              return newProfile as Profile;
+            }
+          }
+        }
         return null;
       }
 
       console.log('AuthProvider: Profile fetched successfully:', data);
       return data as Profile;
     } catch (error) {
-      console.error('AuthProvider: Error fetching profile:', error);
+      console.error('AuthProvider: Unexpected error fetching profile:', error);
+      setError(`Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return null;
     }
   };
@@ -68,7 +103,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     console.log('AuthProvider: Setting up auth listener');
     
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('AuthProvider: Error getting initial session:', error);
+        setError(`Session error: ${error.message}`);
+        setLoading(false);
+        return;
+      }
+      
       console.log('AuthProvider: Initial session:', !!session);
       setSession(session);
       setUser(session?.user ?? null);
@@ -90,6 +132,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('AuthProvider: Auth state changed:', event, !!session);
         setSession(session);
         setUser(session?.user ?? null);
+        setError(null);
         
         if (session?.user) {
           const userProfile = await fetchProfile(session.user.id);
@@ -110,6 +153,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error('AuthProvider: Error signing out:', error);
+      setError(`Sign out error: ${error.message}`);
     }
   };
 
@@ -118,6 +162,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     session,
     profile,
     loading,
+    error,
     signOut,
   };
 
