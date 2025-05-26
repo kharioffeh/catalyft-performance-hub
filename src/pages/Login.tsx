@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,6 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,8 +34,8 @@ const Login: React.FC = () => {
           title: "Success",
           description: "Signed in successfully!",
         });
-        // Let the AuthContext handle the redirect through RoleBasedRedirect
-        navigate('/');
+        // Don't manually navigate - let RoleBasedRedirect handle it
+        console.log('Login successful, AuthContext will handle redirect');
       }
     } catch (error) {
       toast({

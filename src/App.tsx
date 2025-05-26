@@ -32,12 +32,13 @@ const queryClient = new QueryClient({
   },
 });
 
-// Role-based redirect component
+// Enhanced role-based redirect component
 const RoleBasedRedirect = () => {
   const { profile, loading, user, error } = useAuth();
   
   console.log('RoleBasedRedirect - user:', !!user, 'profile:', profile, 'loading:', loading, 'error:', error);
   
+  // Show loading while authentication is being determined
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -49,31 +50,21 @@ const RoleBasedRedirect = () => {
     );
   }
   
+  // If no user, redirect to home
   if (!user) {
     console.log('RoleBasedRedirect: No user, redirecting to home');
     return <Navigate to="/home" replace />;
   }
   
-  if (error) {
-    console.log('RoleBasedRedirect: Error state, redirecting to home');
+  // If error or no profile after loading, redirect to home with error handling
+  if (error || !profile) {
+    console.log('RoleBasedRedirect: Error or no profile, redirecting to home');
     return <Navigate to="/home" replace />;
-  }
-  
-  if (!profile) {
-    // If we have a user but no profile yet, wait a bit more
-    console.log('RoleBasedRedirect: User exists but no profile, showing loading');
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Setting up your profile...</p>
-        </div>
-      </div>
-    );
   }
   
   console.log('RoleBasedRedirect: Redirecting based on role:', profile.role);
   
+  // Redirect based on role
   if (profile.role === 'coach') {
     return <Navigate to="/coach" replace />;
   } else {
