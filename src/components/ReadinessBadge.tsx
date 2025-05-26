@@ -3,12 +3,13 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { Badge } from '@/components/ui/badge';
 
 export const ReadinessBadge: React.FC = () => {
   const { profile } = useAuth();
 
-  const { data: readinessScore } = useQuery({
-    queryKey: ['readiness', profile?.id],
+  const { data: readinessData } = useQuery({
+    queryKey: ['readiness-badge', profile?.id],
     queryFn: async () => {
       if (!profile?.id) return null;
 
@@ -20,31 +21,24 @@ export const ReadinessBadge: React.FC = () => {
         .limit(1)
         .single();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') throw error;
       return data;
     },
-    enabled: !!profile?.id && profile?.role === 'athlete'
+    enabled: !!profile?.id
   });
 
-  if (!readinessScore || profile?.role !== 'athlete') {
-    return null;
-  }
+  if (!readinessData) return null;
 
-  const score = Math.round(readinessScore.score);
-  
-  // Gradient colors based on score
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'from-green-500 to-green-600';
-    if (score >= 60) return 'from-amber-500 to-orange-500';
-    return 'from-red-500 to-red-600';
+  const score = Math.round(readinessData.score);
+  const getVariant = (score: number) => {
+    if (score >= 80) return 'default';
+    if (score >= 60) return 'secondary';
+    return 'destructive';
   };
 
   return (
-    <div className={`
-      px-3 py-1 rounded-full text-white text-sm font-medium
-      bg-gradient-to-r ${getScoreColor(score)}
-    `}>
+    <Badge variant={getVariant(score)}>
       Readiness: {score}%
-    </div>
+    </Badge>
   );
 };

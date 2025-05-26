@@ -9,7 +9,8 @@ import {
   Dumbbell, 
   BrainCircuit, 
   Settings2, 
-  CreditCard 
+  CreditCard,
+  Users
 } from 'lucide-react';
 import { 
   Tooltip,
@@ -50,13 +51,19 @@ const navigationItems = [
     visibleTo: ['athlete', 'coach']
   },
   {
+    path: '/athletes',
+    label: 'Athletes',
+    icon: Users,
+    visibleTo: ['coach']
+  },
+  {
     path: '/settings',
     label: 'Settings',
     icon: Settings2,
     visibleTo: ['athlete', 'coach']
   },
   {
-    path: '/billing',
+    path: '/subscriptions',
     label: 'Billing',
     icon: CreditCard,
     visibleTo: ['coach']
@@ -74,14 +81,12 @@ export const Sidebar: React.FC = () => {
   return (
     <TooltipProvider>
       <div className="fixed left-0 top-0 h-screen w-20 bg-[#131313] flex flex-col items-center py-6 z-50">
-        {/* Logo */}
         <div className="mb-8">
           <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
             <span className="text-[#131313] font-bold text-xl">C</span>
           </div>
         </div>
 
-        {/* Navigation Items */}
         <nav className="flex-1 flex flex-col space-y-4">
           {visibleItems.map((item) => {
             const Icon = item.icon;
