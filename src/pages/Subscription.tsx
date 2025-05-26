@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AppLayout } from '@/components/AppLayout';
+import AppLayout from '@/components/AppLayout';
 import SubscriptionPlans from '@/components/SubscriptionPlans';
 
 const Subscription: React.FC = () => {

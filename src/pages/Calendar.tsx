@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AppLayout } from '@/components/AppLayout';
+import AppLayout from '@/components/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const Calendar: React.FC = () => {

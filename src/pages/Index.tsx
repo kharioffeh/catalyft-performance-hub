@@ -128,7 +128,7 @@ const Index = () => {
               <p><strong>Email:</strong> {user.email}</p>
               <p><strong>Name:</strong> {profile?.full_name || 'Not set'}</p>
               <p><strong>Role:</strong> {profile?.role || 'Not set'}</p>
-              <p><strong>Account created:</strong> {profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : 'Unknown'}</p>
+              <p><strong>Account created:</strong> {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}</p>
             </CardContent>
           </Card>
         </div>
