@@ -5,7 +5,7 @@ import { Navigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar } from 'lucide-react';
+import { Calendar, Users } from 'lucide-react';
 
 const Index = () => {
   const { user, profile, loading, signOut } = useAuth();
@@ -40,6 +40,14 @@ const Index = () => {
                   Calendar
                 </Button>
               </Link>
+              {profile?.role === 'coach' && (
+                <Link to="/athletes">
+                  <Button variant="outline" size="sm">
+                    <Users className="w-4 h-4 mr-2" />
+                    Athletes
+                  </Button>
+                </Link>
+              )}
               <span className="text-sm text-gray-600">
                 Welcome, {profile?.full_name || user.email}
               </span>
@@ -72,12 +80,20 @@ const Index = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Athletes</CardTitle>
-                <CardDescription>Manage your athletes</CardDescription>
+                <CardDescription>Manage your athletes and WHOOP integrations</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-600">
-                  View and manage your athletes' training programs.
-                </p>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">
+                    Add athletes and connect their WHOOP accounts for automatic recovery data sync.
+                  </p>
+                  <Link to="/athletes">
+                    <Button variant="outline" size="sm" className="w-full">
+                      <Users className="w-4 h-4 mr-2" />
+                      Manage Athletes
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           )}
