@@ -29,7 +29,7 @@ const Dashboard: React.FC = () => {
     enabled: !!profile?.id
   });
 
-  const { data: sleepData } = useQuery({
+  const { data: sleepData = [] } = useQuery({
     queryKey: ['sleep-7day', profile?.id],
     queryFn: async () => {
       if (!profile?.id) return [];
@@ -98,7 +98,7 @@ const Dashboard: React.FC = () => {
               <CardDescription>Sleep efficiency trend</CardDescription>
             </CardHeader>
             <CardContent>
-              {sleepData.length > 0 ? (
+              {sleepData && sleepData.length > 0 ? (
                 <div className="space-y-2">
                   <div className="text-2xl font-bold">
                     {Math.round(sleepData[sleepData.length - 1]?.value || 0)}%
