@@ -5,11 +5,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import AppLayout from "@/components/AppLayout";
 
-// Import new pages
+// Import pages
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -33,52 +33,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// Enhanced role-based redirect component
-const RoleBasedRedirect = () => {
-  const { profile, loading, user, error } = useAuth();
-  
-  console.log('RoleBasedRedirect - user:', !!user, 'profile:', profile, 'loading:', loading, 'error:', error);
-  
-  // Show loading while authentication is being determined
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-  
-  // If no user, redirect to login
-  if (!user) {
-    console.log('RoleBasedRedirect: No user, redirecting to login');
-    return <Navigate to="/login" replace />;
-  }
-  
-  // If error or no profile after loading, redirect to login with error handling
-  if (error) {
-    console.log('RoleBasedRedirect: Error detected, redirecting to login');
-    return <Navigate to="/login" replace />;
-  }
-
-  // If no profile but user exists, wait a bit longer or redirect to login
-  if (!profile) {
-    console.log('RoleBasedRedirect: No profile found, redirecting to login');
-    return <Navigate to="/login" replace />;
-  }
-  
-  console.log('RoleBasedRedirect: Redirecting based on role:', profile.role);
-  
-  // Redirect based on role
-  if (profile.role === 'coach') {
-    return <Navigate to="/coach" replace />;
-  } else {
-    return <Navigate to="/dashboard" replace />;
-  }
-};
-
 // Page transition wrapper
 const PageTransition = ({ children }: { children: React.ReactNode }) => (
   <motion.div
@@ -98,71 +52,22 @@ const AppRoutes = () => {
         <Route path="/home" element={<PageTransition><Home /></PageTransition>} />
         <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
         <Route path="/signup" element={<PageTransition><Signup /></PageTransition>} />
-        <Route 
-          path="/dashboard" 
-          element={
-            <ProtectedRoute>
-              <PageTransition><Dashboard /></PageTransition>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/coach" 
-          element={
-            <ProtectedRoute>
-              <PageTransition><CoachBoard /></PageTransition>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/calendar" 
-          element={
-            <ProtectedRoute>
-              <PageTransition><Calendar /></PageTransition>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/workout" 
-          element={
-            <ProtectedRoute>
-              <PageTransition><Workout /></PageTransition>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/chat" 
-          element={
-            <ProtectedRoute>
-              <PageTransition><Chat /></PageTransition>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/settings" 
-          element={
-            <ProtectedRoute>
-              <PageTransition><Settings /></PageTransition>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/athletes" 
-          element={
-            <ProtectedRoute>
-              <PageTransition><Athletes /></PageTransition>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/subscriptions" 
-          element={
-            <ProtectedRoute>
-              <PageTransition><Subscriptions /></PageTransition>
-            </ProtectedRoute>
-          } 
-        />
-        <Route path="/" element={<RoleBasedRedirect />} />
+        
+        {/* Protected Routes wrapped in AppLayout */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AppLayout />}>
+            <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
+            <Route path="/coach" element={<PageTransition><CoachBoard /></PageTransition>} />
+            <Route path="/calendar" element={<PageTransition><Calendar /></PageTransition>} />
+            <Route path="/workout" element={<PageTransition><Workout /></PageTransition>} />
+            <Route path="/chat" element={<PageTransition><Chat /></PageTransition>} />
+            <Route path="/settings" element={<PageTransition><Settings /></PageTransition>} />
+            <Route path="/athletes" element={<PageTransition><Athletes /></PageTransition>} />
+            <Route path="/subscriptions" element={<PageTransition><Subscriptions /></PageTransition>} />
+          </Route>
+        </Route>
+        
+        <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>

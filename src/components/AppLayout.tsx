@@ -1,18 +1,33 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { Sidebar } from '@/components/Sidebar';
 import { TopBar } from '@/components/TopBar';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
-interface AppLayoutProps {
-  children: React.ReactNode;
-}
+const AppLayout: React.FC = () => {
+  const { user, profile, loading, session } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
-  const { user, profile, loading, error, signOut, refreshProfile } = useAuth();
+  // Handle role-based redirects
+  useEffect(() => {
+    if (!loading && session && profile) {
+      const currentPath = location.pathname;
+      
+      // Redirect from root paths to appropriate dashboard
+      if (currentPath === '/' || currentPath === '/home') {
+        if (profile.role === 'coach') {
+          navigate('/coach', { replace: true });
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
+      }
+    }
+  }, [profile, loading, session, navigate, location.pathname]);
 
   if (loading) {
     return (
@@ -25,33 +40,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <div className="max-w-md w-full">
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Account Setup Error</AlertTitle>
-            <AlertDescription className="mt-2">
-              {error}
-            </AlertDescription>
-          </Alert>
-          <div className="mt-4 flex gap-2">
-            <Button onClick={refreshProfile} variant="outline" className="flex-1">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Retry
-            </Button>
-            <Button onClick={signOut} variant="outline" className="flex-1">
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null;
+  if (!session) {
+    return null; // ProtectedRoute will handle redirect
   }
 
   if (!profile) {
@@ -60,18 +50,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         <div className="max-w-md w-full text-center">
           <Alert>
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Setting Up Your Profile</AlertTitle>
+            <AlertTitle>Profile Not Found</AlertTitle>
             <AlertDescription className="mt-2">
-              We're creating your profile. This should only take a moment.
+              We couldn't find your profile. Please try refreshing or contact support.
             </AlertDescription>
           </Alert>
-          <div className="mt-4 flex gap-2">
-            <Button onClick={refreshProfile} variant="outline" className="flex-1">
+          <div className="mt-4">
+            <Button onClick={() => window.location.reload()} variant="outline">
               <RefreshCw className="w-4 h-4 mr-2" />
-              Retry
-            </Button>
-            <Button onClick={signOut} variant="outline" className="flex-1">
-              Sign Out
+              Refresh Page
             </Button>
           </div>
         </div>
@@ -85,9 +72,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       <div className="flex-1 ml-20">
         <TopBar />
         <main className="p-6">
-          {children}
+          <Outlet />
         </main>
       </div>
     </div>
   );
 };
+
+export default AppLayout;

@@ -1,61 +1,99 @@
 
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from '@/hooks/use-toast';
+import React, { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { supabase } from '@/lib/supabase'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { toast } from '@/hooks/use-toast'
+
+interface SignupForm {
+  fullName: string
+  email: string
+  password: string
+  role: 'athlete' | 'coach'
+}
 
 const Signup: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [role, setRole] = useState('');
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
+  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<SignupForm>()
+  
+  const watchedRole = watch('role')
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const onSubmit = async (data: SignupForm) => {
+    setLoading(true)
 
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
+      const { data: authData, error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
         options: {
           data: {
-            full_name: fullName,
-            role: role,
+            full_name: data.fullName,
+            role: data.role,
           },
         },
-      });
+      })
 
       if (error) {
         toast({
           title: "Sign up failed",
           description: error.message,
           variant: "destructive",
-        });
-      } else {
+        })
+        return
+      }
+
+      if (authData.user) {
+        // Insert profile data
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              id: authData.user.id,
+              email: data.email,
+              full_name: data.fullName,
+              role: data.role,
+            }
+          ])
+
+        if (profileError) {
+          console.error('Error creating profile:', profileError)
+          toast({
+            title: "Profile creation failed",
+            description: "Account created but profile setup failed. Please contact support.",
+            variant: "destructive",
+          })
+          return
+        }
+
         toast({
           title: "Account created!",
           description: "Your account has been created successfully.",
-        });
-        navigate('/');
+        })
+
+        // Navigate based on role
+        if (data.role === 'coach') {
+          navigate('/coach')
+        } else {
+          navigate('/dashboard')
+        }
       }
     } catch (error) {
+      console.error('Signup error:', error)
       toast({
         title: "Error",
         description: "An unexpected error occurred",
         variant: "destructive",
-      });
+      })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
@@ -65,21 +103,22 @@ const Signup: React.FC = () => {
           <CardDescription>Join Catalyft AI today</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="fullName">Full Name</Label>
               <Input
                 id="fullName"
                 type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                {...register('fullName', { required: 'Full name is required' })}
                 placeholder="Enter your full name"
-                required
               />
+              {errors.fullName && (
+                <p className="text-sm text-red-600">{errors.fullName.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
-              <Select value={role} onValueChange={setRole} required>
+              <Select onValueChange={(value) => setValue('role', value as 'athlete' | 'coach')} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select your role" />
                 </SelectTrigger>
@@ -88,31 +127,38 @@ const Signup: React.FC = () => {
                   <SelectItem value="coach">Coach</SelectItem>
                 </SelectContent>
               </Select>
+              {!watchedRole && (
+                <p className="text-sm text-red-600">Role is required</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                {...register('email', { required: 'Email is required' })}
                 placeholder="Enter your email"
-                required
               />
+              {errors.email && (
+                <p className="text-sm text-red-600">{errors.email.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                {...register('password', { 
+                  required: 'Password is required',
+                  minLength: { value: 6, message: 'Password must be at least 6 characters' }
+                })}
                 placeholder="Create a password"
-                required
-                minLength={6}
               />
+              {errors.password && (
+                <p className="text-sm text-red-600">{errors.password.message}</p>
+              )}
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading || !watchedRole}>
               {loading ? 'Creating account...' : 'Create Account'}
             </Button>
           </form>
@@ -128,7 +174,7 @@ const Signup: React.FC = () => {
         </CardContent>
       </Card>
     </div>
-  );
-};
+  )
+}
 
-export default Signup;
+export default Signup
