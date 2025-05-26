@@ -18,19 +18,19 @@ interface LoginForm {
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const { profile } = useAuth()
+  const { profile, session } = useAuth()
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>()
 
   // Redirect if already logged in
   React.useEffect(() => {
-    if (profile) {
+    if (session && profile) {
       if (profile.role === 'coach') {
         navigate('/coach')
       } else {
         navigate('/dashboard')
       }
     }
-  }, [profile, navigate])
+  }, [profile, session, navigate])
 
   const onSubmit = async (data: LoginForm) => {
     setLoading(true)
@@ -51,29 +51,21 @@ const Login: React.FC = () => {
       }
 
       if (authData.user) {
-        // Fetch user profile to determine role
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', authData.user.id)
-          .single()
-
-        if (profileError) {
-          console.error('Error fetching profile:', profileError)
-          navigate('/dashboard') // Default redirect
-        } else {
-          // Navigate based on role
-          if (profileData.role === 'coach') {
-            navigate('/coach')
-          } else {
-            navigate('/dashboard')
-          }
-        }
-
+        // Add loading spinner while profile is being fetched
         toast({
           title: "Success",
-          description: "Signed in successfully!",
+          description: "Signed in successfully! Redirecting...",
         })
+
+        // Wait for profile to be fetched by AuthContext
+        const checkProfile = setInterval(() => {
+          // This will be handled by the useEffect above once profile is loaded
+        }, 100)
+
+        // Clear interval after 5 seconds to prevent infinite checking
+        setTimeout(() => {
+          clearInterval(checkProfile)
+        }, 5000)
       }
     } catch (error) {
       console.error('Login error:', error)
@@ -85,6 +77,18 @@ const Login: React.FC = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Show loading state while checking authentication
+  if (session === undefined) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    )
   }
 
   return (

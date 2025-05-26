@@ -8,6 +8,7 @@ interface Profile {
   email: string
   full_name: string | null
   role: 'coach' | 'athlete'
+  created_at?: string
 }
 
 interface AuthContextType {
@@ -63,7 +64,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }
 
   useEffect(() => {
-    // Get initial session
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email)
+        setSession(session)
+        setUser(session?.user ?? null)
+        
+        // Defer profile fetching to avoid blocking auth state updates
+        if (session?.user) {
+          setTimeout(() => {
+            fetchProfile(session.user.id).then((profileData) => {
+              setProfile(profileData)
+              setLoading(false)
+            })
+          }, 0)
+        } else {
+          setProfile(null)
+          setLoading(false)
+        }
+      }
+    )
+
+    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       setUser(session?.user ?? null)
@@ -78,23 +101,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setLoading(false)
       }
     })
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email)
-        setSession(session)
-        setUser(session?.user ?? null)
-        
-        if (session?.user) {
-          const profileData = await fetchProfile(session.user.id)
-          setProfile(profileData)
-        } else {
-          setProfile(null)
-        }
-        setLoading(false)
-      }
-    )
 
     return () => subscription.unsubscribe()
   }, [])
