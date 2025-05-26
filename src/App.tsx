@@ -34,9 +34,9 @@ const queryClient = new QueryClient({
 
 // Role-based redirect component
 const RoleBasedRedirect = () => {
-  const { profile, loading, user } = useAuth();
+  const { profile, loading, user, error } = useAuth();
   
-  console.log('RoleBasedRedirect - user:', !!user, 'profile:', profile, 'loading:', loading);
+  console.log('RoleBasedRedirect - user:', !!user, 'profile:', profile, 'loading:', loading, 'error:', error);
   
   if (loading) {
     return (
@@ -50,11 +50,18 @@ const RoleBasedRedirect = () => {
   }
   
   if (!user) {
+    console.log('RoleBasedRedirect: No user, redirecting to home');
+    return <Navigate to="/home" replace />;
+  }
+  
+  if (error) {
+    console.log('RoleBasedRedirect: Error state, redirecting to home');
     return <Navigate to="/home" replace />;
   }
   
   if (!profile) {
     // If we have a user but no profile yet, wait a bit more
+    console.log('RoleBasedRedirect: User exists but no profile, showing loading');
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -64,6 +71,8 @@ const RoleBasedRedirect = () => {
       </div>
     );
   }
+  
+  console.log('RoleBasedRedirect: Redirecting based on role:', profile.role);
   
   if (profile.role === 'coach') {
     return <Navigate to="/coach" replace />;

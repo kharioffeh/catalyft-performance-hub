@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 interface Profile {
   id: string;
@@ -19,6 +20,7 @@ interface AuthContextType {
   loading: boolean;
   error: string | null;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,6 +46,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   console.log('AuthProvider: Current state - user:', !!user, 'profile:', !!profile, 'loading:', loading, 'error:', error);
 
+  const createProfile = async (userId: string, userEmail: string, userMetadata: any): Promise<Profile | null> => {
+    try {
+      console.log('AuthProvider: Creating new profile for user:', userId);
+      
+      const newProfileData = {
+        id: userId,
+        email: userEmail,
+        full_name: userMetadata?.full_name || userMetadata?.name || null,
+        role: (userMetadata?.role || 'athlete') as 'coach' | 'athlete'
+      };
+
+      const { data: newProfile, error: createError } = await supabase
+        .from('profiles')
+        .insert([newProfileData])
+        .select()
+        .single();
+      
+      if (createError) {
+        console.error('AuthProvider: Error creating profile:', createError);
+        throw createError;
+      }
+
+      console.log('AuthProvider: Profile created successfully:', newProfile);
+      return newProfile as Profile;
+    } catch (error) {
+      console.error('AuthProvider: Failed to create profile:', error);
+      return null;
+    }
+  };
+
   const fetchProfile = async (userId: string): Promise<Profile | null> => {
     try {
       console.log('AuthProvider: Fetching profile for user:', userId);
@@ -63,31 +95,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           console.log('AuthProvider: Profile not found, attempting to create...');
           const { data: userData } = await supabase.auth.getUser();
           if (userData.user) {
-            const { data: newProfile, error: createError } = await supabase
-              .from('profiles')
-              .insert([
-                {
-                  id: userId,
-                  email: userData.user.email || '',
-                  full_name: userData.user.user_metadata?.full_name || null,
-                  role: userData.user.user_metadata?.role || 'athlete'
-                }
-              ])
-              .select()
-              .single();
-            
-            if (createError) {
-              console.error('AuthProvider: Error creating profile:', createError);
-              setError(`Profile creation error: ${createError.message}`);
-              return null;
-            } else {
-              console.log('AuthProvider: Profile created successfully:', newProfile);
-              return newProfile as Profile;
-            }
+            const newProfile = await createProfile(
+              userId, 
+              userData.user.email || '', 
+              userData.user.user_metadata || {}
+            );
+            return newProfile;
           }
-        } else {
-          setError(`Profile fetch error: ${error.message}`);
         }
+        
+        setError(`Profile fetch error: ${error.message}`);
         return null;
       }
 
@@ -97,6 +114,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('AuthProvider: Unexpected error fetching profile:', error);
       setError(`Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return null;
+    }
+  };
+
+  const refreshProfile = async () => {
+    if (user) {
+      const userProfile = await fetchProfile(user.id);
+      setProfile(userProfile);
     }
   };
 
@@ -116,6 +140,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setError(null);
         
         if (session?.user) {
+          setLoading(true);
           const userProfile = await fetchProfile(session.user.id);
           if (mounted) {
             setProfile(userProfile);
@@ -182,6 +207,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (error) {
       console.error('AuthProvider: Error signing out:', error);
       setError(`Sign out error: ${error.message}`);
+    } else {
+      // Reset all state on successful sign out
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      setError(null);
     }
   };
 
@@ -192,6 +223,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loading,
     error,
     signOut,
+    refreshProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

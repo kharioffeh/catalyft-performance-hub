@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -30,19 +31,12 @@ const Login: React.FC = () => {
           variant: "destructive",
         });
       } else if (data.user) {
-        // Fetch user profile to determine role
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', data.user.id)
-          .single();
-
-        // Redirect based on role
-        if (profile?.role === 'coach') {
-          navigate('/coach');
-        } else {
-          navigate('/dashboard');
-        }
+        toast({
+          title: "Success",
+          description: "Signed in successfully!",
+        });
+        // Let the AuthContext handle the redirect through RoleBasedRedirect
+        navigate('/');
       }
     } catch (error) {
       toast({
@@ -58,6 +52,9 @@ const Login: React.FC = () => {
   const handleGoogleSignIn = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`
+      }
     });
 
     if (error) {
@@ -118,18 +115,7 @@ const Login: React.FC = () => {
               type="button"
               variant="outline"
               className="w-full mt-4"
-              onClick={async () => {
-                const { error } = await supabase.auth.signInWithOAuth({
-                  provider: 'google',
-                });
-                if (error) {
-                  toast({
-                    title: "Google sign in failed",
-                    description: error.message,
-                    variant: "destructive",
-                  });
-                }
-              }}
+              onClick={handleGoogleSignIn}
             >
               Sign in with Google
             </Button>

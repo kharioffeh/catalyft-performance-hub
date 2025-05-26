@@ -5,21 +5,21 @@ import { Sidebar } from '@/components/Sidebar';
 import { TopBar } from '@/components/TopBar';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 
 interface AppLayoutProps {
   children: React.ReactNode;
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
-  const { user, profile, loading, error, signOut } = useAuth();
+  const { user, profile, loading, error, signOut, refreshProfile } = useAuth();
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-gray-600">Loading your account...</p>
         </div>
       </div>
     );
@@ -31,16 +31,17 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         <div className="max-w-md w-full">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Authentication Error</AlertTitle>
+            <AlertTitle>Account Setup Error</AlertTitle>
             <AlertDescription className="mt-2">
               {error}
             </AlertDescription>
           </Alert>
           <div className="mt-4 flex gap-2">
-            <Button onClick={() => window.location.reload()} variant="outline">
+            <Button onClick={refreshProfile} variant="outline" className="flex-1">
+              <RefreshCw className="w-4 h-4 mr-2" />
               Retry
             </Button>
-            <Button onClick={signOut} variant="outline">
+            <Button onClick={signOut} variant="outline" className="flex-1">
               Sign Out
             </Button>
           </div>
@@ -51,6 +52,31 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   if (!user) {
     return null;
+  }
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="max-w-md w-full text-center">
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Setting Up Your Profile</AlertTitle>
+            <AlertDescription className="mt-2">
+              We're creating your profile. This should only take a moment.
+            </AlertDescription>
+          </Alert>
+          <div className="mt-4 flex gap-2">
+            <Button onClick={refreshProfile} variant="outline" className="flex-1">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Retry
+            </Button>
+            <Button onClick={signOut} variant="outline" className="flex-1">
+              Sign Out
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
