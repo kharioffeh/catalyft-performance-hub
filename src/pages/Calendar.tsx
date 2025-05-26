@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -64,6 +63,51 @@ const Calendar = () => {
       return data as Session[];
     },
   });
+
+  // Set up realtime listener for sessions changes
+  useEffect(() => {
+    if (!profile) return;
+
+    const channel = supabase
+      .channel(`coach_${profile.id}_calendar`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'sessions'
+        },
+        (payload) => {
+          console.log('Session change detected:', payload);
+          
+          // Invalidate and refetch sessions data
+          queryClient.invalidateQueries({ queryKey: ['sessions'] });
+          
+          // Show toast notification for the change
+          if (payload.eventType === 'INSERT') {
+            toast({
+              title: "New Session Added",
+              description: "A new training session has been scheduled",
+            });
+          } else if (payload.eventType === 'UPDATE') {
+            toast({
+              title: "Session Updated",
+              description: "A training session has been modified",
+            });
+          } else if (payload.eventType === 'DELETE') {
+            toast({
+              title: "Session Deleted",
+              description: "A training session has been removed",
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile, queryClient]);
 
   const getEventColor = (type: string) => {
     switch (type) {
