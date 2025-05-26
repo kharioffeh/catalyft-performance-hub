@@ -6,14 +6,16 @@ import SubscriptionPlans from '@/components/SubscriptionPlans';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { useIsMobile } from '@/hooks/useBreakpoint';
 
 const Subscriptions: React.FC = () => {
   const { profile } = useAuth();
+  const isMobile = useIsMobile();
 
   if (profile?.role !== 'coach') {
     return (
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold text-gray-900">Subscriptions</h1>
+      <div className="space-responsive">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Subscriptions</h1>
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
@@ -25,20 +27,20 @@ const Subscriptions: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-900">Subscriptions & Billing</h1>
+    <div className="space-responsive">
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Subscriptions & Billing</h1>
       
       <Tabs defaultValue="current" className="w-full">
-        <TabsList>
-          <TabsTrigger value="current">Current Subscription</TabsTrigger>
-          <TabsTrigger value="plans">Available Plans</TabsTrigger>
+        <TabsList className={`${isMobile ? 'w-full' : ''} grid grid-cols-2`}>
+          <TabsTrigger value="current" className="text-sm">Current Subscription</TabsTrigger>
+          <TabsTrigger value="plans" className="text-sm">Available Plans</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="current" className="space-y-6">
+        <TabsContent value="current" className="space-responsive mt-4">
           <SubscriptionManagement />
         </TabsContent>
         
-        <TabsContent value="plans" className="space-y-6">
+        <TabsContent value="plans" className="space-responsive mt-4">
           <SubscriptionPlans />
         </TabsContent>
       </Tabs>

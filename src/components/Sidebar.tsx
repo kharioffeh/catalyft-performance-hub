@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIsMobile } from '@/hooks/useBreakpoint';
 import { 
   Activity, 
   ShieldAlert, 
@@ -73,10 +74,16 @@ const navigationItems = [
 export const Sidebar: React.FC = () => {
   const { profile } = useAuth();
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   const visibleItems = navigationItems.filter(item => 
     item.visibleTo.includes(profile?.role || 'athlete')
   );
+
+  // Hide sidebar on mobile
+  if (isMobile) {
+    return null;
+  }
 
   return (
     <TooltipProvider>
@@ -98,7 +105,7 @@ export const Sidebar: React.FC = () => {
                   <Link
                     to={item.path}
                     className={`
-                      w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200
+                      w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 active:opacity-80
                       ${isActive 
                         ? 'bg-white text-[#131313] shadow-sm' 
                         : 'text-gray-400 hover:text-white hover:bg-gray-800'

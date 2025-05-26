@@ -1,9 +1,10 @@
-
 import React, { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { Sidebar } from '@/components/Sidebar';
+import { MobileNav } from '@/components/MobileNav';
 import { TopBar } from '@/components/TopBar';
+import { useIsMobile } from '@/hooks/useBreakpoint';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, RefreshCw } from 'lucide-react';
@@ -12,6 +13,7 @@ const AppLayout: React.FC = () => {
   const { user, profile, loading, session } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   // Handle role-based redirects
   useEffect(() => {
@@ -68,13 +70,18 @@ const AppLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F8F8] flex">
-      <Sidebar />
-      <div className="flex-1 ml-20">
+      {/* Desktop Sidebar */}
+      {!isMobile && <Sidebar />}
+      
+      <div className={`flex-1 ${!isMobile ? 'ml-20' : ''} ${isMobile ? 'pb-16' : ''}`}>
         <TopBar />
-        <main className="p-6">
+        <main className="p-4 md:p-6">
           <Outlet />
         </main>
       </div>
+      
+      {/* Mobile Navigation */}
+      {isMobile && <MobileNav />}
     </div>
   );
 };
