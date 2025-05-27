@@ -136,13 +136,28 @@ serve(async (req) => {
       });
     }
 
+    // Get coach name for email customization
+    const { data: profileData } = await supabaseAdmin
+      .from('profiles')
+      .select('full_name')
+      .eq('email', userData.user.email)
+      .single();
+
+    const coachName = profileData?.full_name || 'Your coach';
+
+    // Determine redirect URL based on environment
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const isLocal = supabaseUrl.includes('localhost') || supabaseUrl.includes('127.0.0.1');
+    const redirectTo = isLocal ? "http://localhost:5173/invite-complete" : "https://catalyft.app/invite-complete";
+
     // Send invitation email using Supabase Auth
     const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-      redirectTo: "https://catalyft.app/download",
+      redirectTo,
       data: { 
         provisional: true,
         coach_id: coachId,
-        athlete_name: name
+        athlete_name: name,
+        coach_name: coachName
       }
     });
 

@@ -24,6 +24,7 @@ import Athletes from "./pages/Athletes";
 import Subscriptions from "./pages/Subscriptions";
 import NotFound from "./pages/NotFound";
 import Subscription from "./pages/Subscription";
+import InviteComplete from "./pages/InviteComplete";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,6 +55,7 @@ const AppRoutes = () => {
         <Route path="/home" element={<PageTransition><Home /></PageTransition>} />
         <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
         <Route path="/signup" element={<PageTransition><Signup /></PageTransition>} />
+        <Route path="/invite-complete" element={<PageTransition><InviteComplete /></PageTransition>} />
         
         {/* Protected Routes wrapped in AppLayout */}
         <Route element={<ProtectedRoute />}>
