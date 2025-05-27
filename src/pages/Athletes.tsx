@@ -2,7 +2,9 @@
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { User, AlertCircle, RefreshCw } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AthleteDialogs } from '@/components/Athletes/AthleteDialogs';
 import { AthletesTable } from '@/components/Athletes/AthletesTable';
 import { AthleteInviteForm } from '@/components/Athletes/AthleteInviteForm';
@@ -14,6 +16,7 @@ const Athletes: React.FC = () => {
     athletes,
     isLoading,
     coachData,
+    coachError,
     isAddDialogOpen,
     setIsAddDialogOpen,
     editingAthlete,
@@ -28,6 +31,7 @@ const Athletes: React.FC = () => {
     updateAthleteMutation
   } = useAthletes();
 
+  // Check if user has the right role
   if (profile?.role !== 'coach') {
     return (
       <div className="space-y-6">
@@ -43,8 +47,31 @@ const Athletes: React.FC = () => {
     );
   }
 
+  // Show error if coach lookup failed
+  if (coachError) {
+    console.error('Coach error in Athletes page:', coachError);
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold text-gray-900">Athletes</h1>
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Coach Setup Required</AlertTitle>
+          <AlertDescription className="mt-2">
+            Your coach profile needs to be set up. Please contact support or try refreshing the page.
+            <div className="mt-4">
+              <Button onClick={() => window.location.reload()} variant="outline" size="sm">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh Page
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   // Show loading state while fetching coach data
-  if (!coachData) {
+  if (isLoading) {
     return (
       <div className="space-y-6">
         <h1 className="text-3xl font-bold text-gray-900">Athletes</h1>
@@ -52,10 +79,32 @@ const Athletes: React.FC = () => {
           <CardContent className="pt-6">
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-2 text-gray-500">Loading coach data...</p>
+              <p className="mt-2 text-gray-500">Loading...</p>
             </div>
           </CardContent>
         </Card>
+      </div>
+    );
+  }
+
+  // Show message if no coach record found
+  if (!coachData) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold text-gray-900">Athletes</h1>
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Coach Profile Not Found</AlertTitle>
+          <AlertDescription className="mt-2">
+            We couldn't find your coach profile. This might be because your account hasn't been set up as a coach yet.
+            <div className="mt-4">
+              <Button onClick={() => window.location.reload()} variant="outline" size="sm">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh Page
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }
@@ -91,7 +140,7 @@ const Athletes: React.FC = () => {
         <CardContent>
           <AthletesTable
             athletes={athletes}
-            isLoading={isLoading}
+            isLoading={false}
             onEdit={handleEdit}
             onDelete={handleDelete}
           />
