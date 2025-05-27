@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { useDomainRedirect } from "@/hooks/useDomainRedirect";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AppLayout from "@/components/AppLayout";
 
@@ -36,6 +37,15 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// Check for APP_URL environment variable and log warning if missing
+if (!import.meta.env.VITE_APP_URL) {
+  console.error(
+    '%c⚠️ MISSING APP_URL ENVIRONMENT VARIABLE ⚠️',
+    'color: white; background-color: red; font-size: 16px; font-weight: bold; padding: 8px;',
+    '\nThe VITE_APP_URL environment variable is not set. This may cause issues with authentication redirects and other functionality.'
+  );
+}
 
 // Page transition wrapper
 const PageTransition = ({ children }: { children: React.ReactNode }) => (
@@ -81,18 +91,23 @@ const AppRoutes = () => {
   );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  // Global domain redirect hook
+  useDomainRedirect();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

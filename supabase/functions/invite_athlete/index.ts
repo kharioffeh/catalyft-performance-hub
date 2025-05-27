@@ -150,8 +150,9 @@ serve(async (req) => {
 
     const coachName = profileData?.full_name || 'Your coach';
 
-    // Set explicit redirect URL with finish-signup path
-    const redirectTo = (Deno.env.get('APP_URL') ?? 'http://localhost:3000') + '/finish-signup';
+    // Use APP_URL environment variable for production domain
+    const appUrl = Deno.env.get('APP_URL') ?? 'https://catalyft.app';
+    const redirectTo = `${appUrl}/finish-signup`;
     
     logStep("Using redirect URL", { redirectTo });
 
