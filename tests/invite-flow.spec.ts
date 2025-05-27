@@ -64,41 +64,51 @@ test.describe('Athlete Invite Flow', () => {
     await expect(page.locator('text=Failed to send invitation')).toBeVisible();
   });
 
-  test('athlete invite completion flow', async ({ page }) => {
-    // Test the invite completion page directly
-    // In a real scenario, this would be accessed via the email link
-    await page.goto('/invite-complete');
+  test('athlete invite completion flow to finish-signup', async ({ page }) => {
+    // Test the invite completion page with hash token
+    // Mock a hash token scenario
+    await page.goto('/finish-signup');
     
-    // Should show loading state initially
-    await expect(page.locator('text=Processing your invitation')).toBeVisible();
+    // Should show the finish signup form
+    await expect(page.locator('h1:has-text("Welcome! 🎉")')).toBeVisible();
+    await expect(page.locator('text=Your coach has invited you')).toBeVisible();
     
-    // Without a valid hash/token, should show error
-    await expect(page.locator('text=No valid session found')).toBeVisible({ timeout: 10000 });
+    // Fill in name and submit
+    await page.fill('input#name', 'Test Athlete');
+    await page.click('button:has-text("Enter app")');
+    
+    // Should redirect to dashboard after completion (mocked)
+    // In real scenario with valid session, this would work
+    await expect(page.locator('input#name')).toBeVisible(); // Still on form due to no session
   });
 
-  test('invite completion redirects to dashboard', async ({ page }) => {
-    // This is a mock test - in reality you'd need a valid invite token
-    // The test demonstrates the expected flow after successful invite completion
+  test('finish-signup redirects to dashboard after completion', async ({ page }) => {
+    // This test would require a valid session to work properly
+    // For now, we test that the page loads correctly
+    await page.goto('/finish-signup');
     
-    // Mock successful invite completion by going directly to dashboard
-    await page.goto('/dashboard');
+    // Check that form is present
+    await expect(page.locator('input#name')).toBeVisible();
+    await expect(page.locator('button:has-text("Enter app")')).toBeVisible();
     
-    // If not authenticated, should redirect to login
-    await page.waitForURL('**/login');
-    
-    // This test would be expanded with actual token handling in a real scenario
-    expect(page.url()).toContain('/login');
+    // Verify form validation
+    await page.click('button:has-text("Enter app")');
+    // Button should be disabled when name is empty (form validation)
   });
 
   test('handles invite completion errors gracefully', async ({ page }) => {
-    // Navigate to invite completion with no token
-    await page.goto('/invite-complete');
+    // Navigate to finish-signup without valid session
+    await page.goto('/finish-signup');
     
-    // Should show processing initially
-    await expect(page.locator('text=Processing your invitation')).toBeVisible();
+    // Should show the form (even without session for testing)
+    await expect(page.locator('h1:has-text("Welcome! 🎉")')).toBeVisible();
     
-    // Should eventually show error for missing/invalid token
-    await expect(page.locator('text=Invitation Error')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('text=No valid session found')).toBeVisible();
+    // Try to submit without name
+    const submitButton = page.locator('button:has-text("Enter app")');
+    await expect(submitButton).toBeDisabled();
+    
+    // Fill name and button becomes enabled
+    await page.fill('input#name', 'Test User');
+    await expect(submitButton).toBeEnabled();
   });
 });

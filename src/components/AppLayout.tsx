@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
@@ -5,6 +6,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { MobileNav } from '@/components/MobileNav';
 import { TopBar } from '@/components/TopBar';
 import { useIsMobile } from '@/hooks/useBreakpoint';
+import { useSupabaseHash } from '@/hooks/useSupabaseHash';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, RefreshCw } from 'lucide-react';
@@ -14,6 +16,9 @@ const AppLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
+
+  // Use global hash handler
+  useSupabaseHash();
 
   // Handle role-based redirects
   useEffect(() => {

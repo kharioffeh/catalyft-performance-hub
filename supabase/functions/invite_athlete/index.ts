@@ -129,8 +129,7 @@ serve(async (req) => {
     if (existingInvite) {
       if (existingInvite.status === 'pending') {
         logStep("Resending existing invite", { email });
-        // Instead of returning an error, we'll resend the invite
-        // by continuing with the flow - this will trigger a new email
+        // Continue with flow to resend
       } else if (existingInvite.status === 'accepted') {
         logStep("Invite already accepted", { email });
         return new Response(JSON.stringify({ 
@@ -151,11 +150,9 @@ serve(async (req) => {
 
     const coachName = profileData?.full_name || 'Your coach';
 
-    // Determine redirect URL based on environment
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-    const isLocal = supabaseUrl.includes('localhost') || supabaseUrl.includes('127.0.0.1');
-    const redirectTo = isLocal ? "http://localhost:5173/invite-complete" : "https://catalyft.app/invite-complete";
-
+    // Set explicit redirect URL with finish-signup path
+    const redirectTo = (Deno.env.get('APP_URL') ?? 'http://localhost:3000') + '/finish-signup';
+    
     logStep("Using redirect URL", { redirectTo });
 
     // Send invitation email using Supabase Auth
@@ -188,7 +185,7 @@ serve(async (req) => {
         .from('athlete_invites')
         .update({
           athlete_name: name,
-          created_at: new Date().toISOString() // Update timestamp for resend
+          created_at: new Date().toISOString()
         })
         .eq('id', existingInvite.id)
         .select()
