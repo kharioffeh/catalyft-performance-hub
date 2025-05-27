@@ -126,14 +126,20 @@ serve(async (req) => {
       .eq('coach_uuid', coachId)
       .single();
 
-    if (existingInvite && existingInvite.status === 'pending') {
-      logStep("Invite already exists", { email });
-      return new Response(JSON.stringify({ 
-        error: "An invitation has already been sent to this email address" 
-      }), {
-        status: 409,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    if (existingInvite) {
+      if (existingInvite.status === 'pending') {
+        logStep("Resending existing invite", { email });
+        // Instead of returning an error, we'll resend the invite
+        // by continuing with the flow - this will trigger a new email
+      } else if (existingInvite.status === 'accepted') {
+        logStep("Invite already accepted", { email });
+        return new Response(JSON.stringify({ 
+          error: "This athlete has already accepted an invitation" 
+        }), {
+          status: 409,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     // Get coach name for email customization
@@ -173,37 +179,71 @@ serve(async (req) => {
 
     logStep("Invite email sent", { inviteData });
 
-    // Insert invitation record
-    const { data: insertData, error: insertError } = await supabaseAdmin
-      .from('athlete_invites')
-      .insert({
-        coach_uuid: coachId,
-        email: email.toLowerCase(),
-        athlete_name: name,
-        status: 'pending'
-      })
-      .select()
-      .single();
+    // Insert or update invitation record
+    if (existingInvite && existingInvite.status === 'pending') {
+      // Update existing invite
+      const { data: updateData, error: updateError } = await supabaseAdmin
+        .from('athlete_invites')
+        .update({
+          athlete_name: name,
+          created_at: new Date().toISOString() // Update timestamp for resend
+        })
+        .eq('id', existingInvite.id)
+        .select()
+        .single();
 
-    if (insertError) {
-      logStep("Failed to insert invite record", { error: insertError });
+      if (updateError) {
+        logStep("Failed to update invite record", { error: updateError });
+        return new Response(JSON.stringify({ 
+          error: `Failed to update invitation: ${updateError.message}` 
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      logStep("Invite record updated", { updateData });
+
       return new Response(JSON.stringify({ 
-        error: `Failed to record invitation: ${insertError.message}` 
+        status: "resent",
+        invitation_id: updateData.id
       }), {
-        status: 500,
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    } else {
+      // Insert new invitation record
+      const { data: insertData, error: insertError } = await supabaseAdmin
+        .from('athlete_invites')
+        .insert({
+          coach_uuid: coachId,
+          email: email.toLowerCase(),
+          athlete_name: name,
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        logStep("Failed to insert invite record", { error: insertError });
+        return new Response(JSON.stringify({ 
+          error: `Failed to record invitation: ${insertError.message}` 
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      logStep("Invite record created", { insertData });
+
+      return new Response(JSON.stringify({ 
+        status: "sent",
+        invitation_id: insertData.id
+      }), {
+        status: 201,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-
-    logStep("Invite record created", { insertData });
-
-    return new Response(JSON.stringify({ 
-      status: "sent",
-      invitation_id: insertData.id
-    }), {
-      status: 201,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
