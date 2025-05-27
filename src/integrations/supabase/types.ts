@@ -58,6 +58,13 @@ export type Database = {
             foreignKeyName: "assigned_workouts_athlete_uuid_fkey"
             columns: ["athlete_uuid"]
             isOneToOne: false
+            referencedRelation: "vw_coach_athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assigned_workouts_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
             referencedRelation: "vw_risk_board"
             referencedColumns: ["athlete_id"]
           },
@@ -286,6 +293,13 @@ export type Database = {
             foreignKeyName: "readiness_scores_athlete_uuid_fkey"
             columns: ["athlete_uuid"]
             isOneToOne: false
+            referencedRelation: "vw_coach_athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "readiness_scores_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
             referencedRelation: "vw_risk_board"
             referencedColumns: ["athlete_id"]
           },
@@ -331,6 +345,13 @@ export type Database = {
             columns: ["athlete_uuid"]
             isOneToOne: false
             referencedRelation: "athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sessions_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "vw_coach_athletes"
             referencedColumns: ["id"]
           },
           {
@@ -469,6 +490,13 @@ export type Database = {
             foreignKeyName: "wearable_raw_athlete_uuid_fkey"
             columns: ["athlete_uuid"]
             isOneToOne: false
+            referencedRelation: "vw_coach_athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wearable_raw_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
             referencedRelation: "vw_risk_board"
             referencedColumns: ["athlete_id"]
           },
@@ -520,6 +548,13 @@ export type Database = {
             foreignKeyName: "whoop_tokens_athlete_uuid_fkey"
             columns: ["athlete_uuid"]
             isOneToOne: true
+            referencedRelation: "vw_coach_athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whoop_tokens_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: true
             referencedRelation: "vw_risk_board"
             referencedColumns: ["athlete_id"]
           },
@@ -553,6 +588,13 @@ export type Database = {
             columns: ["athlete_uuid"]
             isOneToOne: false
             referencedRelation: "athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workout_blocks_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "vw_coach_athletes"
             referencedColumns: ["id"]
           },
           {
@@ -722,6 +764,27 @@ export type Database = {
       }
     }
     Views: {
+      vw_coach_athletes: {
+        Row: {
+          coach_uuid: string | null
+          created_at: string | null
+          dob: string | null
+          id: string | null
+          name: string | null
+          readiness: number | null
+          sex: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "athletes_coach_uuid_fkey"
+            columns: ["coach_uuid"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vw_load_metrics: {
         Row: {
           acute_load: number | null
@@ -737,6 +800,13 @@ export type Database = {
             columns: ["athlete_uuid"]
             isOneToOne: false
             referencedRelation: "athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wearable_raw_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "vw_coach_athletes"
             referencedColumns: ["id"]
           },
           {
