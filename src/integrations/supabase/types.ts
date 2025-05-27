@@ -70,6 +70,42 @@ export type Database = {
           },
         ]
       }
+      athlete_invites: {
+        Row: {
+          accepted_at: string | null
+          athlete_name: string | null
+          coach_uuid: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          notes: string | null
+          status: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          athlete_name?: string | null
+          coach_uuid: string
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          athlete_name?: string | null
+          coach_uuid?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       athletes: {
         Row: {
           coach_uuid: string | null
@@ -107,6 +143,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      coach_usage: {
+        Row: {
+          athlete_count: number
+          coach_uuid: string
+          created_at: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          athlete_count?: number
+          coach_uuid: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          athlete_count?: number
+          coach_uuid?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       coaches: {
         Row: {
@@ -721,6 +781,10 @@ export type Database = {
       can_add_athlete: {
         Args: { user_uuid: string }
         Returns: boolean
+      }
+      expire_old_invites: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       get_current_coach_id: {
         Args: Record<PropertyKey, never>
