@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { User } from 'lucide-react';
 import { AthleteDialogs } from '@/components/Athletes/AthleteDialogs';
 import { AthletesTable } from '@/components/Athletes/AthletesTable';
+import { AthleteInviteForm } from '@/components/Athletes/AthleteInviteForm';
 import { useAthletes } from '@/hooks/useAthletes';
 
 const Athletes: React.FC = () => {
@@ -63,18 +64,21 @@ const Athletes: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Athletes</h1>
-        <AthleteDialogs
-          isAddDialogOpen={isAddDialogOpen}
-          setIsAddDialogOpen={setIsAddDialogOpen}
-          editingAthlete={editingAthlete}
-          setEditingAthlete={setEditingAthlete}
-          formData={formData}
-          setFormData={setFormData}
-          handleSubmit={handleSubmit}
-          resetForm={resetForm}
-          addAthleteMutation={addAthleteMutation}
-          updateAthleteMutation={updateAthleteMutation}
-        />
+        <div className="flex gap-2">
+          <AthleteInviteForm />
+          <AthleteDialogs
+            isAddDialogOpen={isAddDialogOpen}
+            setIsAddDialogOpen={setIsAddDialogOpen}
+            editingAthlete={editingAthlete}
+            setEditingAthlete={setEditingAthlete}
+            formData={formData}
+            setFormData={setFormData}
+            handleSubmit={handleSubmit}
+            resetForm={resetForm}
+            addAthleteMutation={addAthleteMutation}
+            updateAthleteMutation={updateAthleteMutation}
+          />
+        </div>
       </div>
 
       <Card>
