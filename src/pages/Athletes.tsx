@@ -41,28 +41,46 @@ const Athletes: React.FC = () => {
     dob: ''
   });
 
+  // Fetch coach ID for the current user
+  const { data: coachData } = useQuery({
+    queryKey: ['coach', profile?.id],
+    queryFn: async () => {
+      if (!profile?.email) throw new Error('No profile email found');
+      
+      const { data, error } = await supabase
+        .from('coaches')
+        .select('id')
+        .eq('email', profile.email)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!profile?.email && profile.role === 'coach'
+  });
+
   // Fetch athletes
   const { data: athletes = [], isLoading } = useQuery({
     queryKey: ['athletes'],
     queryFn: async () => {
-      if (!profile?.id) throw new Error('No profile found');
+      if (!coachData?.id) throw new Error('No coach ID found');
       
       const { data, error } = await supabase
         .from('athletes')
         .select('*')
-        .eq('coach_uuid', profile.id)
+        .eq('coach_uuid', coachData.id)
         .order('name');
 
       if (error) throw error;
       return data as Athlete[];
     },
-    enabled: !!profile?.id && profile.role === 'coach'
+    enabled: !!coachData?.id && profile?.role === 'coach'
   });
 
   // Add athlete mutation
   const addAthleteMutation = useMutation({
     mutationFn: async (data: AthleteFormData) => {
-      if (!profile?.id) throw new Error('No profile found');
+      if (!coachData?.id) throw new Error('No coach ID found');
 
       const { data: result, error } = await supabase
         .from('athletes')
@@ -70,7 +88,7 @@ const Athletes: React.FC = () => {
           name: data.name,
           sex: data.sex || null,
           dob: data.dob || null,
-          coach_uuid: profile.id
+          coach_uuid: coachData.id
         })
         .select()
         .single();
@@ -224,6 +242,23 @@ const Athletes: React.FC = () => {
             <p className="text-center text-gray-500">
               This page is only available to coaches.
             </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show loading state while fetching coach data
+  if (!coachData) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold text-gray-900">Athletes</h1>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="mt-2 text-gray-500">Loading coach data...</p>
+            </div>
           </CardContent>
         </Card>
       </div>
