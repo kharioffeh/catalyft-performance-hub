@@ -55,6 +55,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "assigned_workouts_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "vw_risk_board"
+            referencedColumns: ["athlete_id"]
+          },
+          {
             foreignKeyName: "assigned_workouts_template_id_fkey"
             columns: ["template_id"]
             isOneToOne: false
@@ -215,6 +222,13 @@ export type Database = {
             referencedRelation: "athletes"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "readiness_scores_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "vw_risk_board"
+            referencedColumns: ["athlete_id"]
+          },
         ]
       }
       sessions: {
@@ -258,6 +272,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "athletes"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sessions_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "vw_risk_board"
+            referencedColumns: ["athlete_id"]
           },
           {
             foreignKeyName: "sessions_coach_uuid_fkey"
@@ -384,6 +405,13 @@ export type Database = {
             referencedRelation: "athletes"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "wearable_raw_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "vw_risk_board"
+            referencedColumns: ["athlete_id"]
+          },
         ]
       }
       whoop_tokens: {
@@ -428,6 +456,13 @@ export type Database = {
             referencedRelation: "athletes"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "whoop_tokens_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: true
+            referencedRelation: "vw_risk_board"
+            referencedColumns: ["athlete_id"]
+          },
         ]
       }
       workout_blocks: {
@@ -459,6 +494,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "athletes"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workout_blocks_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "vw_risk_board"
+            referencedColumns: ["athlete_id"]
           },
         ]
       }
@@ -620,7 +662,52 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      vw_load_metrics: {
+        Row: {
+          acute_load: number | null
+          acwr: number | null
+          athlete_uuid: string | null
+          chronic_load: number | null
+          latest_day: string | null
+          yesterday_hsr: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wearable_raw_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wearable_raw_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "vw_risk_board"
+            referencedColumns: ["athlete_id"]
+          },
+        ]
+      }
+      vw_risk_board: {
+        Row: {
+          acwr: number | null
+          athlete_id: string | null
+          coach_uuid: string | null
+          flag: string | null
+          name: string | null
+          readiness: number | null
+          yesterday_hsr: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "athletes_coach_uuid_fkey"
+            columns: ["coach_uuid"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       calculate_all_readiness: {
@@ -646,6 +733,10 @@ export type Database = {
       is_current_user_coach: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      refresh_load_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       user_owns_athlete: {
         Args: { athlete_id: string }

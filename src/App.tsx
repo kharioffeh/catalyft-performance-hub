@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +15,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import CoachBoard from "./pages/CoachBoard";
+import CoachRiskBoard from "./pages/CoachRiskBoard";
 import Calendar from "./pages/Calendar";
 import Workout from "./pages/Workout";
 import Chat from "./pages/Chat";
@@ -57,7 +59,7 @@ const AppRoutes = () => {
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
-            <Route path="/coach" element={<PageTransition><CoachBoard /></PageTransition>} />
+            <Route path="/coach" element={<PageTransition><CoachRiskBoard /></PageTransition>} />
             <Route path="/calendar" element={<PageTransition><Calendar /></PageTransition>} />
             <Route path="/workout" element={<PageTransition><Workout /></PageTransition>} />
             <Route path="/chat" element={<PageTransition><Chat /></PageTransition>} />
