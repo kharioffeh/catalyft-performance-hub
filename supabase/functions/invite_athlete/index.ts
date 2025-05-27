@@ -156,6 +156,8 @@ serve(async (req) => {
     const isLocal = supabaseUrl.includes('localhost') || supabaseUrl.includes('127.0.0.1');
     const redirectTo = isLocal ? "http://localhost:5173/invite-complete" : "https://catalyft.app/invite-complete";
 
+    logStep("Using redirect URL", { redirectTo });
+
     // Send invitation email using Supabase Auth
     const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
       redirectTo,

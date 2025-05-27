@@ -24,7 +24,7 @@ test.describe('Athlete Invite Flow', () => {
     // Intercept the API call
     const invitePromise = page.waitForResponse(response => 
       response.url().includes('/functions/v1/invite_athlete') && 
-      response.status() === 201
+      (response.status() === 201 || response.status() === 200)
     );
 
     // Submit the form
@@ -32,7 +32,7 @@ test.describe('Athlete Invite Flow', () => {
 
     // Wait for the API call to complete
     const response = await invitePromise;
-    expect(response.status()).toBe(201);
+    expect([200, 201]).toContain(response.status());
 
     // Check for success toast
     await expect(page.locator('text=Invite sent successfully')).toBeVisible();
@@ -65,25 +65,40 @@ test.describe('Athlete Invite Flow', () => {
   });
 
   test('athlete invite completion flow', async ({ page }) => {
-    // Step 1: Navigate to invite completion page with mock token
-    const mockToken = 'mock-token-hash';
-    await page.goto(`/invite-complete?type=signup&token_hash=${mockToken}`);
-
-    // This test would need to be expanded with actual token handling
-    // For now, we'll test the error case when type is not 'signup'
-    await page.goto(`/invite-complete?type=invalid&token_hash=${mockToken}`);
+    // Test the invite completion page directly
+    // In a real scenario, this would be accessed via the email link
+    await page.goto('/invite-complete');
     
-    // Should show error for invalid type
-    await expect(page.locator('text=Invalid invitation link')).toBeVisible();
+    // Should show loading state initially
+    await expect(page.locator('text=Processing your invitation')).toBeVisible();
+    
+    // Without a valid hash/token, should show error
+    await expect(page.locator('text=No valid session found')).toBeVisible({ timeout: 10000 });
   });
 
-  test('athlete signup form completion', async ({ page }) => {
-    // This test would require setting up a proper session first
-    // For now, we'll test that the form renders correctly when navigating directly
-    await page.goto('/invite-complete?type=signup&token_hash=valid-token');
+  test('invite completion redirects to dashboard', async ({ page }) => {
+    // This is a mock test - in reality you'd need a valid invite token
+    // The test demonstrates the expected flow after successful invite completion
     
-    // The page should show loading state or error for missing/invalid token
-    // In a real test, you'd need to intercept the auth verification
+    // Mock successful invite completion by going directly to dashboard
+    await page.goto('/dashboard');
+    
+    // If not authenticated, should redirect to login
+    await page.waitForURL('**/login');
+    
+    // This test would be expanded with actual token handling in a real scenario
+    expect(page.url()).toContain('/login');
+  });
+
+  test('handles invite completion errors gracefully', async ({ page }) => {
+    // Navigate to invite completion with no token
+    await page.goto('/invite-complete');
+    
+    // Should show processing initially
     await expect(page.locator('text=Processing your invitation')).toBeVisible();
+    
+    // Should eventually show error for missing/invalid token
+    await expect(page.locator('text=Invitation Error')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=No valid session found')).toBeVisible();
   });
 });

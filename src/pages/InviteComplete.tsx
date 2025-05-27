@@ -1,86 +1,61 @@
 
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AthleteSignupForm } from '@/components/AthleteSignupForm';
-import { AlertCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 const InviteComplete: React.FC = () => {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [session, setSession] = useState<any>(null);
-  const [userProfile, setUserProfile] = useState<any>(null);
 
   useEffect(() => {
     const handleInviteComplete = async () => {
       try {
-        const type = searchParams.get('type');
-        const token = searchParams.get('token_hash') || searchParams.get('token');
+        console.log('Processing invite completion...');
         
-        console.log('Invite complete params:', { type, token: !!token });
-
-        if (type !== 'signup') {
-          setError('Invalid invitation link. Please check your email for the correct link.');
+        // Handles hash-fragment + all token types (magiclink, invite, recovery, signup)
+        const { data, error } = await supabase.auth.getSessionFromUrl();
+        
+        if (error) {
+          console.error('Session error:', error);
+          setError(error.message);
+          setLoading(false);
+          return;
+        }
+        
+        const { session } = data;
+        if (!session) {
+          console.error('No session found');
+          setError('No valid session found. Please check your invitation link.');
           setLoading(false);
           return;
         }
 
-        if (!token) {
-          setError('Missing invitation token. Please check your email for the correct link.');
-          setLoading(false);
-          return;
-        }
+        console.log('Session established:', session.user.email);
 
-        // Exchange the token for a session
-        const { data: sessionData, error: sessionError } = await supabase.auth.verifyOtp({
-          token_hash: token,
-          type: 'signup'
-        });
-
-        if (sessionError) {
-          console.error('Session error:', sessionError);
-          setError('Invalid or expired invitation link. Please request a new invitation.');
-          setLoading(false);
-          return;
-        }
-
-        if (!sessionData.session?.user) {
-          setError('Failed to authenticate. Please try again.');
-          setLoading(false);
-          return;
-        }
-
-        console.log('Session established:', sessionData.session.user.email);
-        setSession(sessionData.session);
-
-        // Check if user already has a profile with role
-        const { data: profileData, error: profileError } = await supabase
+        // Fetch profile to determine redirect
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
-          .select('*')
-          .eq('id', sessionData.session.user.id)
+          .select('role')
+          .eq('id', session.user.id)
           .single();
 
-        if (profileError && profileError.code !== 'PGRST116') {
+        if (profileError) {
           console.error('Profile fetch error:', profileError);
           setError('Failed to load user profile.');
           setLoading(false);
           return;
         }
 
-        if (profileData?.role) {
-          console.log('User has existing role:', profileData.role);
-          // User already has a role, redirect appropriately
-          navigate(profileData.role === 'coach' ? '/coach' : '/dashboard');
-          return;
-        }
+        console.log('Profile loaded:', profile);
 
-        // User needs to complete signup
-        setUserProfile(profileData);
-        setLoading(false);
+        // Navigate based on role
+        const redirectPath = profile?.role === 'coach' ? '/coach' : '/dashboard';
+        console.log('Redirecting to:', redirectPath);
+        navigate(redirectPath, { replace: true });
 
       } catch (err) {
         console.error('Invite complete error:', err);
@@ -90,7 +65,7 @@ const InviteComplete: React.FC = () => {
     };
 
     handleInviteComplete();
-  }, [searchParams, navigate]);
+  }, [navigate]);
 
   if (loading) {
     return (
@@ -121,27 +96,6 @@ const InviteComplete: React.FC = () => {
             <Alert variant="destructive">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (session && !userProfile?.role) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-green-600">
-              <CheckCircle className="w-5 h-5" />
-              Complete Your Signup
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <AthleteSignupForm 
-              email={session.user.email} 
-              userId={session.user.id}
-            />
           </CardContent>
         </Card>
       </div>
