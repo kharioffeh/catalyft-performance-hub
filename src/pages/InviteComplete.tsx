@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
@@ -16,17 +15,16 @@ const InviteComplete: React.FC = () => {
       try {
         console.log('Processing invite completion...');
         
-        // Handles hash-fragment + all token types (magiclink, invite, recovery, signup)
-        const { data, error } = await supabase.auth.getSessionFromUrl();
+        // Get the current session after auth callback
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        if (error) {
-          console.error('Session error:', error);
-          setError(error.message);
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          setError(sessionError.message);
           setLoading(false);
           return;
         }
         
-        const { session } = data;
         if (!session) {
           console.error('No session found');
           setError('No valid session found. Please check your invitation link.');
