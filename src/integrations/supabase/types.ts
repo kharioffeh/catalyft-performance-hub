@@ -232,6 +232,42 @@ export type Database = {
         }
         Relationships: []
       }
+      injury_risk_forecast: {
+        Row: {
+          athlete_uuid: string
+          coach_uuid: string
+          created_at: string
+          forecast_date: string
+          id: string
+          pdf_url: string | null
+          probabilities: Json
+          top_features: Json | null
+          updated_at: string
+        }
+        Insert: {
+          athlete_uuid: string
+          coach_uuid: string
+          created_at?: string
+          forecast_date?: string
+          id?: string
+          pdf_url?: string | null
+          probabilities: Json
+          top_features?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          athlete_uuid?: string
+          coach_uuid?: string
+          created_at?: string
+          forecast_date?: string
+          id?: string
+          pdf_url?: string | null
+          probabilities?: Json
+          top_features?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       kai_live_prompts: {
         Row: {
           adjustment_value: number | null
