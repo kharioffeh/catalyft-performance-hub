@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,8 @@ import { WorkoutVolumeChart } from '@/components/WorkoutVolumeChart';
 import { InsightsPanel } from '@/components/InsightsPanel';
 import { PerformanceMetrics } from '@/components/PerformanceMetrics';
 import { format, subDays, startOfWeek, endOfWeek } from 'date-fns';
+import { AriaSummary } from '@/components/AriaSummary';
+import { InjuryForecastCard } from '@/components/InjuryForecastCard';
 
 const Dashboard: React.FC = () => {
   const { profile } = useAuth();
@@ -310,9 +311,23 @@ const Dashboard: React.FC = () => {
         <WorkoutVolumeChart data={volumeData} />
       </div>
 
-      {/* Insights and Metrics */}
+      {/* AI Insights and Injury Forecast */}
       <div className="grid gap-6 lg:grid-cols-2">
-        <InsightsPanel insights={insights} />
+        {profile?.role === 'coach' ? (
+          <>
+            <AriaSummary />
+            <InjuryForecastCard />
+          </>
+        ) : (
+          <>
+            <InjuryForecastCard />
+            <InsightsPanel insights={insights} />
+          </>
+        )}
+      </div>
+
+      {/* Performance Metrics */}
+      <div className="grid gap-6 lg:grid-cols-1">
         <PerformanceMetrics metrics={performanceMetrics} />
       </div>
     </div>

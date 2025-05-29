@@ -268,6 +268,58 @@ export type Database = {
         }
         Relationships: []
       }
+      insight_log: {
+        Row: {
+          athlete_uuid: string | null
+          created_at: string | null
+          id: string
+          message: string
+          metric: string
+          severity: string
+          source: string | null
+        }
+        Insert: {
+          athlete_uuid?: string | null
+          created_at?: string | null
+          id?: string
+          message: string
+          metric: string
+          severity: string
+          source?: string | null
+        }
+        Update: {
+          athlete_uuid?: string | null
+          created_at?: string | null
+          id?: string
+          message?: string
+          metric?: string
+          severity?: string
+          source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "insight_log_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "insight_log_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "vw_coach_athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "insight_log_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "vw_risk_board"
+            referencedColumns: ["athlete_id"]
+          },
+        ]
+      }
       kai_live_prompts: {
         Row: {
           adjustment_value: number | null
