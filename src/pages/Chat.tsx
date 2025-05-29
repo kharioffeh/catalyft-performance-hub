@@ -7,7 +7,7 @@ const Chat: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">AI Sports Assistant</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Coach ARIA</h1>
           <p className="text-gray-600 mt-2">
             Get intelligent insights and recommendations based on your training data
           </p>

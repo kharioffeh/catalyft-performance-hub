@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -48,7 +49,7 @@ const Sidebar = () => {
     },
     { 
       icon: MessageSquare, 
-      label: 'Chat', 
+      label: 'ARIA', 
       path: '/chat',
       isActive: location.pathname === '/chat'
     },
@@ -93,7 +94,7 @@ const Sidebar = () => {
     },
     { 
       icon: MessageSquare, 
-      label: 'Chat', 
+      label: 'ARIA', 
       path: '/chat',
       isActive: location.pathname === '/chat'
     },
