@@ -151,6 +151,36 @@ export type Database = {
           },
         ]
       }
+      biomech_alerts: {
+        Row: {
+          alert_type: string
+          athlete_uuid: string
+          coach_uuid: string
+          created_at: string
+          id: string
+          timestamp: string
+          value: number
+        }
+        Insert: {
+          alert_type: string
+          athlete_uuid: string
+          coach_uuid: string
+          created_at?: string
+          id?: string
+          timestamp?: string
+          value: number
+        }
+        Update: {
+          alert_type?: string
+          athlete_uuid?: string
+          coach_uuid?: string
+          created_at?: string
+          id?: string
+          timestamp?: string
+          value?: number
+        }
+        Relationships: []
+      }
       coach_usage: {
         Row: {
           athlete_count: number
