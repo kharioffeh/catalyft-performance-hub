@@ -74,13 +74,19 @@ const AppLayout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8] flex">
+    <div className="min-h-screen bg-[#F8F8F8] flex w-full">
       {/* Desktop Sidebar */}
-      {!isMobile && <Sidebar />}
+      {!isMobile && (
+        <div className="w-64 flex-shrink-0">
+          <div className="fixed top-0 left-0 w-64 h-full">
+            <Sidebar />
+          </div>
+        </div>
+      )}
       
-      <div className={`flex-1 ${!isMobile ? 'ml-20' : ''} ${isMobile ? 'pb-16' : ''}`}>
+      <div className={`flex-1 flex flex-col min-w-0 ${isMobile ? 'pb-16' : ''}`}>
         <TopBar />
-        <main className="p-4 md:p-6">
+        <main className="flex-1 p-4 md:p-6 overflow-auto">
           <Outlet />
         </main>
       </div>

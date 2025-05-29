@@ -116,37 +116,37 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="fixed left-0 top-0 h-full w-20 flex flex-col bg-white border-r shadow-sm">
-      <div className="flex items-center justify-center h-20">
+    <div className="w-64 h-full flex flex-col bg-white border-r shadow-sm">
+      <div className="flex items-center justify-center h-20 px-4">
         <span className="text-2xl font-bold text-blue-600">
-          C<span className="opacity-60">atlyft</span>
+          Catalyft
         </span>
       </div>
 
-      <div className="flex-grow flex flex-col justify-between">
-        <nav className="flex flex-col space-y-1">
+      <div className="flex-grow flex flex-col justify-between overflow-y-auto">
+        <nav className="flex flex-col space-y-1 px-3">
           {items.map((item) => (
             <Button
               key={item.label}
               variant="ghost"
-              className={`justify-start px-4 py-3 hover:bg-gray-100 w-full ${item.isActive ? 'bg-gray-100 font-semibold' : ''}`}
+              className={`justify-start px-4 py-3 hover:bg-gray-100 w-full text-left ${item.isActive ? 'bg-gray-100 font-semibold' : ''}`}
               onClick={() => navigate(item.path)}
             >
-              <item.icon className="w-5 h-5 mr-3" />
-              <span>{item.label}</span>
+              <item.icon className="w-5 h-5 mr-3 flex-shrink-0" />
+              <span className="truncate">{item.label}</span>
             </Button>
           ))}
         </nav>
 
-        <div className="px-4 py-3 border-t">
+        <div className="px-3 py-3 border-t">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-full justify-start px-2">
-                <Avatar className="mr-2 w-7 h-7">
+              <Button variant="ghost" className="w-full justify-start px-2 h-auto py-2">
+                <Avatar className="mr-3 w-8 h-8 flex-shrink-0">
                   <AvatarImage src="" />
                   <AvatarFallback>{profile?.full_name?.substring(0, 2).toUpperCase()}</AvatarFallback>
                 </Avatar>
-                <div className="flex flex-col text-left truncate">
+                <div className="flex flex-col text-left truncate min-w-0">
                   <span className="text-sm font-medium truncate">{profile?.full_name}</span>
                   <span className="text-xs text-gray-500 truncate">{profile?.email}</span>
                 </div>
