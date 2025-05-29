@@ -328,6 +328,41 @@ export type Database = {
         }
         Relationships: []
       }
+      program_templates: {
+        Row: {
+          block_json: Json
+          coach_uuid: string
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          block_json: Json
+          coach_uuid: string
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          block_json?: Json
+          coach_uuid?: string
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_templates_coach_uuid_fkey"
+            columns: ["coach_uuid"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       readiness_scores: {
         Row: {
           athlete_uuid: string

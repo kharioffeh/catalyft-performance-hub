@@ -1,128 +1,178 @@
-
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useIsMobile } from '@/hooks/useBreakpoint';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
-  Activity, 
-  ShieldAlert, 
-  CalendarClock, 
-  Dumbbell, 
-  BrainCircuit, 
-  Settings2, 
-  CreditCard,
-  Users
+  BarChart3, 
+  Users, 
+  Calendar, 
+  MessageSquare, 
+  Settings, 
+  AlertTriangle,
+  Dumbbell,
+  FileText
 } from 'lucide-react';
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
-const navigationItems = [
-  {
-    path: '/dashboard',
-    label: 'Dashboard',
-    icon: Activity,
-    visibleTo: ['athlete', 'coach']
-  },
-  {
-    path: '/coach',
-    label: 'Risk Board',
-    icon: ShieldAlert,
-    visibleTo: ['coach']
-  },
-  {
-    path: '/calendar',
-    label: 'Calendar',
-    icon: CalendarClock,
-    visibleTo: ['athlete', 'coach']
-  },
-  {
-    path: '/workout',
-    label: 'Workouts',
-    icon: Dumbbell,
-    visibleTo: ['athlete', 'coach']
-  },
-  {
-    path: '/chat',
-    label: 'Ask My Data',
-    icon: BrainCircuit,
-    visibleTo: ['athlete', 'coach']
-  },
-  {
-    path: '/athletes',
-    label: 'Athletes',
-    icon: Users,
-    visibleTo: ['coach']
-  },
-  {
-    path: '/settings',
-    label: 'Settings',
-    icon: Settings2,
-    visibleTo: ['athlete', 'coach']
-  },
-  {
-    path: '/subscriptions',
-    label: 'Billing',
-    icon: CreditCard,
-    visibleTo: ['coach']
-  }
-];
-
-export const Sidebar: React.FC = () => {
+const Sidebar = () => {
   const { profile } = useAuth();
   const location = useLocation();
-  const isMobile = useIsMobile();
 
-  const visibleItems = navigationItems.filter(item => 
-    item.visibleTo.includes(profile?.role || 'athlete')
-  );
+  const coachItems = [
+    { 
+      icon: BarChart3, 
+      label: 'Coach Board', 
+      path: '/coach',
+      isActive: location.pathname === '/coach'
+    },
+    { 
+      icon: Users, 
+      label: 'Athletes', 
+      path: '/athletes',
+      isActive: location.pathname === '/athletes'
+    },
+    { 
+      icon: Calendar, 
+      label: 'Calendar', 
+      path: '/calendar',
+      isActive: location.pathname === '/calendar'
+    },
+    { 
+      icon: MessageSquare, 
+      label: 'Chat', 
+      path: '/chat',
+      isActive: location.pathname === '/chat'
+    },
+    { 
+      icon: Dumbbell, 
+      label: 'Workouts', 
+      path: '/workout',
+      isActive: location.pathname === '/workout'
+    },
+    { 
+      icon: FileText, 
+      label: 'Templates', 
+      path: '/templates',
+      isActive: location.pathname === '/templates'
+    },
+    { 
+      icon: AlertTriangle, 
+      label: 'Risk Board', 
+      path: '/coach/risk',
+      isActive: location.pathname === '/coach/risk'
+    },
+    { 
+      icon: Settings, 
+      label: 'Settings', 
+      path: '/settings',
+      isActive: location.pathname === '/settings'
+    },
+  ];
 
-  // Hide sidebar on mobile
-  if (isMobile) {
-    return null;
-  }
+  const athleteItems = [
+    { 
+      icon: BarChart3, 
+      label: 'Dashboard', 
+      path: '/dashboard',
+      isActive: location.pathname === '/dashboard'
+    },
+    { 
+      icon: Calendar, 
+      label: 'Calendar', 
+      path: '/calendar',
+      isActive: location.pathname === '/calendar'
+    },
+    { 
+      icon: MessageSquare, 
+      label: 'Chat', 
+      path: '/chat',
+      isActive: location.pathname === '/chat'
+    },
+    { 
+      icon: Dumbbell, 
+      label: 'Workouts', 
+      path: '/workout',
+      isActive: location.pathname === '/workout'
+    },
+    { 
+      icon: Settings, 
+      label: 'Settings', 
+      path: '/settings',
+      isActive: location.pathname === '/settings'
+    },
+  ];
+
+  const items = profile?.role === 'coach' ? coachItems : athleteItems;
+  const navigate = useNavigate();
 
   return (
-    <TooltipProvider>
-      <div className="fixed left-0 top-0 h-screen w-20 bg-[#131313] flex flex-col items-center py-6 z-50">
-        <div className="mb-8">
-          <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-            <span className="text-[#131313] font-bold text-xl">C</span>
-          </div>
-        </div>
-
-        <nav className="flex-1 flex flex-col space-y-4">
-          {visibleItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
-            
-            return (
-              <Tooltip key={item.path}>
-                <TooltipTrigger asChild>
-                  <Link
-                    to={item.path}
-                    className={`
-                      w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 active:opacity-80
-                      ${isActive 
-                        ? 'bg-white text-[#131313] shadow-sm' 
-                        : 'text-gray-400 hover:text-white hover:bg-gray-800'
-                      }
-                    `}
-                  >
-                    <Icon size={20} />
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>{item.label}</p>
-                </TooltipContent>
-              </Tooltip>
-            );
-          })}
-        </nav>
+    <div className="fixed left-0 top-0 h-full w-20 flex flex-col bg-white border-r shadow-sm">
+      <div className="flex items-center justify-center h-20">
+        <span className="text-2xl font-bold text-blue-600">
+          C<span className="opacity-60">atlyft</span>
+        </span>
       </div>
-    </TooltipProvider>
+
+      <div className="flex-grow flex flex-col justify-between">
+        <nav className="flex flex-col space-y-1">
+          {items.map((item) => (
+            <Button
+              key={item.label}
+              variant="ghost"
+              className={`justify-start px-4 py-3 hover:bg-gray-100 w-full ${item.isActive ? 'bg-gray-100 font-semibold' : ''}`}
+              onClick={() => navigate(item.path)}
+            >
+              <item.icon className="w-5 h-5 mr-3" />
+              <span>{item.label}</span>
+            </Button>
+          ))}
+        </nav>
+
+        <div className="px-4 py-3 border-t">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="w-full justify-start px-2">
+                <Avatar className="mr-2 w-7 h-7">
+                  <AvatarImage src={profile?.avatar_url} />
+                  <AvatarFallback>{profile?.name?.substring(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col text-left truncate">
+                  <span className="text-sm font-medium truncate">{profile?.name}</span>
+                  <span className="text-xs text-gray-500 truncate">{profile?.email}</span>
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/settings')}>
+                Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/subscription')}>
+                Subscription
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => {
+                supabase.auth.signOut();
+                navigate('/login');
+              }}
+              >
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    </div>
   );
 };
+
+export default Sidebar;

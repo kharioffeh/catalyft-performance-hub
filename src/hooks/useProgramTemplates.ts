@@ -1,0 +1,101 @@
+
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+
+export interface ProgramTemplate {
+  id: string;
+  coach_uuid: string;
+  name: string;
+  block_json: any;
+  created_at: string;
+  updated_at: string;
+}
+
+export const useProgramTemplates = () => {
+  return useQuery({
+    queryKey: ['program-templates'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('program_templates')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data as ProgramTemplate[];
+    },
+  });
+};
+
+export const useGenerateProgram = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ athlete_uuid, weeks, focus }: {
+      athlete_uuid: string;
+      weeks: number;
+      focus?: string;
+    }) => {
+      const { data, error } = await supabase.functions.invoke('kai_generate_program', {
+        body: { athlete_uuid, weeks, focus }
+      });
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['program-templates'] });
+      toast({
+        title: "Program Generated",
+        description: "KAI has successfully generated your training program",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Generation Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+export const useAssignTemplate = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ template_id, athlete_id }: {
+      template_id: string;
+      athlete_id: string;
+    }) => {
+      // Get the template
+      const { data: template, error: templateError } = await supabase
+        .from('program_templates')
+        .select('block_json')
+        .eq('id', template_id)
+        .single();
+
+      if (templateError) throw templateError;
+
+      // Insert into workout_blocks
+      const { data, error } = await supabase
+        .from('workout_blocks')
+        .insert({
+          athlete_uuid: athlete_id,
+          data: template.block_json
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workout-blocks'] });
+      toast({
+        title: "Program Assigned",
+        description: "Training program has been assigned to athlete",
+      });
+    },
+  });
+};

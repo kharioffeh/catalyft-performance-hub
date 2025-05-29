@@ -1,113 +1,76 @@
-
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { motion, AnimatePresence } from "framer-motion";
-import { useDomainRedirect } from "@/hooks/useDomainRedirect";
-import ProtectedRoute from "@/components/ProtectedRoute";
-import AppLayout from "@/components/AppLayout";
-
-// Import pages
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Dashboard from "./pages/Dashboard";
-import CoachBoard from "./pages/CoachBoard";
-import CoachRiskBoard from "./pages/CoachRiskBoard";
-import Calendar from "./pages/Calendar";
-import Workout from "./pages/Workout";
-import Chat from "./pages/Chat";
-import Settings from "./pages/Settings";
-import Athletes from "./pages/Athletes";
-import Subscriptions from "./pages/Subscriptions";
-import NotFound from "./pages/NotFound";
-import Subscription from "./pages/Subscription";
-import InviteComplete from "./pages/InviteComplete";
-import FinishSignup from "./pages/FinishSignup";
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AuthProvider } from '@/contexts/AuthContext';
+import Auth from '@/pages/Auth';
+import Login from '@/pages/Login';
+import Signup from '@/pages/Signup';
+import FinishSignup from '@/pages/FinishSignup';
+import InviteComplete from '@/pages/InviteComplete';
+import Privacy from '@/pages/Privacy';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import AppLayout from '@/components/AppLayout';
+import Home from '@/pages/Home';
+import Dashboard from '@/pages/Dashboard';
+import CoachBoard from '@/pages/CoachBoard';
+import Calendar from '@/pages/Calendar';
+import Athletes from '@/pages/Athletes';
+import Chat from '@/pages/Chat';
+import Settings from '@/pages/Settings';
+import Subscription from '@/pages/Subscription';
+import Subscriptions from '@/pages/Subscriptions';
+import CoachRiskBoard from '@/pages/CoachRiskBoard';
+import Workout from '@/pages/Workout';
+import NotFound from '@/pages/NotFound';
+import Templates from '@/pages/Templates';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
       refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes
     },
   },
 });
 
-// Check for APP_URL environment variable and log warning if missing
-if (!import.meta.env.VITE_APP_URL) {
-  console.error(
-    '%c⚠️ MISSING APP_URL ENVIRONMENT VARIABLE ⚠️',
-    'color: white; background-color: red; font-size: 16px; font-weight: bold; padding: 8px;',
-    '\nThe VITE_APP_URL environment variable is not set. This may cause issues with authentication redirects and other functionality.'
-  );
-}
-
-// Page transition wrapper
-const PageTransition = ({ children }: { children: React.ReactNode }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -20 }}
-    transition={{ duration: 0.2 }}
-  >
-    {children}
-  </motion.div>
-);
-
-const AppRoutes = () => {
-  return (
-    <AnimatePresence mode="wait">
-      <Routes>
-        <Route path="/home" element={<PageTransition><Home /></PageTransition>} />
-        <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
-        <Route path="/signup" element={<PageTransition><Signup /></PageTransition>} />
-        <Route path="/invite-complete" element={<PageTransition><InviteComplete /></PageTransition>} />
-        <Route path="/finish-signup" element={<PageTransition><FinishSignup /></PageTransition>} />
-        
-        {/* Protected Routes wrapped in AppLayout */}
-        <Route element={<ProtectedRoute />}>
-          <Route element={<AppLayout />}>
-            <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
-            <Route path="/coach" element={<PageTransition><CoachRiskBoard /></PageTransition>} />
-            <Route path="/calendar" element={<PageTransition><Calendar /></PageTransition>} />
-            <Route path="/workout" element={<PageTransition><Workout /></PageTransition>} />
-            <Route path="/chat" element={<PageTransition><Chat /></PageTransition>} />
-            <Route path="/settings" element={<PageTransition><Settings /></PageTransition>} />
-            <Route path="/athletes" element={<PageTransition><Athletes /></PageTransition>} />
-            <Route path="/subscriptions" element={<PageTransition><Subscriptions /></PageTransition>} />
-            <Route path="/subscription" element={<PageTransition><Subscription /></PageTransition>} />
-          </Route>
-        </Route>
-        
-        <Route path="/" element={<Navigate to="/home" replace />} />
-        <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
-      </Routes>
-    </AnimatePresence>
-  );
-};
-
-const App = () => {
-  // Global domain redirect hook
-  useDomainRedirect();
-
+function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AuthProvider>
-            <AppRoutes />
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/finish-signup" element={<FinishSignup />} />
+            <Route path="/invite-complete/:token" element={<InviteComplete />} />
+            <Route path="/privacy" element={<Privacy />} />
+            
+            {/* Protected routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route element={<AppLayout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/home" element={<Home />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/coach" element={<CoachBoard />} />
+                <Route path="/calendar" element={<Calendar />} />
+                <Route path="/athletes" element={<Athletes />} />
+                <Route path="/chat" element={<Chat />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/subscription" element={<Subscription />} />
+                <Route path="/subscriptions" element={<Subscriptions />} />
+                <Route path="/coach/risk" element={<CoachRiskBoard />} />
+                <Route path="/workout" element={<Workout />} />
+                <Route path="/templates" element={<Templates />} />
+              </Route>
+            </Route>
+            
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
     </QueryClientProvider>
   );
-};
+}
 
 export default App;
