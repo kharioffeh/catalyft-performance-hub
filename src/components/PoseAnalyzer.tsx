@@ -1,7 +1,5 @@
 
-import React from 'react';
-import { usePoseLandmarker } from '@catalyft/rn-mediapipe';
-import { useAnimatedReaction } from 'react-native-reanimated';
+import React, { useEffect, useRef } from 'react';
 import { calculateAsymmetry } from '@/utils/biomech';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,16 +14,31 @@ export const PoseAnalyzer: React.FC<PoseAnalyzerProps> = ({
   isActive = true 
 }) => {
   const { profile } = useAuth();
-  const { landmarks } = usePoseLandmarker({ fps: 30 });
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Real-time pose analysis with asymmetry detection
-  useAnimatedReaction(
-    () => landmarks.value,
-    (lm) => {
-      if (!lm || !isActive || !profile?.id) return;
-      
+  // Simulate pose analysis with mock data (in real implementation, this would use MediaPipe or similar)
+  useEffect(() => {
+    if (!isActive || !profile?.id) {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      return;
+    }
+
+    // Simulate pose detection at 30fps (every ~33ms)
+    intervalRef.current = setInterval(() => {
       try {
-        const asymmetry = calculateAsymmetry(lm);
+        // Mock landmarks data - in real implementation this would come from pose detection
+        const mockLandmarks = {
+          leftShoulder: { x: 0.3, y: 0.4, z: 0.1 },
+          rightShoulder: { x: 0.7, y: 0.4, z: 0.1 },
+          leftHip: { x: 0.35, y: 0.7, z: 0.05 },
+          rightHip: { x: 0.65, y: 0.7, z: 0.05 },
+          // Add more mock landmarks as needed
+        };
+
+        const asymmetry = calculateAsymmetry(mockLandmarks);
         
         // Trigger alert if asymmetry threshold exceeded (5%)
         if (asymmetry > 0.05) {
@@ -60,8 +73,14 @@ export const PoseAnalyzer: React.FC<PoseAnalyzerProps> = ({
       } catch (error) {
         console.error('Error in pose analysis:', error);
       }
-    }
-  );
+    }, 33); // ~30fps
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isActive, athleteId, profile?.id]);
 
   // This component doesn't render anything visible - it's purely for analysis
   return null;
