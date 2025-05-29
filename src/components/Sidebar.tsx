@@ -61,7 +61,7 @@ const Sidebar = () => {
     },
     { 
       icon: FileText, 
-      label: 'Templates', 
+      label: 'KAI', 
       path: '/templates',
       isActive: location.pathname === '/templates'
     },
