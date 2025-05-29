@@ -1,5 +1,7 @@
 
 import React, { useEffect, useRef } from 'react';
+import { Pose } from '@mediapipe/pose';
+import { Camera } from '@mediapipe/camera_utils';
 import { calculateAsymmetry } from '@/utils/biomech';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -7,38 +9,66 @@ import { useAuth } from '@/contexts/AuthContext';
 interface PoseAnalyzerProps {
   athleteId: string;
   isActive?: boolean;
+  videoElement?: HTMLVideoElement | null;
 }
 
 export const PoseAnalyzer: React.FC<PoseAnalyzerProps> = ({ 
   athleteId, 
-  isActive = true 
+  isActive = true,
+  videoElement 
 }) => {
   const { profile } = useAuth();
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const poseRef = useRef<Pose | null>(null);
+  const cameraRef = useRef<Camera | null>(null);
 
-  // Simulate pose analysis with mock data (in real implementation, this would use MediaPipe or similar)
   useEffect(() => {
-    if (!isActive || !profile?.id) {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
+    if (!isActive || !profile?.id || !videoElement) {
+      // Clean up pose detection
+      if (cameraRef.current) {
+        cameraRef.current.stop();
+        cameraRef.current = null;
+      }
+      if (poseRef.current) {
+        poseRef.current.close();
+        poseRef.current = null;
       }
       return;
     }
 
-    // Simulate pose detection at 30fps (every ~33ms)
-    intervalRef.current = setInterval(() => {
+    // Initialize MediaPipe Pose
+    const pose = new Pose({
+      locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+      }
+    });
+
+    pose.setOptions({
+      modelComplexity: 1,
+      smoothLandmarks: true,
+      enableSegmentation: false,
+      smoothSegmentation: true,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+
+    pose.onResults((results) => {
+      if (!results.poseLandmarks || !isActive || !profile?.id) return;
+
       try {
-        // Mock landmarks data - in real implementation this would come from pose detection
-        const mockLandmarks = {
-          leftShoulder: { x: 0.3, y: 0.4, z: 0.1 },
-          rightShoulder: { x: 0.7, y: 0.4, z: 0.1 },
-          leftHip: { x: 0.35, y: 0.7, z: 0.05 },
-          rightHip: { x: 0.65, y: 0.7, z: 0.05 },
-          // Add more mock landmarks as needed
+        // Convert MediaPipe landmarks to our format
+        const landmarks = results.poseLandmarks;
+        const convertedLandmarks = {
+          leftShoulder: landmarks[11] || { x: 0, y: 0, z: 0 },
+          rightShoulder: landmarks[12] || { x: 0, y: 0, z: 0 },
+          leftHip: landmarks[23] || { x: 0, y: 0, z: 0 },
+          rightHip: landmarks[24] || { x: 0, y: 0, z: 0 },
+          leftKnee: landmarks[25] || { x: 0, y: 0, z: 0 },
+          rightKnee: landmarks[26] || { x: 0, y: 0, z: 0 },
+          leftAnkle: landmarks[27] || { x: 0, y: 0, z: 0 },
+          rightAnkle: landmarks[28] || { x: 0, y: 0, z: 0 },
         };
 
-        const asymmetry = calculateAsymmetry(mockLandmarks);
+        const asymmetry = calculateAsymmetry(convertedLandmarks);
         
         // Trigger alert if asymmetry threshold exceeded (5%)
         if (asymmetry > 0.05) {
@@ -73,14 +103,32 @@ export const PoseAnalyzer: React.FC<PoseAnalyzerProps> = ({
       } catch (error) {
         console.error('Error in pose analysis:', error);
       }
-    }, 33); // ~30fps
+    });
+
+    // Initialize camera
+    const camera = new Camera(videoElement, {
+      onFrame: async () => {
+        await pose.send({ image: videoElement });
+      },
+      width: 640,
+      height: 480
+    });
+
+    poseRef.current = pose;
+    cameraRef.current = camera;
+
+    // Start camera
+    camera.start();
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+      if (cameraRef.current) {
+        cameraRef.current.stop();
+      }
+      if (poseRef.current) {
+        poseRef.current.close();
       }
     };
-  }, [isActive, athleteId, profile?.id]);
+  }, [isActive, athleteId, profile?.id, videoElement]);
 
   // This component doesn't render anything visible - it's purely for analysis
   return null;

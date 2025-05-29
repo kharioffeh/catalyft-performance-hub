@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Camera, Square, Play, Pause } from 'lucide-react';
@@ -16,17 +16,63 @@ export const WorkoutCameraScreen: React.FC<WorkoutCameraScreenProps> = ({
   const { profile } = useAuth();
   const [isRecording, setIsRecording] = useState(false);
   const [isPoseAnalysisActive, setIsPoseAnalysisActive] = useState(false);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  // Use current user as athlete if no specific athlete provided
+  const currentAthleteId = athleteId || profile?.id;
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { width: 640, height: 480 },
+        audio: false 
+      });
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        streamRef.current = stream;
+        setIsCameraActive(true);
+      }
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setIsCameraActive(false);
+    setIsPoseAnalysisActive(false);
+    setIsRecording(false);
+  };
 
   const handleToggleRecording = () => {
     setIsRecording(!isRecording);
   };
 
   const handleTogglePoseAnalysis = () => {
-    setIsPoseAnalysisActive(!isPoseAnalysisActive);
+    if (!isCameraActive) {
+      startCamera().then(() => {
+        setIsPoseAnalysisActive(true);
+      });
+    } else {
+      setIsPoseAnalysisActive(!isPoseAnalysisActive);
+    }
   };
 
-  // Use current user as athlete if no specific athlete provided
-  const currentAthleteId = athleteId || profile?.id;
+  useEffect(() => {
+    return () => {
+      // Cleanup on unmount
+      stopCamera();
+    };
+  }, []);
 
   if (!currentAthleteId) {
     return (
@@ -48,12 +94,22 @@ export const WorkoutCameraScreen: React.FC<WorkoutCameraScreenProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Camera placeholder - would integrate with actual camera in real app */}
-          <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
-            <div className="text-center text-white">
-              <Camera className="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p className="text-sm opacity-75">Camera feed would appear here</p>
-            </div>
+          {/* Camera feed */}
+          <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center overflow-hidden">
+            {isCameraActive ? (
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="text-center text-white">
+                <Camera className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p className="text-sm opacity-75">Click "Start Pose Analysis" to activate camera</p>
+              </div>
+            )}
           </div>
 
           {/* Controls */}
@@ -62,6 +118,7 @@ export const WorkoutCameraScreen: React.FC<WorkoutCameraScreenProps> = ({
               onClick={handleToggleRecording}
               variant={isRecording ? "destructive" : "default"}
               className="flex items-center gap-2"
+              disabled={!isCameraActive}
             >
               {isRecording ? (
                 <>
@@ -93,10 +150,25 @@ export const WorkoutCameraScreen: React.FC<WorkoutCameraScreenProps> = ({
                 </>
               )}
             </Button>
+
+            {isCameraActive && (
+              <Button
+                onClick={stopCamera}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Square className="w-4 h-4" />
+                Stop Camera
+              </Button>
+            )}
           </div>
 
           {/* Status indicators */}
           <div className="flex gap-4 text-sm text-gray-600">
+            <div className="flex items-center gap-1">
+              <div className={`w-2 h-2 rounded-full ${isCameraActive ? 'bg-blue-500' : 'bg-gray-300'}`} />
+              Camera: {isCameraActive ? 'Active' : 'Inactive'}
+            </div>
             <div className="flex items-center gap-1">
               <div className={`w-2 h-2 rounded-full ${isRecording ? 'bg-red-500' : 'bg-gray-300'}`} />
               Recording: {isRecording ? 'Active' : 'Inactive'}
@@ -113,6 +185,7 @@ export const WorkoutCameraScreen: React.FC<WorkoutCameraScreenProps> = ({
       <PoseAnalyzer 
         athleteId={currentAthleteId}
         isActive={isPoseAnalysisActive}
+        videoElement={videoRef.current}
       />
     </div>
   );
