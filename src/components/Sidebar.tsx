@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -31,9 +30,9 @@ const Sidebar = () => {
   const coachItems = [
     { 
       icon: BarChart3, 
-      label: 'Coach Board', 
-      path: '/coach',
-      isActive: location.pathname === '/coach'
+      label: 'Dashboard', 
+      path: '/dashboard',
+      isActive: location.pathname === '/dashboard'
     },
     { 
       icon: Users, 
