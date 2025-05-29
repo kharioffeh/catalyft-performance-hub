@@ -30,7 +30,7 @@ const Templates: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Dumbbell className="w-8 h-8 text-blue-600" />
-          <h1 className="text-3xl font-bold text-gray-900">Program Templates</h1>
+          <h1 className="text-3xl font-bold text-gray-900">KAI (Kinetic Adaptive Instructor)</h1>
         </div>
         <Button 
           onClick={() => setIsGenerateOpen(true)}
