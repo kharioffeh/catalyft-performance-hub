@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
-import { Sidebar } from '@/components/Sidebar';
+import Sidebar from '@/components/Sidebar';
 import { MobileNav } from '@/components/MobileNav';
 import { TopBar } from '@/components/TopBar';
 import { useIsMobile } from '@/hooks/useBreakpoint';

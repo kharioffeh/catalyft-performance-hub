@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -21,6 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { supabase } from '@/integrations/supabase/client';
 
 const Sidebar = () => {
   const { profile } = useAuth();
@@ -141,11 +143,11 @@ const Sidebar = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="w-full justify-start px-2">
                 <Avatar className="mr-2 w-7 h-7">
-                  <AvatarImage src={profile?.avatar_url} />
-                  <AvatarFallback>{profile?.name?.substring(0, 2).toUpperCase()}</AvatarFallback>
+                  <AvatarImage src="" />
+                  <AvatarFallback>{profile?.full_name?.substring(0, 2).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col text-left truncate">
-                  <span className="text-sm font-medium truncate">{profile?.name}</span>
+                  <span className="text-sm font-medium truncate">{profile?.full_name}</span>
                   <span className="text-xs text-gray-500 truncate">{profile?.email}</span>
                 </div>
               </Button>
