@@ -232,6 +232,39 @@ export type Database = {
         }
         Relationships: []
       }
+      kai_live_prompts: {
+        Row: {
+          adjustment_value: number | null
+          athlete_uuid: string
+          coach_uuid: string
+          created_at: string
+          id: string
+          metric: string
+          prompt_text: string
+          session_uuid: string
+        }
+        Insert: {
+          adjustment_value?: number | null
+          athlete_uuid: string
+          coach_uuid: string
+          created_at?: string
+          id?: string
+          metric: string
+          prompt_text: string
+          session_uuid: string
+        }
+        Update: {
+          adjustment_value?: number | null
+          athlete_uuid?: string
+          coach_uuid?: string
+          created_at?: string
+          id?: string
+          metric?: string
+          prompt_text?: string
+          session_uuid?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
