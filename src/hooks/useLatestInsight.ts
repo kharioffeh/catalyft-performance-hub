@@ -29,7 +29,12 @@ export const useLatestInsight = (metric: string) => {
         .maybeSingle();
 
       if (error) throw error;
-      return data;
+      
+      // Type assertion since we know severity is constrained by DB trigger
+      return data ? {
+        ...data,
+        severity: data.severity as 'info' | 'amber' | 'red'
+      } : null;
     },
     enabled: !!profile?.id
   });

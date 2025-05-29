@@ -45,8 +45,10 @@ export const AriaSummary: React.FC = () => {
 
       if (error) throw error;
 
+      // Type assertion since we know severity is constrained by DB trigger
       return data?.map(item => ({
         ...item,
+        severity: item.severity as 'info' | 'amber' | 'red',
         athlete_name: item.athletes?.name
       })) || [];
     },
