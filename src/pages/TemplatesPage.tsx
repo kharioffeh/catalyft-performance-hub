@@ -2,21 +2,21 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Plus, Calendar, Users, Eye, Dumbbell } from 'lucide-react';
+import { Plus, Dumbbell } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useProgramTemplates, useGenerateProgram } from '@/hooks/useProgramTemplates';
+import { useProgramTemplates } from '@/hooks/useProgramTemplates';
 import { GenerateProgramDialog } from '@/components/GenerateProgramDialog';
 import { TemplateCard } from '@/components/TemplateCard';
 import { TemplateModal } from '@/components/TemplateModal';
 import { AssignTemplateDialog } from '@/components/AssignTemplateDialog';
+import { useTemplateModal } from '@/store/useTemplateModal';
 
 const TemplatesPage: React.FC = () => {
   const { profile } = useAuth();
   const { data: templates = [], isLoading } = useProgramTemplates();
   const [isGenerateOpen, setIsGenerateOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [assignTemplate, setAssignTemplate] = useState(null);
+  const { tpl, close } = useTemplateModal();
 
   if (profile?.role !== 'coach') {
     return (
@@ -25,10 +25,6 @@ const TemplatesPage: React.FC = () => {
       </div>
     );
   }
-
-  const openModal = (template) => {
-    setSelectedTemplate(template);
-  };
 
   const openAssignDialog = (template) => {
     setAssignTemplate(template);
@@ -60,7 +56,6 @@ const TemplatesPage: React.FC = () => {
             <TemplateCard 
               key={template.id} 
               template={template}
-              onOpenModal={openModal}
               onAssign={openAssignDialog}
             />
           ))}
@@ -86,12 +81,14 @@ const TemplatesPage: React.FC = () => {
         onOpenChange={setIsGenerateOpen}
       />
 
-      <TemplateModal
-        template={selectedTemplate}
-        open={!!selectedTemplate}
-        onOpenChange={(open) => !open && setSelectedTemplate(null)}
-        onAssign={openAssignDialog}
-      />
+      {tpl && (
+        <TemplateModal
+          template={tpl}
+          open={!!tpl}
+          onOpenChange={(open) => !open && close()}
+          onAssign={openAssignDialog}
+        />
+      )}
 
       <AssignTemplateDialog
         template={assignTemplate}

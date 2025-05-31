@@ -5,19 +5,27 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Users, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTemplateModal } from '@/store/useTemplateModal';
 
 interface TemplateCardProps {
   template: any;
-  onOpenModal: (template: any) => void;
   onAssign: (template: any) => void;
 }
 
 export const TemplateCard: React.FC<TemplateCardProps> = ({
   template,
-  onOpenModal,
   onAssign,
 }) => {
   const isKAI = template.origin === 'KAI';
+  
+  const handleCardClick = () => {
+    useTemplateModal.getState().open(template);
+  };
+
+  const handlePreviewClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    useTemplateModal.getState().open(template);
+  };
   
   return (
     <motion.div
@@ -27,7 +35,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
     >
       <Card 
         className="cursor-pointer hover:shadow-md transition-shadow"
-        onClick={() => onOpenModal(template)}
+        onClick={handleCardClick}
       >
         <CardHeader>
           <div className="flex items-start justify-between">
@@ -56,10 +64,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
             <Button 
               variant="outline"
               size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                onOpenModal(template);
-              }}
+              onClick={handlePreviewClick}
               className="flex-1"
             >
               <Eye className="w-4 h-4 mr-2" />
