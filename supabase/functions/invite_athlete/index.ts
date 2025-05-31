@@ -56,8 +56,8 @@ serve(async (req) => {
 
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Ensure user is a coach: check custom claim or profile
-    const coachId = user.id; // assuming 'coach_id' claim === user.id for coaches
+    // Ensure user is a coach: check profile role
+    const coachId = user.id;
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("role, full_name")
@@ -117,8 +117,8 @@ serve(async (req) => {
 
     logStep("Invite email sent", { inviteData });
 
-    // 4. Insert into athlete_invites
-    const { error: insertError } = await supabase
+    // 4. Insert into athlete_invites using admin client to bypass RLS
+    const { error: insertError } = await supabaseAdmin
       .from("athlete_invites")
       .insert([{ coach_uuid: coachId, email, athlete_name: name, status: 'pending' }]);
 

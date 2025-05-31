@@ -34,15 +34,30 @@ export const AthleteInviteForm: React.FC<AthleteInviteFormProps> = ({ onInviteSe
     console.log('Sending invite to:', { email, name });
 
     try {
-      const { data, error } = await supabase.functions.invoke('invite_athlete', {
-        body: { email: email.trim(), name: name.trim() }
-      });
-
-      if (error) {
-        console.error('Invite error:', error);
-        throw error;
+      // Get current session for auth token
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        throw new Error('No valid session found');
       }
 
+      // Call the Edge Function directly with proper headers
+      const response = await fetch(`https://xeugyryfvilanoiethum.supabase.co/functions/v1/invite_athlete`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhldWd5cnlmdmlsYW5vaWV0aHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjI4MTIsImV4cCI6MjA2MzgzODgxMn0.oVIVzYllVHBAZjaav7oLunGF5XDK8a5V37DhZKPh_Lk'
+        },
+        body: JSON.stringify({ email: email.trim(), name: name.trim() })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to send invitation');
+      }
+
+      const data = await response.json();
       console.log('Invite response:', data);
 
       toast({
