@@ -8,7 +8,7 @@ import { ExerciseModal } from '@/components/ExerciseModal';
 import { useExerciseSearch } from '@/hooks/useExerciseSearch';
 import { Exercise, ExerciseFilters } from '@/types/exercise';
 import { Search, Library } from 'lucide-react';
-import { useDebounce } from '@/hooks/use-mobile';
+import { useDebounce } from '@/hooks/use-debounce';
 
 const LibraryPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
