@@ -1,151 +1,83 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Search, Plus } from 'lucide-react';
-import { useExercises } from '@/hooks/useExercises';
-import { Exercise } from '@/types/workout';
+import { ExerciseCard } from '@/components/ExerciseCard';
+import { FilterDrawer } from '@/components/FilterDrawer';
+import { ExerciseModal } from '@/components/ExerciseModal';
+import { useExerciseSearch } from '@/hooks/useExerciseSearch';
+import { Exercise, ExerciseFilters } from '@/types/exercise';
+import { Search } from 'lucide-react';
+import { useDebounce } from '@/hooks/use-debounce';
 
-interface ExerciseLibraryProps {
-  onExerciseSelect?: (exercise: Exercise) => void;
-  showAddButton?: boolean;
-}
+export const ExerciseLibrary: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState<ExerciseFilters>({});
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-export const ExerciseLibrary: React.FC<ExerciseLibraryProps> = ({
-  onExerciseSelect,
-  showAddButton = false,
-}) => {
-  const { data: exercises = [], isLoading } = useExercises();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const debouncedSearchQuery = useDebounce(searchQuery, 400);
+  const { data: exercises = [], isLoading } = useExerciseSearch(debouncedSearchQuery, filters);
 
-  const filteredExercises = exercises.filter(exercise => {
-    const matchesSearch = exercise.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         exercise.muscle_groups.some(mg => mg.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCategory = categoryFilter === 'all' || exercise.category === categoryFilter;
-    return matchesSearch && matchesCategory;
-  });
+  const handleExerciseClick = (exercise: Exercise) => {
+    setSelectedExercise(exercise);
+    setIsModalOpen(true);
+  };
 
-  const categories = Array.from(new Set(exercises.map(e => e.category)));
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-48">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedExercise(null);
+  };
 
   return (
     <div className="space-y-4">
+      {/* Search and Filter */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
             placeholder="Search exercises..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
           />
         </div>
-        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="All categories" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All categories</SelectItem>
-            {categories.map(category => (
-              <SelectItem key={category} value={category} className="capitalize">
-                {category}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <FilterDrawer filters={filters} onFiltersChange={setFilters} />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredExercises.map((exercise) => (
-          <Card 
-            key={exercise.id}
-            className={onExerciseSelect ? "cursor-pointer hover:shadow-md transition-shadow" : ""}
-            onClick={() => onExerciseSelect?.(exercise)}
-          >
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-lg">{exercise.name}</CardTitle>
-                  <CardDescription className="mt-1">
-                    {exercise.instructions?.substring(0, 100)}...
-                  </CardDescription>
-                </div>
-                <Badge variant="outline" className="capitalize">
-                  {exercise.category}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div>
-                  <span className="text-sm font-medium">Muscle Groups:</span>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {exercise.muscle_groups.slice(0, 3).map((muscle, index) => (
-                      <Badge key={index} variant="secondary" className="capitalize text-xs">
-                        {muscle.replace('_', ' ')}
-                      </Badge>
-                    ))}
-                    {exercise.muscle_groups.length > 3 && (
-                      <Badge variant="secondary" className="text-xs">
-                        +{exercise.muscle_groups.length - 3}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-                
-                {exercise.equipment.length > 0 && (
-                  <div>
-                    <span className="text-sm font-medium">Equipment:</span>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {exercise.equipment.slice(0, 2).map((eq, index) => (
-                        <Badge key={index} variant="outline" className="capitalize text-xs">
-                          {eq.replace('_', ' ')}
-                        </Badge>
-                      ))}
-                      {exercise.equipment.length > 2 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{exercise.equipment.length - 2}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {showAddButton && (
-                  <Button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onExerciseSelect?.(exercise);
-                    }}
-                    className="w-full mt-3"
-                    size="sm"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add to Template
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {filteredExercises.length === 0 && (
+      {/* Exercise Grid */}
+      {isLoading ? (
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-4">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className="animate-pulse">
+              <div className="aspect-video bg-gray-200 rounded-md mb-3"></div>
+              <div className="h-4 bg-gray-200 rounded mb-2"></div>
+              <div className="h-3 bg-gray-200 rounded w-16"></div>
+            </div>
+          ))}
+        </div>
+      ) : exercises.length > 0 ? (
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-4">
+          {exercises.map((exercise) => (
+            <ExerciseCard
+              key={exercise.id}
+              exercise={exercise}
+              onClick={handleExerciseClick}
+            />
+          ))}
+        </div>
+      ) : (
         <div className="text-center py-8 text-gray-500">
-          No exercises found matching your criteria
+          No exercises found
         </div>
       )}
+
+      {/* Exercise Modal */}
+      <ExerciseModal
+        exercise={selectedExercise}
+        isOpen={isModalOpen}
+        onClose={closeModal}
+      />
     </div>
   );
 };

@@ -1,7 +1,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Exercise } from '@/types/workout';
+import { Exercise } from '@/types/exercise';
 
 export const useExercises = () => {
   return useQuery({
@@ -22,13 +22,11 @@ export const useExercisesByCategory = (category?: string) => {
   return useQuery({
     queryKey: ['exercises', category],
     queryFn: async () => {
-      let query = supabase.from('exercises').select('*').order('name');
-      
-      if (category) {
-        query = query.eq('category', category);
-      }
+      const { data, error } = await supabase.rpc('search_exercises', {
+        q: '',
+        filters: category ? { modality: [category] } : {}
+      });
 
-      const { data, error } = await query;
       if (error) throw error;
       return data as Exercise[];
     },
