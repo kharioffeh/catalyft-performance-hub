@@ -21,7 +21,7 @@ export const useExerciseSearch = (searchQuery: string, filters: ExerciseFilters)
         query = query.overlaps('pattern', filters.pattern);
       }
       if (filters.muscle && filters.muscle.length > 0) {
-        query = query.overlaps('muscle_groups', filters.muscle);
+        query = query.overlaps('muscle', filters.muscle);
       }
       if (filters.equipment && filters.equipment.length > 0) {
         query = query.overlaps('equipment', filters.equipment);
@@ -49,11 +49,11 @@ export const useExerciseSearch = (searchQuery: string, filters: ExerciseFilters)
       return (data || []).map(exercise => ({
         id: exercise.id,
         name: exercise.name,
-        description: exercise.instructions || exercise.description,
+        description: exercise.description,
         video_url: exercise.video_url,
         thumbnail_url: exercise.thumbnail_url,
         pattern: exercise.pattern || [],
-        muscle: exercise.muscle_groups || [],
+        muscle: exercise.muscle || [],
         equipment: exercise.equipment || [],
         modality: exercise.modality || [],
         sport: exercise.sport || [],

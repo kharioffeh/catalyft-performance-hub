@@ -228,35 +228,59 @@ export type Database = {
       }
       exercises: {
         Row: {
-          category: string
           created_at: string
+          description: string | null
+          difficulty: string | null
+          energy_system: string | null
           equipment: string[] | null
           id: string
-          instructions: string | null
-          muscle_groups: string[] | null
+          intensity_zone: string | null
+          modality: string[] | null
+          muscle: string[] | null
           name: string
+          origin: string | null
+          pattern: string[] | null
+          plane: string | null
+          sport: string[] | null
+          thumbnail_url: string | null
           updated_at: string
           video_url: string | null
         }
         Insert: {
-          category: string
           created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          energy_system?: string | null
           equipment?: string[] | null
           id?: string
-          instructions?: string | null
-          muscle_groups?: string[] | null
+          intensity_zone?: string | null
+          modality?: string[] | null
+          muscle?: string[] | null
           name: string
+          origin?: string | null
+          pattern?: string[] | null
+          plane?: string | null
+          sport?: string[] | null
+          thumbnail_url?: string | null
           updated_at?: string
           video_url?: string | null
         }
         Update: {
-          category?: string
           created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          energy_system?: string | null
           equipment?: string[] | null
           id?: string
-          instructions?: string | null
-          muscle_groups?: string[] | null
+          intensity_zone?: string | null
+          modality?: string[] | null
+          muscle?: string[] | null
           name?: string
+          origin?: string | null
+          pattern?: string[] | null
+          plane?: string | null
+          sport?: string[] | null
+          thumbnail_url?: string | null
           updated_at?: string
           video_url?: string | null
         }
@@ -847,6 +871,13 @@ export type Database = {
             referencedRelation: "exercises"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "workout_performances_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises_search"
+            referencedColumns: ["id"]
+          },
         ]
       }
       workout_template_exercises: {
@@ -901,6 +932,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "workout_template_exercises_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises_search"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "workout_template_exercises_template_id_fkey"
             columns: ["template_id"]
             isOneToOne: false
@@ -950,6 +988,13 @@ export type Database = {
       }
     }
     Views: {
+      exercises_search: {
+        Row: {
+          document: unknown | null
+          id: string | null
+        }
+        Relationships: []
+      }
       vw_coach_athletes: {
         Row: {
           coach_uuid: string | null
