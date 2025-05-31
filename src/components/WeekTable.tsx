@@ -2,8 +2,23 @@
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
+interface Exercise {
+  name: string;
+  pct1RM?: number;
+  sets?: number;
+  reps?: number;
+  rest?: string;
+  rpe?: number;
+  notes?: string;
+}
+
+interface Session {
+  sessionName: string;
+  exercises?: Exercise[];
+}
+
 interface WeekTableProps {
-  week: any[];
+  week: Session[];
 }
 
 export const WeekTable: React.FC<WeekTableProps> = ({ week }) => {
@@ -16,7 +31,7 @@ export const WeekTable: React.FC<WeekTableProps> = ({ week }) => {
   }
 
   // Group exercises by session
-  const sessionGroups = week.reduce((acc, session) => {
+  const sessionGroups = week.reduce((acc: Record<string, Exercise[]>, session) => {
     if (!acc[session.sessionName]) {
       acc[session.sessionName] = [];
     }
@@ -45,7 +60,7 @@ export const WeekTable: React.FC<WeekTableProps> = ({ week }) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {exercises.map((exercise, idx) => (
+              {exercises.map((exercise: Exercise, idx: number) => (
                 <TableRow key={idx} className="even:bg-row-alt">
                   <TableCell className="font-medium">{exercise.name}</TableCell>
                   <TableCell>{exercise.pct1RM || '-'}%</TableCell>
