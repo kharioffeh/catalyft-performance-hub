@@ -8,6 +8,7 @@ export interface ProgramTemplate {
   coach_uuid: string;
   name: string;
   block_json: any;
+  origin: string;
   created_at: string;
   updated_at: string;
 }
