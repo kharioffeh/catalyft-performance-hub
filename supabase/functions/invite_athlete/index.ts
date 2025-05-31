@@ -27,223 +27,115 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    // Initialize Supabase client with service role for admin operations
-    const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { persistSession: false } }
-    );
+    // Initialize Supabase clients
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+    const SUPABASE_ADMIN_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_ADMIN_KEY);
+    const supabase = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_ANON_KEY")!);
 
-    // Initialize regular client for user verification
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
-    );
-
-    // Verify JWT and get user
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      logStep("No authorization header");
-      return new Response(JSON.stringify({ error: "Authorization required" }), {
+    // 1. Authenticate and extract coach_id from JWT
+    const authHeader = req.headers.get("Authorization") || "";
+    const [, token] = authHeader.split(" ");
+    if (!token) {
+      logStep("No authorization token");
+      return new Response(JSON.stringify({ error: "No authorization token" }), { 
         status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabase.auth.getUser(token);
-    
-    if (userError || !userData.user) {
+    // Verify token and get user info
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    if (userError || !user) {
       logStep("Invalid token", { error: userError });
-      return new Response(JSON.stringify({ error: "Invalid token" }), {
+      return new Response(JSON.stringify({ error: "Invalid token" }), { 
         status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    logStep("User authenticated", { userId: userData.user.id, email: userData.user.email });
+    logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Get coach_id from the coaches table
-    const { data: coachData, error: coachError } = await supabaseAdmin
-      .from('coaches')
-      .select('id')
-      .eq('email', userData.user.email)
+    // Ensure user is a coach: check custom claim or profile
+    const coachId = user.id; // assuming 'coach_id' claim === user.id for coaches
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role, full_name")
+      .eq("id", coachId)
       .single();
 
-    if (coachError || !coachData) {
-      logStep("User is not a coach", { error: coachError });
-      return new Response(JSON.stringify({ error: "User is not a coach" }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    if (profileError || profile?.role !== "coach") {
+      logStep("User is not a coach", { error: profileError, role: profile?.role });
+      return new Response(JSON.stringify({ error: "Only coaches can invite" }), { 
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    const coachId = coachData.id;
-    logStep("Coach verified", { coachId });
+    const coachName = profile.full_name || "";
+    logStep("Coach verified", { coachId, coachName });
 
-    // Parse request body
-    const { email, name } = await req.json();
-    if (!email || !name) {
-      logStep("Missing required fields", { email: !!email, name: !!name });
-      return new Response(JSON.stringify({ error: "Email and name are required" }), {
+    // 2. Parse request body
+    let body: { email: string; name?: string };
+    try {
+      body = await req.json();
+    } catch {
+      logStep("Invalid JSON body");
+      return new Response(JSON.stringify({ error: "Invalid JSON body" }), { 
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const { email, name = null } = body;
+    if (!email) {
+      logStep("Email is required");
+      return new Response(JSON.stringify({ error: "Email is required" }), { 
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
     logStep("Request body parsed", { email, name });
 
-    // Check coach's athlete quota
-    const { data: usageData, error: usageError } = await supabaseAdmin
-      .from('coach_usage')
-      .select('athlete_count')
-      .eq('coach_uuid', coachId)
-      .single();
-
-    let currentCount = 0;
-    if (!usageError && usageData) {
-      currentCount = usageData.athlete_count;
-    }
-
-    logStep("Current athlete count", { currentCount });
-
-    // For now, enforce a limit of 20 athletes (this can be made configurable later)
-    if (currentCount >= 20) {
-      logStep("Athlete limit exceeded", { currentCount, limit: 20 });
-      return new Response(JSON.stringify({ 
-        error: "Athlete limit exceeded. Please upgrade your plan to add more athletes." 
-      }), {
-        status: 402,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Check if email is already invited or exists as athlete
-    const { data: existingInvite } = await supabaseAdmin
-      .from('athlete_invites')
-      .select('id, status')
-      .eq('email', email.toLowerCase())
-      .eq('coach_uuid', coachId)
-      .single();
-
-    if (existingInvite) {
-      if (existingInvite.status === 'pending') {
-        logStep("Resending existing invite", { email });
-        // Continue with flow to resend
-      } else if (existingInvite.status === 'accepted') {
-        logStep("Invite already accepted", { email });
-        return new Response(JSON.stringify({ 
-          error: "This athlete has already accepted an invitation" 
-        }), {
-          status: 409,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+    // 3. Send Supabase magic-link invite
+    const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
+      email,
+      {
+        data: { provisional: true, coach_id: coachId, coach_name: coachName },
+        redirectTo: `${Deno.env.get("APP_URL")}/finish-signup`,
       }
-    }
-
-    // Get coach name for email customization
-    const { data: profileData } = await supabaseAdmin
-      .from('profiles')
-      .select('full_name')
-      .eq('email', userData.user.email)
-      .single();
-
-    const coachName = profileData?.full_name || 'Your coach';
-
-    // Use APP_URL environment variable for production domain
-    const appUrl = Deno.env.get('APP_URL') ?? 'https://catalyft.app';
-    const redirectTo = `${appUrl}/finish-signup`;
-    
-    logStep("Using redirect URL", { redirectTo });
-
-    // Send invitation email using Supabase Auth
-    const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-      redirectTo,
-      data: { 
-        provisional: true,
-        coach_id: coachId,
-        athlete_name: name,
-        coach_name: coachName
-      }
-    });
+    );
 
     if (inviteError) {
       logStep("Failed to send invite email", { error: inviteError });
-      return new Response(JSON.stringify({ 
-        error: `Failed to send invitation: ${inviteError.message}` 
-      }), {
+      return new Response(JSON.stringify({ error: inviteError.message }), { 
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
     logStep("Invite email sent", { inviteData });
 
-    // Insert or update invitation record
-    if (existingInvite && existingInvite.status === 'pending') {
-      // Update existing invite
-      const { data: updateData, error: updateError } = await supabaseAdmin
-        .from('athlete_invites')
-        .update({
-          athlete_name: name,
-          created_at: new Date().toISOString()
-        })
-        .eq('id', existingInvite.id)
-        .select()
-        .single();
+    // 4. Insert into athlete_invites
+    const { error: insertError } = await supabase
+      .from("athlete_invites")
+      .insert([{ coach_uuid: coachId, email, athlete_name: name, status: 'pending' }]);
 
-      if (updateError) {
-        logStep("Failed to update invite record", { error: updateError });
-        return new Response(JSON.stringify({ 
-          error: `Failed to update invitation: ${updateError.message}` 
-        }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-
-      logStep("Invite record updated", { updateData });
-
-      return new Response(JSON.stringify({ 
-        status: "resent",
-        invitation_id: updateData.id
-      }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    } else {
-      // Insert new invitation record
-      const { data: insertData, error: insertError } = await supabaseAdmin
-        .from('athlete_invites')
-        .insert({
-          coach_uuid: coachId,
-          email: email.toLowerCase(),
-          athlete_name: name,
-          status: 'pending'
-        })
-        .select()
-        .single();
-
-      if (insertError) {
-        logStep("Failed to insert invite record", { error: insertError });
-        return new Response(JSON.stringify({ 
-          error: `Failed to record invitation: ${insertError.message}` 
-        }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-
-      logStep("Invite record created", { insertData });
-
-      return new Response(JSON.stringify({ 
-        status: "sent",
-        invitation_id: insertData.id
-      }), {
-        status: 201,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    if (insertError) {
+      logStep("Failed to insert invite record", { error: insertError });
+      return new Response(JSON.stringify({ error: insertError.message }), { 
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
+
+    logStep("Invite record created successfully");
+
+    return new Response(JSON.stringify({ status: "invite_sent", invite: inviteData }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
