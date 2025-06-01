@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -60,14 +59,9 @@ export const AthleteInviteForm: React.FC<AthleteInviteFormProps> = ({ onInviteSe
       const data = await response.json();
       console.log('Invite response:', data);
 
-      // Show success message with icon
+      // Show success message
       toast({
-        title: (
-          <div className="flex items-center gap-2">
-            <Check className="w-4 h-4 text-green-600" />
-            Invitation sent successfully!
-          </div>
-        ),
+        title: "✅ Invitation sent successfully!",
         description: `Invite sent to ${email}. They will receive an email to join your team.`,
       });
 
@@ -78,14 +72,9 @@ export const AthleteInviteForm: React.FC<AthleteInviteFormProps> = ({ onInviteSe
     } catch (error: any) {
       console.error('Failed to send invite:', error);
       
-      // Show error message with icon and specific error details
+      // Show error message with specific error details
       toast({
-        title: (
-          <div className="flex items-center gap-2">
-            <X className="w-4 h-4 text-red-600" />
-            Failed to send invitation
-          </div>
-        ),
+        title: "❌ Failed to send invitation",
         description: error.message || "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
