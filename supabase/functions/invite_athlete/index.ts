@@ -57,7 +57,7 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     // Check if user has coach profile in coaches table
-    const { data: coachData, error: coachError } = await supabase
+    const { data: coachData, error: coachError } = await supabaseAdmin
       .from("coaches")
       .select("id")
       .eq("email", user.email)
@@ -74,8 +74,15 @@ serve(async (req) => {
     const coachId = coachData.id;
     logStep("Coach verified", { coachId });
 
+    // Set coach_id in the request context for RLS
+    await supabaseAdmin.rpc('set_config', {
+      setting_name: 'request.jwt.claims.coach_id',
+      setting_value: coachId,
+      is_local: true
+    });
+
     // Get coach profile for name
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("full_name")
       .eq("id", user.id)
@@ -125,7 +132,7 @@ serve(async (req) => {
 
     logStep("Invite email sent", { inviteData });
 
-    // 4. Insert into athlete_invites using admin client to bypass RLS
+    // 4. Insert into athlete_invites using admin client with explicit coach_uuid
     const { error: insertError } = await supabaseAdmin
       .from("athlete_invites")
       .insert([{ coach_uuid: coachId, email, athlete_name: name, status: 'pending' }]);
