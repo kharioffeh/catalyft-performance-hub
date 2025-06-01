@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Mail } from 'lucide-react';
+import { Mail, Check, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/hooks/use-toast';
 
@@ -60,9 +60,15 @@ export const AthleteInviteForm: React.FC<AthleteInviteFormProps> = ({ onInviteSe
       const data = await response.json();
       console.log('Invite response:', data);
 
+      // Show success message with icon
       toast({
-        title: "Success",
-        description: "Invite sent successfully",
+        title: (
+          <div className="flex items-center gap-2">
+            <Check className="w-4 h-4 text-green-600" />
+            Invitation sent successfully!
+          </div>
+        ),
+        description: `Invite sent to ${email}. They will receive an email to join your team.`,
       });
 
       setEmail('');
@@ -71,9 +77,16 @@ export const AthleteInviteForm: React.FC<AthleteInviteFormProps> = ({ onInviteSe
       onInviteSent?.();
     } catch (error: any) {
       console.error('Failed to send invite:', error);
+      
+      // Show error message with icon and specific error details
       toast({
-        title: "Error",
-        description: error.message || "Failed to send invitation",
+        title: (
+          <div className="flex items-center gap-2">
+            <X className="w-4 h-4 text-red-600" />
+            Failed to send invitation
+          </div>
+        ),
+        description: error.message || "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {

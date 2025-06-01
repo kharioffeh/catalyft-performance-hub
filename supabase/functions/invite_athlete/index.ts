@@ -56,24 +56,32 @@ serve(async (req) => {
 
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Ensure user is a coach: check profile role
-    const coachId = user.id;
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("role, full_name")
-      .eq("id", coachId)
+    // Check if user has coach profile in coaches table
+    const { data: coachData, error: coachError } = await supabase
+      .from("coaches")
+      .select("id")
+      .eq("email", user.email)
       .single();
 
-    if (profileError || profile?.role !== "coach") {
-      logStep("User is not a coach", { error: profileError, role: profile?.role });
-      return new Response(JSON.stringify({ error: "Only coaches can invite" }), { 
+    if (coachError || !coachData) {
+      logStep("User is not a coach - no coach record found", { error: coachError, email: user.email });
+      return new Response(JSON.stringify({ error: "Only coaches can invite athletes" }), { 
         status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    const coachName = profile.full_name || "";
-    logStep("Coach verified", { coachId, coachName });
+    const coachId = coachData.id;
+    logStep("Coach verified", { coachId });
+
+    // Get coach profile for name
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", user.id)
+      .single();
+
+    const coachName = profile?.full_name || "";
 
     // 2. Parse request body
     let body: { email: string; name?: string };
