@@ -1,105 +1,40 @@
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import SwipeableViews from 'react-swipeable-views';
 import { WeekTable } from '@/components/WeekTable';
 
 interface WeekSliderProps {
-  blockJson: {
-    weeks?: any[];
-  };
-  editable?: boolean;
-  onBlockJsonUpdate?: (updatedBlockJson: any) => void;
+  blockJson: any;
 }
 
-export const WeekSlider: React.FC<WeekSliderProps> = ({ 
-  blockJson, 
-  editable = false, 
-  onBlockJsonUpdate 
-}) => {
-  const [weekIdx, setWeekIdx] = useState(0);
-  
+export default function WeekSlider({ blockJson }: WeekSliderProps) {
   const weeks = blockJson.weeks || [];
-  const totalWeeks = weeks.length;
-
-  if (totalWeeks === 0) {
-    return (
-      <div className="text-center py-8 text-gray-500">
-        No weeks found in this template
-      </div>
-    );
-  }
-
-  const handleExerciseUpdate = (weekIndex: number, sessionIndex: number, exerciseIndex: number, field: string, value: string | number) => {
-    if (!onBlockJsonUpdate) return;
-
-    const updatedBlockJson = { ...blockJson };
-    const updatedWeeks = [...updatedBlockJson.weeks];
-    const updatedWeek = [...updatedWeeks[weekIndex]];
-    const updatedSession = { ...updatedWeek[sessionIndex] };
-    const updatedExercises = [...(updatedSession.exercises || [])];
-    
-    updatedExercises[exerciseIndex] = {
-      ...updatedExercises[exerciseIndex],
-      [field]: value
-    };
-    
-    updatedSession.exercises = updatedExercises;
-    updatedWeek[sessionIndex] = updatedSession;
-    updatedWeeks[weekIndex] = updatedWeek;
-    updatedBlockJson.weeks = updatedWeeks;
-
-    onBlockJsonUpdate(updatedBlockJson);
-  };
-
+  const [idx, setIdx] = useState(0);
+  
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setWeekIdx(Math.max(0, weekIdx - 1))}
-          disabled={weekIdx === 0}
+    <>
+      <div className="flex items-center mb-2">
+        <button 
+          className="btn-ghost" 
+          disabled={idx === 0} 
+          onClick={() => setIdx(idx - 1)}
         >
-          <ChevronLeft className="w-4 h-4" />
-          Previous
-        </Button>
-        
-        <h3 className="text-lg font-semibold">
-          Week {weekIdx + 1} / {totalWeeks}
-        </h3>
-        
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setWeekIdx(Math.min(totalWeeks - 1, weekIdx + 1))}
-          disabled={weekIdx === totalWeeks - 1}
+          ‹
+        </button>
+        <span className="mx-4">Week {idx + 1} / {weeks.length}</span>
+        <button 
+          className="btn-ghost" 
+          disabled={idx === weeks.length - 1} 
+          onClick={() => setIdx(idx + 1)}
         >
-          Next
-          <ChevronRight className="w-4 h-4" />
-        </Button>
+          ›
+        </button>
       </div>
-
-      <div className="overflow-hidden">
-        <SwipeableViews
-          index={weekIdx}
-          onChangeIndex={setWeekIdx}
-          enableMouseEvents
-        >
-          {weeks.map((week, index) => (
-            <div key={index} className="px-1">
-              <WeekTable 
-                week={week} 
-                editable={editable}
-                onExerciseUpdate={(sessionIndex, exerciseIndex, field, value) => 
-                  handleExerciseUpdate(index, sessionIndex, exerciseIndex, field, value)
-                }
-              />
-            </div>
-          ))}
-        </SwipeableViews>
-      </div>
-    </div>
+      <SwipeableViews index={idx} onChangeIndex={setIdx}>
+        {weeks.map((week: any, i: number) => (
+          <WeekTable key={i} week={week} />
+        ))}
+      </SwipeableViews>
+    </>
   );
-};
+}
