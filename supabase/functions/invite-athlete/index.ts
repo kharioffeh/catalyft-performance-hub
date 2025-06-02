@@ -31,12 +31,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-    );
-
-    // Get the authorization header
+    // Create a client with the user's token for proper RLS context
     const authHeader = req.headers.get('Authorization');
     console.log("invite_athlete: Authorization header present:", !!authHeader);
     
@@ -48,11 +43,25 @@ serve(async (req) => {
       );
     }
 
-    // Verify the user
     const token = authHeader.replace('Bearer ', '');
-    console.log("invite_athlete: Attempting to verify user token");
     
-    const { data: userData, error: userError } = await supabase.auth.getUser(token);
+    // Create authenticated client using the user's token
+    const supabaseUser = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: {
+            Authorization: authHeader,
+          },
+        },
+      }
+    );
+
+    console.log("invite_athlete: Attempting to get user from authenticated client");
+    
+    // Get user using the authenticated client
+    const { data: userData, error: userError } = await supabaseUser.auth.getUser(token);
     
     if (userError || !userData.user) {
       console.log("invite_athlete: User verification failed:", userError);
@@ -64,30 +73,30 @@ serve(async (req) => {
 
     console.log("invite_athlete: User verified:", userData.user.email, "User ID:", userData.user.id);
 
-    // Check if user is a coach - using a more robust query
+    // Now check profile using the authenticated client (respects RLS)
     console.log("invite_athlete: Looking up profile for user ID:", userData.user.id);
     
-    const { data: profiles, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await supabaseUser
       .from('profiles')
       .select('role, email')
-      .eq('id', userData.user.id);
+      .eq('id', userData.user.id)
+      .single();
 
     console.log("invite_athlete: Profile query result:", { 
-      profiles, 
-      profileError,
-      profileCount: profiles?.length || 0 
+      profile, 
+      profileError
     });
 
-    // Check if we have any profiles
+    // Check if we have a profile
     if (profileError) {
       console.log("invite_athlete: Profile query error:", profileError);
       return new Response(
-        JSON.stringify({ error: 'Failed to check user profile' }),
+        JSON.stringify({ error: 'Failed to check user profile: ' + profileError.message }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    if (!profiles || profiles.length === 0) {
+    if (!profile) {
       console.log("invite_athlete: No profile found for user");
       return new Response(
         JSON.stringify({ error: 'User profile not found' }),
@@ -95,7 +104,6 @@ serve(async (req) => {
       );
     }
 
-    const profile = profiles[0];
     console.log("invite_athlete: Found profile:", profile);
 
     if (profile.role !== 'coach') {
@@ -109,7 +117,7 @@ serve(async (req) => {
     // Get coach record using the email from the profile
     console.log("invite_athlete: Looking up coach record for email:", profile.email);
     
-    const { data: coachData, error: coachError } = await supabase
+    const { data: coachData, error: coachError } = await supabaseUser
       .from('coaches')
       .select('id')
       .eq('email', profile.email)
@@ -149,7 +157,7 @@ serve(async (req) => {
     }
 
     // Check if athlete is already invited or exists
-    const { data: existingInvite } = await supabase
+    const { data: existingInvite } = await supabaseUser
       .from('athlete_invites')
       .select('*')
       .eq('coach_uuid', coachData.id)
@@ -192,7 +200,7 @@ serve(async (req) => {
 
     // Record the invite in our database
     console.log("invite_athlete: Recording invite in database");
-    const { error: insertError } = await supabase
+    const { error: insertError } = await supabaseUser
       .from('athlete_invites')
       .insert({
         coach_uuid: coachData.id,
