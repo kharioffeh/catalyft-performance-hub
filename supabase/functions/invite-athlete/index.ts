@@ -8,6 +8,17 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Log every incoming request immediately
+  console.log("invite_athlete: Received request", {
+    method: req.method,
+    url: req.url,
+    headers: Object.fromEntries(req.headers),
+  });
+
+  // Log the raw request body before any parsing
+  const rawBody = await req.clone().text();
+  console.log("invite_athlete: Raw request body:", rawBody);
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
