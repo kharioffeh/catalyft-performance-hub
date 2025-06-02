@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -16,7 +17,7 @@ import RiskBoardPage from './pages/CoachRiskBoard';
 import TemplatesPage from './pages/TemplatesPage';
 import TemplatePage from './pages/TemplatePage';
 import TemplateDetailPage from '@/pages/TemplateDetailPage';
-import Toaster from './components/Toaster';
+import { Toaster } from './components/ui/toaster';
 
 const queryClient = new QueryClient();
 
