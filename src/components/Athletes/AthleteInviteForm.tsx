@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Mail, Check, X } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/hooks/use-toast';
 
@@ -40,24 +41,19 @@ export const AthleteInviteForm: React.FC<AthleteInviteFormProps> = ({ onInviteSe
         throw new Error('No valid session found');
       }
 
-      // Call the Edge Function directly with proper headers
-      const response = await fetch(`https://xeugyryfvilanoiethum.supabase.co/functions/v1/invite_athlete`, {
-        method: 'POST',
+      // Call the Edge Function with proper headers
+      const response = await supabase.functions.invoke('invite_athlete', {
+        body: { email: email.trim(), name: name.trim() },
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhldWd5cnlmdmlsYW5vaWV0aHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNjI4MTIsImV4cCI6MjA2MzgzODgxMn0.oVIVzYllVHBAZjaav7oLunGF5XDK8a5V37DhZKPh_Lk'
+          Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ email: email.trim(), name: name.trim() })
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to send invitation');
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to send invitation');
       }
 
-      const data = await response.json();
-      console.log('Invite response:', data);
+      console.log('Invite response:', response.data);
 
       // Show success message
       toast({
