@@ -87,12 +87,11 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
         return;
       }
 
-      // Check response structure
-      if (data && data.success === false) {
-        console.log('InviteAthleteModal: Function returned error response:', data);
-        
-        // Check if this is a "pending invite" scenario
-        if (data.hasPendingInvite) {
+      // Check if we have data and if it indicates success or failure
+      if (data) {
+        // Check if this is a pending invite scenario
+        if (data.success === false && data.hasPendingInvite) {
+          console.log('InviteAthleteModal: Pending invite found:', data);
           setPendingInvite({ 
             hasPendingInvite: data.hasPendingInvite, 
             inviteId: data.inviteId 
@@ -105,28 +104,41 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
           return;
         }
         
-        toast({
-          title: "Error",
-          description: data.error,
-          variant: "destructive"
-        });
-        return;
+        // Check for other error responses
+        if (data.success === false) {
+          console.log('InviteAthleteModal: Function returned error:', data);
+          toast({
+            title: "Error",
+            description: data.error || "Failed to send invite",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        // Success case
+        if (data.success === true || data.message) {
+          console.log('InviteAthleteModal: Invite sent successfully');
+          toast({
+            title: "Success",
+            description: data.message || `Invite ${resend ? 'resent' : 'sent'} to ${email}`,
+            variant: "default"
+          });
+
+          setEmail('');
+          setPendingInvite(null);
+          onClose();
+          onSuccess?.();
+          return;
+        }
       }
 
-      // Success case
-      if (data && data.success) {
-        console.log('InviteAthleteModal: Invite sent successfully');
-        toast({
-          title: "Success",
-          description: data.resent ? `Invite resent to ${email}` : `Invite sent to ${email}`,
-          variant: "default"
-        });
-
-        setEmail('');
-        setPendingInvite(null);
-        onClose();
-        onSuccess?.();
-      }
+      // Fallback for unexpected response structure
+      console.log('InviteAthleteModal: Unexpected response structure:', data);
+      toast({
+        title: "Error",
+        description: "Unexpected response from server",
+        variant: "destructive"
+      });
       
     } catch (error) {
       console.error('InviteAthleteModal: Unexpected error:', error);

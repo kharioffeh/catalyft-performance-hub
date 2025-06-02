@@ -172,8 +172,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: false,
-          error: 'Athlete has already accepted the invite',
-          hasPendingInvite: false
+          error: 'Athlete has already accepted the invite'
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -340,7 +339,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Catalyft AI <noreply@mail.catalyft.app>',
+        from: 'Catalyft AI <onboarding@resend.dev>',
         to: [email],
         subject: resend ? '🚀 Reminder: You\'re invited to join Catalyft AI' : '🚀 You\'re invited to join Catalyft AI',
         html: emailHtml,
