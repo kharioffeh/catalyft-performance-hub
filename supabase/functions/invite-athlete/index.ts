@@ -78,7 +78,7 @@ serve(async (req) => {
     
     const { data: profile, error: profileError } = await supabaseUser
       .from('profiles')
-      .select('role, email')
+      .select('role, email, full_name')
       .eq('id', userData.user.id)
       .single();
 
@@ -174,26 +174,167 @@ serve(async (req) => {
       );
     }
 
-    console.log("invite_athlete: Sending invite email using Supabase Auth");
+    console.log("invite_athlete: Creating user and sending custom invite email");
 
-    // Send invite email using Supabase Auth
+    // First create the user account
     const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
       email,
       {
         data: { 
           role: 'athlete',
-          coach_id: coachData.id
+          coach_id: coachData.id,
+          coach_name: profile.full_name || profile.email
         },
         redirectTo: `${Deno.env.get('APP_URL') || 'https://catalyft.app'}/finish-signup`
       }
     );
 
-    console.log("invite_athlete: Invite result:", { inviteData, inviteError });
+    console.log("invite_athlete: User creation result:", { inviteData, inviteError });
 
     if (inviteError) {
-      console.error('invite_athlete: Invite error:', inviteError);
+      console.error('invite_athlete: User creation error:', inviteError);
       return new Response(
-        JSON.stringify({ error: `Failed to send invite: ${inviteError.message}` }),
+        JSON.stringify({ error: `Failed to create user: ${inviteError.message}` }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Generate magic link for the invite
+    const magicLinkUrl = `${Deno.env.get('SUPABASE_URL')}/auth/v1/magiclink?email=${encodeURIComponent(email)}&redirect_to=${encodeURIComponent(`${Deno.env.get('APP_URL') || 'https://catalyft.app'}/finish-signup`)}`;
+    
+    // Send custom email using Resend
+    console.log("invite_athlete: Sending custom invite email");
+    
+    const emailHtml = `<!DOCTYPE html>
+<html lang="en" style="margin:0;padding:0;">
+  <head>
+    <meta charset="utf-8" />
+    <title>Welcome to Catalyft AI</title>
+    <meta name="color-scheme" content="light dark" />
+    <style>
+      /* -------- root brand colours -------- */
+      :root {
+        --bg: #f8f8f8;
+        --card: #ffffff;
+        --accent: #00ff7b;
+        --text: #131313;
+        --link: #5bafff;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #131313;
+          --card: #1e1e1e;
+          --accent: #00ff7b;
+          --text: #f8f8f8;
+          --link: #5bafff;
+        }
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: var(--text);
+      }
+      .wrapper {
+        width: 100%;
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 32px 16px;
+      }
+      .card {
+        background: var(--card);
+        border-radius: 20px;
+        padding: 32px 24px;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 1.5rem;
+        line-height: 1.2;
+      }
+      p {
+        margin: 0 0 18px;
+        line-height: 1.5;
+      }
+      .cta {
+        display: block;
+        text-align: center;
+        background: var(--accent);
+        color: #000;
+        text-decoration: none;
+        padding: 14px 20px;
+        border-radius: 14px;
+        font-weight: 600;
+        margin: 24px 0;
+      }
+      .sub {
+        font-size: 0.8rem;
+        color: #838383;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <div class="card">
+        <h1>🚀 Time to elevate your training</h1>
+
+        <p><strong>${profile.full_name || profile.email}</strong> just added you to their
+           Catalyft AI squad. One tap and you'll unlock:</p>
+        <ul style="padding-left:20px;margin:0 0 18px;">
+          <li>Daily readiness score</li>
+          <li>AI-generated, auto-adjusting workouts</li>
+          <li>All your wearable data in one dashboard</li>
+        </ul>
+
+        <a href="${magicLinkUrl}" class="cta">Accept invite &amp; set up profile</a>
+
+        <p class="sub">
+          Link not working? Copy &amp; paste this URL into your browser:<br />
+          ${magicLinkUrl}
+        </p>
+        <p class="sub">
+          You received this email because someone (hopefully you!) entered this address on <a href="${Deno.env.get('APP_URL') || 'https://catalyft.app'}" style="color:var(--link);text-decoration:none;">Catalyft AI</a>.<br />
+          If that wasn't you, simply ignore this message.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>`;
+
+    // Use Resend to send the email
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    if (!resendApiKey) {
+      console.error('invite_athlete: RESEND_API_KEY not configured');
+      return new Response(
+        JSON.stringify({ error: 'Email service not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const emailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Catalyft AI <noreply@catalyft.app>',
+        to: [email],
+        subject: '🚀 You\'re invited to join Catalyft AI',
+        html: emailHtml,
+      }),
+    });
+
+    const emailResult = await emailResponse.json();
+    console.log("invite_athlete: Email send result:", emailResult);
+
+    if (!emailResponse.ok) {
+      console.error('invite_athlete: Email send failed:', emailResult);
+      return new Response(
+        JSON.stringify({ error: 'Failed to send invite email' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
