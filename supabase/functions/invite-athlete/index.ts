@@ -46,7 +46,7 @@ serve(async (req) => {
     const token = authHeader.replace('Bearer ', '');
     
     // Create authenticated client using the user's token
-    const supabaseUser = createClient(
+    const supabaseAuth = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
@@ -61,7 +61,7 @@ serve(async (req) => {
     console.log("invite_athlete: Attempting to get user from authenticated client");
     
     // Get user using the authenticated client
-    const { data: userData, error: userError } = await supabaseUser.auth.getUser(token);
+    const { data: userData, error: userError } = await supabaseAuth.auth.getUser(token);
     
     if (userError || !userData.user) {
       console.log("invite_athlete: User verification failed:", userError);
@@ -73,10 +73,10 @@ serve(async (req) => {
 
     console.log("invite_athlete: User verified:", userData.user.email, "User ID:", userData.user.id);
 
-    // Now check profile using the authenticated client (respects RLS)
+    // Get profile using the authenticated client (respects RLS)
     console.log("invite_athlete: Looking up profile for user ID:", userData.user.id);
     
-    const { data: profile, error: profileError } = await supabaseUser
+    const { data: profile, error: profileError } = await supabaseAuth
       .from('profiles')
       .select('role, email, full_name')
       .eq('id', userData.user.id)
@@ -117,7 +117,7 @@ serve(async (req) => {
     // Get coach record using the email from the profile
     console.log("invite_athlete: Looking up coach record for email:", profile.email);
     
-    const { data: coachData, error: coachError } = await supabaseUser
+    const { data: coachData, error: coachError } = await supabaseAuth
       .from('coaches')
       .select('id')
       .eq('email', profile.email)
@@ -157,7 +157,7 @@ serve(async (req) => {
     }
 
     // Check if athlete is already invited or exists
-    const { data: existingInvite } = await supabaseUser
+    const { data: existingInvite } = await supabaseAuth
       .from('athlete_invites')
       .select('*')
       .eq('coach_uuid', coachData.id)
@@ -199,11 +199,34 @@ serve(async (req) => {
       );
     }
 
-    // Generate magic link for the invite
-    const magicLinkUrl = `${Deno.env.get('SUPABASE_URL')}/auth/v1/magiclink?email=${encodeURIComponent(email)}&redirect_to=${encodeURIComponent(`${Deno.env.get('APP_URL') || 'https://catalyft.app'}/finish-signup`)}`;
+    // Generate proper magic link for signup
+    const { data: magicLinkData, error: magicLinkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'signup',
+      email: email,
+      options: {
+        data: { 
+          role: 'athlete',
+          coach_id: coachData.id,
+          coach_name: profile.full_name || profile.email
+        },
+        redirectTo: `${Deno.env.get('APP_URL') || 'https://catalyft.app'}/finish-signup`
+      }
+    });
+
+    console.log("invite_athlete: Magic link generation result:", { magicLinkData, magicLinkError });
+
+    if (magicLinkError || !magicLinkData.properties?.action_link) {
+      console.error('invite_athlete: Magic link generation failed:', magicLinkError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to generate magic link' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const magicLink = magicLinkData.properties.action_link;
     
     // Send custom email using Resend
-    console.log("invite_athlete: Sending custom invite email");
+    console.log("invite_athlete: Sending custom invite email with magic link");
     
     const emailHtml = `<!DOCTYPE html>
 <html lang="en" style="margin:0;padding:0;">
@@ -289,11 +312,11 @@ serve(async (req) => {
           <li>All your wearable data in one dashboard</li>
         </ul>
 
-        <a href="${magicLinkUrl}" class="cta">Accept invite &amp; set up profile</a>
+        <a href="${magicLink}" class="cta">Accept invite &amp; set up profile</a>
 
         <p class="sub">
           Link not working? Copy &amp; paste this URL into your browser:<br />
-          ${magicLinkUrl}
+          ${magicLink}
         </p>
         <p class="sub">
           You received this email because someone (hopefully you!) entered this address on <a href="${Deno.env.get('APP_URL') || 'https://catalyft.app'}" style="color:var(--link);text-decoration:none;">Catalyft AI</a>.<br />
@@ -341,7 +364,7 @@ serve(async (req) => {
 
     // Record the invite in our database
     console.log("invite_athlete: Recording invite in database");
-    const { error: insertError } = await supabaseUser
+    const { error: insertError } = await supabaseAuth
       .from('athlete_invites')
       .insert({
         coach_uuid: coachData.id,
