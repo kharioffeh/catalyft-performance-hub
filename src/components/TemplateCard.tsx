@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Users, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useTemplateModal } from '@/store/useTemplateModal';
 
 interface TemplateCardProps {
@@ -16,10 +17,11 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
   template,
   onAssign,
 }) => {
+  const navigate = useNavigate();
   const isKAI = template.origin === 'KAI';
   
   const handleCardClick = () => {
-    useTemplateModal.getState().open(template);
+    navigate(`/template/${template.id}`);
   };
 
   const handlePreviewClick = (e: React.MouseEvent) => {
@@ -36,6 +38,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
       <Card 
         className="cursor-pointer hover:shadow-md transition-shadow"
         onClick={handleCardClick}
+        data-testid="template-card"
       >
         <CardHeader>
           <div className="flex items-start justify-between">

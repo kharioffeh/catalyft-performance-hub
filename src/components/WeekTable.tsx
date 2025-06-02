@@ -47,34 +47,36 @@ export const WeekTable: React.FC<WeekTableProps> = ({ week }) => {
             {sessionName}
           </h4>
           
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Exercise</TableHead>
-                <TableHead>%1RM</TableHead>
-                <TableHead>Sets</TableHead>
-                <TableHead>Reps</TableHead>
-                <TableHead>Rest</TableHead>
-                <TableHead>RPE</TableHead>
-                <TableHead>Notes</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {exercises.map((exercise: Exercise, idx: number) => (
-                <TableRow key={idx} className="even:bg-row-alt">
-                  <TableCell className="font-medium">{exercise.name}</TableCell>
-                  <TableCell>{exercise.pct1RM || '-'}%</TableCell>
-                  <TableCell>{exercise.sets || '-'}</TableCell>
-                  <TableCell>{exercise.reps || '-'}</TableCell>
-                  <TableCell>{exercise.rest || '-'}</TableCell>
-                  <TableCell>{exercise.rpe || '-'}</TableCell>
-                  <TableCell className="text-sm text-gray-600">
-                    {exercise.notes || '-'}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <div className="overflow-x-auto">
+            <table className="w-full table-auto">
+              <thead>
+                <tr>
+                  <th className="bg-gray-100 text-left px-3 py-2 font-medium">Exercise</th>
+                  <th className="bg-gray-100 text-left px-3 py-2 font-medium">%1RM</th>
+                  <th className="bg-gray-100 text-left px-3 py-2 font-medium">Sets</th>
+                  <th className="bg-gray-100 text-left px-3 py-2 font-medium">Reps</th>
+                  <th className="bg-gray-100 text-left px-3 py-2 font-medium">Rest</th>
+                  <th className="bg-gray-100 text-left px-3 py-2 font-medium">RPE</th>
+                  <th className="bg-gray-100 text-left px-3 py-2 font-medium">Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {exercises.map((exercise: Exercise, idx: number) => (
+                  <tr key={idx} className="even:bg-gray-50">
+                    <td className="px-3 py-1 font-medium">{exercise.name}</td>
+                    <td className="px-3 py-1">{exercise.pct1RM || '-'}%</td>
+                    <td className="px-3 py-1">{exercise.sets || '-'}</td>
+                    <td className="px-3 py-1">{exercise.reps || '-'}</td>
+                    <td className="px-3 py-1">{exercise.rest || '-'}</td>
+                    <td className="px-3 py-1">{exercise.rpe || '-'}</td>
+                    <td className="px-3 py-1 text-sm text-gray-600">
+                      {exercise.notes || '-'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       ))}
     </div>
