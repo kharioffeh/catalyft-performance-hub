@@ -62,30 +62,57 @@ serve(async (req) => {
       );
     }
 
-    console.log("invite_athlete: User verified:", userData.user.email);
+    console.log("invite_athlete: User verified:", userData.user.email, "User ID:", userData.user.id);
 
-    // Check if user is a coach
-    const { data: profile, error: profileError } = await supabase
+    // Check if user is a coach - using a more robust query
+    console.log("invite_athlete: Looking up profile for user ID:", userData.user.id);
+    
+    const { data: profiles, error: profileError } = await supabase
       .from('profiles')
-      .select('role')
-      .eq('id', userData.user.id)
-      .single();
+      .select('role, email')
+      .eq('id', userData.user.id);
 
-    console.log("invite_athlete: Profile check result:", { profile, profileError });
+    console.log("invite_athlete: Profile query result:", { 
+      profiles, 
+      profileError,
+      profileCount: profiles?.length || 0 
+    });
 
-    if (profileError || profile?.role !== 'coach') {
-      console.log("invite_athlete: User is not a coach");
+    // Check if we have any profiles
+    if (profileError) {
+      console.log("invite_athlete: Profile query error:", profileError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to check user profile' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!profiles || profiles.length === 0) {
+      console.log("invite_athlete: No profile found for user");
+      return new Response(
+        JSON.stringify({ error: 'User profile not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const profile = profiles[0];
+    console.log("invite_athlete: Found profile:", profile);
+
+    if (profile.role !== 'coach') {
+      console.log("invite_athlete: User is not a coach. Role:", profile.role);
       return new Response(
         JSON.stringify({ error: 'Only coaches can invite athletes' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Get coach record
+    // Get coach record using the email from the profile
+    console.log("invite_athlete: Looking up coach record for email:", profile.email);
+    
     const { data: coachData, error: coachError } = await supabase
       .from('coaches')
       .select('id')
-      .eq('email', userData.user.email)
+      .eq('email', profile.email)
       .single();
 
     console.log("invite_athlete: Coach lookup result:", { coachData, coachError });
