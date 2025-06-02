@@ -1,12 +1,15 @@
+
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Dumbbell, Library, Calendar, BarChart3 } from 'lucide-react';
+import { Plus, Dumbbell } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWorkoutTemplates } from '@/hooks/useWorkoutTemplates';
 import { useAssignedWorkouts } from '@/hooks/useAssignedWorkouts';
-import { TemplateCard } from '@/components/TemplateCard';
+import { WorkoutStats } from '@/components/WorkoutStats';
+import { WorkoutTemplates } from '@/components/WorkoutTemplates';
+import { AssignedWorkoutsTab } from '@/components/AssignedWorkoutsTab';
+import { PerformanceTab } from '@/components/PerformanceTab';
 import { ExerciseLibrary } from '@/components/ExerciseLibrary';
 import { CreateTemplateDialog } from '@/components/CreateTemplateDialog';
 import { AssignWorkoutDialog } from '@/components/AssignWorkoutDialog';
@@ -27,42 +30,12 @@ const Workout: React.FC = () => {
 
   const { tpl: modalTemplate, close: closeModal } = useTemplateModal();
 
-  const handleTemplateSelect = (template: WorkoutTemplate) => {
-    console.log('Template selected:', template);
-    // Navigation is handled by TemplateCard component
-  };
-
   const handleAssignTemplate = (template: WorkoutTemplate) => {
     setSelectedTemplate(template);
     setIsAssignTemplateOpen(true);
   };
 
-  const getStatsCards = () => {
-    const completedWorkouts = assignedWorkouts.filter(w => w.status === 'completed').length;
-    const pendingWorkouts = assignedWorkouts.filter(w => w.status === 'assigned').length;
-    const totalTemplates = templates.length;
-
-    return [
-      {
-        title: 'Total Templates',
-        value: totalTemplates,
-        icon: Library,
-        description: 'Workout templates created'
-      },
-      {
-        title: 'Completed Workouts',
-        value: completedWorkouts,
-        icon: BarChart3,
-        description: 'Workouts finished'
-      },
-      {
-        title: 'Pending Workouts',
-        value: pendingWorkouts,
-        icon: Calendar,
-        description: 'Workouts assigned'
-      }
-    ];
-  };
+  const isCoach = profile?.role === 'coach';
 
   return (
     <div className="space-y-6">
@@ -71,7 +44,7 @@ const Workout: React.FC = () => {
           <Dumbbell className="w-8 h-8 text-blue-600" />
           <h1 className="text-3xl font-bold text-gray-900">Workout System</h1>
         </div>
-        {profile?.role === 'coach' && (
+        {isCoach && (
           <Button 
             onClick={() => setIsCreateTemplateOpen(true)}
             className="flex items-center gap-2"
@@ -82,21 +55,7 @@ const Workout: React.FC = () => {
         )}
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        {getStatsCards().map((stat, index) => (
-          <Card key={index}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <stat.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">{stat.description}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <WorkoutStats templates={templates} assignedWorkouts={assignedWorkouts} />
 
       <Tabs defaultValue="templates" className="space-y-4">
         <TabsList>
@@ -109,108 +68,28 @@ const Workout: React.FC = () => {
         </TabsList>
 
         <TabsContent value="templates" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Workout Templates</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {templatesLoading ? (
-                <div className="flex items-center justify-center h-48">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                </div>
-              ) : templates.length > 0 ? (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {templates.map((template) => (
-                    <TemplateCard
-                      key={template.id}
-                      template={template}
-                      onAssign={profile?.role === 'coach' ? handleAssignTemplate : () => {}}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  No workout templates created yet
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <WorkoutTemplates
+            templates={templates}
+            isLoading={templatesLoading}
+            isCoach={isCoach}
+            onAssignTemplate={handleAssignTemplate}
+          />
         </TabsContent>
 
         <TabsContent value="exercises" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Exercise Library</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ExerciseLibrary />
-            </CardContent>
-          </Card>
+          <ExerciseLibrary />
         </TabsContent>
 
         <TabsContent value="assigned" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Assigned Workouts</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {assignedLoading ? (
-                <div className="flex items-center justify-center h-48">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                </div>
-              ) : assignedWorkouts.length > 0 ? (
-                <div className="space-y-4">
-                  {assignedWorkouts.map((workout) => (
-                    <Card key={workout.id}>
-                      <CardContent className="pt-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-semibold">{workout.template?.name}</h3>
-                            <p className="text-sm text-gray-600">
-                              Assigned: {new Date(workout.assigned_date).toLocaleDateString()}
-                            </p>
-                            {workout.due_date && (
-                              <p className="text-sm text-gray-600">
-                                Due: {new Date(workout.due_date).toLocaleDateString()}
-                              </p>
-                            )}
-                          </div>
-                          <div className="text-right">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              workout.status === 'completed' ? 'bg-green-100 text-green-800' :
-                              workout.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
-                              workout.status === 'assigned' ? 'bg-blue-100 text-blue-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
-                              {workout.status.replace('_', ' ').toUpperCase()}
-                            </span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  No workouts assigned yet
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <AssignedWorkoutsTab
+            assignedWorkouts={assignedWorkouts}
+            isLoading={assignedLoading}
+          />
         </TabsContent>
 
         {profile?.role === 'athlete' && (
           <TabsContent value="performance" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Performance Tracking</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8 text-gray-500">
-                  Performance tracking coming soon
-                </div>
-              </CardContent>
-            </Card>
+            <PerformanceTab />
           </TabsContent>
         )}
       </Tabs>
