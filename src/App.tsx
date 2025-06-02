@@ -40,6 +40,7 @@ function App() {
                 <Route path="athletes" element={<AthletesPage />} />
                 <Route path="risk-board" element={<RiskBoardPage />} />
                 <Route path="workouts" element={<WorkoutsPage />} />
+                <Route path="workout" element={<WorkoutsPage />} />
                 <Route path="templates" element={<TemplatesPage />} />
                 <Route path="template/:id" element={<TemplatePage />} />
                 <Route path="settings" element={<SettingsPage />} />
