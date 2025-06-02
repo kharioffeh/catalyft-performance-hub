@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -24,9 +25,51 @@ export const TemplateModal: React.FC<TemplateModalProps> = ({
 
   if (!template) return null;
 
-  const weeks = template.block_json.weeks || [];
+  // Safe access to weeks - handle both workout templates and program templates
+  const weeks = template.block_json?.weeks || [];
   const totalWeeks = weeks.length;
   const isKAI = template.origin === 'KAI';
+
+  // If this is a workout template without weeks, show a simple message
+  if (totalWeeks === 0) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-[90%] lg:max-w-4xl max-h-[90vh] overflow-hidden">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+          >
+            <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <div className="flex items-center gap-3">
+                <DialogTitle className="text-xl">{template.name}</DialogTitle>
+                <Badge 
+                  className={`text-white ${
+                    isKAI ? 'bg-badge-kai' : 'bg-badge-coach'
+                  }`}
+                >
+                  {template.origin}
+                </Badge>
+              </div>
+              <Button 
+                onClick={() => onAssign(template)}
+                className="flex items-center gap-2"
+              >
+                <Users className="w-4 h-4" />
+                Assign
+              </Button>
+            </DialogHeader>
+
+            <div className="py-8 text-center text-gray-500">
+              <p>This is a workout template.</p>
+              <p className="text-sm mt-2">{template.description || 'No description available'}</p>
+            </div>
+          </motion.div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
