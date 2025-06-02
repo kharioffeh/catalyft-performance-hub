@@ -6,21 +6,31 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Dumbbell, Library, Calendar, BarChart3 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWorkoutTemplates } from '@/hooks/useWorkoutTemplates';
+import { useProgramTemplates } from '@/hooks/useProgramTemplates';
 import { useAssignedWorkouts } from '@/hooks/useAssignedWorkouts';
 import { WorkoutTemplateList } from '@/components/WorkoutTemplateList';
 import { ExerciseLibrary } from '@/components/ExerciseLibrary';
 import { CreateTemplateDialog } from '@/components/CreateTemplateDialog';
 import { AssignWorkoutDialog } from '@/components/AssignWorkoutDialog';
+import { GenerateProgramDialog } from '@/components/GenerateProgramDialog';
+import { TemplateCard } from '@/components/TemplateCard';
+import { TemplateModal } from '@/components/TemplateModal';
+import { AssignTemplateDialog } from '@/components/AssignTemplateDialog';
+import { useTemplateModal } from '@/store/useTemplateModal';
 import { WorkoutTemplate } from '@/types/workout';
 
 const Workout: React.FC = () => {
   const { profile } = useAuth();
-  const { data: templates = [], isLoading: templatesLoading } = useWorkoutTemplates();
+  const { data: workoutTemplates = [], isLoading: templatesLoading } = useWorkoutTemplates();
+  const { data: programTemplates = [], isLoading: programTemplatesLoading } = useProgramTemplates();
   const { data: assignedWorkouts = [], isLoading: assignedLoading } = useAssignedWorkouts();
   
   const [isCreateTemplateOpen, setIsCreateTemplateOpen] = useState(false);
   const [isAssignWorkoutOpen, setIsAssignWorkoutOpen] = useState(false);
+  const [isGenerateOpen, setIsGenerateOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<WorkoutTemplate | null>(null);
+  const [assignTemplate, setAssignTemplate] = useState(null);
+  const { tpl, close } = useTemplateModal();
 
   const handleTemplateSelect = (template: WorkoutTemplate) => {
     console.log('Template selected:', template);
@@ -32,17 +42,21 @@ const Workout: React.FC = () => {
     setIsAssignWorkoutOpen(true);
   };
 
+  const openAssignDialog = (template) => {
+    setAssignTemplate(template);
+  };
+
   const getStatsCards = () => {
     const completedWorkouts = assignedWorkouts.filter(w => w.status === 'completed').length;
     const pendingWorkouts = assignedWorkouts.filter(w => w.status === 'assigned').length;
-    const totalTemplates = templates.length;
+    const totalTemplates = workoutTemplates.length + programTemplates.length;
 
     return [
       {
         title: 'Total Templates',
         value: totalTemplates,
         icon: Library,
-        description: 'Workout templates created'
+        description: 'All workout and program templates'
       },
       {
         title: 'Completed Workouts',
@@ -66,15 +80,27 @@ const Workout: React.FC = () => {
           <Dumbbell className="w-8 h-8 text-blue-600" />
           <h1 className="text-3xl font-bold text-gray-900">Workout System</h1>
         </div>
-        {profile?.role === 'coach' && (
-          <Button 
-            onClick={() => setIsCreateTemplateOpen(true)}
-            className="flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Create Template
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {profile?.role === 'coach' && (
+            <>
+              <Button 
+                onClick={() => setIsGenerateOpen(true)}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Generate with KAI
+              </Button>
+              <Button 
+                onClick={() => setIsCreateTemplateOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Create Template
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -93,15 +119,57 @@ const Workout: React.FC = () => {
         ))}
       </div>
 
-      <Tabs defaultValue="templates" className="space-y-4">
+      <Tabs defaultValue="programs" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="templates">Templates</TabsTrigger>
+          <TabsTrigger value="programs">Program Templates</TabsTrigger>
+          <TabsTrigger value="templates">Workout Templates</TabsTrigger>
           <TabsTrigger value="exercises">Exercise Library</TabsTrigger>
           <TabsTrigger value="assigned">Assigned Workouts</TabsTrigger>
           {profile?.role === 'athlete' && (
             <TabsTrigger value="performance">My Performance</TabsTrigger>
           )}
         </TabsList>
+
+        <TabsContent value="programs" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>KAI Program Templates</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {programTemplatesLoading ? (
+                <div className="flex items-center justify-center h-48">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+              ) : programTemplates.length > 0 ? (
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4">
+                  {programTemplates.map((template) => (
+                    <TemplateCard 
+                      key={template.id} 
+                      template={template}
+                      onAssign={openAssignDialog}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <Card>
+                  <CardContent className="text-center py-8">
+                    <Dumbbell className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No Program Templates</h3>
+                    <p className="text-gray-500 mb-4">
+                      Generate your first AI-powered training program with KAI
+                    </p>
+                    {profile?.role === 'coach' && (
+                      <Button onClick={() => setIsGenerateOpen(true)}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Generate with KAI
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="templates" className="space-y-4">
           <Card>
@@ -113,9 +181,9 @@ const Workout: React.FC = () => {
                 <div className="flex items-center justify-center h-48">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                 </div>
-              ) : templates.length > 0 ? (
+              ) : workoutTemplates.length > 0 ? (
                 <WorkoutTemplateList
-                  templates={templates}
+                  templates={workoutTemplates}
                   onTemplateSelect={handleTemplateSelect}
                   onAssignTemplate={profile?.role === 'coach' ? handleAssignTemplate : undefined}
                   showAssignButton={profile?.role === 'coach'}
@@ -216,6 +284,26 @@ const Workout: React.FC = () => {
         open={isAssignWorkoutOpen}
         onOpenChange={setIsAssignWorkoutOpen}
         template={selectedTemplate}
+      />
+
+      <GenerateProgramDialog
+        open={isGenerateOpen}
+        onOpenChange={setIsGenerateOpen}
+      />
+
+      {tpl && (
+        <TemplateModal
+          template={tpl}
+          open={!!tpl}
+          onOpenChange={(open) => !open && close()}
+          onAssign={openAssignDialog}
+        />
+      )}
+
+      <AssignTemplateDialog
+        template={assignTemplate}
+        open={!!assignTemplate}
+        onOpenChange={(open) => !open && setAssignTemplate(null)}
       />
     </div>
   );
