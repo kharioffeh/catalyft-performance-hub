@@ -1,16 +1,18 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { User, AlertCircle, RefreshCw } from 'lucide-react';
+import { User, AlertCircle, RefreshCw, UserPlus } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AthleteDialogs } from '@/components/Athletes/AthleteDialogs';
 import { AthletesTable } from '@/components/Athletes/AthletesTable';
+import { InviteAthleteModal } from '@/components/Athletes/InviteAthleteModal';
 import { useAthletesRealtime } from '@/hooks/useAthletesRealtime';
 
 const Athletes: React.FC = () => {
   const { profile } = useAuth();
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const {
     athletes,
     isLoading,
@@ -27,7 +29,8 @@ const Athletes: React.FC = () => {
     handleDelete,
     resetForm,
     addAthleteMutation,
-    updateAthleteMutation
+    updateAthleteMutation,
+    refetch
   } = useAthletesRealtime();
 
   // Check if user has the right role
@@ -113,6 +116,13 @@ const Athletes: React.FC = () => {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Athletes</h1>
         <div className="flex gap-2">
+          <Button 
+            onClick={() => setIsInviteModalOpen(true)}
+            variant="outline"
+          >
+            <UserPlus className="w-4 h-4 mr-2" />
+            Invite Athlete
+          </Button>
           <AthleteDialogs
             isAddDialogOpen={isAddDialogOpen}
             setIsAddDialogOpen={setIsAddDialogOpen}
@@ -144,6 +154,14 @@ const Athletes: React.FC = () => {
           />
         </CardContent>
       </Card>
+
+      <InviteAthleteModal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        onSuccess={() => {
+          refetch();
+        }}
+      />
     </div>
   );
 };

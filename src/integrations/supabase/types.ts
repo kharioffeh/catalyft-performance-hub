@@ -77,6 +77,41 @@ export type Database = {
           },
         ]
       }
+      athlete_invites: {
+        Row: {
+          accepted_at: string | null
+          coach_uuid: string
+          created_at: string | null
+          email: string
+          id: string
+          status: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          coach_uuid: string
+          created_at?: string | null
+          email: string
+          id?: string
+          status?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          coach_uuid?: string
+          created_at?: string | null
+          email?: string
+          id?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "athlete_invites_coach_uuid_fkey"
+            columns: ["coach_uuid"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       athletes: {
         Row: {
           coach_uuid: string | null
