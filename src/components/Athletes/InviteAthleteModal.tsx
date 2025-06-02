@@ -20,7 +20,7 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
 }) => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [pendingInvite, setPendingInvite] = useState<{canResend: boolean, inviteId: string} | null>(null);
+  const [pendingInvite, setPendingInvite] = useState<{hasPendingInvite: boolean, inviteId?: string} | null>(null);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent, resend = false) => {
@@ -63,45 +63,7 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
         return;
       }
 
-      // Add debugging for the current user
-      console.log('InviteAthleteModal: Current session user:', {
-        id: session.session.user.id,
-        email: session.session.user.email,
-        role: session.session.user.user_metadata?.role
-      });
-
-      // Let's also check if the profile exists before calling the function
-      console.log('InviteAthleteModal: Checking profile in database...');
-      const { data: profileCheck, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, email, role')
-        .eq('id', session.session.user.id)
-        .single();
-
-      console.log('InviteAthleteModal: Profile check result:', { profileCheck, profileError });
-
-      if (profileError || !profileCheck) {
-        console.error('InviteAthleteModal: Profile not found in database');
-        toast({
-          title: "Error",
-          description: "Your profile is not set up correctly. Please contact support.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      if (profileCheck.role !== 'coach') {
-        console.error('InviteAthleteModal: User is not a coach, role:', profileCheck.role);
-        toast({
-          title: "Error",
-          description: `You are not registered as a coach. Your current role is: ${profileCheck.role}`,
-          variant: "destructive"
-        });
-        return;
-      }
-
       console.log('InviteAthleteModal: Session found, calling invite-athlete function');
-      console.log('InviteAthleteModal: Function URL will be:', `https://xeugyryfvilanoiethum.supabase.co/functions/v1/invite-athlete`);
 
       const { data, error } = await supabase.functions.invoke('invite-athlete', {
         body: { 
@@ -125,15 +87,18 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
         return;
       }
 
-      // Check if the function returned an error in the data
-      if (data && data.error) {
-        console.error('InviteAthleteModal: Function returned error:', data.error);
+      // Check response structure
+      if (data && data.success === false) {
+        console.log('InviteAthleteModal: Function returned error response:', data);
         
-        // Check if this is a "can resend" scenario
-        if (data.canResend) {
-          setPendingInvite({ canResend: data.canResend, inviteId: data.inviteId });
+        // Check if this is a "pending invite" scenario
+        if (data.hasPendingInvite) {
+          setPendingInvite({ 
+            hasPendingInvite: data.hasPendingInvite, 
+            inviteId: data.inviteId 
+          });
           toast({
-            title: "Pending Invite",
+            title: "Pending Invite Found",
             description: data.error + ". You can resend the invite if needed.",
             variant: "default"
           });
@@ -148,17 +113,20 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
         return;
       }
 
-      console.log('InviteAthleteModal: Invite sent successfully');
-      toast({
-        title: "Success",
-        description: data?.resent ? `Invite resent to ${email}` : `Invite sent to ${email}`,
-        variant: "default"
-      });
+      // Success case
+      if (data && data.success) {
+        console.log('InviteAthleteModal: Invite sent successfully');
+        toast({
+          title: "Success",
+          description: data.resent ? `Invite resent to ${email}` : `Invite sent to ${email}`,
+          variant: "default"
+        });
 
-      setEmail('');
-      setPendingInvite(null);
-      onClose();
-      onSuccess?.();
+        setEmail('');
+        setPendingInvite(null);
+        onClose();
+        onSuccess?.();
+      }
       
     } catch (error) {
       console.error('InviteAthleteModal: Unexpected error:', error);
@@ -203,7 +171,7 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
             />
           </div>
           
-          {pendingInvite && (
+          {pendingInvite?.hasPendingInvite && (
             <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
               <p className="text-sm text-yellow-800 mb-2">
                 This athlete already has a pending invite. You can resend it if they haven't received it.
@@ -212,7 +180,7 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
           )}
           
           <div className="flex gap-2">
-            {pendingInvite ? (
+            {pendingInvite?.hasPendingInvite ? (
               <>
                 <Button 
                   type="button" 

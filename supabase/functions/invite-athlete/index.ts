@@ -170,7 +170,11 @@ serve(async (req) => {
     if (existingInvite && existingInvite.status === 'accepted') {
       console.log("invite_athlete: Athlete already accepted invite");
       return new Response(
-        JSON.stringify({ error: 'Athlete has already accepted the invite' }),
+        JSON.stringify({ 
+          success: false,
+          error: 'Athlete has already accepted the invite',
+          hasPendingInvite: false
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -180,38 +184,16 @@ serve(async (req) => {
       console.log("invite_athlete: Athlete already has pending invite");
       return new Response(
         JSON.stringify({ 
+          success: false,
           error: 'Athlete already has a pending invite',
-          canResend: true,
+          hasPendingInvite: true,
           inviteId: existingInvite.id
         }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     console.log("invite_athlete: Creating user and sending custom invite email");
-
-    // First create the user account
-    const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
-      email,
-      {
-        data: { 
-          role: 'athlete',
-          coach_id: coachData.id,
-          coach_name: profile.full_name || profile.email
-        },
-        redirectTo: `${Deno.env.get('APP_URL') || 'https://catalyft.app'}/finish-signup`
-      }
-    );
-
-    console.log("invite_athlete: User creation result:", { inviteData, inviteError });
-
-    if (inviteError) {
-      console.error('invite_athlete: User creation error:', inviteError);
-      return new Response(
-        JSON.stringify({ error: `Failed to create user: ${inviteError.message}` }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
 
     // Generate proper magic link for signup
     const { data: magicLinkData, error: magicLinkError } = await supabaseAdmin.auth.admin.generateLink({
@@ -416,6 +398,7 @@ serve(async (req) => {
     console.log("invite_athlete: Invite process completed successfully");
     return new Response(
       JSON.stringify({ 
+        success: true,
         message: resend ? 'Invite resent successfully' : 'Invite sent successfully',
         email: email,
         resent: resend
