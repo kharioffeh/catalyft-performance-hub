@@ -57,9 +57,21 @@ const TemplatePage: React.FC = () => {
   }
 
   const isKAI = template.origin === 'KAI';
-  const totalWeeks = template.block_json?.weeks?.length || 0;
+  
+  // Parse block_json safely
+  let blockJson: any = {};
+  try {
+    blockJson = typeof template.block_json === 'string' 
+      ? JSON.parse(template.block_json) 
+      : template.block_json || {};
+  } catch (e) {
+    console.error('Failed to parse block_json:', e);
+    blockJson = {};
+  }
+  
+  const totalWeeks = blockJson.weeks?.length || 0;
 
-  const openAssignDialog = (template) => {
+  const openAssignDialog = (template: any) => {
     setAssignTemplate(template);
   };
 
@@ -103,8 +115,8 @@ const TemplatePage: React.FC = () => {
         )}
       </div>
 
-      {template.block_json?.weeks && (
-        <WeekSlider blockJson={template.block_json} />
+      {blockJson.weeks && (
+        <WeekSlider blockJson={blockJson} />
       )}
 
       <AssignTemplateDialog

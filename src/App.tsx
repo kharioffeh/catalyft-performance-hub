@@ -1,25 +1,28 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
-import DashboardPage from './pages/DashboardPage';
-import AthletesPage from './pages/AthletesPage';
-import WorkoutsPage from './pages/WorkoutsPage';
-import SettingsPage from './pages/SettingsPage';
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
-import ForgotPasswordPage from './pages/ForgotPasswordPage';
-import ResetPasswordPage from './pages/ResetPasswordPage';
+import DashboardPage from './pages/Dashboard';
+import AthletesPage from './pages/Athletes';
+import WorkoutsPage from './pages/Workout';
+import SettingsPage from './pages/Settings';
+import LoginPage from './pages/Login';
+import SignupPage from './pages/Signup';
+import ForgotPasswordPage from './pages/Auth';
+import ResetPasswordPage from './pages/Auth';
 import AppLayout from './components/AppLayout';
-import { ProtectedRoute } from './components/ProtectedRoute';
+import ProtectedRoute from './components/ProtectedRoute';
 import RiskBoardPage from './pages/RiskBoardPage';
 import TemplatesPage from './pages/TemplatesPage';
 import TemplatePage from './pages/TemplatePage';
 
+const queryClient = new QueryClient();
+
 function App() {
   return (
     <Router>
-      <QueryClient>
+      <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <div className="min-h-screen bg-gray-50">
             <Routes>
@@ -86,7 +89,7 @@ function App() {
             </Routes>
           </div>
         </AuthProvider>
-      </QueryClient>
+      </QueryClientProvider>
     </Router>
   );
 }
