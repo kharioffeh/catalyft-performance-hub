@@ -20,9 +20,10 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
 }) => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingInvite, setPendingInvite] = useState<{canResend: boolean, inviteId: string} | null>(null);
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, resend = false) => {
     e.preventDefault();
     
     if (!email.trim()) {
@@ -103,7 +104,10 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
       console.log('InviteAthleteModal: Function URL will be:', `https://xeugyryfvilanoiethum.supabase.co/functions/v1/invite-athlete`);
 
       const { data, error } = await supabase.functions.invoke('invite-athlete', {
-        body: { email: email.trim().toLowerCase() },
+        body: { 
+          email: email.trim().toLowerCase(),
+          resend: resend
+        },
         headers: {
           Authorization: `Bearer ${session.session.access_token}`
         }
@@ -124,6 +128,18 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
       // Check if the function returned an error in the data
       if (data && data.error) {
         console.error('InviteAthleteModal: Function returned error:', data.error);
+        
+        // Check if this is a "can resend" scenario
+        if (data.canResend) {
+          setPendingInvite({ canResend: data.canResend, inviteId: data.inviteId });
+          toast({
+            title: "Pending Invite",
+            description: data.error + ". You can resend the invite if needed.",
+            variant: "default"
+          });
+          return;
+        }
+        
         toast({
           title: "Error",
           description: data.error,
@@ -135,11 +151,12 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
       console.log('InviteAthleteModal: Invite sent successfully');
       toast({
         title: "Success",
-        description: `Invite sent to ${email}`,
+        description: data?.resent ? `Invite resent to ${email}` : `Invite sent to ${email}`,
         variant: "default"
       });
 
       setEmail('');
+      setPendingInvite(null);
       onClose();
       onSuccess?.();
       
@@ -155,8 +172,14 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
     }
   };
 
+  const handleResend = (e: React.FormEvent) => {
+    setPendingInvite(null);
+    handleSubmit(e, true);
+  };
+
   const handleClose = () => {
     setEmail('');
+    setPendingInvite(null);
     onClose();
   };
 
@@ -179,22 +202,54 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
               required
             />
           </div>
+          
+          {pendingInvite && (
+            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+              <p className="text-sm text-yellow-800 mb-2">
+                This athlete already has a pending invite. You can resend it if they haven't received it.
+              </p>
+            </div>
+          )}
+          
           <div className="flex gap-2">
-            <Button 
-              type="submit" 
-              disabled={isLoading}
-              className="flex-1"
-            >
-              {isLoading ? 'Sending...' : 'Send Invite'}
-            </Button>
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={handleClose}
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
+            {pendingInvite ? (
+              <>
+                <Button 
+                  type="button" 
+                  onClick={handleResend}
+                  disabled={isLoading}
+                  className="flex-1"
+                >
+                  {isLoading ? 'Resending...' : 'Resend Invite'}
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleClose}
+                  disabled={isLoading}
+                >
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button 
+                  type="submit" 
+                  disabled={isLoading}
+                  className="flex-1"
+                >
+                  {isLoading ? 'Sending...' : 'Send Invite'}
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleClose}
+                  disabled={isLoading}
+                >
+                  Cancel
+                </Button>
+              </>
+            )}
           </div>
         </form>
       </DialogContent>

@@ -145,8 +145,8 @@ serve(async (req) => {
       );
     }
 
-    const { email } = requestData;
-    console.log("invite_athlete: Extracted email:", email);
+    const { email, resend = false } = requestData;
+    console.log("invite_athlete: Extracted email:", email, "Resend:", resend);
     
     if (!email) {
       console.log("invite_athlete: No email provided");
@@ -166,10 +166,24 @@ serve(async (req) => {
 
     console.log("invite_athlete: Existing invite check:", existingInvite);
 
-    if (existingInvite) {
-      console.log("invite_athlete: Athlete already invited");
+    // If there's an existing invite that's already accepted, don't allow resending
+    if (existingInvite && existingInvite.status === 'accepted') {
+      console.log("invite_athlete: Athlete already accepted invite");
       return new Response(
-        JSON.stringify({ error: 'Athlete already invited' }),
+        JSON.stringify({ error: 'Athlete has already accepted the invite' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // If there's a pending invite and this isn't a resend request, inform the user
+    if (existingInvite && existingInvite.status === 'pending' && !resend) {
+      console.log("invite_athlete: Athlete already has pending invite");
+      return new Response(
+        JSON.stringify({ 
+          error: 'Athlete already has a pending invite',
+          canResend: true,
+          inviteId: existingInvite.id
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -346,7 +360,7 @@ serve(async (req) => {
       body: JSON.stringify({
         from: 'Catalyft AI <noreply@catalyft.app>',
         to: [email],
-        subject: '🚀 You\'re invited to join Catalyft AI',
+        subject: resend ? '🚀 Reminder: You\'re invited to join Catalyft AI' : '🚀 You\'re invited to join Catalyft AI',
         html: emailHtml,
       }),
     });
@@ -362,28 +376,49 @@ serve(async (req) => {
       );
     }
 
-    // Record the invite in our database
-    console.log("invite_athlete: Recording invite in database");
-    const { error: insertError } = await supabaseAuth
-      .from('athlete_invites')
-      .insert({
-        coach_uuid: coachData.id,
-        email: email.toLowerCase()
-      });
+    // Record or update the invite in our database
+    console.log("invite_athlete: Recording/updating invite in database");
+    
+    if (existingInvite) {
+      // Update existing invite (resend scenario)
+      const { error: updateError } = await supabaseAuth
+        .from('athlete_invites')
+        .update({
+          created_at: new Date().toISOString() // Update timestamp for resend
+        })
+        .eq('id', existingInvite.id);
 
-    if (insertError) {
-      console.error('invite_athlete: Insert error:', insertError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to record invite' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      if (updateError) {
+        console.error('invite_athlete: Update error:', updateError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to update invite record' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    } else {
+      // Create new invite record
+      const { error: insertError } = await supabaseAuth
+        .from('athlete_invites')
+        .insert({
+          coach_uuid: coachData.id,
+          email: email.toLowerCase()
+        });
+
+      if (insertError) {
+        console.error('invite_athlete: Insert error:', insertError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to record invite' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     console.log("invite_athlete: Invite process completed successfully");
     return new Response(
       JSON.stringify({ 
-        message: 'Invite sent successfully',
-        email: email
+        message: resend ? 'Invite resent successfully' : 'Invite sent successfully',
+        email: email,
+        resent: resend
       }),
       { 
         status: 200, 
