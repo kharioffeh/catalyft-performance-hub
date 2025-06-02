@@ -28,6 +28,14 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
     e.stopPropagation();
     useTemplateModal.getState().open(template);
   };
+
+  // Safe access to weeks - handle both workout templates and program templates
+  const getWeeksCount = () => {
+    if (template.block_json?.weeks?.length) {
+      return template.block_json.weeks.length;
+    }
+    return 0;
+  };
   
   return (
     <motion.div
@@ -45,7 +53,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
             <div>
               <CardTitle className="text-lg">{template.name}</CardTitle>
               <CardDescription className="mt-1">
-                {template.block_json.weeks?.length || 0} weeks
+                {getWeeksCount() > 0 ? `${getWeeksCount()} weeks` : template.description || 'Workout template'}
               </CardDescription>
             </div>
             <Badge 
