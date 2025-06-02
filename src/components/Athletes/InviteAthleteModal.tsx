@@ -48,9 +48,12 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
     setIsLoading(true);
 
     try {
+      console.log('InviteAthleteModal: Starting invite process for email:', email);
+      
       const { data: session } = await supabase.auth.getSession();
       
       if (!session.session) {
+        console.error('InviteAthleteModal: No session found');
         toast({
           title: "Error",
           description: "You must be logged in to invite athletes",
@@ -59,6 +62,8 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
         return;
       }
 
+      console.log('InviteAthleteModal: Session found, calling invite-athlete function');
+
       const { data, error } = await supabase.functions.invoke('invite-athlete', {
         body: { email: email.trim().toLowerCase() },
         headers: {
@@ -66,8 +71,10 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
         }
       });
 
+      console.log('InviteAthleteModal: Function response:', { data, error });
+
       if (error) {
-        console.error('Invite error:', error);
+        console.error('InviteAthleteModal: Function error:', error);
         toast({
           title: "Error",
           description: error.message || "Failed to send invite",
@@ -76,6 +83,18 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
         return;
       }
 
+      // Check if the function returned an error in the data
+      if (data && data.error) {
+        console.error('InviteAthleteModal: Function returned error:', data.error);
+        toast({
+          title: "Error",
+          description: data.error,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      console.log('InviteAthleteModal: Invite sent successfully');
       toast({
         title: "Success",
         description: `Invite sent to ${email}`,
@@ -87,7 +106,7 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
       onSuccess?.();
       
     } catch (error) {
-      console.error('Unexpected error:', error);
+      console.error('InviteAthleteModal: Unexpected error:', error);
       toast({
         title: "Error",
         description: "An unexpected error occurred",
