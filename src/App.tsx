@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -43,8 +44,8 @@ function App() {
               <Route path="risk-board" element={<RiskBoardPage />} />
               <Route path="workouts" element={<WorkoutsPage />} />
               <Route path="workout" element={<WorkoutsPage />} />
-              <Route path="templates" element={<ProtectedRoute><TemplatesPage /></ProtectedRoute>} />
-              <Route path="/template/:id" element={<ProtectedRoute><TemplateDetailPage /></ProtectedRoute>} />
+              <Route path="templates" element={<TemplatesPage />} />
+              <Route path="template/:id" element={<TemplateDetailPage />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
           </Routes>
@@ -55,3 +56,4 @@ function App() {
 }
 
 export default App;
+
