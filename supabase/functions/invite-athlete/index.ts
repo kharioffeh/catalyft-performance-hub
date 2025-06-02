@@ -15,16 +15,17 @@ serve(async (req) => {
     headers: Object.fromEntries(req.headers),
   });
 
-  // Log the raw request body before any parsing
-  const rawBody = await req.clone().text();
-  console.log("invite_athlete: Raw request body:", rawBody);
-
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log("invite_athlete: Handling CORS preflight");
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Log the raw request body before any parsing
+    const rawBody = await req.clone().text();
+    console.log("invite_athlete: Raw request body:", rawBody);
+
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -37,7 +38,10 @@ serve(async (req) => {
 
     // Get the authorization header
     const authHeader = req.headers.get('Authorization');
+    console.log("invite_athlete: Authorization header present:", !!authHeader);
+    
     if (!authHeader) {
+      console.log("invite_athlete: No authorization header found");
       return new Response(
         JSON.stringify({ error: 'No authorization header' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -46,14 +50,19 @@ serve(async (req) => {
 
     // Verify the user
     const token = authHeader.replace('Bearer ', '');
+    console.log("invite_athlete: Attempting to verify user token");
+    
     const { data: userData, error: userError } = await supabase.auth.getUser(token);
     
     if (userError || !userData.user) {
+      console.log("invite_athlete: User verification failed:", userError);
       return new Response(
         JSON.stringify({ error: 'Invalid token' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log("invite_athlete: User verified:", userData.user.email);
 
     // Check if user is a coach
     const { data: profile, error: profileError } = await supabase
@@ -62,7 +71,10 @@ serve(async (req) => {
       .eq('id', userData.user.id)
       .single();
 
+    console.log("invite_athlete: Profile check result:", { profile, profileError });
+
     if (profileError || profile?.role !== 'coach') {
+      console.log("invite_athlete: User is not a coach");
       return new Response(
         JSON.stringify({ error: 'Only coaches can invite athletes' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -76,7 +88,10 @@ serve(async (req) => {
       .eq('email', userData.user.email)
       .single();
 
+    console.log("invite_athlete: Coach lookup result:", { coachData, coachError });
+
     if (coachError || !coachData) {
+      console.log("invite_athlete: Coach record not found");
       return new Response(
         JSON.stringify({ error: 'Coach record not found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -84,9 +99,22 @@ serve(async (req) => {
     }
 
     // Parse request body
-    const { email } = await req.json();
+    let requestData;
+    try {
+      requestData = JSON.parse(rawBody);
+    } catch (parseError) {
+      console.log("invite_athlete: Failed to parse request body:", parseError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON in request body' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { email } = requestData;
+    console.log("invite_athlete: Extracted email:", email);
     
     if (!email) {
+      console.log("invite_athlete: No email provided");
       return new Response(
         JSON.stringify({ error: 'Email is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -101,12 +129,17 @@ serve(async (req) => {
       .eq('email', email.toLowerCase())
       .single();
 
+    console.log("invite_athlete: Existing invite check:", existingInvite);
+
     if (existingInvite) {
+      console.log("invite_athlete: Athlete already invited");
       return new Response(
         JSON.stringify({ error: 'Athlete already invited' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log("invite_athlete: Sending invite email using Supabase Auth");
 
     // Send invite email using Supabase Auth
     const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
@@ -116,12 +149,14 @@ serve(async (req) => {
           role: 'athlete',
           coach_id: coachData.id
         },
-        redirectTo: `${Deno.env.get('APP_URL') || 'http://localhost:5173'}/finish-signup`
+        redirectTo: `${Deno.env.get('APP_URL') || 'https://catalyft.app'}/finish-signup`
       }
     );
 
+    console.log("invite_athlete: Invite result:", { inviteData, inviteError });
+
     if (inviteError) {
-      console.error('Invite error:', inviteError);
+      console.error('invite_athlete: Invite error:', inviteError);
       return new Response(
         JSON.stringify({ error: `Failed to send invite: ${inviteError.message}` }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -129,6 +164,7 @@ serve(async (req) => {
     }
 
     // Record the invite in our database
+    console.log("invite_athlete: Recording invite in database");
     const { error: insertError } = await supabase
       .from('athlete_invites')
       .insert({
@@ -137,13 +173,14 @@ serve(async (req) => {
       });
 
     if (insertError) {
-      console.error('Insert error:', insertError);
+      console.error('invite_athlete: Insert error:', insertError);
       return new Response(
         JSON.stringify({ error: 'Failed to record invite' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
+    console.log("invite_athlete: Invite process completed successfully");
     return new Response(
       JSON.stringify({ 
         message: 'Invite sent successfully',
@@ -156,7 +193,7 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Function error:', error);
+    console.error('invite_athlete: Function error:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

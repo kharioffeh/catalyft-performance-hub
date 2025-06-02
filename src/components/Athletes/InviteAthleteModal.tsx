@@ -63,6 +63,7 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
       }
 
       console.log('InviteAthleteModal: Session found, calling invite-athlete function');
+      console.log('InviteAthleteModal: Function URL will be:', `https://xeugyryfvilanoiethum.supabase.co/functions/v1/invite-athlete`);
 
       const { data, error } = await supabase.functions.invoke('invite-athlete', {
         body: { email: email.trim().toLowerCase() },
