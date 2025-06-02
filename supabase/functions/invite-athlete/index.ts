@@ -340,7 +340,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Catalyft AI <noreply@catalyft.app>',
+        from: 'Catalyft AI <noreply@mail.catalyft.app>',
         to: [email],
         subject: resend ? '🚀 Reminder: You\'re invited to join Catalyft AI' : '🚀 You\'re invited to join Catalyft AI',
         html: emailHtml,
@@ -353,7 +353,10 @@ serve(async (req) => {
     if (!emailResponse.ok) {
       console.error('invite_athlete: Email send failed:', emailResult);
       return new Response(
-        JSON.stringify({ error: 'Failed to send invite email' }),
+        JSON.stringify({ 
+          success: false,
+          error: 'Failed to send invite email: ' + (emailResult.message || 'Unknown error')
+        }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

@@ -81,7 +81,7 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
         console.error('InviteAthleteModal: Function error:', error);
         toast({
           title: "Error",
-          description: error.message || "Failed to send invite",
+          description: "Failed to send invite. Please try again.",
           variant: "destructive"
         });
         return;
@@ -99,7 +99,7 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
           });
           toast({
             title: "Pending Invite Found",
-            description: data.error + ". You can resend the invite if needed.",
+            description: data.error + " You can resend the invite if needed.",
             variant: "default"
           });
           return;
@@ -132,7 +132,7 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
       console.error('InviteAthleteModal: Unexpected error:', error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
     } finally {
