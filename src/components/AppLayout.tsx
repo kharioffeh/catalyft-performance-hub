@@ -28,7 +28,7 @@ const AppLayout: React.FC = () => {
       // Redirect from root paths to appropriate dashboard
       if (currentPath === '/' || currentPath === '/home') {
         if (profile.role === 'coach') {
-          navigate('/coach', { replace: true });
+          navigate('/dashboard', { replace: true });
         } else {
           navigate('/dashboard', { replace: true });
         }

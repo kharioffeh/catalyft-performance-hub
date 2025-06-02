@@ -32,60 +32,18 @@ function App() {
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/" element={
                 <ProtectedRoute>
-                  <AppLayout>
-                    <DashboardPage />
-                  </AppLayout>
+                  <AppLayout />
                 </ProtectedRoute>
-              } />
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <DashboardPage />
-                  </AppLayout>
-                </ProtectedRoute>
-              } />
-              <Route path="/athletes" element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <AthletesPage />
-                  </AppLayout>
-                </ProtectedRoute>
-              } />
-              <Route path="/risk-board" element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <RiskBoardPage />
-                  </AppLayout>
-                </ProtectedRoute>
-              } />
-              <Route path="/workouts" element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <WorkoutsPage />
-                  </AppLayout>
-                </ProtectedRoute>
-              } />
-              <Route path="/templates" element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <TemplatesPage />
-                  </AppLayout>
-                </ProtectedRoute>
-              } />
-              <Route path="/settings" element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <SettingsPage />
-                  </AppLayout>
-                </ProtectedRoute>
-              } />
-              <Route path="/template/:id" element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <TemplatePage />
-                  </AppLayout>
-                </ProtectedRoute>
-              } />
+              }>
+                <Route index element={<DashboardPage />} />
+                <Route path="dashboard" element={<DashboardPage />} />
+                <Route path="athletes" element={<AthletesPage />} />
+                <Route path="risk-board" element={<RiskBoardPage />} />
+                <Route path="workouts" element={<WorkoutsPage />} />
+                <Route path="templates" element={<TemplatesPage />} />
+                <Route path="template/:id" element={<TemplatePage />} />
+                <Route path="settings" element={<SettingsPage />} />
+              </Route>
             </Routes>
           </div>
         </AuthProvider>
