@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,10 +6,13 @@ import { Plus, Dumbbell, Library, Calendar, BarChart3 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWorkoutTemplates } from '@/hooks/useWorkoutTemplates';
 import { useAssignedWorkouts } from '@/hooks/useAssignedWorkouts';
-import { WorkoutTemplateList } from '@/components/WorkoutTemplateList';
+import { TemplateCard } from '@/components/TemplateCard';
 import { ExerciseLibrary } from '@/components/ExerciseLibrary';
 import { CreateTemplateDialog } from '@/components/CreateTemplateDialog';
 import { AssignWorkoutDialog } from '@/components/AssignWorkoutDialog';
+import { AssignTemplateDialog } from '@/components/AssignTemplateDialog';
+import { TemplateModal } from '@/components/TemplateModal';
+import { useTemplateModal } from '@/store/useTemplateModal';
 import { WorkoutTemplate } from '@/types/workout';
 
 const Workout: React.FC = () => {
@@ -20,16 +22,19 @@ const Workout: React.FC = () => {
   
   const [isCreateTemplateOpen, setIsCreateTemplateOpen] = useState(false);
   const [isAssignWorkoutOpen, setIsAssignWorkoutOpen] = useState(false);
+  const [isAssignTemplateOpen, setIsAssignTemplateOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<WorkoutTemplate | null>(null);
+
+  const { tpl: modalTemplate, close: closeModal } = useTemplateModal();
 
   const handleTemplateSelect = (template: WorkoutTemplate) => {
     console.log('Template selected:', template);
-    // Here you could open a detailed view or edit dialog
+    // Navigation is handled by TemplateCard component
   };
 
   const handleAssignTemplate = (template: WorkoutTemplate) => {
     setSelectedTemplate(template);
-    setIsAssignWorkoutOpen(true);
+    setIsAssignTemplateOpen(true);
   };
 
   const getStatsCards = () => {
@@ -114,12 +119,15 @@ const Workout: React.FC = () => {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                 </div>
               ) : templates.length > 0 ? (
-                <WorkoutTemplateList
-                  templates={templates}
-                  onTemplateSelect={handleTemplateSelect}
-                  onAssignTemplate={profile?.role === 'coach' ? handleAssignTemplate : undefined}
-                  showAssignButton={profile?.role === 'coach'}
-                />
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {templates.map((template) => (
+                    <TemplateCard
+                      key={template.id}
+                      template={template}
+                      onAssign={profile?.role === 'coach' ? handleAssignTemplate : () => {}}
+                    />
+                  ))}
+                </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">
                   No workout templates created yet
@@ -216,6 +224,19 @@ const Workout: React.FC = () => {
         open={isAssignWorkoutOpen}
         onOpenChange={setIsAssignWorkoutOpen}
         template={selectedTemplate}
+      />
+
+      <AssignTemplateDialog
+        open={isAssignTemplateOpen}
+        onOpenChange={setIsAssignTemplateOpen}
+        template={selectedTemplate}
+      />
+
+      <TemplateModal
+        template={modalTemplate}
+        open={!!modalTemplate}
+        onOpenChange={(open) => !open && closeModal()}
+        onAssign={handleAssignTemplate}
       />
     </div>
   );
