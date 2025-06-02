@@ -7,7 +7,6 @@ import { User, AlertCircle, RefreshCw } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AthleteDialogs } from '@/components/Athletes/AthleteDialogs';
 import { AthletesTable } from '@/components/Athletes/AthletesTable';
-import { AthleteInviteForm } from '@/components/Athletes/AthleteInviteForm';
 import { useAthletesRealtime } from '@/hooks/useAthletesRealtime';
 
 const Athletes: React.FC = () => {
@@ -28,8 +27,7 @@ const Athletes: React.FC = () => {
     handleDelete,
     resetForm,
     addAthleteMutation,
-    updateAthleteMutation,
-    refetch
+    updateAthleteMutation
   } = useAthletesRealtime();
 
   // Check if user has the right role
@@ -110,17 +108,11 @@ const Athletes: React.FC = () => {
     );
   }
 
-  const handleInviteSent = () => {
-    // Refresh athletes list when new invite is sent
-    refetch();
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Athletes</h1>
         <div className="flex gap-2">
-          <AthleteInviteForm onInviteSent={handleInviteSent} />
           <AthleteDialogs
             isAddDialogOpen={isAddDialogOpen}
             setIsAddDialogOpen={setIsAddDialogOpen}

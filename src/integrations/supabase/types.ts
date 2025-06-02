@@ -77,42 +77,6 @@ export type Database = {
           },
         ]
       }
-      athlete_invites: {
-        Row: {
-          accepted_at: string | null
-          athlete_name: string | null
-          coach_uuid: string
-          created_at: string
-          email: string
-          expires_at: string
-          id: string
-          notes: string | null
-          status: string
-        }
-        Insert: {
-          accepted_at?: string | null
-          athlete_name?: string | null
-          coach_uuid: string
-          created_at?: string
-          email: string
-          expires_at?: string
-          id?: string
-          notes?: string | null
-          status?: string
-        }
-        Update: {
-          accepted_at?: string | null
-          athlete_name?: string | null
-          coach_uuid?: string
-          created_at?: string
-          email?: string
-          expires_at?: string
-          id?: string
-          notes?: string | null
-          status?: string
-        }
-        Relationships: []
-      }
       athletes: {
         Row: {
           coach_uuid: string | null
