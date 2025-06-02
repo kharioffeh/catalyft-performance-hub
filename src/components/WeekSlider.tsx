@@ -9,9 +9,15 @@ interface WeekSliderProps {
   blockJson: {
     weeks?: any[];
   };
+  editable?: boolean;
+  onBlockJsonUpdate?: (updatedBlockJson: any) => void;
 }
 
-export const WeekSlider: React.FC<WeekSliderProps> = ({ blockJson }) => {
+export const WeekSlider: React.FC<WeekSliderProps> = ({ 
+  blockJson, 
+  editable = false, 
+  onBlockJsonUpdate 
+}) => {
   const [weekIdx, setWeekIdx] = useState(0);
   
   const weeks = blockJson.weeks || [];
@@ -24,6 +30,28 @@ export const WeekSlider: React.FC<WeekSliderProps> = ({ blockJson }) => {
       </div>
     );
   }
+
+  const handleExerciseUpdate = (weekIndex: number, sessionIndex: number, exerciseIndex: number, field: string, value: string | number) => {
+    if (!onBlockJsonUpdate) return;
+
+    const updatedBlockJson = { ...blockJson };
+    const updatedWeeks = [...updatedBlockJson.weeks];
+    const updatedWeek = [...updatedWeeks[weekIndex]];
+    const updatedSession = { ...updatedWeek[sessionIndex] };
+    const updatedExercises = [...(updatedSession.exercises || [])];
+    
+    updatedExercises[exerciseIndex] = {
+      ...updatedExercises[exerciseIndex],
+      [field]: value
+    };
+    
+    updatedSession.exercises = updatedExercises;
+    updatedWeek[sessionIndex] = updatedSession;
+    updatedWeeks[weekIndex] = updatedWeek;
+    updatedBlockJson.weeks = updatedWeeks;
+
+    onBlockJsonUpdate(updatedBlockJson);
+  };
 
   return (
     <div className="space-y-4">
@@ -61,7 +89,13 @@ export const WeekSlider: React.FC<WeekSliderProps> = ({ blockJson }) => {
         >
           {weeks.map((week, index) => (
             <div key={index} className="px-1">
-              <WeekTable week={week} />
+              <WeekTable 
+                week={week} 
+                editable={editable}
+                onExerciseUpdate={(sessionIndex, exerciseIndex, field, value) => 
+                  handleExerciseUpdate(index, sessionIndex, exerciseIndex, field, value)
+                }
+              />
             </div>
           ))}
         </SwipeableViews>

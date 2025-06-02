@@ -6,10 +6,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/ui/breadcrumb';
-import { Users, ArrowLeft } from 'lucide-react';
+import { Users, ArrowLeft, Save } from 'lucide-react';
 import { WeekSlider } from '@/components/WeekSlider';
 import { AssignTemplateDialog } from '@/components/AssignTemplateDialog';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUpdateTemplate } from '@/hooks/useUpdateTemplate';
 import { useState } from 'react';
 
 const TemplatePage: React.FC = () => {
@@ -17,6 +18,9 @@ const TemplatePage: React.FC = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const [assignTemplate, setAssignTemplate] = useState(null);
+  const [localBlockJson, setLocalBlockJson] = useState<any>(null);
+  const [hasChanges, setHasChanges] = useState(false);
+  const updateTemplate = useUpdateTemplate();
 
   const { data: template, isLoading, error } = useQuery({
     queryKey: ['program-template', id],
@@ -34,6 +38,22 @@ const TemplatePage: React.FC = () => {
     },
     enabled: !!id,
   });
+
+  // Initialize local state when template loads
+  React.useEffect(() => {
+    if (template && !localBlockJson) {
+      let blockJson: any = {};
+      try {
+        blockJson = typeof template.block_json === 'string' 
+          ? JSON.parse(template.block_json) 
+          : template.block_json || {};
+      } catch (e) {
+        console.error('Failed to parse block_json:', e);
+        blockJson = {};
+      }
+      setLocalBlockJson(blockJson);
+    }
+  }, [template, localBlockJson]);
 
   if (isLoading) {
     return (
@@ -57,19 +77,26 @@ const TemplatePage: React.FC = () => {
   }
 
   const isKAI = template.origin === 'KAI';
-  
-  // Parse block_json safely
-  let blockJson: any = {};
-  try {
-    blockJson = typeof template.block_json === 'string' 
-      ? JSON.parse(template.block_json) 
-      : template.block_json || {};
-  } catch (e) {
-    console.error('Failed to parse block_json:', e);
-    blockJson = {};
-  }
-  
-  const totalWeeks = blockJson.weeks?.length || 0;
+  const isCoach = profile?.role === 'coach';
+  const totalWeeks = localBlockJson?.weeks?.length || 0;
+
+  const handleBlockJsonUpdate = (updatedBlockJson: any) => {
+    setLocalBlockJson(updatedBlockJson);
+    setHasChanges(true);
+  };
+
+  const handleSaveChanges = () => {
+    if (!hasChanges || !localBlockJson) return;
+    
+    updateTemplate.mutate({
+      id: template.id,
+      block_json: localBlockJson
+    }, {
+      onSuccess: () => {
+        setHasChanges(false);
+      }
+    });
+  };
 
   const openAssignDialog = (template: any) => {
     setAssignTemplate(template);
@@ -102,21 +129,44 @@ const TemplatePage: React.FC = () => {
           <Badge variant="outline">
             {totalWeeks} Weeks
           </Badge>
+          {hasChanges && (
+            <Badge variant="secondary">
+              Unsaved Changes
+            </Badge>
+          )}
         </div>
         
-        {profile?.role === 'coach' && (
-          <Button 
-            onClick={() => openAssignDialog(template)}
-            className="flex items-center gap-2"
-          >
-            <Users className="w-4 h-4" />
-            Assign
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {isCoach && hasChanges && (
+            <Button 
+              onClick={handleSaveChanges}
+              disabled={updateTemplate.isPending}
+              variant="default"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {updateTemplate.isPending ? 'Saving...' : 'Save Changes'}
+            </Button>
+          )}
+          
+          {isCoach && (
+            <Button 
+              onClick={() => openAssignDialog(template)}
+              className="flex items-center gap-2"
+              variant="outline"
+            >
+              <Users className="w-4 h-4" />
+              Assign
+            </Button>
+          )}
+        </div>
       </div>
 
-      {blockJson.weeks && (
-        <WeekSlider blockJson={blockJson} />
+      {localBlockJson?.weeks && (
+        <WeekSlider 
+          blockJson={localBlockJson} 
+          editable={isCoach}
+          onBlockJsonUpdate={handleBlockJsonUpdate}
+        />
       )}
 
       <AssignTemplateDialog

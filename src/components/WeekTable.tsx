@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { EditableCell } from '@/components/EditableCell';
 
 interface Exercise {
   name: string;
@@ -19,9 +19,15 @@ interface Session {
 
 interface WeekTableProps {
   week: Session[];
+  editable?: boolean;
+  onExerciseUpdate?: (sessionIndex: number, exerciseIndex: number, field: string, value: string | number) => void;
 }
 
-export const WeekTable: React.FC<WeekTableProps> = ({ week }) => {
+export const WeekTable: React.FC<WeekTableProps> = ({ 
+  week, 
+  editable = false, 
+  onExerciseUpdate 
+}) => {
   if (!week || week.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
@@ -30,21 +36,18 @@ export const WeekTable: React.FC<WeekTableProps> = ({ week }) => {
     );
   }
 
-  // Group exercises by session
-  const sessionGroups = week.reduce((acc: Record<string, Exercise[]>, session) => {
-    if (!acc[session.sessionName]) {
-      acc[session.sessionName] = [];
+  const handleCellUpdate = (sessionIndex: number, exerciseIndex: number, field: string, value: string | number) => {
+    if (onExerciseUpdate) {
+      onExerciseUpdate(sessionIndex, exerciseIndex, field, value);
     }
-    acc[session.sessionName] = acc[session.sessionName].concat(session.exercises || []);
-    return acc;
-  }, {});
+  };
 
   return (
     <div className="space-y-6">
-      {Object.entries(sessionGroups).map(([sessionName, exercises]) => (
-        <div key={sessionName} className="space-y-2">
+      {week.map((session, sessionIndex) => (
+        <div key={sessionIndex} className="space-y-2">
           <h4 className="text-md font-semibold text-gray-800 border-b pb-2">
-            {sessionName}
+            {session.sessionName}
           </h4>
           
           <div className="overflow-x-auto">
@@ -61,16 +64,54 @@ export const WeekTable: React.FC<WeekTableProps> = ({ week }) => {
                 </tr>
               </thead>
               <tbody>
-                {exercises.map((exercise: Exercise, idx: number) => (
-                  <tr key={idx} className="even:bg-gray-50">
+                {(session.exercises || []).map((exercise: Exercise, exerciseIndex: number) => (
+                  <tr key={exerciseIndex} className="even:bg-gray-50">
                     <td className="px-3 py-1 font-medium">{exercise.name}</td>
-                    <td className="px-3 py-1">{exercise.pct1RM || '-'}%</td>
-                    <td className="px-3 py-1">{exercise.sets || '-'}</td>
-                    <td className="px-3 py-1">{exercise.reps || '-'}</td>
-                    <td className="px-3 py-1">{exercise.rest || '-'}</td>
-                    <td className="px-3 py-1">{exercise.rpe || '-'}</td>
+                    <td className="px-3 py-1">
+                      <EditableCell
+                        value={exercise.pct1RM || ''}
+                        editable={editable}
+                        type="number"
+                        onSave={(value) => handleCellUpdate(sessionIndex, exerciseIndex, 'pct1RM', value)}
+                      />
+                    </td>
+                    <td className="px-3 py-1">
+                      <EditableCell
+                        value={exercise.sets || ''}
+                        editable={editable}
+                        type="number"
+                        onSave={(value) => handleCellUpdate(sessionIndex, exerciseIndex, 'sets', value)}
+                      />
+                    </td>
+                    <td className="px-3 py-1">
+                      <EditableCell
+                        value={exercise.reps || ''}
+                        editable={editable}
+                        type="number"
+                        onSave={(value) => handleCellUpdate(sessionIndex, exerciseIndex, 'reps', value)}
+                      />
+                    </td>
+                    <td className="px-3 py-1">
+                      <EditableCell
+                        value={exercise.rest || ''}
+                        editable={editable}
+                        onSave={(value) => handleCellUpdate(sessionIndex, exerciseIndex, 'rest', value)}
+                      />
+                    </td>
+                    <td className="px-3 py-1">
+                      <EditableCell
+                        value={exercise.rpe || ''}
+                        editable={editable}
+                        type="number"
+                        onSave={(value) => handleCellUpdate(sessionIndex, exerciseIndex, 'rpe', value)}
+                      />
+                    </td>
                     <td className="px-3 py-1 text-sm text-gray-600">
-                      {exercise.notes || '-'}
+                      <EditableCell
+                        value={exercise.notes || ''}
+                        editable={editable}
+                        onSave={(value) => handleCellUpdate(sessionIndex, exerciseIndex, 'notes', value)}
+                      />
                     </td>
                   </tr>
                 ))}
