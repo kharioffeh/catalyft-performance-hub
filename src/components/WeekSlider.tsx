@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import SwipeableViews from 'react-swipeable-views';
-import { WeekTable } from '@/components/WeekTable';
+import WeekTable from '@/components/WeekTable';
 
 interface WeekSliderProps {
   blockJson: any;

@@ -3,7 +3,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { WeekSlider } from '@/components/WeekSlider';
+import WeekSlider from '@/components/WeekSlider';
 
 export default function TemplatePage() {
   const { id } = useParams<{ id: string }>();
