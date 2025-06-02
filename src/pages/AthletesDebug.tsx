@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +6,6 @@ import { User, AlertCircle, RefreshCw } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AthleteDialogs } from '@/components/Athletes/AthleteDialogs';
 import { AthletesTable } from '@/components/Athletes/AthletesTable';
-import { AthleteInviteForm } from '@/components/Athletes/AthleteInviteForm';
 import { useAthleteQueriesFixed } from '@/hooks/athletes/useAthleteQueriesFixed';
 import { useAthleteMutationsRealtime } from '@/hooks/athletes/useAthleteMutationsRealtime';
 import { useAthleteFormRealtime } from '@/hooks/athletes/useAthleteFormRealtime';
@@ -159,7 +157,6 @@ const AthletesDebug: React.FC = () => {
           <p className="text-sm text-gray-500 mt-1">Check browser console for debug logs</p>
         </div>
         <div className="flex gap-2">
-          <AthleteInviteForm onInviteSent={handleInviteSent} />
           <AthleteDialogs
             isAddDialogOpen={isAddDialogOpen}
             setIsAddDialogOpen={setIsAddDialogOpen}
