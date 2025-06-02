@@ -13,7 +13,7 @@ import ForgotPasswordPage from './pages/Auth';
 import ResetPasswordPage from './pages/Auth';
 import AppLayout from './components/AppLayout';
 import ProtectedRoute from './components/ProtectedRoute';
-import RiskBoardPage from './pages/RiskBoardPage';
+import RiskBoardPage from './pages/RiskBoard';
 import TemplatesPage from './pages/TemplatesPage';
 import TemplatePage from './pages/TemplatePage';
 
