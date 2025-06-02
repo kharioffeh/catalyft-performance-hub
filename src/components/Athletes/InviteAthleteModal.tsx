@@ -62,6 +62,43 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
         return;
       }
 
+      // Add debugging for the current user
+      console.log('InviteAthleteModal: Current session user:', {
+        id: session.session.user.id,
+        email: session.session.user.email,
+        role: session.session.user.user_metadata?.role
+      });
+
+      // Let's also check if the profile exists before calling the function
+      console.log('InviteAthleteModal: Checking profile in database...');
+      const { data: profileCheck, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, email, role')
+        .eq('id', session.session.user.id)
+        .single();
+
+      console.log('InviteAthleteModal: Profile check result:', { profileCheck, profileError });
+
+      if (profileError || !profileCheck) {
+        console.error('InviteAthleteModal: Profile not found in database');
+        toast({
+          title: "Error",
+          description: "Your profile is not set up correctly. Please contact support.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (profileCheck.role !== 'coach') {
+        console.error('InviteAthleteModal: User is not a coach, role:', profileCheck.role);
+        toast({
+          title: "Error",
+          description: `You are not registered as a coach. Your current role is: ${profileCheck.role}`,
+          variant: "destructive"
+        });
+        return;
+      }
+
       console.log('InviteAthleteModal: Session found, calling invite-athlete function');
       console.log('InviteAthleteModal: Function URL will be:', `https://xeugyryfvilanoiethum.supabase.co/functions/v1/invite-athlete`);
 
