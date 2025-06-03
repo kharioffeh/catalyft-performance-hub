@@ -10,11 +10,13 @@ import { TemplateCard } from '@/components/TemplateCard';
 import { TemplateModal } from '@/components/TemplateModal';
 import { AssignTemplateDialog } from '@/components/AssignTemplateDialog';
 import { useTemplateModal } from '@/store/useTemplateModal';
+import ProgramBuilder from '@/components/ProgramBuilder';
 
 const TemplatesPage: React.FC = () => {
   const { profile } = useAuth();
-  const { data: templates = [], isLoading } = useProgramTemplates();
+  const { data: templates = [], isLoading, refetch } = useProgramTemplates();
   const [isGenerateOpen, setIsGenerateOpen] = useState(false);
+  const [builderOpen, setBuilderOpen] = useState(false);
   const [assignTemplate, setAssignTemplate] = useState(null);
   const { tpl, close } = useTemplateModal();
 
@@ -37,13 +39,23 @@ const TemplatesPage: React.FC = () => {
           <Dumbbell className="w-8 h-8 text-blue-600" />
           <h1 className="text-3xl font-bold text-gray-900">KAI (Kinetic Adaptive Instructor)</h1>
         </div>
-        <Button 
-          onClick={() => setIsGenerateOpen(true)}
-          className="flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          Generate with KAI
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            onClick={() => setBuilderOpen(true)}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            New Template
+          </Button>
+          <Button 
+            onClick={() => setIsGenerateOpen(true)}
+            className="flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Generate with KAI
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -66,12 +78,18 @@ const TemplatesPage: React.FC = () => {
             <Dumbbell className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No Program Templates</h3>
             <p className="text-gray-500 mb-4">
-              Generate your first AI-powered training program with KAI
+              Create your first training program template or generate one with KAI
             </p>
-            <Button onClick={() => setIsGenerateOpen(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Generate with KAI
-            </Button>
+            <div className="flex items-center justify-center gap-2">
+              <Button onClick={() => setBuilderOpen(true)} variant="outline">
+                <Plus className="w-4 h-4 mr-2" />
+                New Template
+              </Button>
+              <Button onClick={() => setIsGenerateOpen(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Generate with KAI
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -79,6 +97,14 @@ const TemplatesPage: React.FC = () => {
       <GenerateProgramDialog
         open={isGenerateOpen}
         onOpenChange={setIsGenerateOpen}
+      />
+
+      <ProgramBuilder 
+        isOpen={builderOpen} 
+        onClose={(refresh) => { 
+          setBuilderOpen(false); 
+          if (refresh) refetch(); 
+        }} 
       />
 
       {tpl && (
