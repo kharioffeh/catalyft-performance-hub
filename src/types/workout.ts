@@ -1,3 +1,4 @@
+
 export interface Exercise {
   id: string;
   name: string;
@@ -22,12 +23,15 @@ export interface WorkoutTemplate {
   coach_uuid: string;
   name: string;
   description?: string;
-  category: string;
+  category?: string;
   estimated_duration?: number;
   difficulty_level?: number;
-  is_public: boolean;
+  is_public?: boolean;
   created_at: string;
   updated_at: string;
+  // Add optional properties for program templates
+  block_json?: any;
+  origin?: string;
 }
 
 export interface WorkoutTemplateExercise {

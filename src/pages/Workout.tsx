@@ -39,8 +39,22 @@ const Workout: React.FC = () => {
 
   const isCoach = profile?.role === 'coach';
 
-  // Combine workout templates and program templates for display
-  const allTemplates = [...templates, ...programTemplates];
+  // Transform program templates to match WorkoutTemplate interface
+  const transformedProgramTemplates: WorkoutTemplate[] = programTemplates.map(pt => ({
+    id: pt.id,
+    coach_uuid: pt.coach_uuid,
+    name: pt.name,
+    description: `${pt.block_json?.weeks?.length || 0} weeks`,
+    category: 'program',
+    is_public: false,
+    created_at: pt.created_at,
+    updated_at: pt.updated_at,
+    block_json: pt.block_json,
+    origin: pt.origin
+  }));
+
+  // Combine workout templates and transformed program templates
+  const allTemplates = [...templates, ...transformedProgramTemplates];
 
   return (
     <div className="space-y-6">
