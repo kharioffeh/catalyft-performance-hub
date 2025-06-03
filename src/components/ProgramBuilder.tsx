@@ -51,17 +51,16 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
     <Dialog open={isOpen} onOpenChange={() => onClose(false)}>
       <DialogContent className="max-w-5xl w-full h-[90vh] p-0 overflow-hidden">
         <div className="flex flex-col h-full">
-          <div className="flex-shrink-0 p-6 pb-0 border-b bg-background">
+          <div className="flex-shrink-0 px-8 pt-8 pb-4 border-b bg-background">
             <BuilderHeader 
               name={name}
               setName={setName}
-              onClose={() => onClose(false)}
             />
           </div>
           
           <ScrollArea className="flex-1 overflow-auto [&>[data-radix-scroll-area-viewport]]:max-h-full">
             <div 
-              className="p-6 pt-4 space-y-4 overflow-y-auto max-h-[60vh]"
+              className="px-8 py-6 space-y-4 overflow-y-auto max-h-[60vh]"
               style={{
                 scrollbarWidth: 'thin',
                 scrollbarColor: '#cbd5e1 #f1f5f9'
@@ -82,7 +81,7 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
             </div>
           </ScrollArea>
 
-          <div className="flex-shrink-0 p-6 pt-0 border-t bg-background">
+          <div className="flex-shrink-0 px-8 pb-8 pt-4 border-t bg-background">
             <BuilderFooter 
               weeks={weeks}
               addWeek={addWeek}
