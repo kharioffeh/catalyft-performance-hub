@@ -30,20 +30,54 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
       return;
     }
 
-    const { error } = await supabase
-      .from('program_templates')
-      .insert([{ 
-        name, 
-        block_json: { weeks }, 
-        origin: 'COACH',
-        coach_uuid: (await supabase.auth.getUser()).data.user?.id
-      }]);
+    try {
+      // Get the current user
+      const { data: user, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user.user) {
+        toast({ title: 'Authentication error', variant: 'destructive' });
+        return;
+      }
 
-    if (error) {
-      toast({ title: error.message, variant: 'destructive' });
-    } else {
-      toast({ title: 'Template saved successfully' });
-      onClose(true);
+      // Get the coach record based on the user's email
+      const { data: coach, error: coachError } = await supabase
+        .from('coaches')
+        .select('id')
+        .eq('email', user.user.email)
+        .single();
+
+      if (coachError || !coach) {
+        toast({ 
+          title: 'Coach not found', 
+          description: 'Your account is not registered as a coach. Please contact support.',
+          variant: 'destructive' 
+        });
+        return;
+      }
+
+      // Insert the program template with the correct coach_uuid
+      const { error } = await supabase
+        .from('program_templates')
+        .insert([{ 
+          name, 
+          block_json: { weeks }, 
+          origin: 'COACH',
+          coach_uuid: coach.id
+        }]);
+
+      if (error) {
+        toast({ title: error.message, variant: 'destructive' });
+      } else {
+        toast({ title: 'Template saved successfully' });
+        onClose(true);
+      }
+    } catch (error) {
+      console.error('Error saving template:', error);
+      toast({ 
+        title: 'Error saving template', 
+        description: 'An unexpected error occurred. Please try again.',
+        variant: 'destructive' 
+      });
     }
   };
 
