@@ -11,9 +11,20 @@ const ScrollArea = React.forwardRef<
   <ScrollAreaPrimitive.Root
     ref={ref}
     className={cn("relative overflow-hidden", className)}
+    style={{
+      // Native scrollbar fallback styling
+      scrollbarWidth: 'thin',
+      scrollbarColor: '#9ca3af #f3f4f6',
+    }}
     {...props}
   >
-    <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]">
+    <ScrollAreaPrimitive.Viewport 
+      className="h-full w-full rounded-[inherit]"
+      style={{
+        // Webkit scrollbar styling for fallback
+        scrollBehavior: 'smooth',
+      }}
+    >
       {children}
     </ScrollAreaPrimitive.Viewport>
     <ScrollBar />
@@ -32,14 +43,14 @@ const ScrollBar = React.forwardRef<
     className={cn(
       "flex touch-none select-none transition-colors",
       orientation === "vertical" &&
-        "h-full w-3 border-l border-l-transparent p-[1px] bg-gray-100",
+        "h-full w-3 border-l border-l-transparent p-[1px] bg-gray-200 hover:bg-gray-300",
       orientation === "horizontal" &&
-        "h-3 flex-col border-t border-t-transparent p-[1px] bg-gray-100",
+        "h-3 flex-col border-t border-t-transparent p-[1px] bg-gray-200 hover:bg-gray-300",
       className
     )}
     {...props}
   >
-    <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-gray-400 hover:bg-gray-500 transition-colors" />
+    <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-gray-500 hover:bg-gray-600 active:bg-gray-700 transition-colors duration-200" />
   </ScrollAreaPrimitive.ScrollAreaScrollbar>
 ))
 ScrollBar.displayName = ScrollAreaPrimitive.ScrollAreaScrollbar.displayName

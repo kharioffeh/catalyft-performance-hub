@@ -62,7 +62,7 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
           {/* Scrollable content - Takes remaining space between header and footer */}
           <div className="flex-1 min-h-0">
             <ScrollArea className="h-full">
-              <div className="px-8 py-6 space-y-4">
+              <div className="px-8 py-6 space-y-4 max-h-[60vh] overflow-y-auto">
                 {weeks.map((week, idx) => (
                   <WeekAccordion 
                     key={idx} 
