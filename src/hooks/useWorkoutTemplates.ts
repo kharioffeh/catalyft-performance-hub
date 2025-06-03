@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { WorkoutTemplate, WorkoutTemplateExercise } from '@/types/workout';
@@ -47,9 +46,16 @@ export const useCreateWorkoutTemplate = () => {
 
   return useMutation({
     mutationFn: async (template: Omit<WorkoutTemplate, 'id' | 'created_at' | 'updated_at'>) => {
+      // Ensure required fields are present for database insertion
+      const templateData = {
+        ...template,
+        category: template.category || 'general', // Provide default category if not specified
+        is_public: template.is_public ?? false, // Provide default for is_public
+      };
+
       const { data, error } = await supabase
         .from('workout_templates')
-        .insert(template)
+        .insert(templateData)
         .select()
         .single();
 
