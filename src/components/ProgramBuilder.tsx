@@ -49,7 +49,7 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose(false)}>
-      <DialogContent className="max-w-5xl w-full h-[90%] p-0 overflow-hidden">
+      <DialogContent className="max-w-5xl w-full h-[90vh] p-0 overflow-hidden">
         <div className="flex flex-col h-full">
           <div className="flex-shrink-0 p-6 pb-0 border-b bg-background">
             <BuilderHeader 
@@ -59,8 +59,8 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
             />
           </div>
           
-          <ScrollArea className="flex-1 p-6 pt-4">
-            <div className="space-y-4 pr-4">
+          <ScrollArea className="flex-1 overflow-hidden">
+            <div className="p-6 pt-4 space-y-4">
               {weeks.map((week, idx) => (
                 <WeekAccordion 
                   key={idx} 
