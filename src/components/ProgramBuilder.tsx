@@ -59,8 +59,14 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
             />
           </div>
           
-          <ScrollArea className="flex-1 overflow-hidden">
-            <div className="p-6 pt-4 space-y-4">
+          <ScrollArea className="flex-1 overflow-auto [&>[data-radix-scroll-area-viewport]]:max-h-full">
+            <div 
+              className="p-6 pt-4 space-y-4 overflow-y-auto max-h-[60vh]"
+              style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#cbd5e1 #f1f5f9'
+              }}
+            >
               {weeks.map((week, idx) => (
                 <WeekAccordion 
                   key={idx} 
