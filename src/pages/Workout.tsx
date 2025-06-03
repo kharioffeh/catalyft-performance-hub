@@ -11,19 +11,21 @@ import { WorkoutTemplates } from '@/components/WorkoutTemplates';
 import { AssignedWorkoutsTab } from '@/components/AssignedWorkoutsTab';
 import { PerformanceTab } from '@/components/PerformanceTab';
 import { ExerciseLibrary } from '@/components/ExerciseLibrary';
-import { CreateTemplateDialog } from '@/components/CreateTemplateDialog';
 import { AssignWorkoutDialog } from '@/components/AssignWorkoutDialog';
 import { AssignTemplateDialog } from '@/components/AssignTemplateDialog';
 import { TemplateModal } from '@/components/TemplateModal';
 import { useTemplateModal } from '@/store/useTemplateModal';
 import { WorkoutTemplate } from '@/types/workout';
+import ProgramBuilder from '@/components/ProgramBuilder';
+import { useProgramTemplates } from '@/hooks/useProgramTemplates';
 
 const Workout: React.FC = () => {
   const { profile } = useAuth();
-  const { data: templates = [], isLoading: templatesLoading } = useWorkoutTemplates();
+  const { data: templates = [], isLoading: templatesLoading, refetch: refetchWorkoutTemplates } = useWorkoutTemplates();
+  const { data: programTemplates = [], refetch: refetchProgramTemplates } = useProgramTemplates();
   const { data: assignedWorkouts = [], isLoading: assignedLoading } = useAssignedWorkouts();
   
-  const [isCreateTemplateOpen, setIsCreateTemplateOpen] = useState(false);
+  const [isProgramBuilderOpen, setIsProgramBuilderOpen] = useState(false);
   const [isAssignWorkoutOpen, setIsAssignWorkoutOpen] = useState(false);
   const [isAssignTemplateOpen, setIsAssignTemplateOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<WorkoutTemplate | null>(null);
@@ -37,6 +39,9 @@ const Workout: React.FC = () => {
 
   const isCoach = profile?.role === 'coach';
 
+  // Combine workout templates and program templates for display
+  const allTemplates = [...templates, ...programTemplates];
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -46,7 +51,7 @@ const Workout: React.FC = () => {
         </div>
         {isCoach && (
           <Button 
-            onClick={() => setIsCreateTemplateOpen(true)}
+            onClick={() => setIsProgramBuilderOpen(true)}
             className="flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
@@ -55,7 +60,7 @@ const Workout: React.FC = () => {
         )}
       </div>
 
-      <WorkoutStats templates={templates} assignedWorkouts={assignedWorkouts} />
+      <WorkoutStats templates={allTemplates} assignedWorkouts={assignedWorkouts} />
 
       <Tabs defaultValue="templates" className="space-y-4">
         <TabsList>
@@ -69,7 +74,7 @@ const Workout: React.FC = () => {
 
         <TabsContent value="templates" className="space-y-4">
           <WorkoutTemplates
-            templates={templates}
+            templates={allTemplates}
             isLoading={templatesLoading}
             isCoach={isCoach}
             onAssignTemplate={handleAssignTemplate}
@@ -94,9 +99,15 @@ const Workout: React.FC = () => {
         )}
       </Tabs>
 
-      <CreateTemplateDialog
-        open={isCreateTemplateOpen}
-        onOpenChange={setIsCreateTemplateOpen}
+      <ProgramBuilder 
+        isOpen={isProgramBuilderOpen} 
+        onClose={(refresh) => { 
+          setIsProgramBuilderOpen(false); 
+          if (refresh) {
+            refetchWorkoutTemplates();
+            refetchProgramTemplates();
+          }
+        }} 
       />
 
       <AssignWorkoutDialog
