@@ -50,38 +50,37 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose(false)}>
       <DialogContent className="max-w-5xl w-full h-[90vh] p-0 overflow-hidden">
-        <div className="flex flex-col h-full">
-          <div className="flex-shrink-0 px-8 pt-8 pb-4 border-b bg-background">
+        <div className="flex flex-col h-full relative">
+          {/* Header - Fixed at top */}
+          <div className="flex-shrink-0 px-8 pt-8 pb-4 border-b bg-background z-10">
             <BuilderHeader 
               name={name}
               setName={setName}
             />
           </div>
           
-          <ScrollArea className="flex-1 overflow-auto [&>[data-radix-scroll-area-viewport]]:max-h-full">
-            <div 
-              className="px-8 py-6 space-y-4 overflow-y-auto max-h-[60vh]"
-              style={{
-                scrollbarWidth: 'thin',
-                scrollbarColor: '#cbd5e1 #f1f5f9'
-              }}
-            >
-              {weeks.map((week, idx) => (
-                <WeekAccordion 
-                  key={idx} 
-                  week={week} 
-                  weekIdx={idx} 
-                  onChange={(newWeek) => {
-                    const clone = [...weeks];
-                    clone[idx] = newWeek;
-                    setWeeks(clone);
-                  }} 
-                />
-              ))}
-            </div>
-          </ScrollArea>
+          {/* Scrollable content - Takes remaining space minus footer */}
+          <div className="flex-1 overflow-hidden">
+            <ScrollArea className="h-full">
+              <div className="px-8 py-6 space-y-4 pb-24">
+                {weeks.map((week, idx) => (
+                  <WeekAccordion 
+                    key={idx} 
+                    week={week} 
+                    weekIdx={idx} 
+                    onChange={(newWeek) => {
+                      const clone = [...weeks];
+                      clone[idx] = newWeek;
+                      setWeeks(clone);
+                    }} 
+                  />
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
 
-          <div className="flex-shrink-0 px-8 pb-8 pt-4 border-t bg-background">
+          {/* Footer - Fixed at bottom */}
+          <div className="absolute bottom-0 left-0 right-0 px-8 pb-8 pt-4 border-t bg-background z-10 shadow-lg">
             <BuilderFooter 
               weeks={weeks}
               addWeek={addWeek}
