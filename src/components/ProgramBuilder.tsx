@@ -52,17 +52,17 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
       <DialogContent className="max-w-5xl w-full h-[90vh] p-0 overflow-hidden">
         <div className="flex flex-col h-full">
           {/* Header - Fixed at top */}
-          <div className="flex-shrink-0 px-8 pt-8 pb-4 border-b bg-background z-10">
+          <div className="flex-shrink-0 px-8 pt-8 pb-4 border-b bg-background">
             <BuilderHeader 
               name={name}
               setName={setName}
             />
           </div>
           
-          {/* Scrollable content - Takes remaining space */}
+          {/* Scrollable content - Takes remaining space between header and footer */}
           <div className="flex-1 min-h-0">
             <ScrollArea className="h-full">
-              <div className="px-8 py-6 space-y-4 pb-32">
+              <div className="px-8 py-6 space-y-4">
                 {weeks.map((week, idx) => (
                   <WeekAccordion 
                     key={idx} 
@@ -79,8 +79,8 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
             </ScrollArea>
           </div>
 
-          {/* Footer - Fixed at bottom */}
-          <div className="absolute bottom-0 left-0 right-0 px-8 pb-8 pt-4 border-t bg-background z-10 shadow-lg">
+          {/* Footer - Fixed at bottom as flex item */}
+          <div className="flex-shrink-0 px-8 pb-8 pt-4 border-t bg-background">
             <BuilderFooter 
               weeks={weeks}
               addWeek={addWeek}
