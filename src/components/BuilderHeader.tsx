@@ -13,7 +13,7 @@ interface BuilderHeaderProps {
 
 export default function BuilderHeader({ name, setName, onClose }: BuilderHeaderProps) {
   return (
-    <div className="border-b pb-4 bg-background">
+    <div className="pb-4">
       <DialogHeader className="flex flex-row items-center justify-between space-y-0">
         <DialogTitle className="text-xl">Create Program Template</DialogTitle>
         <Button 

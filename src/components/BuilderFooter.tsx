@@ -10,7 +10,7 @@ interface BuilderFooterProps {
 
 export default function BuilderFooter({ weeks, addWeek, save }: BuilderFooterProps) {
   return (
-    <div className="border-t pt-4 bg-background">
+    <div className="pt-4">
       <div className="flex justify-between items-center">
         <Button 
           onClick={addWeek} 

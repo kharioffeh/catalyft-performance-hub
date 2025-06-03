@@ -50,7 +50,7 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
     <Dialog open={isOpen} onOpenChange={() => onClose(false)}>
       <DialogContent className="max-w-5xl w-full h-[90%] p-0 overflow-hidden">
         <div className="flex flex-col h-full">
-          <div className="p-6 pb-0">
+          <div className="flex-shrink-0 p-6 pb-0 border-b bg-background">
             <BuilderHeader 
               name={name}
               setName={setName}
@@ -58,22 +58,24 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
             />
           </div>
           
-          <div className="flex-1 overflow-y-auto p-6 pt-4">
-            {weeks.map((week, idx) => (
-              <WeekAccordion 
-                key={idx} 
-                week={week} 
-                weekIdx={idx} 
-                onChange={(newWeek) => {
-                  const clone = [...weeks];
-                  clone[idx] = newWeek;
-                  setWeeks(clone);
-                }} 
-              />
-            ))}
+          <div className="flex-1 overflow-y-auto p-6 pt-4 min-h-0">
+            <div className="space-y-4">
+              {weeks.map((week, idx) => (
+                <WeekAccordion 
+                  key={idx} 
+                  week={week} 
+                  weekIdx={idx} 
+                  onChange={(newWeek) => {
+                    const clone = [...weeks];
+                    clone[idx] = newWeek;
+                    setWeeks(clone);
+                  }} 
+                />
+              ))}
+            </div>
           </div>
 
-          <div className="p-6 pt-0">
+          <div className="flex-shrink-0 p-6 pt-0 border-t bg-background">
             <BuilderFooter 
               weeks={weeks}
               addWeek={addWeek}
