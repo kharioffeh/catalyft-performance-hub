@@ -6,6 +6,15 @@ interface WeekTableProps {
 }
 
 export default function WeekTable({ week }: WeekTableProps) {
+  // Handle the case where week might be an object with sessions property
+  const sessions = week.sessions || week;
+  
+  // Ensure sessions is an array
+  if (!Array.isArray(sessions)) {
+    console.warn('WeekTable: sessions is not an array', sessions);
+    return <div>No sessions data available</div>;
+  }
+
   return (
     <table className="w-full table-auto border mb-6">
       <thead className="bg-gray-100">
@@ -20,7 +29,7 @@ export default function WeekTable({ week }: WeekTableProps) {
         </tr>
       </thead>
       <tbody>
-        {week.map((session: any, sessionIndex: number) =>
+        {sessions.map((session: any, sessionIndex: number) =>
           (session.exercises || []).map((ex: any, i: number) => (
             <tr key={`${sessionIndex}-${i}`} className="even:bg-gray-50">
               <td className="px-3 py-1 underline text-blue-600 cursor-pointer">{ex.name}</td>
