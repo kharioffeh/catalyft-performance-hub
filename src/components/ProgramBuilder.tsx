@@ -16,7 +16,8 @@ interface ProgramBuilderProps {
 
 export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps) {
   const [name, setName] = useState('');
-  const [weeks, setWeeks] = useState([{ sessions: [] }]); // start with 1 week
+  const [weeks, setWeeks] = useState([{ sessions: [] }]);
+  const [isSaving, setIsSaving] = useState(false);
 
   const addWeek = () => {
     if (weeks.length < 12) {
@@ -25,17 +26,27 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
   };
 
   const save = async () => {
-    if (!name) {
-      toast({ title: 'Name required', variant: 'destructive' });
+    if (!name.trim()) {
+      toast({ 
+        title: 'Name required', 
+        description: 'Please enter a name for your template',
+        variant: 'destructive' 
+      });
       return;
     }
+
+    setIsSaving(true);
 
     try {
       // Get the current user
       const { data: user, error: userError } = await supabase.auth.getUser();
       
       if (userError || !user.user) {
-        toast({ title: 'Authentication error', variant: 'destructive' });
+        toast({ 
+          title: 'Authentication error',
+          description: 'Please log in and try again',
+          variant: 'destructive' 
+        });
         return;
       }
 
@@ -47,6 +58,7 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
         .single();
 
       if (coachError || !coach) {
+        console.error('Coach lookup error:', coachError);
         toast({ 
           title: 'Coach not found', 
           description: 'Your account is not registered as a coach. Please contact support.',
@@ -59,30 +71,42 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
       const { error } = await supabase
         .from('program_templates')
         .insert([{ 
-          name, 
+          name: name.trim(), 
           block_json: { weeks }, 
           origin: 'COACH',
           coach_uuid: coach.id
         }]);
 
       if (error) {
-        toast({ title: error.message, variant: 'destructive' });
+        console.error('Template save error:', error);
+        toast({ 
+          title: 'Save failed',
+          description: error.message,
+          variant: 'destructive' 
+        });
       } else {
-        toast({ title: 'Template saved successfully' });
+        toast({ 
+          title: 'Success',
+          description: 'Template saved successfully'
+        });
+        setName('');
+        setWeeks([{ sessions: [] }]);
         onClose(true);
       }
     } catch (error) {
-      console.error('Error saving template:', error);
+      console.error('Unexpected error saving template:', error);
       toast({ 
-        title: 'Error saving template', 
+        title: 'Unexpected error', 
         description: 'An unexpected error occurred. Please try again.',
         variant: 'destructive' 
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => onClose(false)}>
+    <Dialog open={isOpen} onOpenChange={() => !isSaving && onClose(false)}>
       <DialogContent className="max-w-5xl w-full h-[90vh] p-0 overflow-hidden">
         <div className="flex flex-col h-full">
           {/* Header - Fixed at top */}
@@ -90,35 +114,47 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
             <BuilderHeader 
               name={name}
               setName={setName}
+              disabled={isSaving}
             />
           </div>
           
-          {/* Scrollable content - Takes remaining space between header and footer */}
+          {/* Scrollable content */}
           <div className="flex-1 min-h-0">
             <ScrollArea className="h-full">
-              <div className="px-8 py-6 space-y-4 max-h-[60vh] overflow-y-auto">
+              <div className="px-8 py-6 space-y-4">
                 {weeks.map((week, idx) => (
                   <WeekAccordion 
                     key={idx} 
                     week={week} 
                     weekIdx={idx} 
                     onChange={(newWeek) => {
-                      const clone = [...weeks];
-                      clone[idx] = newWeek;
-                      setWeeks(clone);
-                    }} 
+                      if (!isSaving) {
+                        const clone = [...weeks];
+                        clone[idx] = newWeek;
+                        setWeeks(clone);
+                      }
+                    }}
+                    disabled={isSaving}
                   />
                 ))}
+                
+                {weeks.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    Click "Add Week" to start building your program
+                  </div>
+                )}
               </div>
             </ScrollArea>
           </div>
 
-          {/* Footer - Fixed at bottom as flex item */}
+          {/* Footer - Fixed at bottom */}
           <div className="flex-shrink-0 px-8 pb-8 pt-4 border-t bg-background">
             <BuilderFooter 
               weeks={weeks}
               addWeek={addWeek}
               save={save}
+              isSaving={isSaving}
+              disabled={isSaving}
             />
           </div>
         </div>

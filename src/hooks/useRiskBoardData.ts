@@ -17,10 +17,15 @@ interface RiskBoardData {
 export const useRiskBoardData = () => {
   const { profile } = useAuth();
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['riskBoard', profile?.id],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!profile?.id) {
+        console.log('No profile ID available for risk board');
+        return [];
+      }
+
+      console.log('Fetching risk board data for coach:', profile.id);
 
       const { data, error } = await supabase
         .from('vw_risk_board')
@@ -29,15 +34,25 @@ export const useRiskBoardData = () => {
         .order('flag', { ascending: false })
         .order('readiness', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Risk board fetch error:', error);
+        throw error;
+      }
+
+      console.log('Risk board data fetched:', data?.length || 0, 'athletes');
       return data as RiskBoardData[];
     },
-    enabled: !!profile?.id && profile?.role === 'coach'
+    enabled: !!profile?.id && profile?.role === 'coach',
+    retry: 2,
+    staleTime: 30000, // 30 seconds
+    refetchOnWindowFocus: false
   });
 
   // Set up realtime listener
   React.useEffect(() => {
     if (!profile?.id) return;
+
+    console.log('Setting up realtime listener for risk board');
 
     const channel = supabase.channel(`risk_board_${profile.id}`);
     
@@ -62,6 +77,7 @@ export const useRiskBoardData = () => {
     channel.subscribe();
 
     return () => {
+      console.log('Cleaning up risk board realtime listener');
       supabase.removeChannel(channel);
     };
   }, [profile?.id, refetch]);
@@ -69,6 +85,7 @@ export const useRiskBoardData = () => {
   return {
     riskBoardData: data || [],
     isLoading,
+    error,
     refetch
   };
 };
