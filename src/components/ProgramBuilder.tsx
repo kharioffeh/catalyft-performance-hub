@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import BuilderHeader from './BuilderHeader';
@@ -58,8 +59,8 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
             />
           </div>
           
-          <div className="flex-1 overflow-y-auto p-6 pt-4 min-h-0">
-            <div className="space-y-4">
+          <ScrollArea className="flex-1 p-6 pt-4">
+            <div className="space-y-4 pr-4">
               {weeks.map((week, idx) => (
                 <WeekAccordion 
                   key={idx} 
@@ -73,7 +74,7 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
                 />
               ))}
             </div>
-          </div>
+          </ScrollArea>
 
           <div className="flex-shrink-0 p-6 pt-0 border-t bg-background">
             <BuilderFooter 
