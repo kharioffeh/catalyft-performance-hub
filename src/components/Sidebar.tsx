@@ -68,8 +68,8 @@ const Sidebar = () => {
     { 
       icon: AlertTriangle, 
       label: 'Risk Board', 
-      path: '/coach/risk',
-      isActive: location.pathname === '/coach/risk'
+      path: '/risk-board',
+      isActive: location.pathname === '/risk-board'
     },
     { 
       icon: Settings, 

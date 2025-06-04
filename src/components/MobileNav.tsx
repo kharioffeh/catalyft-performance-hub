@@ -8,7 +8,8 @@ import {
   CalendarClock, 
   Dumbbell, 
   BrainCircuit, 
-  Settings2
+  Settings2,
+  AlertTriangle
 } from 'lucide-react';
 
 const navigationItems = [
@@ -35,6 +36,12 @@ const navigationItems = [
     label: 'Chat',
     icon: BrainCircuit,
     visibleTo: ['athlete', 'coach']
+  },
+  {
+    path: '/risk-board',
+    label: 'Risk',
+    icon: AlertTriangle,
+    visibleTo: ['coach']
   },
   {
     path: '/settings',

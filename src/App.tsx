@@ -11,6 +11,8 @@ import LoginPage from './pages/Login';
 import SignupPage from './pages/Signup';
 import ForgotPasswordPage from './pages/Auth';
 import ResetPasswordPage from './pages/Auth';
+import CalendarPage from './pages/Calendar';
+import ChatPage from './pages/Chat';
 import AppLayout from './components/AppLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import RiskBoardPage from './pages/CoachRiskBoard';
@@ -39,6 +41,8 @@ function App() {
               <Route index element={<DashboardPage />} />
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="athletes" element={<AthletesPage />} />
+              <Route path="calendar" element={<CalendarPage />} />
+              <Route path="chat" element={<ChatPage />} />
               <Route path="risk-board" element={<RiskBoardPage />} />
               <Route path="workouts" element={<WorkoutsPage />} />
               <Route path="workout" element={<WorkoutsPage />} />
