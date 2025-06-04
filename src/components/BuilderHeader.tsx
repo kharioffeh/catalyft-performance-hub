@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 interface BuilderHeaderProps {
   name: string;
   setName: (name: string) => void;
+  disabled?: boolean;
 }
 
-export default function BuilderHeader({ name, setName }: BuilderHeaderProps) {
+export default function BuilderHeader({ name, setName, disabled }: BuilderHeaderProps) {
   return (
     <div className="pb-4">
       <DialogHeader className="space-y-0 mb-4">
@@ -19,6 +20,7 @@ export default function BuilderHeader({ name, setName }: BuilderHeaderProps) {
         value={name}
         onChange={(e) => setName(e.target.value)}
         className="w-full"
+        disabled={disabled}
       />
     </div>
   );

@@ -19,10 +19,13 @@ interface WeekAccordionProps {
   week: Week;
   weekIdx: number;
   onChange: (week: Week) => void;
+  disabled?: boolean;
 }
 
-export default function WeekAccordion({ week, weekIdx, onChange }: WeekAccordionProps) {
+export default function WeekAccordion({ week, weekIdx, onChange, disabled }: WeekAccordionProps) {
   const addSession = () => {
+    if (disabled) return;
+    
     const newSession = {
       id: `session-${Date.now()}-${Math.random()}`,
       sessionName: 'New Session',
@@ -35,6 +38,8 @@ export default function WeekAccordion({ week, weekIdx, onChange }: WeekAccordion
   };
 
   const updateSession = (sessionIndex: number, newSession: Session) => {
+    if (disabled) return;
+    
     const clone = { ...week };
     clone.sessions[sessionIndex] = newSession;
     onChange(clone);
@@ -45,7 +50,10 @@ export default function WeekAccordion({ week, weekIdx, onChange }: WeekAccordion
       <Disclosure defaultOpen={weekIdx === 0}>
         {({ open }) => (
           <>
-            <Disclosure.Button className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors">
+            <Disclosure.Button 
+              className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors disabled:opacity-50"
+              disabled={disabled}
+            >
               <span className="text-lg font-medium">Week {weekIdx + 1}</span>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-500">
@@ -63,7 +71,7 @@ export default function WeekAccordion({ week, weekIdx, onChange }: WeekAccordion
                 <Reorder.Group 
                   axis="y" 
                   values={week.sessions} 
-                  onReorder={(reorderedSessions) => onChange({ ...week, sessions: reorderedSessions })}
+                  onReorder={(reorderedSessions) => !disabled && onChange({ ...week, sessions: reorderedSessions })}
                   className="space-y-3"
                 >
                   {week.sessions.map((session, idx) => (
@@ -77,7 +85,8 @@ export default function WeekAccordion({ week, weekIdx, onChange }: WeekAccordion
               )}
               <button
                 onClick={addSession}
-                className="w-full p-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors text-gray-600 hover:text-gray-800"
+                disabled={disabled}
+                className="w-full p-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 + Add Session
               </button>
