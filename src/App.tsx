@@ -16,7 +16,7 @@ import ChatPage from './pages/Chat';
 import AppLayout from './components/AppLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import RiskBoardPage from './pages/CoachRiskBoard';
-import TemplatesPage from './pages/TemplatesPage';
+import KAIPage from './pages/KAIPage';
 import TemplateDetailPage from '@/pages/TemplateDetailPage';
 import { Toaster } from './components/ui/toaster';
 
@@ -46,7 +46,7 @@ function App() {
               <Route path="risk-board" element={<RiskBoardPage />} />
               <Route path="workouts" element={<WorkoutsPage />} />
               <Route path="workout" element={<WorkoutsPage />} />
-              <Route path="templates" element={<TemplatesPage />} />
+              <Route path="kai" element={<KAIPage />} />
               <Route path="template/:id" element={<TemplateDetailPage />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
