@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,9 +12,13 @@ import { PerformanceMetrics } from '@/components/PerformanceMetrics';
 import { format, subDays, startOfWeek, endOfWeek } from 'date-fns';
 import { AriaSummary } from '@/components/AriaSummary';
 import { InjuryForecastCard } from '@/components/InjuryForecastCard';
+import { useEnhancedMetrics } from '@/hooks/useEnhancedMetrics';
+import { EnhancedTrainingLoadChart } from '@/components/EnhancedTrainingLoadChart';
+import { EnhancedSleepChart } from '@/components/EnhancedSleepChart';
 
 const Dashboard: React.FC = () => {
   const { profile } = useAuth();
+  const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetrics();
 
   // Current readiness data
   const { data: readinessData } = useQuery({
@@ -57,26 +62,6 @@ const Dashboard: React.FC = () => {
     enabled: !!profile?.id
   });
 
-  // Sleep data for the week
-  const { data: sleepData = [] } = useQuery({
-    queryKey: ['sleep-7day', profile?.id],
-    queryFn: async () => {
-      if (!profile?.id) return [];
-
-      const { data, error } = await supabase
-        .from('wearable_raw')
-        .select('value, ts')
-        .eq('athlete_uuid', profile.id)
-        .eq('metric', 'sleep_efficiency')
-        .gte('ts', subDays(new Date(), 7).toISOString())
-        .order('ts', { ascending: true });
-
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: !!profile?.id
-  });
-
   // Training sessions for volume calculation
   const { data: sessions = [] } = useQuery({
     queryKey: ['sessions-volume', profile?.id],
@@ -85,7 +70,7 @@ const Dashboard: React.FC = () => {
 
       const { data, error } = await supabase
         .from('sessions')
-        .select('start_ts, end_ts, type')
+        .select('start_ts, end_ts, type, load')
         .eq('athlete_uuid', profile.id)
         .gte('start_ts', subDays(new Date(), 28).toISOString())
         .order('start_ts', { ascending: true });
@@ -110,39 +95,44 @@ const Dashboard: React.FC = () => {
       });
     }
 
-    if (sleepData.length > 0) {
-      const avgSleep = sleepData.reduce((sum, item) => sum + item.value, 0) / sleepData.length;
-      if (avgSleep > 85) {
+    if (latestStrain && latestStrain.value > 15) {
+      insights.push({
+        type: 'warning' as const,
+        title: 'High Strain Alert',
+        description: 'Yesterday\'s strain was elevated. Monitor recovery closely.',
+        metric: `Strain: ${latestStrain.value.toFixed(1)}`,
+        change: 18
+      });
+    }
+
+    if (sleepDaily.length > 0) {
+      const avgEfficiency = sleepDaily.slice(-7).reduce((sum, item) => sum + (item.sleep_efficiency || 0), 0) / 7;
+      if (avgEfficiency > 85) {
         insights.push({
           type: 'positive' as const,
           title: 'Excellent Sleep Quality',
           description: 'Your sleep efficiency has been consistently high this week.',
-          metric: `Average efficiency: ${Math.round(avgSleep)}%`,
+          metric: `Average efficiency: ${Math.round(avgEfficiency)}%`,
           change: 8
         });
       }
     }
 
-    if (sessions.length > 0) {
-      const thisWeekSessions = sessions.filter(session => {
-        const sessionDate = new Date(session.start_ts);
-        const weekStart = startOfWeek(new Date());
-        const weekEnd = endOfWeek(new Date());
-        return sessionDate >= weekStart && sessionDate <= weekEnd;
-      });
-
-      if (thisWeekSessions.length >= 4) {
+    if (loadACWR.length > 0) {
+      const latestACWR = loadACWR[loadACWR.length - 1];
+      if (latestACWR?.acwr_7_28 > 1.5) {
         insights.push({
-          type: 'positive' as const,
-          title: 'Training Consistency',
-          description: 'Great job maintaining your training schedule this week.',
-          metric: `${thisWeekSessions.length} sessions completed`,
+          type: 'warning' as const,
+          title: 'High ACWR Detected',
+          description: 'Your training load ratio is elevated. Consider reducing intensity.',
+          metric: `ACWR: ${latestACWR.acwr_7_28.toFixed(2)}`,
+          change: 25
         });
       }
     }
 
     return insights;
-  }, [readinessData, sleepData, sessions]);
+  }, [readinessData, latestStrain, sleepDaily, loadACWR]);
 
   // Generate volume data for chart
   const volumeData = React.useMemo(() => {
@@ -156,16 +146,11 @@ const Dashboard: React.FC = () => {
         return sessionDate >= weekStart && sessionDate <= weekEnd;
       });
 
-      const totalHours = weekSessions.reduce((sum, session) => {
-        const start = new Date(session.start_ts);
-        const end = new Date(session.end_ts);
-        const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-        return sum + hours;
-      }, 0);
+      const totalLoad = weekSessions.reduce((sum, session) => sum + (session.load || 0), 0);
 
       weeks.push({
         week: format(weekStart, 'MMM dd'),
-        volume: Math.round(totalHours * 10) / 10,
+        volume: Math.round(totalLoad / 10) / 10, // Convert to more readable scale
         sessions: weekSessions.length
       });
     }
@@ -187,15 +172,26 @@ const Dashboard: React.FC = () => {
       });
     }
 
-    if (sleepData.length > 0) {
-      const avgSleep = sleepData.reduce((sum, item) => sum + item.value, 0) / sleepData.length;
+    if (latestStrain) {
       metrics.push({
-        name: 'Sleep Efficiency',
-        value: Math.round(avgSleep),
-        target: 85,
-        unit: '%',
-        trend: avgSleep >= 80 ? 'up' : 'stable' as const,
-        change: 3
+        name: 'Latest Strain',
+        value: Math.round(latestStrain.value * 10) / 10,
+        target: 15,
+        unit: '',
+        trend: latestStrain.value <= 12 ? 'up' : 'down' as const,
+        change: 8
+      });
+    }
+
+    if (loadACWR.length > 0) {
+      const latestACWR = loadACWR[loadACWR.length - 1];
+      metrics.push({
+        name: 'ACWR Ratio',
+        value: Math.round((latestACWR?.acwr_7_28 || 0) * 100) / 100,
+        target: 1.3,
+        unit: '',
+        trend: (latestACWR?.acwr_7_28 || 0) <= 1.3 ? 'up' : 'down' as const,
+        change: 15
       });
     }
 
@@ -216,19 +212,19 @@ const Dashboard: React.FC = () => {
     }
 
     return metrics;
-  }, [readinessData, sleepData, sessions]);
+  }, [readinessData, latestStrain, loadACWR, sessions]);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Enhanced Analytics Dashboard</h1>
         <Button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
           Generate AI Report
         </Button>
       </div>
 
       {/* Key Metrics Row */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader>
             <CardTitle>Current Readiness</CardTitle>
@@ -254,31 +250,48 @@ const Dashboard: React.FC = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>7-Day Sleep</CardTitle>
-            <CardDescription>Sleep efficiency trend</CardDescription>
+            <CardTitle>Latest Strain</CardTitle>
+            <CardDescription>Most recent strain value</CardDescription>
           </CardHeader>
           <CardContent>
-            {sleepData.length > 0 ? (
-              <div className="space-y-2">
-                <div className="text-2xl font-bold">
-                  {Math.round(sleepData[sleepData.length - 1]?.value || 0)}%
+            {latestStrain ? (
+              <div className="text-center">
+                <div className="text-4xl font-bold text-gray-900 mb-2">
+                  {latestStrain.value.toFixed(1)}
                 </div>
                 <div className="text-sm text-gray-500">
-                  Latest sleep efficiency
-                </div>
-                <div className="h-8 flex items-end space-x-1">
-                  {sleepData.map((point, index) => (
-                    <div
-                      key={index}
-                      className="bg-blue-500 rounded-t flex-1"
-                      style={{ height: `${(point.value / 100) * 100}%` }}
-                    />
-                  ))}
+                  {new Date(latestStrain.ts).toLocaleDateString()}
                 </div>
               </div>
             ) : (
               <div className="text-center text-gray-500">
-                No sleep data available
+                No strain data available
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>ACWR Status</CardTitle>
+            <CardDescription>Acute:Chronic workload ratio</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loadACWR.length > 0 ? (
+              <div className="text-center">
+                <div className={`text-4xl font-bold mb-2 ${
+                  loadACWR[loadACWR.length - 1]?.acwr_7_28 > 1.5 ? 'text-red-600' :
+                  loadACWR[loadACWR.length - 1]?.acwr_7_28 > 1.3 ? 'text-yellow-600' : 'text-green-600'
+                }`}>
+                  {loadACWR[loadACWR.length - 1]?.acwr_7_28?.toFixed(2) || '0.00'}
+                </div>
+                <div className="text-sm text-gray-500">
+                  Training load ratio
+                </div>
+              </div>
+            ) : (
+              <div className="text-center text-gray-500">
+                No load data available
               </div>
             )}
           </CardContent>
@@ -305,7 +318,13 @@ const Dashboard: React.FC = () => {
         </Card>
       </div>
 
-      {/* Charts and Analytics */}
+      {/* Enhanced Charts */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <EnhancedTrainingLoadChart data={loadACWR} />
+        <EnhancedSleepChart data={sleepDaily} />
+      </div>
+
+      {/* Original Charts for Comparison */}
       <div className="grid gap-6 lg:grid-cols-2">
         <ReadinessChart data={readinessTrend} />
         <WorkoutVolumeChart data={volumeData} />

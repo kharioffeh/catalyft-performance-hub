@@ -524,7 +524,9 @@ export type Database = {
           created_at: string
           end_ts: string
           id: string
+          load: number | null
           notes: string | null
+          rpe: number | null
           start_ts: string
           type: string
           updated_at: string
@@ -535,7 +537,9 @@ export type Database = {
           created_at?: string
           end_ts: string
           id?: string
+          load?: number | null
           notes?: string | null
+          rpe?: number | null
           start_ts: string
           type: string
           updated_at?: string
@@ -546,7 +550,9 @@ export type Database = {
           created_at?: string
           end_ts?: string
           id?: string
+          load?: number | null
           notes?: string | null
+          rpe?: number | null
           start_ts?: string
           type?: string
           updated_at?: string
@@ -1018,6 +1024,17 @@ export type Database = {
           },
         ]
       }
+      vw_load_acwr: {
+        Row: {
+          acute_7d: number | null
+          acwr_7_28: number | null
+          athlete_uuid: string | null
+          chronic_28d: number | null
+          daily_load: number | null
+          day: string | null
+        }
+        Relationships: []
+      }
       vw_load_metrics: {
         Row: {
           acute_load: number | null
@@ -1051,6 +1068,39 @@ export type Database = {
           },
         ]
       }
+      vw_readiness_rolling: {
+        Row: {
+          athlete_uuid: string | null
+          avg_30d: number | null
+          avg_7d: number | null
+          avg_90d: number | null
+          day: string | null
+          readiness_score: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "readiness_scores_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "readiness_scores_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "vw_coach_athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "readiness_scores_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "vw_risk_board"
+            referencedColumns: ["athlete_id"]
+          },
+        ]
+      }
       vw_risk_board: {
         Row: {
           acwr: number | null
@@ -1068,6 +1118,39 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "coaches"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      vw_sleep_daily: {
+        Row: {
+          athlete_uuid: string | null
+          avg_sleep_hr: number | null
+          day: string | null
+          hrv_rmssd: number | null
+          sleep_efficiency: number | null
+          total_sleep_hours: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wearable_raw_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wearable_raw_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "vw_coach_athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wearable_raw_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "vw_risk_board"
+            referencedColumns: ["athlete_id"]
           },
         ]
       }
