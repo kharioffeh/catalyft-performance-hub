@@ -7,6 +7,8 @@ import DashboardPage from './pages/Dashboard';
 import AnalyticsPage from './pages/Analytics';
 import AnalyticsOverviewPage from './pages/AnalyticsOverviewPage';
 import ReadinessDetailPage from './pages/ReadinessDetailPage';
+import SleepDetailPage from './pages/SleepDetailPage';
+import LoadDetailPage from './pages/LoadDetailPage';
 import AthletesPage from './pages/Athletes';
 import WorkoutsPage from './pages/Workout';
 import SettingsPage from './pages/Settings';
@@ -46,6 +48,8 @@ function App() {
               <Route path="analytics" element={<AnalyticsOverviewPage />} />
               <Route path="analytics/detailed" element={<AnalyticsPage />} />
               <Route path="analytics/readiness" element={<ReadinessDetailPage />} />
+              <Route path="analytics/sleep" element={<SleepDetailPage />} />
+              <Route path="analytics/load" element={<LoadDetailPage />} />
               <Route path="athletes" element={<AthletesPage />} />
               <Route path="calendar" element={<CalendarPage />} />
               <Route path="chat" element={<ChatPage />} />

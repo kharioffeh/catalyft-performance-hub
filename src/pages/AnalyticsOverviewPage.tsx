@@ -54,13 +54,13 @@ export default function AnalyticsOverviewPage() {
           title="Sleep Hours"
           latest={sleep?.avgHours}
           delta={sleep?.delta7d}
-          onClick={() => navigate('/analytics/detailed')}
+          onClick={() => navigate('/analytics/sleep')}
         />
         <MetricCard
           title="ACWR"
           latest={load?.latestAcwr}
           delta={load?.delta7d}
-          onClick={() => navigate('/analytics/detailed')}
+          onClick={() => navigate('/analytics/load')}
         />
       </div>
 

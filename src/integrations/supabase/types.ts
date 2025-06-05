@@ -1176,6 +1176,27 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_load_detail: {
+        Args: { pv_period: number }
+        Returns: {
+          day: string
+          daily_load: number
+          acute_7d: number
+          chronic_28d: number
+          acwr_7_28: number
+        }[]
+      }
+      get_sleep_detail: {
+        Args: { pv_period: number }
+        Returns: {
+          day: string
+          total_sleep_hours: number
+          avg_hr: number
+          deep_minutes: number
+          light_minutes: number
+          rem_minutes: number
+        }[]
+      }
       get_user_athlete_count: {
         Args: { user_uuid: string }
         Returns: number
