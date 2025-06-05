@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
@@ -42,10 +43,9 @@ export function useSupabaseHash() {
             return navigate('/finish-signup', { replace: true });
           }
 
-          // Otherwise normal redirect based on role
-          const redirectPath = profile.role === 'coach' ? '/coach' : '/dashboard';
-          console.log('Redirecting to:', redirectPath);
-          navigate(redirectPath, { replace: true });
+          // Everyone gets redirected to dashboard now
+          console.log('Redirecting to dashboard');
+          navigate('/dashboard', { replace: true });
 
         } catch (err) {
           console.error('Hash processing error:', err);

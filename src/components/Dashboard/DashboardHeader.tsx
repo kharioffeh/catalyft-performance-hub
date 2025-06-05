@@ -12,11 +12,24 @@ interface DashboardHeaderProps {
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userRole }) => {
   const navigate = useNavigate();
 
+  const getTitle = () => {
+    switch (userRole) {
+      case 'coach':
+        return 'Coach Dashboard';
+      case 'solo-athlete':
+        return 'My Training Dashboard';
+      case 'coached-athlete':
+        return 'Athlete Dashboard';
+      default:
+        return 'Dashboard';
+    }
+  };
+
   return (
     <div className="flex items-center justify-between">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">
-          {userRole === 'coach' ? 'Coach Dashboard' : 'Dashboard'}
+          {getTitle()}
         </h1>
         <p className="text-gray-600">
           {format(new Date(), 'EEEE, MMMM do, yyyy')}

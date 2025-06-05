@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
@@ -24,11 +23,7 @@ const Login: React.FC = () => {
   // Redirect if already logged in
   React.useEffect(() => {
     if (session && profile) {
-      if (profile.role === 'coach') {
-        navigate('/coach')
-      } else {
-        navigate('/dashboard')
-      }
+      navigate('/dashboard')
     }
   }, [profile, session, navigate])
 
@@ -51,7 +46,6 @@ const Login: React.FC = () => {
       }
 
       if (authData.user) {
-        // Add loading spinner while profile is being fetched
         toast({
           title: "Success",
           description: "Signed in successfully! Redirecting...",
