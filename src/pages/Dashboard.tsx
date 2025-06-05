@@ -66,14 +66,39 @@ const Dashboard: React.FC = () => {
   }
 
   // Coached Athlete Dashboard
+  if (athleteTypeData?.type === 'coached') {
+    return (
+      <CoachedDashboard
+        currentReadiness={currentReadiness}
+        todaySessions={todaySessions}
+        weeklyStats={weeklyStats}
+        injuryRisk={injuryRisk}
+        insights={insights}
+      />
+    );
+  }
+
+  // Default fallback for coach users or when type is not determined
   return (
-    <CoachedDashboard
-      currentReadiness={currentReadiness}
-      todaySessions={todaySessions}
-      weeklyStats={weeklyStats}
-      injuryRisk={injuryRisk}
-      insights={insights}
-    />
+    <div className="space-y-6">
+      <DashboardHeader userRole={profile?.role} />
+      
+      <QuickStatusCards 
+        currentReadiness={currentReadiness}
+        todaySessions={todaySessions}
+        weeklyStats={weeklyStats}
+        injuryRisk={injuryRisk}
+      />
+
+      <TodaysSchedule todaySessions={todaySessions} />
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <AriaSummary />
+        <InjuryForecastCard />
+      </div>
+
+      <QuickActions userRole={profile?.role} />
+    </div>
   );
 };
 

@@ -6,8 +6,16 @@ export const useAthleteType = (profileId?: string, userRole?: string) => {
   return useQuery({
     queryKey: ['athlete-type', profileId],
     queryFn: async () => {
-      if (!profileId || userRole !== 'athlete') {
+      if (!profileId) {
         return { type: userRole === 'coach' ? 'coach' : 'athlete', hasCoach: false };
+      }
+
+      if (userRole === 'coach') {
+        return { type: 'coach', hasCoach: false };
+      }
+
+      if (userRole !== 'athlete') {
+        return { type: 'solo', hasCoach: false };
       }
 
       // Check if this athlete has a coach assigned

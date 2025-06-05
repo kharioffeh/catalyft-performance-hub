@@ -16,9 +16,12 @@ export const useDashboardData = (profileId?: string) => {
         .eq('athlete_uuid', profileId)
         .order('ts', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching readiness:', error);
+        return null;
+      }
       return data;
     },
     enabled: !!profileId
@@ -39,7 +42,10 @@ export const useDashboardData = (profileId?: string) => {
         .lte('start_ts', endOfDay(today).toISOString())
         .order('start_ts', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching today sessions:', error);
+        return [];
+      }
       return data || [];
     },
     enabled: !!profileId
@@ -62,7 +68,10 @@ export const useDashboardData = (profileId?: string) => {
         .gte('start_ts', weekStart.toISOString())
         .lte('start_ts', weekEnd.toISOString());
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching weekly stats:', error);
+        return { completed: 0, planned: 0 };
+      }
       
       const now = new Date();
       const completed = data?.filter(s => new Date(s.end_ts) < now).length || 0;
@@ -85,9 +94,12 @@ export const useDashboardData = (profileId?: string) => {
         .eq('athlete_uuid', profileId)
         .order('forecast_date', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching injury risk:', error);
+        return null;
+      }
       return data;
     },
     enabled: !!profileId
