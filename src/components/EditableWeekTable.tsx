@@ -13,11 +13,25 @@ interface EditableWeekTableProps {
 
 export default function EditableWeekTable({ blockJson, editable, onChange }: EditableWeekTableProps) {
   const [idx, setIdx] = useState(0);
-  const weeks = blockJson.weeks || [];
+  
+  // Ensure we always have an array for weeks
+  const weeks = Array.isArray(blockJson?.weeks) ? blockJson.weeks : [];
+
+  console.log('EditableWeekTable blockJson:', blockJson);
+  console.log('EditableWeekTable weeks:', weeks);
 
   const updateCell = (weekIdx: number, sessIdx: number, exIdx: number, field: string, value: any) => {
     const clone = JSON.parse(JSON.stringify(blockJson));
-    if (!clone.weeks[weekIdx]?.[sessIdx]?.exercises?.[exIdx]) return;
+    
+    // Ensure the nested structure exists
+    if (!clone.weeks) clone.weeks = [];
+    if (!Array.isArray(clone.weeks)) clone.weeks = [];
+    if (!clone.weeks[weekIdx]) clone.weeks[weekIdx] = [];
+    if (!Array.isArray(clone.weeks[weekIdx])) clone.weeks[weekIdx] = [];
+    if (!clone.weeks[weekIdx][sessIdx]) clone.weeks[weekIdx][sessIdx] = { exercises: [] };
+    if (!clone.weeks[weekIdx][sessIdx].exercises) clone.weeks[weekIdx][sessIdx].exercises = [];
+    if (!Array.isArray(clone.weeks[weekIdx][sessIdx].exercises)) clone.weeks[weekIdx][sessIdx].exercises = [];
+    if (!clone.weeks[weekIdx][sessIdx].exercises[exIdx]) return;
     
     clone.weeks[weekIdx][sessIdx].exercises[exIdx][field] = value;
     onChange(clone);

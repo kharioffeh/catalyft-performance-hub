@@ -17,6 +17,25 @@ export default function InlineTable({ week, weekIdx, editable, onEdit }: InlineT
     onEdit(weekIdx, sessIdx, exIdx, field, finalValue);
   };
 
+  // Ensure week is always an array of sessions
+  const sessions = Array.isArray(week) ? week : [];
+  
+  console.log('InlineTable week data:', week);
+  console.log('InlineTable sessions:', sessions);
+
+  // Check if there are any exercises to display
+  const hasExercises = sessions.some((session: any) => 
+    session?.exercises && Array.isArray(session.exercises) && session.exercises.length > 0
+  );
+
+  if (!hasExercises) {
+    return (
+      <div className="w-full p-4 text-center text-gray-500 border rounded-md bg-gray-50">
+        No exercises found for this week
+      </div>
+    );
+  }
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full table-auto border mb-6">
@@ -32,11 +51,14 @@ export default function InlineTable({ week, weekIdx, editable, onEdit }: InlineT
           </tr>
         </thead>
         <tbody>
-          {week.map((session: any, sessIdx: number) =>
-            (session.exercises || []).map((exercise: any, exIdx: number) => (
+          {sessions.map((session: any, sessIdx: number) => {
+            // Ensure exercises is an array
+            const exercises = Array.isArray(session?.exercises) ? session.exercises : [];
+            
+            return exercises.map((exercise: any, exIdx: number) => (
               <tr key={`${sessIdx}-${exIdx}`} className="even:bg-gray-50">
                 <td className="px-3 py-2 font-medium text-blue-600">
-                  {exercise.name}
+                  {exercise?.name || 'Unknown Exercise'}
                 </td>
                 
                 <td className="px-3 py-2 text-center">
@@ -44,12 +66,12 @@ export default function InlineTable({ week, weekIdx, editable, onEdit }: InlineT
                     <Input
                       type="number"
                       className="w-16 h-8 text-center text-xs"
-                      value={exercise.pct1RM ?? ''}
+                      value={exercise?.pct1RM ?? ''}
                       onChange={(e) => handleChange(sessIdx, exIdx, 'pct1RM', e.target.value)}
                       placeholder="-"
                     />
                   ) : (
-                    exercise.pct1RM ?? '-'
+                    exercise?.pct1RM ?? '-'
                   )}
                 </td>
                 
@@ -58,12 +80,12 @@ export default function InlineTable({ week, weekIdx, editable, onEdit }: InlineT
                     <Input
                       type="number"
                       className="w-16 h-8 text-center text-xs"
-                      value={exercise.sets ?? ''}
+                      value={exercise?.sets ?? ''}
                       onChange={(e) => handleChange(sessIdx, exIdx, 'sets', e.target.value)}
                       placeholder="-"
                     />
                   ) : (
-                    exercise.sets ?? '-'
+                    exercise?.sets ?? '-'
                   )}
                 </td>
                 
@@ -72,12 +94,12 @@ export default function InlineTable({ week, weekIdx, editable, onEdit }: InlineT
                     <Input
                       type="text"
                       className="w-16 h-8 text-center text-xs"
-                      value={exercise.reps ?? ''}
+                      value={exercise?.reps ?? ''}
                       onChange={(e) => handleChange(sessIdx, exIdx, 'reps', e.target.value)}
                       placeholder="-"
                     />
                   ) : (
-                    exercise.reps ?? '-'
+                    exercise?.reps ?? '-'
                   )}
                 </td>
                 
@@ -86,12 +108,12 @@ export default function InlineTable({ week, weekIdx, editable, onEdit }: InlineT
                     <Input
                       type="text"
                       className="w-20 h-8 text-center text-xs"
-                      value={exercise.rest ?? ''}
+                      value={exercise?.rest ?? ''}
                       onChange={(e) => handleChange(sessIdx, exIdx, 'rest', e.target.value)}
                       placeholder="-"
                     />
                   ) : (
-                    exercise.rest ?? '-'
+                    exercise?.rest ?? '-'
                   )}
                 </td>
                 
@@ -100,12 +122,12 @@ export default function InlineTable({ week, weekIdx, editable, onEdit }: InlineT
                     <Input
                       type="number"
                       className="w-16 h-8 text-center text-xs"
-                      value={exercise.rpe ?? ''}
+                      value={exercise?.rpe ?? ''}
                       onChange={(e) => handleChange(sessIdx, exIdx, 'rpe', e.target.value)}
                       placeholder="-"
                     />
                   ) : (
-                    exercise.rpe ?? '-'
+                    exercise?.rpe ?? '-'
                   )}
                 </td>
                 
@@ -114,17 +136,17 @@ export default function InlineTable({ week, weekIdx, editable, onEdit }: InlineT
                     <Input
                       type="text"
                       className="w-32 h-8 text-xs"
-                      value={exercise.notes ?? ''}
+                      value={exercise?.notes ?? ''}
                       onChange={(e) => handleChange(sessIdx, exIdx, 'notes', e.target.value)}
                       placeholder="Notes..."
                     />
                   ) : (
-                    exercise.notes ?? ''
+                    exercise?.notes ?? ''
                   )}
                 </td>
               </tr>
-            ))
-          )}
+            ));
+          })}
         </tbody>
       </table>
     </div>
