@@ -108,7 +108,12 @@ export default function ReadinessDetailPage() {
           <CardContent>
             <MetricChart
               type="bar"
-              data={data.secondary}
+              data={data.secondary.map(point => ({ 
+                x: point.x, 
+                y: 0, 
+                hrv: point.hrv, 
+                sleep: point.sleep 
+              }))}
               xLabel="Date"
               yLabel="Value"
               multiSeries={true}
