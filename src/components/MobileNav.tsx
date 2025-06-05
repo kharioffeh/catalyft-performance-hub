@@ -9,7 +9,8 @@ import {
   Dumbbell, 
   BrainCircuit, 
   Settings2,
-  AlertTriangle
+  AlertTriangle,
+  TrendingUp
 } from 'lucide-react';
 
 const navigationItems = [
@@ -17,6 +18,12 @@ const navigationItems = [
     path: '/dashboard',
     label: 'Dashboard',
     icon: Activity,
+    visibleTo: ['athlete', 'coach']
+  },
+  {
+    path: '/analytics',
+    label: 'Analytics',
+    icon: TrendingUp,
     visibleTo: ['athlete', 'coach']
   },
   {

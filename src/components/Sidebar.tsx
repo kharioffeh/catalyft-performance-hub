@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -9,7 +10,8 @@ import {
   Settings, 
   AlertTriangle,
   Dumbbell,
-  FileText
+  FileText,
+  TrendingUp
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from '@/components/ui/button';
@@ -33,6 +35,12 @@ const Sidebar = () => {
       label: 'Dashboard', 
       path: '/dashboard',
       isActive: location.pathname === '/dashboard'
+    },
+    { 
+      icon: TrendingUp, 
+      label: 'Analytics', 
+      path: '/analytics',
+      isActive: location.pathname === '/analytics'
     },
     { 
       icon: Users, 
@@ -84,6 +92,12 @@ const Sidebar = () => {
       label: 'Dashboard', 
       path: '/dashboard',
       isActive: location.pathname === '/dashboard'
+    },
+    { 
+      icon: TrendingUp, 
+      label: 'Analytics', 
+      path: '/analytics',
+      isActive: location.pathname === '/analytics'
     },
     { 
       icon: Calendar, 
