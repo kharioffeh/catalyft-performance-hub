@@ -16,6 +16,7 @@ export const useMetricData = (metric: "readiness" | "sleep" | "load", period: nu
 
       switch (metric) {
         case "readiness": {
+          // Fetch detailed readiness data
           const { data, error } = await supabase
             .from('vw_readiness_rolling')
             .select('*')
@@ -27,16 +28,40 @@ export const useMetricData = (metric: "readiness" | "sleep" | "load", period: nu
 
           if (!data || data.length === 0) return null;
 
+          // Calculate latest score and delta
           const latestScore = data[data.length - 1]?.readiness_score || 0;
           const prevScore = data.length > 7 ? data[data.length - 8]?.readiness_score : latestScore;
           const delta7d = latestScore - prevScore;
 
+          // Prepare series data for charts
           const series = data.map(item => ({
             x: item.day,
             y: item.readiness_score || 0
           }));
 
-          return { latestScore, delta7d, series };
+          // Prepare table rows with detailed data
+          const tableRows = data.map(item => ({
+            day: item.day,
+            score: item.readiness_score || 0,
+            avg_7d: item.avg_7d || 0,
+            avg_30d: item.avg_30d || 0
+          }));
+
+          // Mock secondary data (HRV and sleep) - in a real app, this would come from wearable data
+          const secondary = data.slice(-14).map(item => ({
+            x: item.day,
+            y: item.readiness_score || 0,
+            hrv: Math.random() * 50 + 25, // Mock HRV data
+            sleep: Math.random() * 30 + 70 // Mock sleep quality data
+          }));
+
+          return { 
+            latestScore, 
+            delta7d, 
+            series, 
+            tableRows,
+            secondary
+          };
         }
 
         case "sleep": {

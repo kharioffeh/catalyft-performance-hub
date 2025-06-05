@@ -6,6 +6,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import DashboardPage from './pages/Dashboard';
 import AnalyticsPage from './pages/Analytics';
 import AnalyticsOverviewPage from './pages/AnalyticsOverviewPage';
+import ReadinessDetailPage from './pages/ReadinessDetailPage';
 import AthletesPage from './pages/Athletes';
 import WorkoutsPage from './pages/Workout';
 import SettingsPage from './pages/Settings';
@@ -44,6 +45,7 @@ function App() {
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="analytics" element={<AnalyticsOverviewPage />} />
               <Route path="analytics/detailed" element={<AnalyticsPage />} />
+              <Route path="analytics/readiness" element={<ReadinessDetailPage />} />
               <Route path="athletes" element={<AthletesPage />} />
               <Route path="calendar" element={<CalendarPage />} />
               <Route path="chat" element={<ChatPage />} />

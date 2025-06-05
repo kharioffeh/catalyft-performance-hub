@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { MetricCard } from '@/components/Analytics/MetricCard';
 import { MiniSpark } from '@/components/Analytics/MiniSpark';
 import { ARIAInsight } from '@/components/Analytics/ARIAInsight';
@@ -8,6 +9,7 @@ import { useMetricData } from '@/hooks/useMetricData';
 
 export default function AnalyticsOverviewPage() {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [period, setPeriod] = useState<7 | 30 | 90>(7);
 
   // Fetch aggregated data for overview KPIs and sparks
@@ -46,19 +48,19 @@ export default function AnalyticsOverviewPage() {
           title="Readiness"
           latest={readiness?.latestScore}
           delta={readiness?.delta7d}
-          onClick={() => window.location.href = "/analytics"}
+          onClick={() => navigate('/analytics/readiness')}
         />
         <MetricCard
           title="Sleep Hours"
           latest={sleep?.avgHours}
           delta={sleep?.delta7d}
-          onClick={() => window.location.href = "/analytics"}
+          onClick={() => navigate('/analytics/detailed')}
         />
         <MetricCard
           title="ACWR"
           latest={load?.latestAcwr}
           delta={load?.delta7d}
-          onClick={() => window.location.href = "/analytics"}
+          onClick={() => navigate('/analytics/detailed')}
         />
       </div>
 
