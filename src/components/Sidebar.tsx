@@ -171,7 +171,7 @@ const Sidebar = () => {
               <DropdownMenuItem onClick={() => navigate('/settings')}>
                 Settings
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/subscription')}>
+              <DropdownMenuItem onClick={() => navigate('/subscriptions')}>
                 Subscription
               </DropdownMenuItem>
               <DropdownMenuSeparator />

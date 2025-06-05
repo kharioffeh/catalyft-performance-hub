@@ -12,6 +12,7 @@ import LoadDetailPage from './pages/LoadDetailPage';
 import AthletesPage from './pages/Athletes';
 import WorkoutsPage from './pages/Workout';
 import SettingsPage from './pages/Settings';
+import SubscriptionsPage from './pages/Subscriptions';
 import LoginPage from './pages/Login';
 import SignupPage from './pages/Signup';
 import ForgotPasswordPage from './pages/Auth';
@@ -59,6 +60,7 @@ function App() {
               <Route path="kai" element={<KAIPage />} />
               <Route path="template/:id" element={<TemplateDetailPage />} />
               <Route path="settings" element={<SettingsPage />} />
+              <Route path="subscriptions" element={<SubscriptionsPage />} />
             </Route>
           </Routes>
         </Router>
