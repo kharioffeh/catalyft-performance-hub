@@ -23,10 +23,10 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ userRole }) => {
           <Button 
             variant="outline" 
             className="flex items-center gap-2 h-12"
-            onClick={() => navigate('/analytics')}
+            onClick={() => navigate('/analytics/detailed')}
           >
             <BarChart3 className="w-5 h-5" />
-            Performance Analytics
+            Detailed Analytics
           </Button>
           <Button 
             variant="outline" 
