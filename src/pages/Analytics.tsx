@@ -4,23 +4,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { useEnhancedMetricsWithAthlete } from '@/hooks/useEnhancedMetricsWithAthlete';
 import { AthleteSelector } from '@/components/Analytics/AthleteSelector';
-import { EnhancedTrainingLoadChart } from '@/components/EnhancedTrainingLoadChart';
-import { EnhancedSleepChart } from '@/components/EnhancedSleepChart';
-import { ReadinessChart } from '@/components/ReadinessChart';
-import { WorkoutVolumeChart } from '@/components/WorkoutVolumeChart';
-import { PerformanceMetrics } from '@/components/PerformanceMetrics';
+import { MetricCard } from '@/components/Analytics/MetricCard';
+import { MiniSpark } from '@/components/Analytics/MiniSpark';
+import { MetricChart } from '@/components/Analytics/MetricChart';
+import { DataTable } from '@/components/Analytics/DataTable';
+import { PeriodSelector } from '@/components/Analytics/PeriodSelector';
+import { ARIAInsight } from '@/components/Analytics/ARIAInsight';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAthletes } from '@/hooks/useAthletes';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { format, subDays, startOfWeek, endOfWeek } from 'date-fns';
+import { useMetricData } from '@/hooks/useMetricData';
+import { useNavigate } from 'react-router-dom';
+import { format, subDays } from 'date-fns';
+import { Download, Filter, Calendar, TrendingUp, Activity, Moon, Dumbbell } from 'lucide-react';
 
 const Analytics: React.FC = () => {
   const { profile } = useAuth();
   const { athletes } = useAthletes();
+  const navigate = useNavigate();
   
-  // State for selected athlete - default to current user for athletes, first athlete for coaches
+  // State for selected athlete and period
   const [selectedAthleteId, setSelectedAthleteId] = useState<string>('');
+  const [period, setPeriod] = useState<7 | 30 | 90>(30);
 
   // Set default selected athlete when data loads
   useEffect(() => {
@@ -31,133 +35,17 @@ const Analytics: React.FC = () => {
     }
   }, [profile, athletes, selectedAthleteId]);
 
+  // Fetch enhanced metrics
   const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetricsWithAthlete(selectedAthleteId);
+  
+  // Fetch metric data with period selector
+  const { data: readinessData } = useMetricData("readiness", period);
+  const { data: sleepData } = useMetricData("sleep", period);
+  const { data: loadData } = useMetricData("load", period);
 
   // Get selected athlete name for display
   const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
   const displayName = profile?.role === 'coach' ? selectedAthlete?.name || 'Unknown Athlete' : 'My Analytics';
-
-  // 7-day readiness trend for chart
-  const { data: readinessTrend = [] } = useQuery({
-    queryKey: ['readiness-trend', selectedAthleteId],
-    queryFn: async () => {
-      if (!selectedAthleteId) return [];
-
-      const { data, error } = await supabase
-        .from('readiness_scores')
-        .select('score, ts')
-        .eq('athlete_uuid', selectedAthleteId)
-        .gte('ts', subDays(new Date(), 7).toISOString())
-        .order('ts', { ascending: true });
-
-      if (error) throw error;
-      return data?.map(item => ({
-        date: item.ts,
-        score: Math.round(item.score)
-      })) || [];
-    },
-    enabled: !!selectedAthleteId
-  });
-
-  // Training sessions for volume calculation
-  const { data: sessions = [] } = useQuery({
-    queryKey: ['sessions-volume', selectedAthleteId],
-    queryFn: async () => {
-      if (!selectedAthleteId) return [];
-
-      const { data, error } = await supabase
-        .from('sessions')
-        .select('start_ts, end_ts, type, load')
-        .eq('athlete_uuid', selectedAthleteId)
-        .gte('start_ts', subDays(new Date(), 28).toISOString())
-        .order('start_ts', { ascending: true });
-
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: !!selectedAthleteId
-  });
-
-  // Generate volume data for chart
-  const volumeData = React.useMemo(() => {
-    const weeks = [];
-    for (let i = 3; i >= 0; i--) {
-      const weekStart = startOfWeek(subDays(new Date(), i * 7));
-      const weekEnd = endOfWeek(subDays(new Date(), i * 7));
-      
-      const weekSessions = sessions.filter(session => {
-        const sessionDate = new Date(session.start_ts);
-        return sessionDate >= weekStart && sessionDate <= weekEnd;
-      });
-
-      const totalLoad = weekSessions.reduce((sum, session) => sum + (session.load || 0), 0);
-
-      weeks.push({
-        week: format(weekStart, 'MMM dd'),
-        volume: Math.round(totalLoad / 10) / 10,
-        sessions: weekSessions.length
-      });
-    }
-    return weeks;
-  }, [sessions]);
-
-  // Generate performance metrics
-  const performanceMetrics = React.useMemo(() => {
-    const metrics = [];
-
-    if (readinessRolling.length > 0) {
-      const latestReadiness = readinessRolling[readinessRolling.length - 1];
-      metrics.push({
-        name: 'Readiness Score',
-        value: Math.round(latestReadiness.readiness_score || 0),
-        target: 80,
-        unit: '%',
-        trend: (latestReadiness.readiness_score || 0) >= 75 ? 'up' : (latestReadiness.readiness_score || 0) >= 65 ? 'stable' : 'down' as const,
-        change: 5
-      });
-    }
-
-    if (latestStrain) {
-      metrics.push({
-        name: 'Latest Strain',
-        value: Math.round(latestStrain.value * 10) / 10,
-        target: 15,
-        unit: '',
-        trend: latestStrain.value <= 12 ? 'up' : 'down' as const,
-        change: 8
-      });
-    }
-
-    if (loadACWR.length > 0) {
-      const latestACWR = loadACWR[loadACWR.length - 1];
-      metrics.push({
-        name: 'ACWR Ratio',
-        value: Math.round((latestACWR?.acwr_7_28 || 0) * 100) / 100,
-        target: 1.3,
-        unit: '',
-        trend: (latestACWR?.acwr_7_28 || 0) <= 1.3 ? 'up' : 'down' as const,
-        change: 15
-      });
-    }
-
-    if (sessions.length > 0) {
-      const thisWeek = sessions.filter(session => {
-        const sessionDate = new Date(session.start_ts);
-        return sessionDate >= startOfWeek(new Date()) && sessionDate <= endOfWeek(new Date());
-      });
-
-      metrics.push({
-        name: 'Weekly Sessions',
-        value: thisWeek.length,
-        target: 5,
-        unit: '',
-        trend: thisWeek.length >= 4 ? 'up' : 'stable' as const,
-        change: 20
-      });
-    }
-
-    return metrics;
-  }, [readinessRolling, latestStrain, loadACWR, sessions]);
 
   if (!selectedAthleteId) {
     return (
@@ -167,105 +55,277 @@ const Analytics: React.FC = () => {
     );
   }
 
+  const readinessChartData = readinessData?.series?.map(item => ({
+    x: item.x,
+    y: item.y
+  })) || [];
+
+  const sleepChartData = sleepData?.series?.map(item => ({
+    x: item.x,
+    y: item.y,
+    deep: item.deep || 0,
+    light: item.light || 0,
+    rem: item.rem || 0
+  })) || [];
+
+  const loadChartData = loadData?.series?.map(item => ({
+    x: item.x,
+    y: item.y
+  })) || [];
+
+  const loadSecondaryData = loadData?.secondary?.map(item => ({
+    x: item.x,
+    acute: item.acute || 0,
+    chronic: item.chronic || 0
+  })) || [];
+
+  const readinessZones = [
+    { from: 0, to: 50, color: "#ef4444", label: "Poor" },
+    { from: 50, to: 70, color: "#f59e0b", label: "Fair" },
+    { from: 70, to: 85, color: "#10b981", label: "Good" },
+    { from: 85, to: 100, color: "#059669", label: "Excellent" }
+  ];
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 p-6 max-w-7xl mx-auto">
+      {/* Enhanced Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Performance Analytics</h1>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <TrendingUp className="w-6 h-6 text-blue-600" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900">Performance Analytics</h1>
+          </div>
           <p className="text-gray-600">
-            {profile?.role === 'coach' ? `Analyzing ${displayName}'s performance` : 'Deep dive into training metrics and performance trends'}
+            {profile?.role === 'coach' ? `Analyzing ${displayName}'s performance metrics` : 'Comprehensive performance insights and data trends'}
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <PeriodSelector period={period} onPeriodChange={setPeriod} />
+          
           <AthleteSelector
             selectedAthleteId={selectedAthleteId}
             onAthleteChange={setSelectedAthleteId}
           />
-          <Button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-            Export Report
-          </Button>
+          
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="text-gray-600">
+              <Filter className="w-4 h-4 mr-2" />
+              Filter
+            </Button>
+            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700" size="sm">
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Key Analytics Overview */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Current Readiness</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {readinessRolling.length > 0 ? 
-                Math.round(readinessRolling[readinessRolling.length - 1]?.readiness_score || 0) : 0}%
-            </div>
-            <p className="text-xs text-muted-foreground">
-              7d avg: {readinessRolling.length > 0 ? 
-                Math.round(readinessRolling[readinessRolling.length - 1]?.avg_7d || 0) : 0}%
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>ACWR Status</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${
-              loadACWR.length > 0 && loadACWR[loadACWR.length - 1]?.acwr_7_28 > 1.5 ? 'text-red-600' :
-              loadACWR.length > 0 && loadACWR[loadACWR.length - 1]?.acwr_7_28 > 1.3 ? 'text-yellow-600' : 'text-green-600'
-            }`}>
-              {loadACWR.length > 0 ? loadACWR[loadACWR.length - 1]?.acwr_7_28?.toFixed(2) : '0.00'}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Acute:Chronic ratio
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Sleep Efficiency</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {sleepDaily.length > 0 ? 
-                Math.round(sleepDaily[sleepDaily.length - 1]?.sleep_efficiency || 0) : 0}%
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Latest night
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Latest Strain</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {latestStrain ? latestStrain.value.toFixed(1) : '0.0'}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Yesterday's load
-            </p>
-          </CardContent>
-        </Card>
+      {/* Enhanced KPI Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          title="Readiness Score"
+          latest={readinessData?.latestScore}
+          delta={readinessData?.delta7d}
+          unit="%"
+          target={85}
+          onClick={() => navigate('/analytics/readiness')}
+        />
+        <MetricCard
+          title="Sleep Duration"
+          latest={sleepData?.avgHours}
+          delta={sleepData?.delta7d}
+          unit="h"
+          target={8}
+          onClick={() => navigate('/analytics/sleep')}
+        />
+        <MetricCard
+          title="ACWR Ratio"
+          latest={loadData?.latestAcwr}
+          delta={loadData?.delta7d}
+          target={1.3}
+          onClick={() => navigate('/analytics/load')}
+        />
+        <MetricCard
+          title="Latest Strain"
+          latest={latestStrain?.value}
+          delta={-2.1}
+          target={15}
+          onClick={() => navigate('/analytics/load')}
+        />
       </div>
 
-      {/* Enhanced Analytics Charts */}
+      {/* Mini Sparklines with Icons */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="relative">
+          <div className="absolute top-3 left-3 z-10 p-1.5 bg-green-100 rounded-lg">
+            <Activity className="w-4 h-4 text-green-600" />
+          </div>
+          <MiniSpark 
+            data={readinessData?.series} 
+            color="#10b981" 
+            label="Readiness Trend" 
+          />
+        </div>
+        <div className="relative">
+          <div className="absolute top-3 left-3 z-10 p-1.5 bg-blue-100 rounded-lg">
+            <Moon className="w-4 h-4 text-blue-600" />
+          </div>
+          <MiniSpark 
+            data={sleepData?.series} 
+            color="#3b82f6" 
+            label="Sleep Hours Trend" 
+          />
+        </div>
+        <div className="relative">
+          <div className="absolute top-3 left-3 z-10 p-1.5 bg-purple-100 rounded-lg">
+            <Dumbbell className="w-4 h-4 text-purple-600" />
+          </div>
+          <MiniSpark 
+            data={loadData?.series} 
+            color="#8b5cf6" 
+            label="Training Load Trend" 
+          />
+        </div>
+      </div>
+
+      {/* Advanced Charts Section */}
       <div className="grid gap-6 lg:grid-cols-2">
-        <EnhancedTrainingLoadChart data={loadACWR} />
-        <EnhancedSleepChart data={sleepDaily} />
+        {/* Readiness Chart with Zones */}
+        <Card className="shadow-sm border border-gray-200">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-2">
+              <Activity className="w-5 h-5 text-green-600" />
+              <CardTitle className="text-lg">Readiness Score Analysis</CardTitle>
+            </div>
+            <CardDescription>Daily readiness with performance zones</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <MetricChart
+              type="line"
+              data={readinessChartData}
+              zones={readinessZones}
+              xLabel="Date"
+              yLabel="Readiness Score"
+            />
+          </CardContent>
+        </Card>
+
+        {/* Sleep Composition Chart */}
+        <Card className="shadow-sm border border-gray-200">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-2">
+              <Moon className="w-5 h-5 text-blue-600" />
+              <CardTitle className="text-lg">Sleep Stage Analysis</CardTitle>
+            </div>
+            <CardDescription>Deep, light, and REM sleep breakdown</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <MetricChart
+              type="bar"
+              data={sleepChartData}
+              stacked={true}
+              xLabel="Date"
+              yLabel="Hours"
+            />
+          </CardContent>
+        </Card>
+
+        {/* Training Load ACWR */}
+        <Card className="shadow-sm border border-gray-200">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-2">
+              <Dumbbell className="w-5 h-5 text-purple-600" />
+              <CardTitle className="text-lg">Training Load & ACWR</CardTitle>
+            </div>
+            <CardDescription>Acute to chronic workload ratio analysis</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <MetricChart
+              type="line"
+              data={loadChartData}
+              zones={loadData?.zones}
+              xLabel="Date"
+              yLabel="ACWR Ratio"
+            />
+          </CardContent>
+        </Card>
+
+        {/* Load Comparison Chart */}
+        <Card className="shadow-sm border border-gray-200">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg">Acute vs Chronic Load</CardTitle>
+            <CardDescription>Short-term vs long-term training stress comparison</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <MetricChart
+              type="bar"
+              data={loadSecondaryData}
+              multiSeries={true}
+              xLabel="Date"
+              yLabel="Load"
+            />
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Trends and Volume Analysis */}
+      {/* Data Tables Section */}
       <div className="grid gap-6 lg:grid-cols-2">
-        <ReadinessChart data={readinessTrend} />
-        <WorkoutVolumeChart data={volumeData} />
+        <Card className="shadow-sm border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-lg">Readiness Details</CardTitle>
+            <CardDescription>Detailed readiness metrics and rolling averages</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DataTable
+              columns={[
+                { header: 'Date', accessor: 'day', type: 'date' },
+                { header: 'Score', accessor: 'score', type: 'number' },
+                { header: '7d Avg', accessor: 'avg_7d', type: 'number' },
+                { header: '30d Avg', accessor: 'avg_30d', type: 'number' }
+              ]}
+              data={readinessData?.tableRows || []}
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-lg">Sleep Details</CardTitle>
+            <CardDescription>Comprehensive sleep metrics and stage analysis</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DataTable
+              columns={[
+                { header: 'Date', accessor: 'day', type: 'date' },
+                { header: 'Duration', accessor: 'total_sleep_hours', type: 'number' },
+                { header: 'Avg HR', accessor: 'avg_hr', type: 'number' },
+                { header: 'Deep (min)', accessor: 'deep_minutes', type: 'number' },
+                { header: 'REM (min)', accessor: 'rem_minutes', type: 'number' }
+              ]}
+              data={sleepData?.tableRows || []}
+            />
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Detailed Performance Metrics */}
-      <PerformanceMetrics metrics={performanceMetrics} />
+      {/* ARIA Insights Section */}
+      <Card className="shadow-sm border border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <div className="p-1.5 bg-blue-100 rounded-lg">
+              <TrendingUp className="w-5 h-5 text-blue-600" />
+            </div>
+            AI Performance Insights
+          </CardTitle>
+          <CardDescription>Personalized recommendations based on your performance data</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ARIAInsight metric="overview" period={period} />
+        </CardContent>
+      </Card>
     </div>
   );
 };
