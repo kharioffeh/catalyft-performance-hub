@@ -40,7 +40,7 @@ const Sidebar = () => {
       icon: TrendingUp, 
       label: 'Analytics', 
       path: '/analytics',
-      isActive: location.pathname === '/analytics'
+      isActive: location.pathname === '/analytics' || location.pathname.startsWith('/analytics/')
     },
     { 
       icon: Users, 
@@ -97,7 +97,7 @@ const Sidebar = () => {
       icon: TrendingUp, 
       label: 'Analytics', 
       path: '/analytics',
-      isActive: location.pathname === '/analytics'
+      isActive: location.pathname === '/analytics' || location.pathname.startsWith('/analytics/')
     },
     { 
       icon: Calendar, 

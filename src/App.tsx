@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import DashboardPage from './pages/Dashboard';
 import AnalyticsPage from './pages/Analytics';
-import AnalyticsOverviewPage from './pages/AnalyticsOverviewPage';
 import ReadinessDetailPage from './pages/ReadinessDetailPage';
 import SleepDetailPage from './pages/SleepDetailPage';
 import LoadDetailPage from './pages/LoadDetailPage';
@@ -46,8 +45,7 @@ function App() {
             }>
               <Route index element={<DashboardPage />} />
               <Route path="dashboard" element={<DashboardPage />} />
-              <Route path="analytics" element={<AnalyticsOverviewPage />} />
-              <Route path="analytics/detailed" element={<AnalyticsPage />} />
+              <Route path="analytics" element={<AnalyticsPage />} />
               <Route path="analytics/readiness" element={<ReadinessDetailPage />} />
               <Route path="analytics/sleep" element={<SleepDetailPage />} />
               <Route path="analytics/load" element={<LoadDetailPage />} />
