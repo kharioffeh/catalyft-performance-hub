@@ -1,32 +1,52 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useEnhancedMetrics } from '@/hooks/useEnhancedMetrics';
+import { useEnhancedMetricsWithAthlete } from '@/hooks/useEnhancedMetricsWithAthlete';
+import { AthleteSelector } from '@/components/Analytics/AthleteSelector';
 import { EnhancedTrainingLoadChart } from '@/components/EnhancedTrainingLoadChart';
 import { EnhancedSleepChart } from '@/components/EnhancedSleepChart';
 import { ReadinessChart } from '@/components/ReadinessChart';
 import { WorkoutVolumeChart } from '@/components/WorkoutVolumeChart';
 import { PerformanceMetrics } from '@/components/PerformanceMetrics';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAthletes } from '@/hooks/useAthletes';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { format, subDays, startOfWeek, endOfWeek } from 'date-fns';
 
 const Analytics: React.FC = () => {
   const { profile } = useAuth();
-  const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetrics();
+  const { athletes } = useAthletes();
+  
+  // State for selected athlete - default to current user for athletes, first athlete for coaches
+  const [selectedAthleteId, setSelectedAthleteId] = useState<string>('');
+
+  // Set default selected athlete when data loads
+  useEffect(() => {
+    if (profile?.role === 'coach' && athletes.length > 0 && !selectedAthleteId) {
+      setSelectedAthleteId(athletes[0].id);
+    } else if (profile?.role !== 'coach' && profile?.id && !selectedAthleteId) {
+      setSelectedAthleteId(profile.id);
+    }
+  }, [profile, athletes, selectedAthleteId]);
+
+  const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetricsWithAthlete(selectedAthleteId);
+
+  // Get selected athlete name for display
+  const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
+  const displayName = profile?.role === 'coach' ? selectedAthlete?.name || 'Unknown Athlete' : 'My Analytics';
 
   // 7-day readiness trend for chart
   const { data: readinessTrend = [] } = useQuery({
-    queryKey: ['readiness-trend', profile?.id],
+    queryKey: ['readiness-trend', selectedAthleteId],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!selectedAthleteId) return [];
 
       const { data, error } = await supabase
         .from('readiness_scores')
         .select('score, ts')
-        .eq('athlete_uuid', profile.id)
+        .eq('athlete_uuid', selectedAthleteId)
         .gte('ts', subDays(new Date(), 7).toISOString())
         .order('ts', { ascending: true });
 
@@ -36,26 +56,26 @@ const Analytics: React.FC = () => {
         score: Math.round(item.score)
       })) || [];
     },
-    enabled: !!profile?.id
+    enabled: !!selectedAthleteId
   });
 
   // Training sessions for volume calculation
   const { data: sessions = [] } = useQuery({
-    queryKey: ['sessions-volume', profile?.id],
+    queryKey: ['sessions-volume', selectedAthleteId],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!selectedAthleteId) return [];
 
       const { data, error } = await supabase
         .from('sessions')
         .select('start_ts, end_ts, type, load')
-        .eq('athlete_uuid', profile.id)
+        .eq('athlete_uuid', selectedAthleteId)
         .gte('start_ts', subDays(new Date(), 28).toISOString())
         .order('start_ts', { ascending: true });
 
       if (error) throw error;
       return data || [];
     },
-    enabled: !!profile?.id
+    enabled: !!selectedAthleteId
   });
 
   // Generate volume data for chart
@@ -139,16 +159,32 @@ const Analytics: React.FC = () => {
     return metrics;
   }, [readinessRolling, latestStrain, loadACWR, sessions]);
 
+  if (!selectedAthleteId) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Performance Analytics</h1>
-          <p className="text-gray-600">Deep dive into training metrics and performance trends</p>
+          <p className="text-gray-600">
+            {profile?.role === 'coach' ? `Analyzing ${displayName}'s performance` : 'Deep dive into training metrics and performance trends'}
+          </p>
         </div>
-        <Button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-          Export Report
-        </Button>
+        <div className="flex items-center gap-4">
+          <AthleteSelector
+            selectedAthleteId={selectedAthleteId}
+            onAthleteChange={setSelectedAthleteId}
+          />
+          <Button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+            Export Report
+          </Button>
+        </div>
       </div>
 
       {/* Key Analytics Overview */}
