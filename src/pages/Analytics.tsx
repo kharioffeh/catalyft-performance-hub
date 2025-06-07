@@ -73,8 +73,10 @@ const Analytics: React.FC = () => {
     y: item.y
   })) || [];
 
+  // Fix the loadSecondaryData to include y property for compatibility
   const loadSecondaryData = loadData?.secondary?.map(item => ({
     x: item.x,
+    y: (item.acute || 0) + (item.chronic || 0), // Combined value for y
     acute: item.acute || 0,
     chronic: item.chronic || 0
   })) || [];
