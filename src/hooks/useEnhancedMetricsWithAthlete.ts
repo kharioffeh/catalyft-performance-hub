@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -6,7 +5,7 @@ import {
   generateSleepData, 
   generateLoadData,
   generateLatestStrain
-} from '@/services/mockAnalyticsData';
+} from '@/services/analytics';
 
 interface ReadinessRolling {
   athlete_uuid: string;

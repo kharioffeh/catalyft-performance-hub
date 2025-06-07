@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,7 +8,7 @@ import {
   formatChartData,
   formatSleepChartData,
   formatLoadSecondaryData
-} from '@/services/mockAnalyticsData';
+} from '@/services/analytics';
 
 export const useMetricData = (metric: "readiness" | "sleep" | "load", period: number) => {
   const { profile } = useAuth();

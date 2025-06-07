@@ -1,49 +1,6 @@
 
-import { format, subDays, startOfDay, addDays } from 'date-fns';
-
-// Mock athlete profiles with different characteristics
-export const mockAthletes = [
-  {
-    id: '550e8400-e29b-41d4-a716-446655440001',
-    name: 'Sarah Johnson',
-    profile: 'elite', // High performance, consistent
-    baseReadiness: 85,
-    baseSleep: 8.2,
-    baseLoad: 15
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440002',
-    name: 'Mike Chen',
-    profile: 'developing', // Moderate performance, some inconsistency
-    baseReadiness: 72,
-    baseSleep: 7.5,
-    baseLoad: 12
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440003',
-    name: 'Alex Rodriguez',
-    profile: 'recovering', // Lower performance, needs monitoring
-    baseReadiness: 65,
-    baseSleep: 6.8,
-    baseLoad: 8
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440004',
-    name: 'Emma Thompson',
-    profile: 'peaking', // Very high performance, training hard
-    baseReadiness: 78,
-    baseSleep: 7.8,
-    baseLoad: 18
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440005',
-    name: 'Jordan Kim',
-    profile: 'baseline', // Average across all metrics
-    baseReadiness: 75,
-    baseSleep: 7.2,
-    baseLoad: 10
-  }
-];
+import { format, subDays, addDays } from 'date-fns';
+import { mockAthletes } from './athleteProfiles';
 
 // Generate realistic readiness data
 export const generateReadinessData = (athleteId: string, period: number) => {
@@ -188,33 +145,4 @@ export const generateLatestStrain = (athleteId: string) => {
     value: Number((baseStrain + (Math.random() - 0.5) * 6).toFixed(1)),
     ts: new Date().toISOString()
   };
-};
-
-// Generate chart data from raw data
-export const formatChartData = (rawData: any[], xKey: string, yKey: string) => {
-  return rawData.map(item => ({
-    x: item[xKey],
-    y: item[yKey] || 0
-  }));
-};
-
-// Generate sleep chart data with stages
-export const formatSleepChartData = (rawData: any[]) => {
-  return rawData.map(item => ({
-    x: item.day,
-    y: item.total_sleep_hours || 0,
-    deep: (item.deep_minutes || 0) / 60,
-    light: (item.light_minutes || 0) / 60,
-    rem: (item.rem_minutes || 0) / 60
-  }));
-};
-
-// Generate load secondary data for acute vs chronic comparison
-export const formatLoadSecondaryData = (rawData: any[]) => {
-  return rawData.map(item => ({
-    x: item.day,
-    y: (item.acute_7d || 0) + (item.chronic_28d || 0),
-    acute: item.acute_7d || 0,
-    chronic: item.chronic_28d || 0
-  }));
 };
