@@ -44,6 +44,15 @@ export const useMetricData = (metric: "readiness" | "sleep" | "load", period: nu
             const delta7d = latestScore - prevScore;
 
             const series = formatChartData(data, 'day', 'readiness_score');
+            
+            // Generate secondary data for readiness detail page (HRV and sleep quality factors)
+            const secondary = data.map(item => ({
+              x: item.day,
+              y: 0,
+              hrv: 30 + Math.random() * 20, // Mock HRV data
+              sleep: 70 + Math.random() * 20 // Mock sleep quality data
+            }));
+
             const tableRows = data.map(item => ({
               day: item.day,
               score: item.readiness_score || 0,
@@ -55,6 +64,7 @@ export const useMetricData = (metric: "readiness" | "sleep" | "load", period: nu
               latestScore, 
               delta7d, 
               series, 
+              secondary,
               tableRows
             };
           }
@@ -76,6 +86,13 @@ export const useMetricData = (metric: "readiness" | "sleep" | "load", period: nu
             const delta7d = recentAvg - previousAvg;
 
             const series = formatSleepChartData(data);
+            
+            // Generate scatter plot data for sleep consistency
+            const scatter = data.map((item, index) => ({
+              x: `22:${30 + Math.round(Math.random() * 60)}`, // Mock bedtime
+              y: item.total_sleep_hours + 6 + Math.random() * 2 // Mock wake time
+            }));
+
             const tableRows = data.map(item => ({
               day: item.day,
               total_sleep_hours: item.total_sleep_hours || 0,
@@ -85,7 +102,7 @@ export const useMetricData = (metric: "readiness" | "sleep" | "load", period: nu
               rem_minutes: item.rem_minutes || 0
             }));
 
-            return { avgHours, delta7d, series, tableRows };
+            return { avgHours, delta7d, series, scatter, tableRows };
           }
 
           case "load": {
@@ -138,13 +155,19 @@ export const useMetricData = (metric: "readiness" | "sleep" | "load", period: nu
             const prevScore = data.length > 7 ? data[data.length - 8]?.readiness_score : latestScore;
             const delta7d = latestScore - prevScore;
             const series = formatChartData(data, 'day', 'readiness_score');
+            const secondary = data.map(item => ({
+              x: item.day,
+              y: 0,
+              hrv: 30 + Math.random() * 20,
+              sleep: 70 + Math.random() * 20
+            }));
             const tableRows = data.map(item => ({
               day: item.day,
               score: item.readiness_score || 0,
               avg_7d: item.avg_7d || 0,
               avg_30d: item.avg_30d || 0
             }));
-            return { latestScore, delta7d, series, tableRows };
+            return { latestScore, delta7d, series, secondary, tableRows };
           }
           
           case "sleep": {
@@ -152,6 +175,10 @@ export const useMetricData = (metric: "readiness" | "sleep" | "load", period: nu
             const avgHours = data.reduce((sum, item) => sum + (item.total_sleep_hours || 0), 0) / data.length;
             const delta7d = 0.2; // Mock delta
             const series = formatSleepChartData(data);
+            const scatter = data.map((item, index) => ({
+              x: `22:${30 + Math.round(Math.random() * 60)}`,
+              y: item.total_sleep_hours + 6 + Math.random() * 2
+            }));
             const tableRows = data.map(item => ({
               day: item.day,
               total_sleep_hours: item.total_sleep_hours || 0,
@@ -160,7 +187,7 @@ export const useMetricData = (metric: "readiness" | "sleep" | "load", period: nu
               light_minutes: item.light_minutes || 0,
               rem_minutes: item.rem_minutes || 0
             }));
-            return { avgHours, delta7d, series, tableRows };
+            return { avgHours, delta7d, series, scatter, tableRows };
           }
           
           case "load": {

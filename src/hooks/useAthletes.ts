@@ -7,7 +7,7 @@ import { mockAthletes } from '@/services/mockAnalyticsData';
 export const useAthletes = () => {
   const { profile } = useAuth();
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ['athletes', profile?.id],
     queryFn: async () => {
       if (!profile?.id) return [];
@@ -56,4 +56,10 @@ export const useAthletes = () => {
     },
     enabled: !!profile?.id
   });
+
+  return {
+    athletes: query.data || [],
+    isLoading: query.isLoading,
+    error: query.error
+  };
 };
