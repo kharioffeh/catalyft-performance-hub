@@ -6,7 +6,6 @@ import { MetricChart } from '@/components/Analytics/MetricChart';
 import { ARIAInsight } from '@/components/Analytics/ARIAInsight';
 import { DataTable } from '@/components/Analytics/DataTable';
 import { useMetricData } from '@/hooks/useMetricData';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function ReadinessDetailPage() {
   const { profile } = useAuth();
@@ -74,14 +73,12 @@ export default function ReadinessDetailPage() {
       </div>
 
       {/* Hero Chart: Readiness Over Time */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Readiness Score Trend</CardTitle>
-          <CardDescription>
-            Track your readiness score over the last {period} days with performance zones
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+      <section className="card">
+        <h2 className="text-lg font-semibold mb-2">Readiness Score Trend</h2>
+        <p className="text-sm text-gray-600 mb-4">
+          Track your readiness score over the last {period} days with performance zones
+        </p>
+        <div className="relative w-full pb-[60%]">
           <MetricChart
             type="line"
             data={data.series || []}
@@ -92,20 +89,19 @@ export default function ReadinessDetailPage() {
             ]}
             xLabel="Date"
             yLabel="Readiness Score"
+            className="absolute inset-0"
           />
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
       {/* Secondary Chart: HRV & Sleep Quality */}
       {data.secondary && data.secondary.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Contributing Factors</CardTitle>
-            <CardDescription>
-              HRV and sleep quality metrics that influence readiness
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        <section className="card">
+          <h2 className="text-lg font-semibold mb-2">Contributing Factors</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            HRV and sleep quality metrics that influence readiness
+          </p>
+          <div className="relative w-full pb-[60%]">
             <MetricChart
               type="bar"
               data={data.secondary.map(point => ({ 
@@ -117,44 +113,37 @@ export default function ReadinessDetailPage() {
               xLabel="Date"
               yLabel="Value"
               multiSeries={true}
+              className="absolute inset-0"
             />
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       )}
 
       {/* Data Table: Daily Readiness Details */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Daily Readiness Details</CardTitle>
-          <CardDescription>
-            Detailed breakdown of daily readiness scores and contributing metrics
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={[
-              { header: "Date", accessor: "day", type: "date" },
-              { header: "Readiness Score", accessor: "score", type: "number" },
-              { header: "7-Day Average", accessor: "avg_7d", type: "number" },
-              { header: "30-Day Average", accessor: "avg_30d", type: "number" }
-            ]}
-            data={data.tableRows || []}
-          />
-        </CardContent>
-      </Card>
+      <section className="card overflow-x-auto">
+        <h2 className="text-lg font-semibold mb-2">Daily Readiness Details</h2>
+        <p className="text-sm text-gray-600 mb-4">
+          Detailed breakdown of daily readiness scores and contributing metrics
+        </p>
+        <DataTable
+          columns={[
+            { header: "Date", accessor: "day", type: "date" },
+            { header: "Readiness Score", accessor: "score", type: "number" },
+            { header: "7-Day Average", accessor: "avg_7d", type: "number" },
+            { header: "30-Day Average", accessor: "avg_30d", type: "number" }
+          ]}
+          data={data.tableRows || []}
+        />
+      </section>
 
       {/* ARIA Insights */}
-      <Card className="bg-gray-50">
-        <CardHeader>
-          <CardTitle>Coach ARIA Readiness Insights</CardTitle>
-          <CardDescription>
-            AI-generated insights about your readiness trends
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ARIAInsight metric="readiness" period={period} />
-        </CardContent>
-      </Card>
+      <section className="card">
+        <h2 className="text-lg font-semibold mb-2">Coach ARIA Readiness Insights</h2>
+        <p className="text-sm text-gray-600 mb-4">
+          AI-generated insights about your readiness trends
+        </p>
+        <ARIAInsight metric="readiness" period={period} />
+      </section>
     </div>
   );
 }

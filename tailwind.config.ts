@@ -65,7 +65,13 @@ export default {
 				},
 				'badge-kai': '#5BAFFF',
 				'badge-coach': '#A8A8A8',
-				'row-alt': '#FAFAFA'
+				'row-alt': '#FAFAFA',
+				'chart-green': '#4ade80',
+				'chart-blue': '#60a5fa',
+				'chart-purple': '#c084fc'
+			},
+			boxShadow: {
+				card: '0 2px 6px rgba(0,0,0,0.06)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

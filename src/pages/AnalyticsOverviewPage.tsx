@@ -18,7 +18,7 @@ export default function AnalyticsOverviewPage() {
   const { data: load } = useMetricData("load", period);
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className="p-6 max-w-7xl mx-auto space-y-6">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -42,8 +42,8 @@ export default function AnalyticsOverviewPage() {
         </div>
       </div>
 
-      {/* Row 1: KPI cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Row 1: KPI cards with responsive auto-fit grid */}
+      <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
         <MetricCard
           title="Readiness"
           latest={readiness?.latestScore}
@@ -64,15 +64,15 @@ export default function AnalyticsOverviewPage() {
         />
       </div>
 
-      {/* Row 2: Mini sparklines */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <MiniSpark data={readiness?.series} color="#10B981" label="Readiness Trend" />
-        <MiniSpark data={sleep?.series} color="#3B82F6" label="Sleep Trend" />
-        <MiniSpark data={load?.series} color="#8B5CF6" label="Load Trend" />
+      {/* Row 2: Mini sparklines with responsive auto-fit grid */}
+      <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
+        <MiniSpark data={readiness?.series} color="#4ade80" label="Readiness Trend" />
+        <MiniSpark data={sleep?.series} color="#60a5fa" label="Sleep Trend" />
+        <MiniSpark data={load?.series} color="#c084fc" label="Load Trend" />
       </div>
 
       {/* Row 3: ARIA summary */}
-      <div className="bg-gray-50 p-4 rounded-lg shadow">
+      <div className="card">
         <h2 className="text-lg font-semibold mb-2">Coach ARIA Insights</h2>
         <ARIAInsight metric="overview" period={period} />
       </div>

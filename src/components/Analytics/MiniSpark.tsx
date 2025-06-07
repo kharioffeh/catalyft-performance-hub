@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
-import { Card, CardContent } from '@/components/ui/card';
 
 interface MiniSparkProps {
   data?: Array<{ x: string; y: number }>;
@@ -17,10 +16,10 @@ export const MiniSpark: React.FC<MiniSparkProps> = ({ data, color, label }) => {
   })) || [];
 
   return (
-    <Card className="bg-white rounded-xl shadow">
-      <CardContent className="p-3">
+    <div className="card">
+      <div className="p-0.5">
         <p className="text-xs text-gray-500 mb-2 font-medium">{label}</p>
-        <div className="h-16">
+        <div style={{ height: 70 }}>
           {chartData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData}>
@@ -41,7 +40,7 @@ export const MiniSpark: React.FC<MiniSparkProps> = ({ data, color, label }) => {
             </div>
           )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };

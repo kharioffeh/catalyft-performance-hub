@@ -6,7 +6,6 @@ import { MetricChart } from '@/components/Analytics/MetricChart';
 import { ARIAInsight } from '@/components/Analytics/ARIAInsight';
 import { DataTable } from '@/components/Analytics/DataTable';
 import { useMetricData } from '@/hooks/useMetricData';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function LoadDetailPage() {
   const { profile } = useAuth();
@@ -74,34 +73,31 @@ export default function LoadDetailPage() {
       </div>
 
       {/* Hero Chart: ACWR Over Time */}
-      <Card>
-        <CardHeader>
-          <CardTitle>ACWR (Acute:Chronic Workload Ratio)</CardTitle>
-          <CardDescription>
-            Track your training load ratio over the last {period} days with risk zones
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+      <section className="card">
+        <h2 className="text-lg font-semibold mb-2">ACWR (Acute:Chronic Workload Ratio)</h2>
+        <p className="text-sm text-gray-600 mb-4">
+          Track your training load ratio over the last {period} days with risk zones
+        </p>
+        <div className="relative w-full pb-[60%]">
           <MetricChart
             type="line"
             data={data.series || []}
             zones={data.zones}
             xLabel="Date"
             yLabel="ACWR"
+            className="absolute inset-0"
           />
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
       {/* Secondary Chart: Acute vs Chronic Load */}
       {data.secondary && data.secondary.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Acute vs Chronic Load</CardTitle>
-            <CardDescription>
-              Comparison of 7-day acute load vs 28-day chronic load
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        <section className="card">
+          <h2 className="text-lg font-semibold mb-2">Acute vs Chronic Load</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            Comparison of 7-day acute load vs 28-day chronic load
+          </p>
+          <div className="relative w-full pb-[60%]">
             <MetricChart
               type="bar"
               data={data.secondary.map(point => ({ 
@@ -113,45 +109,38 @@ export default function LoadDetailPage() {
               multiSeries={true}
               xLabel="Date"
               yLabel="Load"
+              className="absolute inset-0"
             />
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       )}
 
       {/* Data Table: Daily Load Details */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Daily Load Details</CardTitle>
-          <CardDescription>
-            Detailed breakdown of daily training load and calculated metrics
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={[
-              { header: "Date", accessor: "day", type: "date" },
-              { header: "Daily Load", accessor: "daily_load", type: "number" },
-              { header: "Acute (7d)", accessor: "acute_7d", type: "number" },
-              { header: "Chronic (28d)", accessor: "chronic_28d", type: "number" },
-              { header: "ACWR", accessor: "acwr_7_28", type: "number" }
-            ]}
-            data={data.tableRows || []}
-          />
-        </CardContent>
-      </Card>
+      <section className="card overflow-x-auto">
+        <h2 className="text-lg font-semibold mb-2">Daily Load Details</h2>
+        <p className="text-sm text-gray-600 mb-4">
+          Detailed breakdown of daily training load and calculated metrics
+        </p>
+        <DataTable
+          columns={[
+            { header: "Date", accessor: "day", type: "date" },
+            { header: "Daily Load", accessor: "daily_load", type: "number" },
+            { header: "Acute (7d)", accessor: "acute_7d", type: "number" },
+            { header: "Chronic (28d)", accessor: "chronic_28d", type: "number" },
+            { header: "ACWR", accessor: "acwr_7_28", type: "number" }
+          ]}
+          data={data.tableRows || []}
+        />
+      </section>
 
       {/* ARIA Insights */}
-      <Card className="bg-gray-50">
-        <CardHeader>
-          <CardTitle>Coach ARIA Load Insights</CardTitle>
-          <CardDescription>
-            AI-generated insights about your training load and injury risk
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ARIAInsight metric="load" period={period} />
-        </CardContent>
-      </Card>
+      <section className="card">
+        <h2 className="text-lg font-semibold mb-2">Coach ARIA Load Insights</h2>
+        <p className="text-sm text-gray-600 mb-4">
+          AI-generated insights about your training load and injury risk
+        </p>
+        <ARIAInsight metric="load" period={period} />
+      </section>
     </div>
   );
 }

@@ -6,7 +6,6 @@ import { MetricChart } from '@/components/Analytics/MetricChart';
 import { ARIAInsight } from '@/components/Analytics/ARIAInsight';
 import { DataTable } from '@/components/Analytics/DataTable';
 import { useMetricData } from '@/hooks/useMetricData';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function SleepDetailPage() {
   const { profile } = useAuth();
@@ -74,79 +73,69 @@ export default function SleepDetailPage() {
       </div>
 
       {/* Hero Chart: Sleep Stages Over Time */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Sleep Stages Over Time</CardTitle>
-          <CardDescription>
-            Breakdown of sleep stages over the last {period} days
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+      <section className="card">
+        <h2 className="text-lg font-semibold mb-2">Sleep Stages Over Time</h2>
+        <p className="text-sm text-gray-600 mb-4">
+          Breakdown of sleep stages over the last {period} days
+        </p>
+        <div className="relative w-full pb-[60%]">
           <MetricChart
             type="bar"
             data={data.series || []}
             stacked={true}
             xLabel="Date"
             yLabel="Hours"
+            className="absolute inset-0"
           />
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
       {/* Sleep Consistency Chart */}
       {data.scatter && data.scatter.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Sleep Consistency</CardTitle>
-            <CardDescription>
-              Bedtime vs wake time consistency pattern
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        <section className="card">
+          <h2 className="text-lg font-semibold mb-2">Sleep Consistency</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            Bedtime vs wake time consistency pattern
+          </p>
+          <div className="relative w-full pb-[60%]">
             <MetricChart
               type="scatter"
               data={data.scatter.map(point => ({ x: point.x.toString(), y: point.y }))}
               xLabel="Bedtime"
               yLabel="Wake Time"
+              className="absolute inset-0"
             />
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       )}
 
       {/* Data Table: Daily Sleep Details */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Daily Sleep Details</CardTitle>
-          <CardDescription>
-            Detailed breakdown of daily sleep metrics and stages
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={[
-              { header: "Date", accessor: "day", type: "date" },
-              { header: "Total Hours", accessor: "total_sleep_hours", type: "number" },
-              { header: "Avg HR", accessor: "avg_hr", type: "number" },
-              { header: "Deep (min)", accessor: "deep_minutes", type: "number" },
-              { header: "Light (min)", accessor: "light_minutes", type: "number" },
-              { header: "REM (min)", accessor: "rem_minutes", type: "number" }
-            ]}
-            data={data.tableRows || []}
-          />
-        </CardContent>
-      </Card>
+      <section className="card overflow-x-auto">
+        <h2 className="text-lg font-semibold mb-2">Daily Sleep Details</h2>
+        <p className="text-sm text-gray-600 mb-4">
+          Detailed breakdown of daily sleep metrics and stages
+        </p>
+        <DataTable
+          columns={[
+            { header: "Date", accessor: "day", type: "date" },
+            { header: "Total Hours", accessor: "total_sleep_hours", type: "number" },
+            { header: "Avg HR", accessor: "avg_hr", type: "number" },
+            { header: "Deep (min)", accessor: "deep_minutes", type: "number" },
+            { header: "Light (min)", accessor: "light_minutes", type: "number" },
+            { header: "REM (min)", accessor: "rem_minutes", type: "number" }
+          ]}
+          data={data.tableRows || []}
+        />
+      </section>
 
       {/* ARIA Insights */}
-      <Card className="bg-gray-50">
-        <CardHeader>
-          <CardTitle>Coach ARIA Sleep Insights</CardTitle>
-          <CardDescription>
-            AI-generated insights about your sleep patterns and quality
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ARIAInsight metric="sleep" period={period} />
-        </CardContent>
-      </Card>
+      <section className="card">
+        <h2 className="text-lg font-semibold mb-2">Coach ARIA Sleep Insights</h2>
+        <p className="text-sm text-gray-600 mb-4">
+          AI-generated insights about your sleep patterns and quality
+        </p>
+        <ARIAInsight metric="sleep" period={period} />
+      </section>
     </div>
   );
 }
