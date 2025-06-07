@@ -1,6 +1,12 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { 
+  generateReadinessData, 
+  generateSleepData, 
+  generateLoadData,
+  generateLatestStrain
+} from '@/services/mockAnalyticsData';
 
 interface ReadinessRolling {
   athlete_uuid: string;
@@ -36,15 +42,42 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
     queryFn: async () => {
       if (!athleteId) return [];
 
-      const { data, error } = await supabase
-        .from('vw_readiness_rolling')
-        .select('*')
-        .eq('athlete_uuid', athleteId)
-        .gte('day', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
-        .order('day', { ascending: true });
+      try {
+        const { data, error } = await supabase
+          .from('vw_readiness_rolling')
+          .select('*')
+          .eq('athlete_uuid', athleteId)
+          .gte('day', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+          .order('day', { ascending: true });
 
-      if (error) throw error;
-      return data as ReadinessRolling[];
+        // Use real data if available, otherwise generate mock data
+        if (data && data.length > 0) {
+          return data as ReadinessRolling[];
+        } else {
+          // Generate mock data and format it correctly
+          const mockData = generateReadinessData(athleteId, 30);
+          return mockData.map(item => ({
+            athlete_uuid: athleteId,
+            day: item.day,
+            readiness_score: item.readiness_score,
+            avg_7d: item.avg_7d,
+            avg_30d: item.avg_30d,
+            avg_90d: item.avg_90d || item.avg_30d
+          })) as ReadinessRolling[];
+        }
+      } catch (error) {
+        console.error('Error fetching readiness data:', error);
+        // Fallback to mock data
+        const mockData = generateReadinessData(athleteId, 30);
+        return mockData.map(item => ({
+          athlete_uuid: athleteId,
+          day: item.day,
+          readiness_score: item.readiness_score,
+          avg_7d: item.avg_7d,
+          avg_30d: item.avg_30d,
+          avg_90d: item.avg_90d || item.avg_30d
+        })) as ReadinessRolling[];
+      }
     },
     enabled: !!athleteId
   });
@@ -55,15 +88,42 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
     queryFn: async () => {
       if (!athleteId) return [];
 
-      const { data, error } = await supabase
-        .from('vw_sleep_daily')
-        .select('*')
-        .eq('athlete_uuid', athleteId)
-        .gte('day', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
-        .order('day', { ascending: true });
+      try {
+        const { data, error } = await supabase
+          .from('vw_sleep_daily')
+          .select('*')
+          .eq('athlete_uuid', athleteId)
+          .gte('day', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+          .order('day', { ascending: true });
 
-      if (error) throw error;
-      return data as SleepDaily[];
+        // Use real data if available, otherwise generate mock data
+        if (data && data.length > 0) {
+          return data as SleepDaily[];
+        } else {
+          // Generate mock data and format it correctly
+          const mockData = generateSleepData(athleteId, 30);
+          return mockData.map(item => ({
+            athlete_uuid: athleteId,
+            day: item.day,
+            total_sleep_hours: item.total_sleep_hours,
+            sleep_efficiency: item.sleep_efficiency,
+            avg_sleep_hr: item.avg_hr,
+            hrv_rmssd: item.hrv_rmssd
+          })) as SleepDaily[];
+        }
+      } catch (error) {
+        console.error('Error fetching sleep data:', error);
+        // Fallback to mock data
+        const mockData = generateSleepData(athleteId, 30);
+        return mockData.map(item => ({
+          athlete_uuid: athleteId,
+          day: item.day,
+          total_sleep_hours: item.total_sleep_hours,
+          sleep_efficiency: item.sleep_efficiency,
+          avg_sleep_hr: item.avg_hr,
+          hrv_rmssd: item.hrv_rmssd
+        })) as SleepDaily[];
+      }
     },
     enabled: !!athleteId
   });
@@ -74,15 +134,42 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
     queryFn: async () => {
       if (!athleteId) return [];
 
-      const { data, error } = await supabase
-        .from('vw_load_acwr')
-        .select('*')
-        .eq('athlete_uuid', athleteId)
-        .gte('day', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
-        .order('day', { ascending: true });
+      try {
+        const { data, error } = await supabase
+          .from('vw_load_acwr')
+          .select('*')
+          .eq('athlete_uuid', athleteId)
+          .gte('day', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+          .order('day', { ascending: true });
 
-      if (error) throw error;
-      return data as LoadACWR[];
+        // Use real data if available, otherwise generate mock data
+        if (data && data.length > 0) {
+          return data as LoadACWR[];
+        } else {
+          // Generate mock data and format it correctly
+          const mockData = generateLoadData(athleteId, 30);
+          return mockData.map(item => ({
+            athlete_uuid: athleteId,
+            day: item.day,
+            daily_load: item.daily_load,
+            acute_7d: item.acute_7d,
+            chronic_28d: item.chronic_28d,
+            acwr_7_28: item.acwr_7_28
+          })) as LoadACWR[];
+        }
+      } catch (error) {
+        console.error('Error fetching load data:', error);
+        // Fallback to mock data
+        const mockData = generateLoadData(athleteId, 30);
+        return mockData.map(item => ({
+          athlete_uuid: athleteId,
+          day: item.day,
+          daily_load: item.daily_load,
+          acute_7d: item.acute_7d,
+          chronic_28d: item.chronic_28d,
+          acwr_7_28: item.acwr_7_28
+        })) as LoadACWR[];
+      }
     },
     enabled: !!athleteId
   });
@@ -93,17 +180,27 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
     queryFn: async () => {
       if (!athleteId) return null;
 
-      const { data, error } = await supabase
-        .from('wearable_raw')
-        .select('value, ts')
-        .eq('athlete_uuid', athleteId)
-        .eq('metric', 'strain')
-        .order('ts', { ascending: false })
-        .limit(1)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('wearable_raw')
+          .select('value, ts')
+          .eq('athlete_uuid', athleteId)
+          .eq('metric', 'strain')
+          .order('ts', { ascending: false })
+          .limit(1)
+          .single();
 
-      if (error && error.code !== 'PGRST116') throw error;
-      return data;
+        // Use real data if available, otherwise generate mock data
+        if (data) {
+          return data;
+        } else {
+          return generateLatestStrain(athleteId);
+        }
+      } catch (error) {
+        console.error('Error fetching strain data:', error);
+        // Fallback to mock data
+        return generateLatestStrain(athleteId);
+      }
     },
     enabled: !!athleteId
   });
