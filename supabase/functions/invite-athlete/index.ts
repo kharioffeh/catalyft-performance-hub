@@ -1,6 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -8,7 +9,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Log every incoming request immediately
   console.log("invite_athlete: Received request", {
     method: req.method,
     url: req.url,
@@ -22,7 +22,6 @@ serve(async (req) => {
   }
 
   try {
-    // Log the raw request body before any parsing
     const rawBody = await req.clone().text();
     console.log("invite_athlete: Raw request body:", rawBody);
 
@@ -93,20 +92,8 @@ serve(async (req) => {
       profileError
     });
 
-    // Check if we have a profile
-    if (profileError) {
+    if (profileError || !profile) {
       console.log("invite_athlete: Profile query error:", profileError);
-      return new Response(
-        JSON.stringify({ 
-          success: false,
-          error: 'Failed to check user profile: ' + profileError.message 
-        }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    if (!profile) {
-      console.log("invite_athlete: No profile found for user");
       return new Response(
         JSON.stringify({ 
           success: false,
@@ -216,9 +203,77 @@ serve(async (req) => {
       );
     }
 
-    // For now, skip the actual email sending due to Resend domain restrictions
-    // In production, this would send the actual email
-    console.log("invite_athlete: Skipping email send due to Resend domain restrictions");
+    // Send Supabase magic-link invite
+    console.log("invite_athlete: Creating Supabase magic link invite");
+    const appUrl = Deno.env.get('APP_URL') || 'https://catalyft.app';
+    
+    const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+      data: { 
+        provisional: true, 
+        coach_id: coachData.id,
+        invited_by: profile.full_name 
+      },
+      redirectTo: `${appUrl}/finish-signup`,
+    });
+
+    if (inviteError) {
+      console.error("invite_athlete: Supabase invite error:", inviteError);
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: 'Failed to create invite link' 
+        }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log("invite_athlete: Supabase invite created successfully");
+
+    // Send branded email via Resend
+    console.log("invite_athlete: Sending email via Resend");
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    const fromEmail = Deno.env.get('RESEND_FROM_EMAIL') || 'noreply@catalyft.app';
+
+    if (!resendApiKey) {
+      console.error("invite_athlete: Missing RESEND_API_KEY");
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: 'Email service not configured' 
+        }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const resend = new Resend(resendApiKey);
+
+    try {
+      const emailResult = await resend.emails.send({
+        from: fromEmail,
+        to: email,
+        subject: "You've been invited to Catalyft AI",
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h1 style="color: #2563eb;">Welcome to Catalyft AI</h1>
+            <p>Hi there,</p>
+            <p><strong>${profile.full_name}</strong> has invited you to join Catalyft AI, a comprehensive platform for athletic performance tracking and coaching.</p>
+            <div style="margin: 30px 0;">
+              <a href="${inviteData.properties?.action_link}" 
+                 style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                Accept Invitation
+              </a>
+            </div>
+            <p>This invitation link will expire in 24 hours. If you weren't expecting this email, you can safely ignore it.</p>
+            <p>Best regards,<br>The Catalyft AI Team</p>
+          </div>
+        `,
+      });
+
+      console.log("invite_athlete: Email sent successfully:", emailResult);
+    } catch (emailError) {
+      console.error("invite_athlete: Email sending failed:", emailError);
+      // Don't fail the entire request if email fails
+    }
     
     // Record or update the invite in our database
     console.log("invite_athlete: Recording/updating invite in database");

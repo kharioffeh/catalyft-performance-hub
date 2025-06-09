@@ -16,6 +16,7 @@ import LoginPage from './pages/Login';
 import SignupPage from './pages/Signup';
 import ForgotPasswordPage from './pages/Auth';
 import ResetPasswordPage from './pages/Auth';
+import FinishSignupPage from './pages/FinishSignup';
 import CalendarPage from './pages/Calendar';
 import ChatPage from './pages/Chat';
 import AppLayout from './components/AppLayout';
@@ -24,10 +25,14 @@ import RiskBoardPage from './pages/CoachRiskBoard';
 import KAIPage from './pages/KAIPage';
 import TemplateDetailPage from '@/pages/TemplateDetailPage';
 import { Toaster } from './components/ui/toaster';
+import { useSupabaseHash } from './hooks/useSupabaseHash';
 
 const queryClient = new QueryClient();
 
 function App() {
+  // Handle hash-based authentication redirects
+  useSupabaseHash();
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -38,6 +43,7 @@ function App() {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/finish-signup" element={<FinishSignupPage />} />
             <Route path="/" element={
               <ProtectedRoute>
                 <AppLayout />
