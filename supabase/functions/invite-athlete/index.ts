@@ -153,8 +153,8 @@ serve(async (req) => {
       );
     }
 
-    const { email, resend = false } = requestData;
-    console.log("invite_athlete: Extracted email:", email, "Resend:", resend);
+    const { email, resend: shouldResend = false } = requestData;
+    console.log("invite_athlete: Extracted email:", email, "Resend:", shouldResend);
     
     if (!email) {
       console.log("invite_athlete: No email provided");
@@ -190,7 +190,7 @@ serve(async (req) => {
     }
 
     // If there's a pending invite and this isn't a resend request, inform the user
-    if (existingInvite && existingInvite.status === 'pending' && !resend) {
+    if (existingInvite && existingInvite.status === 'pending' && !shouldResend) {
       console.log("invite_athlete: Athlete already has pending invite");
       return new Response(
         JSON.stringify({ 
@@ -322,9 +322,9 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true,
-        message: resend ? 'Invite resent successfully' : 'Invite sent successfully',
+        message: shouldResend ? 'Invite resent successfully' : 'Invite sent successfully',
         email: email,
-        resent: resend
+        resent: shouldResend
       }),
       { 
         status: 200, 
