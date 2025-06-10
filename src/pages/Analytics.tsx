@@ -24,7 +24,7 @@ const Analytics: React.FC = () => {
   
   // State for selected athlete and period
   const [selectedAthleteId, setSelectedAthleteId] = useState<string>('');
-  const [period, setPeriod] = useState<7 | 30 | 90>(30);
+  const [period, setPeriod] = useState<1 | 7 | 30 | 90>(30);
 
   // Set default selected athlete when data loads
   useEffect(() => {
@@ -47,6 +47,8 @@ const Analytics: React.FC = () => {
   const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
   const displayName = profile?.role === 'coach' ? selectedAthlete?.name || 'Unknown Athlete' : 'My Analytics';
 
+  const isHourlyView = period === 1;
+
   if (!selectedAthleteId) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -57,7 +59,8 @@ const Analytics: React.FC = () => {
 
   const readinessChartData = readinessData?.series?.map(item => ({
     x: item.x,
-    y: item.y
+    y: item.y,
+    hour: item.hour
   })) || [];
 
   const sleepChartData = sleepData?.series?.map(item => ({
@@ -65,12 +68,14 @@ const Analytics: React.FC = () => {
     y: item.y,
     deep: item.deep || 0,
     light: item.light || 0,
-    rem: item.rem || 0
+    rem: item.rem || 0,
+    hour: item.hour
   })) || [];
 
   const loadChartData = loadData?.series?.map(item => ({
     x: item.x,
-    y: item.y
+    y: item.y,
+    hour: item.hour
   })) || [];
 
   // Fix the loadSecondaryData to include y property for compatibility
@@ -78,7 +83,8 @@ const Analytics: React.FC = () => {
     x: item.x,
     y: (item.acute || 0) + (item.chronic || 0), // Combined value for y
     acute: item.acute || 0,
-    chronic: item.chronic || 0
+    chronic: item.chronic || 0,
+    hour: item.hour
   })) || [];
 
   const readinessZones = [
@@ -101,6 +107,7 @@ const Analytics: React.FC = () => {
           </div>
           <p className="text-gray-600">
             {profile?.role === 'coach' ? `Analyzing ${displayName}'s performance metrics` : 'Comprehensive performance insights and data trends'}
+            {isHourlyView && " - 24 Hour View"}
           </p>
         </div>
         
@@ -168,7 +175,7 @@ const Analytics: React.FC = () => {
           <MiniSpark 
             data={readinessData?.series} 
             color="#10b981" 
-            label="Readiness Trend" 
+            label={`Readiness Trend ${isHourlyView ? '(24h)' : ''}`} 
           />
         </div>
         <div className="relative">
@@ -178,7 +185,7 @@ const Analytics: React.FC = () => {
           <MiniSpark 
             data={sleepData?.series} 
             color="#3b82f6" 
-            label="Sleep Hours Trend" 
+            label={`Sleep Hours Trend ${isHourlyView ? '(24h)' : ''}`} 
           />
         </div>
         <div className="relative">
@@ -188,7 +195,7 @@ const Analytics: React.FC = () => {
           <MiniSpark 
             data={loadData?.series} 
             color="#8b5cf6" 
-            label="Training Load Trend" 
+            label={`Training Load Trend ${isHourlyView ? '(24h)' : ''}`} 
           />
         </div>
       </div>
@@ -200,17 +207,22 @@ const Analytics: React.FC = () => {
           <CardHeader className="pb-4">
             <div className="flex items-center gap-2">
               <Activity className="w-5 h-5 text-green-600" />
-              <CardTitle className="text-lg">Readiness Score Analysis</CardTitle>
+              <CardTitle className="text-lg">
+                Readiness Score Analysis {isHourlyView && "(24h)"}
+              </CardTitle>
             </div>
-            <CardDescription>Daily readiness with performance zones</CardDescription>
+            <CardDescription>
+              {isHourlyView ? "Hourly readiness with circadian patterns" : "Daily readiness with performance zones"}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <MetricChart
               type="line"
               data={readinessChartData}
               zones={readinessZones}
-              xLabel="Date"
+              xLabel={isHourlyView ? "Time" : "Date"}
               yLabel="Readiness Score"
+              isHourlyView={isHourlyView}
             />
           </CardContent>
         </Card>
@@ -220,17 +232,22 @@ const Analytics: React.FC = () => {
           <CardHeader className="pb-4">
             <div className="flex items-center gap-2">
               <Moon className="w-5 h-5 text-blue-600" />
-              <CardTitle className="text-lg">Sleep Stage Analysis</CardTitle>
+              <CardTitle className="text-lg">
+                Sleep Stage Analysis {isHourlyView && "(24h)"}
+              </CardTitle>
             </div>
-            <CardDescription>Deep, light, and REM sleep breakdown</CardDescription>
+            <CardDescription>
+              {isHourlyView ? "Hourly sleep pattern breakdown" : "Deep, light, and REM sleep breakdown"}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <MetricChart
               type="bar"
               data={sleepChartData}
               stacked={true}
-              xLabel="Date"
+              xLabel={isHourlyView ? "Time" : "Date"}
               yLabel="Hours"
+              isHourlyView={isHourlyView}
             />
           </CardContent>
         </Card>
@@ -240,17 +257,22 @@ const Analytics: React.FC = () => {
           <CardHeader className="pb-4">
             <div className="flex items-center gap-2">
               <Dumbbell className="w-5 h-5 text-purple-600" />
-              <CardTitle className="text-lg">Training Load & ACWR</CardTitle>
+              <CardTitle className="text-lg">
+                Training Load & ACWR {isHourlyView && "(24h)"}
+              </CardTitle>
             </div>
-            <CardDescription>Acute to chronic workload ratio analysis</CardDescription>
+            <CardDescription>
+              {isHourlyView ? "Hourly training load patterns" : "Acute to chronic workload ratio analysis"}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <MetricChart
               type="line"
               data={loadChartData}
               zones={loadData?.zones}
-              xLabel="Date"
+              xLabel={isHourlyView ? "Time" : "Date"}
               yLabel="ACWR Ratio"
+              isHourlyView={isHourlyView}
             />
           </CardContent>
         </Card>
@@ -258,60 +280,67 @@ const Analytics: React.FC = () => {
         {/* Load Comparison Chart */}
         <Card className="shadow-sm border border-gray-200">
           <CardHeader className="pb-4">
-            <CardTitle className="text-lg">Acute vs Chronic Load</CardTitle>
-            <CardDescription>Short-term vs long-term training stress comparison</CardDescription>
+            <CardTitle className="text-lg">
+              Acute vs Chronic Load {isHourlyView && "(24h)"}
+            </CardTitle>
+            <CardDescription>
+              {isHourlyView ? "Hourly vs cumulative training stress" : "Short-term vs long-term training stress comparison"}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <MetricChart
               type="bar"
               data={loadSecondaryData}
               multiSeries={true}
-              xLabel="Date"
+              xLabel={isHourlyView ? "Time" : "Date"}
               yLabel="Load"
+              isHourlyView={isHourlyView}
             />
           </CardContent>
         </Card>
       </div>
 
-      {/* Data Tables Section */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="shadow-sm border border-gray-200">
-          <CardHeader>
-            <CardTitle className="text-lg">Readiness Details</CardTitle>
-            <CardDescription>Detailed readiness metrics and rolling averages</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <DataTable
-              columns={[
-                { header: 'Date', accessor: 'day', type: 'date' },
-                { header: 'Score', accessor: 'score', type: 'number' },
-                { header: '7d Avg', accessor: 'avg_7d', type: 'number' },
-                { header: '30d Avg', accessor: 'avg_30d', type: 'number' }
-              ]}
-              data={readinessData?.tableRows || []}
-            />
-          </CardContent>
-        </Card>
+      {/* Data Tables Section - Only show if not hourly view to avoid clutter */}
+      {!isHourlyView && (
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card className="shadow-sm border border-gray-200">
+            <CardHeader>
+              <CardTitle className="text-lg">Readiness Details</CardTitle>
+              <CardDescription>Detailed readiness metrics and rolling averages</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DataTable
+                columns={[
+                  { header: 'Date', accessor: 'day', type: 'date' },
+                  { header: 'Score', accessor: 'score', type: 'number' },
+                  { header: '7d Avg', accessor: 'avg_7d', type: 'number' },
+                  { header: '30d Avg', accessor: 'avg_30d', type: 'number' }
+                ]}
+                data={readinessData?.tableRows || []}
+              />
+            </CardContent>
+          </Card>
 
-        <Card className="shadow-sm border border-gray-200">
-          <CardHeader>
-            <CardTitle className="text-lg">Sleep Details</CardTitle>
-            <CardDescription>Comprehensive sleep metrics and stage analysis</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <DataTable
-              columns={[
-                { header: 'Date', accessor: 'day', type: 'date' },
-                { header: 'Duration', accessor: 'total_sleep_hours', type: 'number' },
-                { header: 'Avg HR', accessor: 'avg_hr', type: 'number' },
-                { header: 'Deep (min)', accessor: 'deep_minutes', type: 'number' },
-                { header: 'REM (min)', accessor: 'rem_minutes', type: 'number' }
-              ]}
-              data={sleepData?.tableRows || []}
-            />
-          </CardContent>
-        </Card>
-      </div>
+          <Card className="shadow-sm border border-gray-200">
+            <CardHeader>
+              <CardTitle className="text-lg">Sleep Details</CardTitle>
+              <CardDescription>Comprehensive sleep metrics and stage analysis</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DataTable
+                columns={[
+                  { header: 'Date', accessor: 'day', type: 'date' },
+                  { header: 'Duration', accessor: 'total_sleep_hours', type: 'number' },
+                  { header: 'Avg HR', accessor: 'avg_hr', type: 'number' },
+                  { header: 'Deep (min)', accessor: 'deep_minutes', type: 'number' },
+                  { header: 'REM (min)', accessor: 'rem_minutes', type: 'number' }
+                ]}
+                data={sleepData?.tableRows || []}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* ARIA Insights Section */}
       <Card className="shadow-sm border border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
@@ -320,9 +349,14 @@ const Analytics: React.FC = () => {
             <div className="p-1.5 bg-blue-100 rounded-lg">
               <TrendingUp className="w-5 h-5 text-blue-600" />
             </div>
-            AI Performance Insights
+            AI Performance Insights {isHourlyView && "(24h View)"}
           </CardTitle>
-          <CardDescription>Personalized recommendations based on your performance data</CardDescription>
+          <CardDescription>
+            {isHourlyView ? 
+              "Real-time insights based on your hourly performance patterns" :
+              "Personalized recommendations based on your performance data"
+            }
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <ARIAInsight metric="overview" period={period} />

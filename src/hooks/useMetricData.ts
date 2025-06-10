@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -5,9 +6,15 @@ import {
   generateReadinessData, 
   generateSleepData, 
   generateLoadData,
+  generateHourlyReadinessData,
+  generateHourlySleepData,
+  generateHourlyLoadData,
   formatChartData,
   formatSleepChartData,
-  formatLoadSecondaryData
+  formatLoadSecondaryData,
+  formatHourlyChartData,
+  formatHourlySleepChartData,
+  formatHourlyLoadSecondaryData
 } from '@/services/analytics';
 
 export const useMetricData = (metric: "readiness" | "sleep" | "load", period: number) => {
@@ -18,38 +25,49 @@ export const useMetricData = (metric: "readiness" | "sleep" | "load", period: nu
     queryFn: async () => {
       if (!profile?.id) return null;
 
-      // Try to fetch real data first, fall back to mock data
-      const endDate = new Date();
-      const startDate = new Date(endDate.getTime() - period * 24 * 60 * 60 * 1000);
+      // Handle 24h (1 day) view with hourly data
+      const isHourlyView = period === 1;
 
       try {
         switch (metric) {
           case "readiness": {
-            // Try real data first
-            const { data: realData, error } = await supabase
-              .from('vw_readiness_rolling')
-              .select('*')
-              .eq('athlete_uuid', profile.id)
-              .gte('day', startDate.toISOString().split('T')[0])
-              .order('day', { ascending: true });
+            let data;
+            
+            if (isHourlyView) {
+              // Use hourly data for 24h view
+              data = generateHourlyReadinessData(profile.id);
+            } else {
+              // Try real data first, fall back to mock data
+              const endDate = new Date();
+              const startDate = new Date(endDate.getTime() - period * 24 * 60 * 60 * 1000);
 
-            // Use real data if available and not empty, otherwise use mock data
-            const data = (realData && realData.length > 0) ? realData : generateReadinessData(profile.id, period);
+              const { data: realData, error } = await supabase
+                .from('vw_readiness_rolling')
+                .select('*')
+                .eq('athlete_uuid', profile.id)
+                .gte('day', startDate.toISOString().split('T')[0])
+                .order('day', { ascending: true });
+
+              data = (realData && realData.length > 0) ? realData : generateReadinessData(profile.id, period);
+            }
 
             if (!data || data.length === 0) return null;
 
             const latestScore = data[data.length - 1]?.readiness_score || 0;
-            const prevScore = data.length > 7 ? data[data.length - 8]?.readiness_score : latestScore;
+            const prevScore = data.length > (isHourlyView ? 6 : 7) ? 
+              data[data.length - (isHourlyView ? 7 : 8)]?.readiness_score : latestScore;
             const delta7d = latestScore - prevScore;
 
-            const series = formatChartData(data, 'day', 'readiness_score');
+            const series = isHourlyView ? 
+              formatHourlyChartData(data, 'day', 'readiness_score') :
+              formatChartData(data, 'day', 'readiness_score');
             
             // Generate secondary data for readiness detail page (HRV and sleep quality factors)
             const secondary = data.map(item => ({
               x: item.day,
               y: 0,
-              hrv: 30 + Math.random() * 20, // Mock HRV data
-              sleep: 70 + Math.random() * 20 // Mock sleep quality data
+              hrv: 30 + Math.random() * 20,
+              sleep: 70 + Math.random() * 20
             }));
 
             const tableRows = data.map(item => ({
@@ -64,18 +82,24 @@ export const useMetricData = (metric: "readiness" | "sleep" | "load", period: nu
               delta7d, 
               series, 
               secondary,
-              tableRows
+              tableRows,
+              isHourlyView
             };
           }
 
           case "sleep": {
-            // Try real data first
-            const { data: realData, error } = await supabase.rpc('get_sleep_detail', { 
-              pv_period: period 
-            });
+            let data;
+            
+            if (isHourlyView) {
+              data = generateHourlySleepData(profile.id);
+            } else {
+              // Try real data first
+              const { data: realData, error } = await supabase.rpc('get_sleep_detail', { 
+                pv_period: period 
+              });
 
-            // Use real data if available, otherwise generate mock data
-            const data = (realData && realData.length > 0) ? realData : generateSleepData(profile.id, period);
+              data = (realData && realData.length > 0) ? realData : generateSleepData(profile.id, period);
+            }
 
             if (!data || data.length === 0) return null;
 
@@ -84,12 +108,14 @@ export const useMetricData = (metric: "readiness" | "sleep" | "load", period: nu
             const previousAvg = data.slice(-14, -7).reduce((sum, item) => sum + (item.total_sleep_hours || 0), 0) / Math.min(7, data.length);
             const delta7d = recentAvg - previousAvg;
 
-            const series = formatSleepChartData(data);
+            const series = isHourlyView ?
+              formatHourlySleepChartData(data) :
+              formatSleepChartData(data);
             
             // Generate scatter plot data for sleep consistency
             const scatter = data.map((item, index) => ({
-              x: `22:${30 + Math.round(Math.random() * 60)}`, // Mock bedtime
-              y: item.total_sleep_hours + 6 + Math.random() * 2 // Mock wake time
+              x: `22:${30 + Math.round(Math.random() * 60)}`,
+              y: item.total_sleep_hours + 6 + Math.random() * 2
             }));
 
             const tableRows = data.map(item => ({
@@ -101,26 +127,45 @@ export const useMetricData = (metric: "readiness" | "sleep" | "load", period: nu
               rem_minutes: item.rem_minutes || 0
             }));
 
-            return { avgHours, delta7d, series, scatter, tableRows };
+            return { 
+              avgHours, 
+              delta7d, 
+              series, 
+              scatter, 
+              tableRows,
+              isHourlyView
+            };
           }
 
           case "load": {
-            // Try real data first
-            const { data: realData, error } = await supabase.rpc('get_load_detail', { 
-              pv_period: period 
-            });
+            let data;
+            
+            if (isHourlyView) {
+              data = generateHourlyLoadData(profile.id);
+            } else {
+              // Try real data first
+              const { data: realData, error } = await supabase.rpc('get_load_detail', { 
+                pv_period: period 
+              });
 
-            // Use real data if available, otherwise generate mock data
-            const data = (realData && realData.length > 0) ? realData : generateLoadData(profile.id, period);
+              data = (realData && realData.length > 0) ? realData : generateLoadData(profile.id, period);
+            }
 
             if (!data || data.length === 0) return null;
 
             const latestAcwr = data[data.length - 1]?.acwr_7_28 || 0;
-            const prevAcwr = data.length > 7 ? data[data.length - 8]?.acwr_7_28 : latestAcwr;
+            const prevAcwr = data.length > (isHourlyView ? 6 : 7) ? 
+              data[data.length - (isHourlyView ? 7 : 8)]?.acwr_7_28 : latestAcwr;
             const delta7d = latestAcwr - prevAcwr;
 
-            const series = formatChartData(data, 'day', 'acwr_7_28');
-            const secondary = formatLoadSecondaryData(data);
+            const series = isHourlyView ?
+              formatHourlyChartData(data, 'day', 'acwr_7_28') :
+              formatChartData(data, 'day', 'acwr_7_28');
+            
+            const secondary = isHourlyView ?
+              formatHourlyLoadSecondaryData(data) :
+              formatLoadSecondaryData(data);
+            
             const tableRows = data.map(item => ({
               day: item.day,
               daily_load: item.daily_load || 0,
@@ -137,7 +182,15 @@ export const useMetricData = (metric: "readiness" | "sleep" | "load", period: nu
               { from: 2.0, to: 3.0, color: "#ef4444", label: "High Risk" }
             ];
 
-            return { latestAcwr, delta7d, series, secondary, tableRows, zones };
+            return { 
+              latestAcwr, 
+              delta7d, 
+              series, 
+              secondary, 
+              tableRows, 
+              zones,
+              isHourlyView
+            };
           }
 
           default:
@@ -149,11 +202,16 @@ export const useMetricData = (metric: "readiness" | "sleep" | "load", period: nu
         // Fallback to mock data on error
         switch (metric) {
           case "readiness": {
-            const data = generateReadinessData(profile.id, period);
+            const data = isHourlyView ? 
+              generateHourlyReadinessData(profile.id) :
+              generateReadinessData(profile.id, period);
             const latestScore = data[data.length - 1]?.readiness_score || 0;
-            const prevScore = data.length > 7 ? data[data.length - 8]?.readiness_score : latestScore;
+            const prevScore = data.length > (isHourlyView ? 6 : 7) ? 
+              data[data.length - (isHourlyView ? 7 : 8)]?.readiness_score : latestScore;
             const delta7d = latestScore - prevScore;
-            const series = formatChartData(data, 'day', 'readiness_score');
+            const series = isHourlyView ?
+              formatHourlyChartData(data, 'day', 'readiness_score') :
+              formatChartData(data, 'day', 'readiness_score');
             const secondary = data.map(item => ({
               x: item.day,
               y: 0,
@@ -166,14 +224,18 @@ export const useMetricData = (metric: "readiness" | "sleep" | "load", period: nu
               avg_7d: item.avg_7d || 0,
               avg_30d: item.avg_30d || 0
             }));
-            return { latestScore, delta7d, series, secondary, tableRows };
+            return { latestScore, delta7d, series, secondary, tableRows, isHourlyView };
           }
           
           case "sleep": {
-            const data = generateSleepData(profile.id, period);
+            const data = isHourlyView ?
+              generateHourlySleepData(profile.id) :
+              generateSleepData(profile.id, period);
             const avgHours = data.reduce((sum, item) => sum + (item.total_sleep_hours || 0), 0) / data.length;
-            const delta7d = 0.2; // Mock delta
-            const series = formatSleepChartData(data);
+            const delta7d = 0.2;
+            const series = isHourlyView ?
+              formatHourlySleepChartData(data) :
+              formatSleepChartData(data);
             const scatter = data.map((item, index) => ({
               x: `22:${30 + Math.round(Math.random() * 60)}`,
               y: item.total_sleep_hours + 6 + Math.random() * 2
@@ -186,15 +248,21 @@ export const useMetricData = (metric: "readiness" | "sleep" | "load", period: nu
               light_minutes: item.light_minutes || 0,
               rem_minutes: item.rem_minutes || 0
             }));
-            return { avgHours, delta7d, series, scatter, tableRows };
+            return { avgHours, delta7d, series, scatter, tableRows, isHourlyView };
           }
           
           case "load": {
-            const data = generateLoadData(profile.id, period);
+            const data = isHourlyView ?
+              generateHourlyLoadData(profile.id) :
+              generateLoadData(profile.id, period);
             const latestAcwr = data[data.length - 1]?.acwr_7_28 || 0;
-            const delta7d = 0.05; // Mock delta
-            const series = formatChartData(data, 'day', 'acwr_7_28');
-            const secondary = formatLoadSecondaryData(data);
+            const delta7d = 0.05;
+            const series = isHourlyView ?
+              formatHourlyChartData(data, 'day', 'acwr_7_28') :
+              formatChartData(data, 'day', 'acwr_7_28');
+            const secondary = isHourlyView ?
+              formatHourlyLoadSecondaryData(data) :
+              formatLoadSecondaryData(data);
             const tableRows = data.map(item => ({
               day: item.day,
               daily_load: item.daily_load || 0,
@@ -208,7 +276,7 @@ export const useMetricData = (metric: "readiness" | "sleep" | "load", period: nu
               { from: 1.3, to: 2.0, color: "#f59e0b", label: "Moderate Risk" },
               { from: 2.0, to: 3.0, color: "#ef4444", label: "High Risk" }
             ];
-            return { latestAcwr, delta7d, series, secondary, tableRows, zones };
+            return { latestAcwr, delta7d, series, secondary, tableRows, zones, isHourlyView };
           }
         }
         

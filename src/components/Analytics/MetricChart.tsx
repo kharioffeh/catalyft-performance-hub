@@ -12,12 +12,13 @@ interface Zone {
 
 interface MetricChartProps {
   type: "line" | "bar" | "scatter";
-  data: Array<{ x: string; y: number; [key: string]: any }>;
+  data: Array<{ x: string; y: number; hour?: number; [key: string]: any }>;
   zones?: Zone[];
   xLabel?: string;
   yLabel?: string;
   multiSeries?: boolean;
   stacked?: boolean;
+  isHourlyView?: boolean;
   className?: string;
 }
 
@@ -64,6 +65,7 @@ export const MetricChart: React.FC<MetricChartProps> = ({
   yLabel,
   multiSeries = false,
   stacked = false,
+  isHourlyView = false,
   className = ""
 }) => {
   // Transform data for recharts format
@@ -77,8 +79,25 @@ export const MetricChart: React.FC<MetricChartProps> = ({
     rem: point.rem || 0,
     acute: point.acute || 0,
     chronic: point.chronic || 0,
+    hour: point.hour,
     ...point
   }));
+
+  // Format X-axis based on whether it's hourly view
+  const formatXAxis = (value: string) => {
+    if (isHourlyView) {
+      return new Date(value).toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      });
+    } else {
+      return new Date(value).toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    }
+  };
 
   if (type === "scatter") {
     return (
@@ -117,7 +136,8 @@ export const MetricChart: React.FC<MetricChartProps> = ({
             <LineChart data={chartData}>
               <XAxis 
                 dataKey="date" 
-                tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                tickFormatter={formatXAxis}
+                interval={isHourlyView ? 3 : 'preserveStartEnd'}
               />
               <YAxis domain={zones ? [0, Math.max(...zones.map(z => z.to))] : ['auto', 'auto']} />
               <ChartTooltip content={<ChartTooltipContent />} />
@@ -157,7 +177,8 @@ export const MetricChart: React.FC<MetricChartProps> = ({
               <BarChart data={chartData}>
                 <XAxis 
                   dataKey="date" 
-                  tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  tickFormatter={formatXAxis}
+                  interval={isHourlyView ? 3 : 'preserveStartEnd'}
                 />
                 <YAxis />
                 <ChartTooltip content={<ChartTooltipContent />} />
@@ -179,7 +200,8 @@ export const MetricChart: React.FC<MetricChartProps> = ({
               <BarChart data={chartData}>
                 <XAxis 
                   dataKey="date" 
-                  tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  tickFormatter={formatXAxis}
+                  interval={isHourlyView ? 3 : 'preserveStartEnd'}
                 />
                 <YAxis />
                 <ChartTooltip content={<ChartTooltipContent />} />
@@ -199,7 +221,8 @@ export const MetricChart: React.FC<MetricChartProps> = ({
             <BarChart data={chartData}>
               <XAxis 
                 dataKey="date" 
-                tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                tickFormatter={formatXAxis}
+                interval={isHourlyView ? 3 : 'preserveStartEnd'}
               />
               <YAxis />
               <ChartTooltip content={<ChartTooltipContent />} />
