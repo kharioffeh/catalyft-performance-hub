@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import DashboardPage from '../pages/Dashboard';
@@ -54,20 +55,10 @@ const AppRouter = () => {
         <Route path="workout" element={<WorkoutsPage />} />
         <Route path="kai" element={<KAIPage />} />
         <Route path="template/:id" element={<TemplateDetailPage />} />
+        <Route path="analytics-glass" element={<AnalyticsGlassPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="subscriptions" element={<SubscriptionsPage />} />
       </Route>
-      
-      <Route 
-        path="/analytics-glass" 
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <AnalyticsGlassPage />
-            </AppLayout>
-          </ProtectedRoute>
-        } 
-      />
     </Routes>
   );
 };
