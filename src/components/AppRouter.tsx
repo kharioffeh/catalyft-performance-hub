@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import DashboardPage from '../pages/Dashboard';
@@ -22,9 +21,10 @@ import ProtectedRoute from './ProtectedRoute';
 import RiskBoardPage from '../pages/CoachRiskBoard';
 import KAIPage from '../pages/KAIPage';
 import TemplateDetailPage from '@/pages/TemplateDetailPage';
+import AnalyticsGlassPage from '@/pages/AnalyticsGlassPage';
 import { useSupabaseHash } from '../hooks/useSupabaseHash';
 
-const AppRouter: React.FC = () => {
+const AppRouter = () => {
   // Handle hash-based authentication redirects - now inside Router context
   useSupabaseHash();
 
@@ -57,6 +57,17 @@ const AppRouter: React.FC = () => {
         <Route path="settings" element={<SettingsPage />} />
         <Route path="subscriptions" element={<SubscriptionsPage />} />
       </Route>
+      
+      <Route 
+        path="/analytics-glass" 
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <AnalyticsGlassPage />
+            </AppLayout>
+          </ProtectedRoute>
+        } 
+      />
     </Routes>
   );
 };

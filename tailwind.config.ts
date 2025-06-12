@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -71,7 +70,8 @@ export default {
 				'chart-purple': '#c084fc'
 			},
 			boxShadow: {
-				card: '0 2px 6px rgba(0,0,0,0.06)'
+				card: '0 2px 6px rgba(0,0,0,0.06)',
+				glass: "inset 0 30px 60px -12px rgba(50,50,93,0.25), inset 0 18px 36px -18px rgba(0,0,0,0.3)"
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
