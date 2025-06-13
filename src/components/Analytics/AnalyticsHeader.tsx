@@ -1,10 +1,8 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { PeriodSelector } from './PeriodSelector';
 import { AthleteSelector } from './AthleteSelector';
 import { Download, Filter, TrendingUp } from 'lucide-react';
-
 interface AnalyticsHeaderProps {
   displayName: string;
   isHourlyView: boolean;
@@ -14,7 +12,6 @@ interface AnalyticsHeaderProps {
   onAthleteChange: (athleteId: string) => void;
   isCoach: boolean;
 }
-
 export const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({
   displayName,
   isHourlyView,
@@ -24,16 +21,15 @@ export const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({
   onAthleteChange,
   isCoach
 }) => {
-  return (
-    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+  return <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
       <div>
         <div className="flex items-center gap-3 mb-2">
           <div className="p-2 bg-blue-100 rounded-lg">
             <TrendingUp className="w-6 h-6 text-blue-600" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Performance Analytics</h1>
+          <h1 className="text-3xl font-bold text-slate-50">Performance Analytics</h1>
         </div>
-        <p className="text-gray-600">
+        <p className="text-slate-50">
           {isCoach ? `Analyzing ${displayName}'s performance metrics` : 'Comprehensive performance insights and data trends'}
           {isHourlyView && " - 24 Hour View"}
         </p>
@@ -42,10 +38,7 @@ export const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <PeriodSelector period={period} onPeriodChange={onPeriodChange} />
         
-        <AthleteSelector
-          selectedAthleteId={selectedAthleteId}
-          onAthleteChange={onAthleteChange}
-        />
+        <AthleteSelector selectedAthleteId={selectedAthleteId} onAthleteChange={onAthleteChange} />
         
         <div className="flex gap-2">
           <Button variant="outline" size="sm" className="text-gray-600">
@@ -58,6 +51,5 @@ export const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({
           </Button>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
