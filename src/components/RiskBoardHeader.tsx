@@ -1,14 +1,11 @@
-
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, TrendingDown, TrendingUp } from 'lucide-react';
-
 export const RiskBoardHeader: React.FC = () => {
-  return (
-    <div className="flex items-center justify-between">
+  return <div className="flex items-center justify-between">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Risk Board</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-3xl font-bold text-slate-50">Risk Board</h1>
+        <p className="mt-2 text-slate-50">
           Monitor athlete injury risk and recovery status
         </p>
       </div>
@@ -26,6 +23,5 @@ export const RiskBoardHeader: React.FC = () => {
           Low Risk
         </Badge>
       </div>
-    </div>
-  );
+    </div>;
 };
