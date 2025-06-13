@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { GlassCard } from '@/components/Analytics/Glass/GlassCard';
+import { GlassCard } from '@/components/Glass/GlassCard';
 import { ReadinessLine } from '@/components/Analytics/Glass/ReadinessLine';
 import { SleepStack } from '@/components/Analytics/Glass/SleepStack';
 import { HeatMapBody } from '@/components/Analytics/Glass/HeatMapBody';
@@ -40,7 +40,7 @@ export default function AnalyticsGlassPage() {
         </div>
 
         {/* KPI Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           <GlassCard title="Readiness" value="88%" delta="+4.0" trend="up" />
           <GlassCard title="Sleep Duration" value="8.3h" delta="-0.1" trend="down" accent="sleep" />
           <GlassCard title="ACWR Ratio" value="0.9" delta="-0.4" trend="down" accent="load" />
@@ -48,7 +48,7 @@ export default function AnalyticsGlassPage() {
         </div>
 
         {/* Trend Sparklines */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <GlassCard>
             <ReadinessLine spark period={period} />
           </GlassCard>
@@ -61,7 +61,7 @@ export default function AnalyticsGlassPage() {
         </div>
 
         {/* Main Charts */}
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-2 gap-8">
           <GlassCard className="h-72">
             <ReadinessLine period={period} />
           </GlassCard>
@@ -71,7 +71,7 @@ export default function AnalyticsGlassPage() {
         </div>
 
         {/* Training Load Heat-map */}
-        <GlassCard className="lg:h-96 flex flex-col lg:flex-row gap-6">
+        <GlassCard className="lg:h-96 flex flex-col lg:flex-row gap-6 p-8">
           <HeatMapBody period={period} className="flex-1" />
           <div className="flex-1 flex items-center justify-center">
             <ACWRDial large period={period} />
@@ -79,7 +79,7 @@ export default function AnalyticsGlassPage() {
         </GlassCard>
 
         {/* ARIA insight banner */}
-        <div className="rounded-2xl px-6 py-4 bg-indigo-400/10 backdrop-blur border border-indigo-300/20 shadow-inner">
+        <GlassCard tone="flat" className="px-6 py-4 bg-indigo-400/10 backdrop-blur border border-indigo-300/20 shadow-inner">
           <h3 className="font-semibold mb-1 flex items-center gap-2 text-white">
             <TrendingUp className="h-4 w-4 text-indigo-300" />
             AI Performance Insights
@@ -87,7 +87,7 @@ export default function AnalyticsGlassPage() {
           <div className="text-white/90">
             <ARIAInsight metric="overview" period={parseInt(period.replace(/\D/g, ''))} />
           </div>
-        </div>
+        </GlassCard>
       </div>
     </div>
   );

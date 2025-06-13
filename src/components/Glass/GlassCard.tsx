@@ -13,6 +13,7 @@ interface GlassCardProps {
   className?: string;
   onClick?: () => void;
   shadowLevel?: 'sm' | 'md' | 'lg' | 'xl';
+  tone?: "glass" | "flat";
 }
 
 export const GlassCard: React.FC<GlassCardProps> = ({
@@ -24,7 +25,8 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   children,
   className,
   onClick,
-  shadowLevel = 'md'
+  shadowLevel = 'md',
+  tone = 'glass'
 }) => {
   const getAccentColor = () => {
     switch (accent) {
@@ -33,26 +35,23 @@ export const GlassCard: React.FC<GlassCardProps> = ({
       case 'strain': return 'border-orange-400/30 hover:border-orange-400/50';
       case 'primary': return 'border-indigo-400/30 hover:border-indigo-400/50';
       case 'secondary': return 'border-emerald-400/30 hover:border-emerald-400/50';
-      default: return 'border-white/20 hover:border-white/30';
+      default: return 'border-white/10 hover:border-white/20';
     }
   };
 
-  const getShadow = () => {
-    switch (shadowLevel) {
-      case 'sm': return 'shadow-lg';
-      case 'md': return 'shadow-xl';
-      case 'lg': return 'shadow-2xl';
-      case 'xl': return 'shadow-2xl drop-shadow-lg';
-      default: return 'shadow-xl';
+  const getToneStyles = () => {
+    if (tone === 'flat') {
+      return 'bg-transparent border-transparent shadow-none';
     }
+    return 'bg-slate-900/40 backdrop-blur-lg border shadow-glass hover:bg-slate-900/50';
   };
 
   return (
     <div 
       className={cn(
-        "rounded-2xl bg-white/5 backdrop-blur-md border transition-all duration-300 p-5 hover:bg-white/10 cursor-pointer",
-        getAccentColor(),
-        getShadow(),
+        "rounded-2xl transition-all duration-300 p-5 cursor-pointer",
+        getToneStyles(),
+        tone !== 'flat' && getAccentColor(),
         onClick && "hover:scale-[1.02] active:scale-[0.98]",
         className
       )}
