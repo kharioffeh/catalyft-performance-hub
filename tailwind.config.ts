@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -71,7 +72,17 @@ export default {
 			},
 			boxShadow: {
 				card: '0 2px 6px rgba(0,0,0,0.06)',
-				glass: "inset 0 30px 60px -12px rgba(50,50,93,0.25), inset 0 18px 36px -18px rgba(0,0,0,0.3)"
+				glass: "inset 0 30px 60px -12px rgba(50,50,93,0.25), inset 0 18px 36px -18px rgba(0,0,0,0.3)",
+				'glass-sm': '0 2px 8px rgba(0,0,0,0.1), inset 0 1px 2px rgba(255,255,255,0.1)',
+				'glass-md': '0 4px 16px rgba(0,0,0,0.15), inset 0 1px 3px rgba(255,255,255,0.1)',
+				'glass-lg': '0 8px 32px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.1)',
+				'glass-xl': '0 16px 64px rgba(0,0,0,0.25), inset 0 2px 6px rgba(255,255,255,0.1)'
+			},
+			backdropBlur: {
+				'xs': '2px',
+				'glass': '12px',
+				'glass-md': '16px',
+				'glass-lg': '24px'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

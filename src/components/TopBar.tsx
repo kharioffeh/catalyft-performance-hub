@@ -11,9 +11,9 @@ export const TopBar: React.FC = () => {
   const isMobile = useIsMobile();
 
   return (
-    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6">
+    <header className="h-16 bg-white/10 backdrop-blur-md border-b border-white/20 shadow-lg flex items-center justify-between px-4 md:px-6">
       <div className="flex items-center space-x-4">
-        <h1 className="text-lg md:text-xl font-semibold text-gray-900">
+        <h1 className="text-lg md:text-xl font-semibold text-white">
           Catalyft AI
         </h1>
         {/* Show readiness badge on desktop only */}
@@ -22,12 +22,12 @@ export const TopBar: React.FC = () => {
       
       <div className="flex items-center space-x-2 md:space-x-4">
         {!isMobile && (
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-white/80">
             {profile?.full_name || 'User'}
           </span>
         )}
         <Avatar className="h-8 w-8 md:h-10 md:w-10">
-          <AvatarFallback className="text-sm">
+          <AvatarFallback className="bg-white/20 text-white backdrop-blur-md">
             {profile?.full_name?.charAt(0) || 'U'}
           </AvatarFallback>
         </Avatar>
@@ -35,7 +35,7 @@ export const TopBar: React.FC = () => {
           variant="outline" 
           onClick={signOut} 
           size="sm"
-          className="min-h-[44px] md:min-h-auto active:opacity-80"
+          className="min-h-[44px] md:min-h-auto active:opacity-80 bg-white/20 hover:bg-white/30 border-white/30 text-white backdrop-blur-md"
         >
           Sign Out
         </Button>

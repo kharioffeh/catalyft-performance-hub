@@ -9,6 +9,7 @@ import { TodaysSchedule } from '@/components/Dashboard/TodaysSchedule';
 import { QuickActions } from '@/components/Dashboard/QuickActions';
 import { SoloDashboard } from '@/components/Dashboard/SoloDashboard';
 import { CoachedDashboard } from '@/components/Dashboard/CoachedDashboard';
+import { GlassContainer } from '@/components/Glass/GlassContainer';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useDashboardInsights } from '@/hooks/useDashboardInsights';
 import { useAthleteType } from '@/hooks/useAthleteType';
@@ -22,7 +23,7 @@ const Dashboard: React.FC = () => {
   if (isLoadingAthleteType) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/50"></div>
       </div>
     );
   }
@@ -43,8 +44,12 @@ const Dashboard: React.FC = () => {
         <TodaysSchedule todaySessions={todaySessions} />
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <AriaSummary />
-          <InjuryForecastCard />
+          <GlassContainer>
+            <AriaSummary />
+          </GlassContainer>
+          <GlassContainer>
+            <InjuryForecastCard />
+          </GlassContainer>
         </div>
 
         <QuickActions userRole="coach" />
@@ -93,8 +98,12 @@ const Dashboard: React.FC = () => {
       <TodaysSchedule todaySessions={todaySessions} />
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <AriaSummary />
-        <InjuryForecastCard />
+        <GlassContainer>
+          <AriaSummary />
+        </GlassContainer>
+        <GlassContainer>
+          <InjuryForecastCard />
+        </GlassContainer>
       </div>
 
       <QuickActions userRole={profile?.role} />

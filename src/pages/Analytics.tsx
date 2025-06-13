@@ -6,10 +6,11 @@ import { useAthletes } from '@/hooks/useAthletes';
 import { useMetricData } from '@/hooks/useMetricData';
 import { AnalyticsHeader } from '@/components/Analytics/AnalyticsHeader';
 import { AnalyticsKPICards } from '@/components/Analytics/AnalyticsKPICards';
-import { AnalyticsMiniSparks } from '@/components/Analytics/AnalyticsMiniSparks';
+import { Analytic  sMiniSparks } from '@/components/Analytics/AnalyticsMiniSparks';
 import { AnalyticsCharts } from '@/components/Analytics/AnalyticsCharts';
 import { AnalyticsDataTables } from '@/components/Analytics/AnalyticsDataTables';
 import { AnalyticsInsights } from '@/components/Analytics/AnalyticsInsights';
+import { GlassContainer } from '@/components/Glass/GlassContainer';
 
 const Analytics: React.FC = () => {
   const { profile } = useAuth();
@@ -45,7 +46,7 @@ const Analytics: React.FC = () => {
   if (!selectedAthleteId) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/50"></div>
       </div>
     );
   }
@@ -89,15 +90,17 @@ const Analytics: React.FC = () => {
 
   return (
     <div className="space-y-6 p-6 max-w-7xl mx-auto">
-      <AnalyticsHeader
-        displayName={displayName}
-        isHourlyView={isHourlyView}
-        period={period}
-        onPeriodChange={setPeriod}
-        selectedAthleteId={selectedAthleteId}
-        onAthleteChange={setSelectedAthleteId}
-        isCoach={profile?.role === 'coach'}
-      />
+      <GlassContainer padding="md">
+        <AnalyticsHeader
+          displayName={displayName}
+          isHourlyView={isHourlyView}
+          period={period}
+          onPeriodChange={setPeriod}
+          selectedAthleteId={selectedAthleteId}
+          onAthleteChange={setSelectedAthleteId}
+          isCoach={profile?.role === 'coach'}
+        />
+      </GlassContainer>
 
       <AnalyticsKPICards
         readinessData={readinessData}
@@ -113,26 +116,32 @@ const Analytics: React.FC = () => {
         isHourlyView={isHourlyView}
       />
 
-      <AnalyticsCharts
-        readinessChartData={readinessChartData}
-        sleepChartData={sleepChartData}
-        loadChartData={loadChartData}
-        loadSecondaryData={loadSecondaryData}
-        readinessZones={readinessZones}
-        loadZones={loadData?.zones || []}
-        isHourlyView={isHourlyView}
-      />
+      <GlassContainer padding="lg">
+        <AnalyticsCharts
+          readinessChartData={readinessChartData}
+          sleepChartData={sleepChartData}
+          loadChartData={loadChartData}
+          loadSecondaryData={loadSecondaryData}
+          readinessZones={readinessZones}
+          loadZones={loadData?.zones || []}
+          isHourlyView={isHourlyView}
+        />
+      </GlassContainer>
 
-      <AnalyticsDataTables
-        readinessData={readinessData}
-        sleepData={sleepData}
-        isHourlyView={isHourlyView}
-      />
+      <GlassContainer padding="lg">
+        <AnalyticsDataTables
+          readinessData={readinessData}
+          sleepData={sleepData}
+          isHourlyView={isHourlyView}
+        />
+      </GlassContainer>
 
-      <AnalyticsInsights
-        isHourlyView={isHourlyView}
-        period={period}
-      />
+      <GlassContainer padding="lg">
+        <AnalyticsInsights
+          isHourlyView={isHourlyView}
+          period={period}
+        />
+      </GlassContainer>
     </div>
   );
 };
