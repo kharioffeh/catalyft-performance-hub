@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,9 +8,10 @@ import { AthleteDialogs } from '@/components/Athletes/AthleteDialogs';
 import { AthletesTable } from '@/components/Athletes/AthletesTable';
 import { InviteAthleteModal } from '@/components/Athletes/InviteAthleteModal';
 import { useAthletesRealtime } from '@/hooks/useAthletesRealtime';
-
 const Athletes: React.FC = () => {
-  const { profile } = useAuth();
+  const {
+    profile
+  } = useAuth();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const {
     athletes,
@@ -35,8 +35,7 @@ const Athletes: React.FC = () => {
 
   // Check if user has the right role
   if (profile?.role !== 'coach') {
-    return (
-      <div className="space-y-6">
+    return <div className="space-y-6">
         <h1 className="text-3xl font-bold text-gray-900">Access Denied</h1>
         <Card>
           <CardContent className="pt-6">
@@ -45,15 +44,13 @@ const Athletes: React.FC = () => {
             </p>
           </CardContent>
         </Card>
-      </div>
-    );
+      </div>;
   }
 
   // Show error if coach lookup failed
   if (coachError) {
     console.error('Coach error in Athletes page:', coachError);
-    return (
-      <div className="space-y-6">
+    return <div className="space-y-6">
         <h1 className="text-3xl font-bold text-gray-900">Athletes</h1>
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
@@ -68,14 +65,12 @@ const Athletes: React.FC = () => {
             </div>
           </AlertDescription>
         </Alert>
-      </div>
-    );
+      </div>;
   }
 
   // Show loading state while fetching coach data
   if (isLoading) {
-    return (
-      <div className="space-y-6">
+    return <div className="space-y-6">
         <h1 className="text-3xl font-bold text-gray-900">Athletes</h1>
         <Card>
           <CardContent className="pt-6">
@@ -85,14 +80,12 @@ const Athletes: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
-    );
+      </div>;
   }
 
   // Show message if no coach record found
   if (!coachData) {
-    return (
-      <div className="space-y-6">
+    return <div className="space-y-6">
         <h1 className="text-3xl font-bold text-gray-900">Athletes</h1>
         <Alert>
           <AlertCircle className="h-4 w-4" />
@@ -107,34 +100,17 @@ const Athletes: React.FC = () => {
             </div>
           </AlertDescription>
         </Alert>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Athletes</h1>
+        <h1 className="text-3xl font-bold text-slate-50">Athletes</h1>
         <div className="flex gap-2">
-          <Button 
-            onClick={() => setIsInviteModalOpen(true)}
-            variant="outline"
-          >
+          <Button onClick={() => setIsInviteModalOpen(true)} variant="outline">
             <UserPlus className="w-4 h-4 mr-2" />
             Invite Athlete
           </Button>
-          <AthleteDialogs
-            isAddDialogOpen={isAddDialogOpen}
-            setIsAddDialogOpen={setIsAddDialogOpen}
-            editingAthlete={editingAthlete}
-            setEditingAthlete={setEditingAthlete}
-            formData={formData}
-            setFormData={setFormData}
-            handleSubmit={handleSubmit}
-            resetForm={resetForm}
-            addAthleteMutation={addAthleteMutation}
-            updateAthleteMutation={updateAthleteMutation}
-          />
+          <AthleteDialogs isAddDialogOpen={isAddDialogOpen} setIsAddDialogOpen={setIsAddDialogOpen} editingAthlete={editingAthlete} setEditingAthlete={setEditingAthlete} formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} resetForm={resetForm} addAthleteMutation={addAthleteMutation} updateAthleteMutation={updateAthleteMutation} />
         </div>
       </div>
 
@@ -146,24 +122,13 @@ const Athletes: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <AthletesTable
-            athletes={athletes}
-            isLoading={false}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
+          <AthletesTable athletes={athletes} isLoading={false} onEdit={handleEdit} onDelete={handleDelete} />
         </CardContent>
       </Card>
 
-      <InviteAthleteModal
-        isOpen={isInviteModalOpen}
-        onClose={() => setIsInviteModalOpen(false)}
-        onSuccess={() => {
-          refetch();
-        }}
-      />
-    </div>
-  );
+      <InviteAthleteModal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} onSuccess={() => {
+      refetch();
+    }} />
+    </div>;
 };
-
 export default Athletes;
