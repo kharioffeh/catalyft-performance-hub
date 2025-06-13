@@ -6,7 +6,7 @@ import { useAthletes } from '@/hooks/useAthletes';
 import { useMetricData } from '@/hooks/useMetricData';
 import { AnalyticsHeader } from '@/components/Analytics/AnalyticsHeader';
 import { AnalyticsKPICards } from '@/components/Analytics/AnalyticsKPICards';
-import { Analytic  sMiniSparks } from '@/components/Analytics/AnalyticsMiniSparks';
+import { AnalyticsMiniSparks } from '@/components/Analytics/AnalyticsMiniSparks';
 import { AnalyticsCharts } from '@/components/Analytics/AnalyticsCharts';
 import { AnalyticsDataTables } from '@/components/Analytics/AnalyticsDataTables';
 import { AnalyticsInsights } from '@/components/Analytics/AnalyticsInsights';
