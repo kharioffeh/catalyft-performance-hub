@@ -59,6 +59,30 @@
   box-shadow: 0 0 0 2px rgba(255,255,255,0.1);
 }
 
+/* ---- Glass-ify Day Header Row (Sun-Sat) ---- */
+.fc .fc-scrollgrid-section-header {
+  @apply bg-white/5 backdrop-blur-md;
+  border-radius: 18px 18px 0 0;
+}
+
+.fc .fc-col-header-cell {
+  @apply bg-white/10 border border-white/10 backdrop-blur-md rounded-lg mx-0.5 my-1;
+  transition: background 0.16s;
+}
+.fc .fc-col-header-cell-cushion {
+  @apply text-xs md:text-sm font-semibold text-white/70 px-0.5 py-2 block text-center tracking-wide;
+  letter-spacing: 0.05em;
+}
+
+.fc .fc-col-header-cell:hover {
+  background: rgba(255,255,255,0.14);
+}
+
+/* Remove bottom borders from day headers */
+.fc .fc-scrollgrid-section-header th {
+  border-bottom: none !important;
+}
+
 /* ---- Day cell frame ---- */
 .fc-daygrid-day-frame {
   border-radius: 12px;
