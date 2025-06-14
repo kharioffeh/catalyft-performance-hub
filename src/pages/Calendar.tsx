@@ -2,20 +2,70 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSessionsData } from '@/hooks/useSessionsData';
-import { TrainingCalendar } from '@/components/TrainingCalendar';
-import CalendarLegend from '@/components/CalendarLegend';
-import { CalendarStats } from '@/components/CalendarStats';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
 import { GlassContainer } from '@/components/Glass/GlassContainer';
 import { GlassButton } from '@/components/Glass/GlassButton';
 import { CreateSessionDialog } from '@/components/CreateSessionDialog';
+import DayDrawer from '@/components/DayDrawer';
+import LegendBar from '@/components/LegendBar';
 import { Plus, Calendar as CalendarIcon } from 'lucide-react';
 import { useIsMobile } from '@/hooks/useBreakpoint';
+import clsx from 'clsx';
+import { getEventColor } from '@/utils/calendarUtils';
 
 const Calendar: React.FC = () => {
   const { profile } = useAuth();
   const { sessions, isLoading, queryClient } = useSessionsData(profile);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const isMobile = useIsMobile();
+
+  const pillClasses = (type: string) => {
+    const baseClasses = "inline-flex items-center gap-1 px-1.5 py-0.5 border rounded-full truncate text-[11px] font-medium";
+    
+    switch (type) {
+      case 'strength':
+        return clsx(baseClasses, "bg-green-500/10 border-green-500/35 text-green-400");
+      case 'technical':
+        return clsx(baseClasses, "bg-blue-500/10 border-blue-500/35 text-blue-400");
+      case 'recovery':
+        return clsx(baseClasses, "bg-yellow-500/10 border-yellow-500/35 text-yellow-400");
+      default:
+        return clsx(baseClasses, "bg-gray-500/10 border-gray-500/35 text-gray-400");
+    }
+  };
+
+  const calendarEvents = sessions.map((session) => ({
+    id: session.id,
+    title: session.athletes?.name || 'Unknown Athlete',
+    start: session.start_ts,
+    end: session.end_ts,
+    backgroundColor: 'transparent',
+    borderColor: 'transparent',
+    textColor: 'transparent',
+    extendedProps: {
+      sessionType: session.type,
+      athleteName: session.athletes?.name,
+      notes: session.notes,
+      session: session,
+      type: session.type,
+    },
+  }));
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4 md:space-y-6">
+        <GlassContainer>
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-white/10 rounded w-1/3"></div>
+            <div className="h-64 bg-white/10 rounded"></div>
+          </div>
+        </GlassContainer>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -38,28 +88,56 @@ const Calendar: React.FC = () => {
         </div>
       </GlassContainer>
 
-      {profile?.role === 'coach' && !isLoading && (
-        <GlassContainer>
-          <CalendarStats sessions={sessions} />
-        </GlassContainer>
-      )}
-
       <GlassContainer>
-        <CalendarLegend />
+        <LegendBar />
       </GlassContainer>
 
       <GlassContainer>
-        <div className="mb-4">
-          <h2 className="text-lg md:text-xl font-semibold text-white">Training Schedule</h2>
-        </div>
-        <div className={isMobile ? "h-[240px]" : "h-[360px]"}>
-          <TrainingCalendar 
-            sessions={sessions} 
-            isLoading={isLoading}
-            queryClient={queryClient}
-            isMobile={isMobile}
-          />
-        </div>
+        <FullCalendar
+          plugins={[dayGridPlugin, interactionPlugin]}
+          initialView="dayGridMonth"
+          height="auto"
+          headerToolbar={{
+            left: 'prev,next today',
+            center: 'title',
+            right: ''
+          }}
+          events={calendarEvents}
+          dayCellContent={(arg) => {
+            const dayEvents = calendarEvents.filter(event => {
+              const eventDate = new Date(event.start);
+              return eventDate.toDateString() === arg.date.toDateString();
+            });
+
+            return (
+              <div 
+                className="flex flex-col h-full min-h-[120px] bg-white/5 backdrop-blur-sm rounded-xl p-2 cursor-pointer border border-white/10 hover:bg-white/10 transition-all duration-200"
+                onClick={() => setSelectedDate(arg.date)}
+              >
+                <span className="text-xs ml-auto text-white/80 font-medium mb-2">
+                  {arg.dayNumberText}
+                </span>
+                <div className="flex flex-col gap-1 flex-1">
+                  {dayEvents.slice(0, 3).map(event => (
+                    <span 
+                      key={event.id}
+                      className={pillClasses(event.extendedProps.type)}
+                    >
+                      {event.title}
+                    </span>
+                  ))}
+                  {dayEvents.length > 3 && (
+                    <span className="text-[10px] text-white/50 mt-1">
+                      + {dayEvents.length - 3} more
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          }}
+          dayMaxEvents={false}
+          eventDisplay="none"
+        />
       </GlassContainer>
 
       <CreateSessionDialog 
@@ -67,6 +145,14 @@ const Calendar: React.FC = () => {
         onOpenChange={setIsCreateDialogOpen}
         queryClient={queryClient}
       />
+
+      {selectedDate && (
+        <DayDrawer 
+          date={selectedDate} 
+          sessions={sessions}
+          onClose={() => setSelectedDate(null)} 
+        />
+      )}
     </div>
   );
 };
