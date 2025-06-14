@@ -61,24 +61,38 @@
 
 /* ---- Glass-ify Day Header Row (Sun-Sat) ---- */
 .fc .fc-scrollgrid-section-header {
-  @apply bg-white/5 backdrop-blur-md;
+  /* Use inherited or transparent background for perfect blend */
+  background: inherit !important;
   border-radius: 18px 18px 0 0;
+  /* Retain backdrop blur for overall glass effect */
+  backdrop-filter: blur(6px);
 }
 
+/* Remove cell backgrounds & borders from header cells */
 .fc .fc-col-header-cell {
-  @apply bg-white/10 border border-white/10 backdrop-blur-md rounded-lg mx-0.5 my-1;
-  transition: background 0.16s;
+  background: inherit !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  transition: none;
 }
+
+/* Day name text: match page headings and center text */
 .fc .fc-col-header-cell-cushion {
-  @apply text-xs md:text-sm font-semibold text-white/70 px-0.5 py-2 block text-center tracking-wide;
+  @apply text-xs md:text-sm font-semibold text-slate-50 px-1 py-2 block text-center tracking-wide;
   letter-spacing: 0.05em;
 }
 
+/* Remove hover effects from calendar header */
 .fc .fc-col-header-cell:hover {
-  background: rgba(255,255,255,0.14);
+  background: inherit !important;
 }
 
-/* Remove bottom borders from day headers */
+/* Remove bottom border from header section */
 .fc .fc-scrollgrid-section-header th {
   border-bottom: none !important;
 }
