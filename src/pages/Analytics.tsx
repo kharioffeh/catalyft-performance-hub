@@ -1,149 +1,110 @@
 
-import React, { useState, useEffect } from 'react';
-import { useEnhancedMetricsWithAthlete } from '@/hooks/useEnhancedMetricsWithAthlete';
-import { useAuth } from '@/contexts/AuthContext';
-import { useAthletes } from '@/hooks/useAthletes';
-import { useMetricData } from '@/hooks/useMetricData';
-import { AnalyticsHeader } from '@/components/Analytics/AnalyticsHeader';
-import { AnalyticsKPICards } from '@/components/Analytics/AnalyticsKPICards';
-import { AnalyticsMiniSparks } from '@/components/Analytics/AnalyticsMiniSparks';
-import { AnalyticsCharts } from '@/components/Analytics/AnalyticsCharts';
-import { AnalyticsDataTables } from '@/components/Analytics/AnalyticsDataTables';
-import { AnalyticsInsights } from '@/components/Analytics/AnalyticsInsights';
-import { GlassContainer } from '@/components/Glass/GlassContainer';
+import React, { useState } from 'react';
+import { GlassCard } from '@/components/Glass/GlassCard';
+import { ReadinessLine } from '@/components/Analytics/Glass/ReadinessLine';
+import { SleepStack } from '@/components/Analytics/Glass/SleepStack';
+import { HeatMapBody } from '@/components/Analytics/Glass/HeatMapBody';
+import { ACWRDial } from '@/components/Analytics/Glass/ACWRDial';
+import { ARIAInsight } from '@/components/Analytics/ARIAInsight';
+import { AthleteSelector } from '@/components/Analytics/AthleteSelector';
+import { TrendingUp, Download } from 'lucide-react';
 
-const Analytics: React.FC = () => {
-  const { profile } = useAuth();
-  const { athletes } = useAthletes();
-  
-  // State for selected athlete and period
+const AnalyticsPage: React.FC = () => {
+  const [period, setPeriod] = useState<"24h" | "7d" | "30d" | "90d">("30d");
   const [selectedAthleteId, setSelectedAthleteId] = useState<string>('');
-  const [period, setPeriod] = useState<1 | 7 | 30 | 90>(30);
-
-  // Set default selected athlete when data loads
-  useEffect(() => {
-    if (profile?.role === 'coach' && athletes.length > 0 && !selectedAthleteId) {
-      setSelectedAthleteId(athletes[0].id);
-    } else if (profile?.role !== 'coach' && profile?.id && !selectedAthleteId) {
-      setSelectedAthleteId(profile.id);
-    }
-  }, [profile, athletes, selectedAthleteId]);
-
-  // Fetch enhanced metrics
-  const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetricsWithAthlete(selectedAthleteId);
   
-  // Fetch metric data with period selector
-  const { data: readinessData } = useMetricData("readiness", period);
-  const { data: sleepData } = useMetricData("sleep", period);
-  const { data: loadData } = useMetricData("load", period);
-
-  // Get selected athlete name for display
-  const selectedAthlete = athletes.find(a => a.id === selectedAthleteId);
-  const displayName = profile?.role === 'coach' ? selectedAthlete?.name || 'Unknown Athlete' : 'My Analytics';
-
-  const isHourlyView = period === 1;
-
-  if (!selectedAthleteId) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/50"></div>
-      </div>
-    );
-  }
-
-  const readinessChartData = readinessData?.series?.map(item => ({
-    x: item.x,
-    y: item.y,
-    hour: item.hour
-  })) || [];
-
-  const sleepChartData = sleepData?.series?.map(item => ({
-    x: item.x,
-    y: item.y,
-    deep: item.deep || 0,
-    light: item.light || 0,
-    rem: item.rem || 0,
-    hour: item.hour
-  })) || [];
-
-  const loadChartData = loadData?.series?.map(item => ({
-    x: item.x,
-    y: item.y,
-    hour: item.hour
-  })) || [];
-
-  // Fix the loadSecondaryData to include y property for compatibility
-  const loadSecondaryData = loadData?.secondary?.map(item => ({
-    x: item.x,
-    y: (item.acute || 0) + (item.chronic || 0), // Combined value for y
-    acute: item.acute || 0,
-    chronic: item.chronic || 0,
-    hour: item.hour
-  })) || [];
-
-  const readinessZones = [
-    { from: 0, to: 50, color: "#ef4444", label: "Poor" },
-    { from: 50, to: 70, color: "#f59e0b", label: "Fair" },
-    { from: 70, to: 85, color: "#10b981", label: "Good" },
-    { from: 85, to: 100, color: "#059669", label: "Excellent" }
-  ];
-
   return (
-    <div className="space-y-6 p-6 max-w-7xl mx-auto">
-      <GlassContainer padding="md">
-        <AnalyticsHeader
-          displayName={displayName}
-          isHourlyView={isHourlyView}
-          period={period}
-          onPeriodChange={setPeriod}
-          selectedAthleteId={selectedAthleteId}
-          onAthleteChange={setSelectedAthleteId}
-          isCoach={profile?.role === 'coach'}
-        />
-      </GlassContainer>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-white mb-2">Performance Analytics</h1>
+          <p className="text-white/70">Comprehensive performance insights and data trends</p>
+        </div>
 
-      <AnalyticsKPICards
-        readinessData={readinessData}
-        sleepData={sleepData}
-        loadData={loadData}
-        latestStrain={latestStrain}
-      />
+        {/* Controls */}
+        <div className="flex flex-wrap items-center justify-between mb-6 gap-3">
+          <AthleteSelector 
+            selectedAthleteId={selectedAthleteId}
+            onAthleteChange={setSelectedAthleteId}
+          />
+          <button className="flex items-center gap-2 text-xs px-3 py-2 border border-white/10 rounded-lg hover:bg-white/5 transition text-white">
+            <Download className="h-4 w-4" />
+            Export
+          </button>
+        </div>
 
-      <AnalyticsMiniSparks
-        readinessData={readinessData}
-        sleepData={sleepData}
-        loadData={loadData}
-        isHourlyView={isHourlyView}
-      />
+        {/* Period Selector */}
+        <div className="flex justify-center mb-6">
+          <div className="flex bg-white/10 backdrop-blur rounded-xl p-1">
+            {(["24h", "7d", "30d", "90d"] as const).map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  period === p 
+                    ? 'bg-white/20 text-white shadow-lg' 
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+        </div>
 
-      <GlassContainer padding="lg">
-        <AnalyticsCharts
-          readinessChartData={readinessChartData}
-          sleepChartData={sleepChartData}
-          loadChartData={loadChartData}
-          loadSecondaryData={loadSecondaryData}
-          readinessZones={readinessZones}
-          loadZones={loadData?.zones || []}
-          isHourlyView={isHourlyView}
-        />
-      </GlassContainer>
+        {/* KPI Row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+          <GlassCard title="Readiness" value="88%" delta="+4.0" trend="up" />
+          <GlassCard title="Sleep Duration" value="8.3h" delta="-0.1" trend="down" accent="sleep" />
+          <GlassCard title="ACWR Ratio" value="0.9" delta="-0.4" trend="down" accent="load" />
+          <GlassCard title="Latest Strain" value="20.6" delta="-2.1" trend="down" accent="strain" />
+        </div>
 
-      <GlassContainer padding="lg">
-        <AnalyticsDataTables
-          readinessData={readinessData}
-          sleepData={sleepData}
-          isHourlyView={isHourlyView}
-        />
-      </GlassContainer>
+        {/* Trend Sparklines */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <GlassCard>
+            <ReadinessLine spark period={period} />
+          </GlassCard>
+          <GlassCard>
+            <SleepStack spark period={period} />
+          </GlassCard>
+          <GlassCard>
+            <ACWRDial mini period={period} />
+          </GlassCard>
+        </div>
 
-      <GlassContainer padding="lg">
-        <AnalyticsInsights
-          isHourlyView={isHourlyView}
-          period={period}
-        />
-      </GlassContainer>
+        {/* Main Charts */}
+        <div className="grid lg:grid-cols-2 gap-8">
+          <GlassCard className="h-72">
+            <ReadinessLine period={period} />
+          </GlassCard>
+          <GlassCard className="h-72">
+            <SleepStack period={period} />
+          </GlassCard>
+        </div>
+
+        {/* Training Load Heat-map */}
+        <GlassCard className="lg:h-96 flex flex-col lg:flex-row gap-6 p-8">
+          <HeatMapBody period={period} className="flex-1" />
+          <div className="flex-1 flex items-center justify-center">
+            <ACWRDial large period={period} />
+          </div>
+        </GlassCard>
+
+        {/* ARIA insight banner */}
+        <GlassCard tone="flat" className="px-6 py-4 bg-indigo-400/10 backdrop-blur border border-indigo-300/20 shadow-inner">
+          <h3 className="font-semibold mb-1 flex items-center gap-2 text-white">
+            <TrendingUp className="h-4 w-4 text-indigo-300" />
+            AI Performance Insights
+          </h3>
+          <div className="text-white/90">
+            <ARIAInsight metric="overview" period={parseInt(period.replace(/\D/g, ''))} />
+          </div>
+        </GlassCard>
+      </div>
     </div>
   );
 };
 
-export default Analytics;
+export default AnalyticsPage;

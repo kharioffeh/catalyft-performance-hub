@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import DashboardPage from '../pages/Dashboard';
@@ -22,7 +21,6 @@ import ProtectedRoute from './ProtectedRoute';
 import RiskBoardPage from '../pages/CoachRiskBoard';
 import KAIPage from '../pages/KAIPage';
 import TemplateDetailPage from '@/pages/TemplateDetailPage';
-import AnalyticsGlassPage from '@/pages/AnalyticsGlassPage';
 import { useSupabaseHash } from '../hooks/useSupabaseHash';
 
 const AppRouter = () => {
@@ -55,7 +53,6 @@ const AppRouter = () => {
         <Route path="workout" element={<WorkoutsPage />} />
         <Route path="kai" element={<KAIPage />} />
         <Route path="template/:id" element={<TemplateDetailPage />} />
-        <Route path="analytics-glass" element={<AnalyticsGlassPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="subscriptions" element={<SubscriptionsPage />} />
       </Route>
