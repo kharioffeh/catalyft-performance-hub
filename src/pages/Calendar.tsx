@@ -32,6 +32,10 @@ const Calendar: React.FC = () => {
         return clsx(baseClasses, "bg-blue-500/10 border-blue-500/35 text-blue-400");
       case 'recovery':
         return clsx(baseClasses, "bg-pink-500/10 border-pink-500/35 text-pink-400");
+      case 'conditioning':
+        return clsx(baseClasses, "bg-orange-500/10 border-orange-500/35 text-orange-400");
+      case 'assessment':
+        return clsx(baseClasses, "bg-purple-500/10 border-purple-500/35 text-purple-400");
       default:
         return clsx(baseClasses, "bg-gray-500/10 border-gray-500/35 text-gray-400");
     }

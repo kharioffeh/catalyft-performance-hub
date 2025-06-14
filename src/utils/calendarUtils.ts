@@ -11,6 +11,10 @@ export const getEventColor = (type: string) => {
       return '#5BAFFF';
     case 'recovery':
       return '#EC4899'; // Tailwind pink-500
+    case 'conditioning':
+      return '#FB923C'; // Tailwind orange-400
+    case 'assessment':
+      return '#A855F7'; // Tailwind purple-500
     default:
       return '#6B7280';
   }
