@@ -104,10 +104,10 @@ export const CreateSessionDialog: React.FC<CreateSessionDialogProps> = ({
         return;
       }
 
-      // use new createSession helper
+      // use new createSession helper - FIX: send athlete_uuid not athlete_id
       const { createSession } = await import("@/lib/api/sessions");
       await createSession({
-        athlete_id: formData.athlete_id,
+        athlete_uuid: formData.athlete_id,   // <- Corrected key
         type: formData.type,
         start_ts: startDateTime.toISOString(),
         end_ts: endDateTime.toISOString(),
