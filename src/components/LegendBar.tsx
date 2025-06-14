@@ -13,7 +13,7 @@ const LegendBar: React.FC = () => {
     <div className="flex gap-6 mb-2">
       {legendItem("bg-green-400", "Strength")}
       {legendItem("bg-blue-400", "Technical")}
-      {legendItem("bg-yellow-400", "Recovery")}
+      {legendItem("bg-pink-400", "Recovery")}
     </div>
   );
 };

@@ -10,7 +10,7 @@ export const getEventColor = (type: string) => {
     case 'technical':
       return '#5BAFFF';
     case 'recovery':
-      return '#FFCB5B';
+      return '#EC4899'; // Tailwind pink-500
     default:
       return '#6B7280';
   }
