@@ -14,6 +14,7 @@ import { Plus, Calendar as CalendarIcon } from 'lucide-react';
 import { useIsMobile } from '@/hooks/useBreakpoint';
 import clsx from 'clsx';
 import { getEventColor } from '@/utils/calendarUtils';
+import '@/styles/fullcalendar-glass.css';
 
 const Calendar: React.FC = () => {
   const { profile } = useAuth();
@@ -92,7 +93,7 @@ const Calendar: React.FC = () => {
         <LegendBar />
       </GlassContainer>
 
-      <GlassContainer>
+      <div className="glass-calendar">
         <FullCalendar
           plugins={[dayGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
@@ -103,6 +104,7 @@ const Calendar: React.FC = () => {
             right: ''
           }}
           events={calendarEvents}
+          dayCellClassNames={() => "p-1.5"}
           dayCellContent={(arg) => {
             const dayEvents = calendarEvents.filter(event => {
               const eventDate = new Date(event.start);
@@ -138,7 +140,7 @@ const Calendar: React.FC = () => {
           dayMaxEvents={false}
           eventDisplay="none"
         />
-      </GlassContainer>
+      </div>
 
       <CreateSessionDialog 
         open={isCreateDialogOpen}

@@ -1,0 +1,36 @@
+
+/* ---- Calendar wrapper ---- */
+.glass-calendar {
+  @apply rounded-2xl bg-white/5 backdrop-blur border border-white/10 p-1;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+}
+
+/* ---- Remove default grid borders ---- */
+.fc-theme-standard .fc-scrollgrid,
+.fc-theme-standard td, 
+.fc-theme-standard th { 
+  border: none!important; 
+}
+
+/* ---- Day cell frame ---- */
+.fc-daygrid-day-frame {
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.03);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+  transition: background .15s;
+}
+
+.fc-daygrid-day-frame:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+/* ---- Date number ---- */
+.fc-daygrid-day-number {
+  @apply text-[11px] pr-1 pt-1 text-white/60;
+}
+
+/* ---- Event pills already customised in React, remove default bg ---- */
+.fc-daygrid-event { 
+  background: transparent!important; 
+}
