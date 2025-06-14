@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSessionsData } from '@/hooks/useSessionsData';
@@ -99,9 +98,9 @@ const Calendar: React.FC = () => {
           initialView="dayGridMonth"
           height="auto"
           headerToolbar={{
-            left: 'prev,next today',
+            left: 'prev,next',
             center: 'title',
-            right: ''
+            right: 'today'
           }}
           events={calendarEvents}
           dayCellClassNames={() => "p-1.5"}
