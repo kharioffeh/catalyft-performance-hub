@@ -12,6 +12,53 @@
   border: none!important; 
 }
 
+/* ---- Calendar toolbar glass styling ---- */
+.fc .fc-toolbar {
+  @apply rounded-xl mt-1 mb-3 px-4 py-2 bg-white/10 border border-white/10 shadow-glass-md;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.fc .fc-toolbar-title {
+  @apply text-white font-bold text-lg md:text-2xl;
+  letter-spacing: 0.01em;
+}
+
+.fc .fc-button-group {
+  @apply flex gap-2;
+}
+
+.fc .fc-button {
+  @apply bg-white/20 border border-white/30 text-white font-medium px-3 py-1.5 rounded-lg shadow transition-all duration-150 hover:bg-white/30 hover:border-white/50 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/40;
+  backdrop-filter: blur(6px);
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.09);
+  margin: 0 2px;
+}
+.fc .fc-button:active,
+.fc .fc-button.fc-button-active {
+  @apply bg-white/30 border-white/50;
+}
+.fc .fc-button:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Remove box-shadows and solid backgrounds from default buttons */
+.fc .fc-button-primary {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* Hide border on focus for glass buttons */
+.fc .fc-button:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.1);
+}
+
 /* ---- Day cell frame ---- */
 .fc-daygrid-day-frame {
   border-radius: 12px;
@@ -20,7 +67,6 @@
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
   transition: background .15s;
 }
-
 .fc-daygrid-day-frame:hover {
   background: rgba(255,255,255,0.06);
 }
@@ -34,3 +80,4 @@
 .fc-daygrid-event { 
   background: transparent!important; 
 }
+
