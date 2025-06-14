@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -105,25 +104,21 @@ export const CreateSessionDialog: React.FC<CreateSessionDialogProps> = ({
         return;
       }
 
-      const { error } = await supabase
-        .from('sessions')
-        .insert({
-          athlete_uuid: formData.athlete_id,
-          coach_uuid: profile?.id,
-          type: formData.type,
-          start_ts: startDateTime.toISOString(),
-          end_ts: endDateTime.toISOString(),
-          notes: formData.notes || null,
-        });
-
-      if (error) throw error;
+      // use new createSession helper
+      const { createSession } = await import("@/lib/api/sessions");
+      await createSession({
+        athlete_id: formData.athlete_id,
+        type: formData.type,
+        start_ts: startDateTime.toISOString(),
+        end_ts: endDateTime.toISOString(),
+        notes: formData.notes || null,
+      });
 
       toast({
         title: "Success",
         description: "Training session scheduled successfully",
       });
 
-      // Reset form
       setFormData({
         athlete_id: '',
         type: '',
@@ -133,16 +128,13 @@ export const CreateSessionDialog: React.FC<CreateSessionDialogProps> = ({
         notes: '',
       });
 
-      // Refresh sessions data
       queryClient.invalidateQueries({ queryKey: ['sessions'] });
-      
-      // Close dialog
       onOpenChange(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating session:', error);
       toast({
         title: "Error",
-        description: "Failed to schedule session",
+        description: error?.message ?? "Failed to schedule session",
         variant: "destructive",
       });
     } finally {
