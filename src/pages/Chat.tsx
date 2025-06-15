@@ -1,11 +1,11 @@
-
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import * as THREE from "three";
 import NET from "vanta/dist/vanta.net.min";
 
 type Msg = { id: string; role: "assistant" | "user"; text: string };
 
+// Hook for animated background
 function useVantaBackground(ref: React.RefObject<HTMLDivElement>) {
   const vantaRef = useRef<any>(null);
   useEffect(() => {
@@ -25,25 +25,89 @@ function useVantaBackground(ref: React.RefObject<HTMLDivElement>) {
   }, [ref]);
 }
 
-export default function Thread() {
-  const { threadId } = useParams<{ threadId: string }>();
+export default function Chat() {
+  const { threadId } = useParams<{ threadId?: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
   const bgRef = useRef<HTMLDivElement>(null);
   useVantaBackground(bgRef);
 
-  const [messages, setMessages] = useState<Msg[]>([
-    {
-      id: "welcome",
-      role: "assistant",
-      text: "Hi 👋 — what can I do for you?",
-    },
-  ]);
+  // If on /chat, handle initial-question-only UI
+  if (!threadId) {
+    const [draft, setDraft] = useState("");
+    const [error, setError] = useState<string | null>(null);
+
+    const handleStartThread = () => {
+      if (!draft.trim()) {
+        setError("Please enter your question to start chatting.");
+        return;
+      }
+      setError(null);
+      const newThreadId = crypto.randomUUID();
+      // Pass the first user message to the chat thread using location.state
+      navigate(`/chat/${newThreadId}`, {
+        state: { initialQuestion: draft.trim() },
+      });
+    };
+
+    return (
+      <div className="relative min-h-screen flex items-center justify-center bg-dark text-white">
+        <div ref={bgRef} className="absolute inset-0 -z-10" />
+        <div className="bg-[#23233A]/90 rounded-2xl shadow-xl p-8 w-full max-w-md mx-auto animate-fade-in">
+          <h1 className="text-2xl font-semibold mb-4 text-center">AI Performance Coach</h1>
+          <p className="mb-4 text-center opacity-75">
+            What can Aria help you with today?
+          </p>
+          <textarea
+            rows={3}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder="Type your question to start..."
+            className="w-full bg-[#161622] rounded-md border border-accent/10 px-4 py-3 text-base outline-none mb-2 resize-none"
+          />
+          {error && <p className="text-red-400 text-sm mb-2">{error}</p>}
+          <button
+            onClick={handleStartThread}
+            className="w-full bg-accent hover:bg-accent/90 px-4 py-2 rounded-md font-medium transition-colors"
+          >
+            Start Chat
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // If on /chat/:threadId, show chat UI
+  // Try to get the initial user question from location.state
+  // Otherwise show welcome message
+  // We want to only initialize this once with useState's initializer
+  const locationState = location.state as { initialQuestion?: string } | null;
+  const [messages, setMessages] = useState<Msg[]>(() => {
+    if (locationState?.initialQuestion) {
+      return [
+        { id: "user-initial", role: "user", text: locationState.initialQuestion },
+        {
+          id: "welcome",
+          role: "assistant",
+          text: "Hi 👋 — what can I do for you?",
+        },
+      ];
+    }
+    return [
+      {
+        id: "welcome",
+        role: "assistant",
+        text: "Hi 👋 — what can I do for you?",
+      },
+    ];
+  });
   const [draft, setDraft] = useState("");
 
   async function sendMessage() {
     if (!draft.trim()) return;
 
     // optimistic UI
-    const userMsg: Msg = { id: crypto.randomUUID(), role: "user", text: draft };
+    const userMsg: Msg = { id: crypto.randomUUID(), role: "user", text: draft.trim() };
     setMessages((m) => [...m, userMsg]);
     setDraft("");
 
