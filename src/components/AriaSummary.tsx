@@ -44,15 +44,18 @@ export const AriaSummary: React.FC = () => {
       if (error) throw error;
 
       // json: { message, metric, severity, source }
-      return (data ?? []).map(item => ({
-        id: item.id,
-        athlete_uuid: item.athlete_uuid,
-        metric: item.json.metric,
-        severity: item.json.severity as 'info' | 'amber' | 'red',
-        message: item.json.message,
-        created_at: item.created_at,
-        athlete_name: item.athletes?.name,
-      }));
+      return (data ?? []).map(item => {
+        const insightJson = item.json as { message: string; metric: string; severity: 'info' | 'amber' | 'red'; source?: string };
+        return {
+          id: item.id,
+          athlete_uuid: item.athlete_uuid,
+          metric: insightJson.metric,
+          severity: insightJson.severity,
+          message: insightJson.message,
+          created_at: item.created_at,
+          athlete_name: item.athletes?.name,
+        };
+      });
     },
     enabled: !!profile?.id && profile?.role === 'coach'
   });

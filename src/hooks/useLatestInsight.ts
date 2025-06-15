@@ -30,15 +30,16 @@ export const useLatestInsight = (metric: string) => {
 
       if (error) throw error;
 
-      return data
-        ? {
-            id: data.id,
-            metric: data.json.metric,
-            severity: data.json.severity as 'info' | 'amber' | 'red',
-            message: data.json.message,
-            created_at: data.created_at,
-          }
-        : null;
+      if (!data) return null;
+
+      const insightJson = data.json as { metric: string; severity: 'info' | 'amber' | 'red'; message: string };
+      return {
+        id: data.id,
+        metric: insightJson.metric,
+        severity: insightJson.severity,
+        message: insightJson.message,
+        created_at: data.created_at,
+      };
     },
     enabled: !!profile?.id,
   });
