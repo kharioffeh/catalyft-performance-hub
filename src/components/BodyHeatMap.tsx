@@ -8,6 +8,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+import { colorScale, prettyName, normalizeId } from "./bodyHeatMapUtils";
+import { MuscleHeatmapTooltip } from "./MuscleHeatmapTooltip";
+
 type MuscleHeatmapEntry = {
   muscle: string;
   acute: number;
@@ -15,15 +18,6 @@ type MuscleHeatmapEntry = {
   acwr: number;
   zone: "Low" | "Normal" | "High";
 };
-
-const colorScale = (acwr: number) => {
-  if (acwr <= 0.8) return "#22c55e";
-  if (acwr <= 1.3) return "#fec15f";
-  return "#ef4444";
-};
-
-const prettyName = (muscle: string) =>
-  muscle.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
 interface BodyHeatMapProps {
   athleteId: string;
@@ -251,30 +245,7 @@ export const BodyHeatMap: React.FC<BodyHeatMapProps> = ({
                 zIndex: 999,
               }}
             >
-              <div className="font-bold text-lg mb-1 capitalize">{prettyName(muscleData.muscle)}</div>
-              <div className="flex flex-col gap-1 text-sm">
-                <div>
-                  Acute: <span className="font-semibold">{muscleData.acute.toFixed(1)}</span>
-                </div>
-                <div>
-                  Chronic: <span className="font-semibold">{muscleData.chronic.toFixed(1)}</span>
-                </div>
-                <div>
-                  ACWR:{" "}
-                  <span
-                    className={clsx(
-                      muscleData.zone === "High" && "text-red-600",
-                      muscleData.zone === "Low" && "text-green-500",
-                      muscleData.zone === "Normal" && "text-yellow-600"
-                    )}
-                  >
-                    {muscleData.acwr.toFixed(2)}
-                  </span>
-                </div>
-                <div className="mt-1 text-xs">
-                  Zone: <span className="font-bold">{muscleData.zone}</span>
-                </div>
-              </div>
+              <MuscleHeatmapTooltip muscleData={muscleData} />
             </TooltipContent>
           )}
         </Tooltip>
@@ -327,8 +298,3 @@ export const BodyHeatMap: React.FC<BodyHeatMapProps> = ({
     </div>
   );
 };
-
-/** Helper to normalize id. SVGs may have id="rectus-femoris"; DB uses "rectus_femoris" */
-function normalizeId(id: string) {
-  return id.replace(/-/g, "_").toLowerCase();
-}
