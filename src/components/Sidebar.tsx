@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -9,7 +10,6 @@ import {
   Settings, 
   AlertTriangle,
   Dumbbell,
-  FileText,
   TrendingUp
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -24,10 +24,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { supabase } from '@/integrations/supabase/client';
 
-const Sidebar = () => {
+// Accept isDarkTheme prop
+const Sidebar = ({ isDarkTheme = false }: { isDarkTheme?: boolean }) => {
   const { profile } = useAuth();
   const location = useLocation();
-
   const coachItems = [
     { 
       icon: BarChart3, 
@@ -121,14 +121,23 @@ const Sidebar = () => {
   const items = profile?.role === 'coach' ? coachItems : athleteItems;
   const navigate = useNavigate();
 
+  // Styling for dark glass effect on chat/aria page
+  const glassBg = isDarkTheme
+    ? "bg-black/40 border-gray-800/40 backdrop-blur-lg"
+    : "bg-white/10 border-white/20 backdrop-blur-md";
+  const activeBg = isDarkTheme
+    ? "bg-accent/30 text-white font-semibold border border-accent shadow-lg"
+    : "bg-white/20 text-white font-semibold backdrop-blur-md border border-white/30 shadow-lg";
+  const inactiveText = isDarkTheme ? "text-white/80 hover:bg-black/30" : "text-white/80 hover:bg-white/10";
+  const borderBottom = isDarkTheme ? "border-gray-800/30" : "border-white/20";
+
   return (
-    <div className="w-64 h-full flex flex-col bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl">
-      <div className="flex items-center justify-center h-20 px-4 border-b border-white/20">
+    <div className={`w-64 h-full flex flex-col ${glassBg} border-r ${borderBottom} shadow-2xl`}>
+      <div className={`flex items-center justify-center h-20 px-4 border-b ${borderBottom}`}>
         <span className="text-2xl font-bold text-white">
           Catalyft
         </span>
       </div>
-
       <div className="flex-grow flex flex-col justify-between overflow-y-auto">
         <nav className="flex flex-col space-y-1 px-3 py-4">
           {items.map((item) => (
@@ -137,8 +146,8 @@ const Sidebar = () => {
               variant="ghost"
               className={`justify-start px-4 py-3 w-full text-left transition-all duration-200 ${
                 item.isActive 
-                  ? 'bg-white/20 text-white font-semibold backdrop-blur-md border border-white/30 shadow-lg' 
-                  : 'text-white/80 hover:bg-white/10 hover:text-white hover:backdrop-blur-sm'
+                  ? activeBg
+                  : `${inactiveText} hover:text-white hover:backdrop-blur-sm`
               }`}
               onClick={() => navigate(item.path)}
             >
@@ -147,11 +156,10 @@ const Sidebar = () => {
             </Button>
           ))}
         </nav>
-
-        <div className="px-3 py-3 border-t border-white/20">
+        <div className={`px-3 py-3 border-t ${borderBottom}`}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-full justify-start px-2 h-auto py-2 text-white/80 hover:bg-white/10 hover:text-white">
+              <Button variant="ghost" className={`w-full justify-start px-2 h-auto py-2 ${inactiveText} hover:bg-black/30 hover:text-white`}>
                 <Avatar className="mr-3 w-8 h-8 flex-shrink-0">
                   <AvatarImage src="" />
                   <AvatarFallback className="bg-white/20 text-white backdrop-blur-md">
@@ -164,28 +172,28 @@ const Sidebar = () => {
                 </div>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 bg-white/10 backdrop-blur-md border border-white/20 shadow-xl" align="end" forceMount>
+            <DropdownMenuContent className={`w-56 ${glassBg} border ${borderBottom} shadow-xl`} align="end" forceMount>
               <DropdownMenuLabel className="text-white">My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-white/20" />
+              <DropdownMenuSeparator className={borderBottom} />
               <DropdownMenuItem 
                 onClick={() => navigate('/settings')}
-                className="text-white/80 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white"
+                className="text-white/80 hover:bg-black/10 hover:text-white focus:bg-black/10 focus:text-white"
               >
                 Settings
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={() => navigate('/subscriptions')}
-                className="text-white/80 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white"
+                className="text-white/80 hover:bg-black/10 hover:text-white focus:bg-black/10 focus:text-white"
               >
                 Subscription
               </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-white/20" />
+              <DropdownMenuSeparator className={borderBottom} />
               <DropdownMenuItem 
                 onClick={() => {
                   supabase.auth.signOut();
                   navigate('/login');
                 }}
-                className="text-white/80 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white"
+                className="text-white/80 hover:bg-black/10 hover:text-white focus:bg-black/10 focus:text-white"
               >
                 Logout
               </DropdownMenuItem>

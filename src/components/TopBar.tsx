@@ -6,12 +6,18 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/useBreakpoint';
 
-export const TopBar: React.FC = () => {
+// Accept isDarkTheme prop
+export const TopBar: React.FC<{ isDarkTheme?: boolean }> = ({ isDarkTheme = false }) => {
   const { profile, signOut } = useAuth();
   const isMobile = useIsMobile();
 
+  // glass class based on theme
+  const glass = isDarkTheme
+    ? "bg-black/40 backdrop-blur-lg border-b border-gray-900/60 shadow-xl"
+    : "bg-white/10 backdrop-blur-md border-b border-white/20 shadow-lg";
+
   return (
-    <header className="h-16 bg-white/10 backdrop-blur-md border-b border-white/20 shadow-lg flex items-center justify-between px-4 md:px-6">
+    <header className={`h-16 ${glass} flex items-center justify-between px-4 md:px-6`}>
       <div className="flex items-center space-x-4">
         <h1 className="text-lg md:text-xl font-semibold text-white">
           Catalyft AI
@@ -35,7 +41,7 @@ export const TopBar: React.FC = () => {
           variant="outline" 
           onClick={signOut} 
           size="sm"
-          className="min-h-[44px] md:min-h-auto active:opacity-80 bg-white/20 hover:bg-white/30 border-white/30 text-white backdrop-blur-md"
+          className={`min-h-[44px] md:min-h-auto active:opacity-80 ${isDarkTheme ? "bg-black/30 hover:bg-black/50 border-gray-900/40" : "bg-white/20 hover:bg-white/30 border-white/30"} text-white backdrop-blur-md`}
         >
           Sign Out
         </Button>
