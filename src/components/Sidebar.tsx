@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -65,12 +64,6 @@ const Sidebar = () => {
       label: 'Workouts', 
       path: '/workout',
       isActive: location.pathname === '/workout'
-    },
-    { 
-      icon: FileText, 
-      label: 'KAI', 
-      path: '/kai',
-      isActive: location.pathname === '/kai'
     },
     { 
       icon: AlertTriangle, 

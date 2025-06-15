@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import DashboardPage from '../pages/Dashboard';
 import AnalyticsPage from '../pages/Analytics';
 import ReadinessDetailPage from '../pages/ReadinessDetailPage';
@@ -19,7 +19,6 @@ import ChatPage from '../pages/Chat';
 import AppLayout from './AppLayout';
 import ProtectedRoute from './ProtectedRoute';
 import RiskBoardPage from '../pages/CoachRiskBoard';
-import KAIPage from '../pages/KAIPage';
 import TemplateDetailPage from '@/pages/TemplateDetailPage';
 import { useSupabaseHash } from '../hooks/useSupabaseHash';
 
@@ -51,7 +50,8 @@ const AppRouter = () => {
         <Route path="risk-board" element={<RiskBoardPage />} />
         <Route path="workouts" element={<WorkoutsPage />} />
         <Route path="workout" element={<WorkoutsPage />} />
-        <Route path="kai" element={<KAIPage />} />
+        {/* KAI route removed, redirect legacy */}
+        <Route path="kai" element={<Navigate to="/chat" replace />} />
         <Route path="template/:id" element={<TemplateDetailPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="subscriptions" element={<SubscriptionsPage />} />

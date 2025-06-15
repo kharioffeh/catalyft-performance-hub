@@ -65,9 +65,9 @@ export const GenerateProgramDialog: React.FC<GenerateProgramDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Generate Program with KAI</DialogTitle>
+          <DialogTitle>Generate Program with ARIA</DialogTitle>
           <DialogDescription>
-            Let KAI create a personalized training program based on athlete data and your preferences.
+            Let ARIA create a personalized training program based on athlete data and your preferences.
           </DialogDescription>
         </DialogHeader>
 

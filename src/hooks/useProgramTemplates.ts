@@ -48,7 +48,7 @@ export const useGenerateProgram = () => {
       queryClient.invalidateQueries({ queryKey: ['program-templates'] });
       toast({
         title: "Program Generated",
-        description: "KAI has successfully generated your training program",
+        description: "ARIA has successfully generated your training program",
       });
     },
     onError: (error) => {
