@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from "react";
 import { useMuscleHeatmap } from "@/hooks/useMuscleHeatmap";
 import clsx from "clsx";
@@ -130,7 +129,23 @@ export const BodyHeatMap: React.FC<BodyHeatMapProps> = ({
   const muscleData =
     hoveredMuscle && muscleMap[normalizeId(hoveredMuscle)] ? muscleMap[normalizeId(hoveredMuscle)] : null;
 
-  // UI: Debug info
+  // Enhance error extraction for debugging
+  const friendlyErrorMessage = () => {
+    if (!error) return "";
+    // Supabase error object? (best effort)
+    if (typeof error === "object" && error !== null) {
+      if ("message" in error) return String((error as any).message);
+      if ("error" in error) return String((error as any).error);
+      try {
+        return JSON.stringify(error);
+      } catch (e) {
+        return String(error);
+      }
+    }
+    return typeof error === "string" ? error : String(error);
+  };
+
+  // Memoize unreconcilable muscle IDs
   const unreconcilableIds = React.useMemo(() => {
     if (!svg) return [];
     // Find all ids in SVG
@@ -157,7 +172,7 @@ export const BodyHeatMap: React.FC<BodyHeatMapProps> = ({
       </button>
       {/* Debug Panel */}
       {debugOpen && (
-        <div className="absolute top-8 right-2 z-[110] bg-zinc-900/90 backdrop-blur px-4 py-3 rounded border border-zinc-700 text-xs text-white/80 max-w-[350px]">
+        <div className="absolute top-8 right-2 z-[110] bg-zinc-900/90 backdrop-blur px-4 py-3 rounded border border-zinc-700 text-xs text-white/80 max-w-[370px] min-w-[270px]">
           <div className="font-bold mb-2">BodyHeatMap Debug</div>
           <ul className="space-y-1">
             <li>
@@ -180,15 +195,20 @@ export const BodyHeatMap: React.FC<BodyHeatMapProps> = ({
               <strong>DB Data loaded:</strong> {isLoading
                 ? <span className="text-yellow-400">loading…</span>
                 : isError
-                ? <span className="text-red-400">error: {String(error)}</span>
+                ? <span className="text-red-400">error: {friendlyErrorMessage()}</span>
                 : Array.isArray(data)
                 ? <span className="text-green-500">ok ({data.length} muscles)</span>
                 : <span className="text-yellow-200">empty</span>
               }
             </li>
+            {isError && (
+              <li className="pt-1">
+                <span className="text-red-400">Detailed error: {friendlyErrorMessage()}</span>
+              </li>
+            )}
             <li>
               <strong>Muscle IDs in SVG not mapped:</strong>
-              <div className="max-h-16 overflow-y-auto">
+              <div className="max-h-20 overflow-y-auto">
                 {unreconcilableIds.length === 0
                   ? <span className="text-green-400">none 🎉</span>
                   : <div className="text-yellow-200">{unreconcilableIds.join(", ")}</div>
@@ -260,7 +280,7 @@ export const BodyHeatMap: React.FC<BodyHeatMapProps> = ({
         </Tooltip>
       </TooltipProvider>
 
-      {/* Loading/Error Overlay */}
+      {/* Enhanced Loading/Error Overlay */}
       {svgError && (
         <div className="absolute inset-0 flex items-center justify-center text-red-400 bg-black/50 rounded-xl z-10 text-center px-6">
           <div>
@@ -282,9 +302,16 @@ export const BodyHeatMap: React.FC<BodyHeatMapProps> = ({
       )}
       {isError && (
         <div className="absolute inset-0 flex items-center justify-center bg-red-100/30 text-red-600 z-10 rounded-xl text-center px-6">
-          Error loading muscle data: {String((error as any)?.message ?? error)}
+          <div>
+            <b>Error loading muscle data</b>
+            <br />
+            {friendlyErrorMessage()}
+            <br />
+            <span className="text-xs text-red-500 font-mono break-words">{typeof error === 'object' ? JSON.stringify(error) : String(error)}</span>
+          </div>
         </div>
       )}
+
       {/* Explicit: No athlete selected */}
       {!athleteId && (
         <div className="absolute inset-0 flex items-center justify-center text-white/80 font-medium bg-black/40 rounded-xl z-10 px-6">
@@ -305,4 +332,3 @@ export const BodyHeatMap: React.FC<BodyHeatMapProps> = ({
 function normalizeId(id: string) {
   return id.replace(/-/g, "_").toLowerCase();
 }
-

@@ -520,6 +520,79 @@ export type Database = {
         }
         Relationships: []
       }
+      lookup_exercise_muscle: {
+        Row: {
+          exercise_name: string
+          id: number
+          muscles: string[]
+        }
+        Insert: {
+          exercise_name: string
+          id?: number
+          muscles: string[]
+        }
+        Update: {
+          exercise_name?: string
+          id?: number
+          muscles?: string[]
+        }
+        Relationships: []
+      }
+      muscle_load_daily: {
+        Row: {
+          acute_load: number | null
+          acwr: number | null
+          athlete_id: string | null
+          chronic_load: number | null
+          created_at: string | null
+          day: string
+          id: string
+          muscle: string
+        }
+        Insert: {
+          acute_load?: number | null
+          acwr?: number | null
+          athlete_id?: string | null
+          chronic_load?: number | null
+          created_at?: string | null
+          day: string
+          id?: string
+          muscle: string
+        }
+        Update: {
+          acute_load?: number | null
+          acwr?: number | null
+          athlete_id?: string | null
+          chronic_load?: number | null
+          created_at?: string | null
+          day?: string
+          id?: string
+          muscle?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "muscle_load_daily_athlete_id_fkey"
+            columns: ["athlete_id"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "muscle_load_daily_athlete_id_fkey"
+            columns: ["athlete_id"]
+            isOneToOne: false
+            referencedRelation: "vw_coach_athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "muscle_load_daily_athlete_id_fkey"
+            columns: ["athlete_id"]
+            isOneToOne: false
+            referencedRelation: "vw_risk_board"
+            referencedColumns: ["athlete_id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -1299,6 +1372,10 @@ export type Database = {
           chronic_28d: number
           acwr_7_28: number
         }[]
+      }
+      get_muscle_heatmap: {
+        Args: { athlete_id_in: string; window_days?: number }
+        Returns: Json
       }
       get_sleep_detail: {
         Args: { pv_period: number }
