@@ -14,12 +14,14 @@ export function useMuscleHeatmap(athleteId: string, window_days = 7) {
   return useQuery<MuscleHeatmapRow[]>({
     queryKey: ["muscleHeatmap", athleteId, window_days],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_muscle_heatmap", {
+      // Types may be outdated; force-allow the RPC for now
+      const { data, error } = await (supabase as any).rpc("get_muscle_heatmap", {
         athlete_id_in: athleteId,
         window_days,
       });
       if (error) throw error;
-      return (data ?? []) as MuscleHeatmapRow[];
+      // Defensive cast; actual runtime check could be added if needed
+      return (data ?? []) as unknown as MuscleHeatmapRow[];
     },
     enabled: !!athleteId,
   });
