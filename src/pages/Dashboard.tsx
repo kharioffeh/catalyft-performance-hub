@@ -3,13 +3,11 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { AriaSummary } from '@/components/AriaSummary';
 import { InjuryForecastCard } from '@/components/InjuryForecastCard';
-import { DashboardHeader } from '@/components/Dashboard/DashboardHeader';
-import { QuickStatusCards } from '@/components/Dashboard/QuickStatusCards';
 import { TodaysSchedule } from '@/components/Dashboard/TodaysSchedule';
-import { QuickActions } from '@/components/Dashboard/QuickActions';
 import { SoloDashboard } from '@/components/Dashboard/SoloDashboard';
 import { CoachedDashboard } from '@/components/Dashboard/CoachedDashboard';
-import { GlassContainer } from '@/components/Glass/GlassContainer';
+import { VerticalMetricCards } from '@/components/Dashboard/VerticalMetricCards';
+import { QuickActionsCard } from '@/components/Dashboard/QuickActionsCard';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useDashboardInsights } from '@/hooks/useDashboardInsights';
 import { useAthleteType } from '@/hooks/useAthleteType';
@@ -24,35 +22,6 @@ const Dashboard: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/50"></div>
-      </div>
-    );
-  }
-
-  // Coach Dashboard
-  if (profile?.role === 'coach') {
-    return (
-      <div className="space-y-6">
-        <DashboardHeader userRole="coach" />
-        
-        <QuickStatusCards 
-          currentReadiness={currentReadiness}
-          todaySessions={todaySessions}
-          weeklyStats={weeklyStats}
-          injuryRisk={injuryRisk}
-        />
-
-        <TodaysSchedule todaySessions={todaySessions} />
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <GlassContainer>
-            <AriaSummary />
-          </GlassContainer>
-          <GlassContainer>
-            <InjuryForecastCard />
-          </GlassContainer>
-        </div>
-
-        <QuickActions userRole="coach" />
       </div>
     );
   }
@@ -83,30 +52,38 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  // Default fallback for coach users or when type is not determined
+  // Coach Dashboard and default fallback - TripVision style layout
   return (
-    <div className="space-y-6">
-      <DashboardHeader userRole={profile?.role} />
-      
-      <QuickStatusCards 
-        currentReadiness={currentReadiness}
-        todaySessions={todaySessions}
-        weeklyStats={weeklyStats}
-        injuryRisk={injuryRisk}
-      />
-
-      <TodaysSchedule todaySessions={todaySessions} />
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <GlassContainer>
-          <AriaSummary />
-        </GlassContainer>
-        <GlassContainer>
-          <InjuryForecastCard />
-        </GlassContainer>
+    <div className="mx-auto w-full max-w-7xl p-4 md:p-8 grid gap-4 md:gap-6 lg:grid-cols-[340px_1fr]">
+      {/* Left Column */}
+      <div className="space-y-6">
+        {/* Vertical Metric Cards */}
+        <VerticalMetricCards 
+          currentReadiness={currentReadiness}
+          todaySessions={todaySessions}
+          weeklyStats={weeklyStats}
+          injuryRisk={injuryRisk}
+        />
+        
+        {/* Quick Actions Card */}
+        <QuickActionsCard userRole={profile?.role} />
       </div>
 
-      <QuickActions userRole={profile?.role} />
+      {/* Right Column */}
+      <div className="space-y-6">
+        {/* Today's Schedule */}
+        <TodaysSchedule todaySessions={todaySessions} />
+
+        {/* Bottom 2-column grid for insights and forecast */}
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="glass-card p-6">
+            <AriaSummary />
+          </div>
+          <div className="glass-card p-6">
+            <InjuryForecastCard />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
