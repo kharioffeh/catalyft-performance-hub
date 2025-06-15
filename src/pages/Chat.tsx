@@ -1,11 +1,11 @@
+
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import * as THREE from "three";
 import NET from "vanta/dist/vanta.net.min";
 
-/* ───────────────────────────────────────────────────────────
-   tiny helper hook for Vanta NET background
-─────────────────────────────────────────────────────────────*/
+type Msg = { id: string; role: "assistant" | "user"; text: string };
+
 function useVantaBackground(ref: React.RefObject<HTMLDivElement>) {
   const vantaRef = useRef<any>(null);
   useEffect(() => {
@@ -17,89 +17,117 @@ function useVantaBackground(ref: React.RefObject<HTMLDivElement>) {
       touchControls: true,
       backgroundColor: 0x101014,
       color: 0x5e6ad2,
-      // accent
-      points: 8.0,
-      maxDistance: 25.0,
-      spacing: 20.0
+      points: 8,
+      maxDistance: 25,
+      spacing: 20,
     });
-    return () => {
-      vantaRef.current?.destroy?.();
-    };
+    return () => vantaRef.current?.destroy?.();
   }, [ref]);
 }
 
-/* ───────────────────────────────────────────────────────────
-   Component
-─────────────────────────────────────────────────────────────*/
-export default function Chat() {
-  const navigate = useNavigate();
+export default function Thread() {
+  const { threadId } = useParams<{ threadId: string }>();
   const bgRef = useRef<HTMLDivElement>(null);
   useVantaBackground(bgRef);
-  const [prompt, setPrompt] = useState("");
-  const SUGGESTIONS = [{
-    title: "Draft a business proposal",
-    desc: "Create a compelling proposal with all required sections."
-  }, {
-    title: "Analyze market trends",
-    desc: "Identify current market trends and opportunities."
-  }, {
-    title: "Debug code",
-    desc: "Share code, I'll help identify and fix issues."
-  }, {
-    title: "Create a content calendar",
-    desc: "Plan your content strategy with a publishing schedule."
-  }];
-  async function handleStart() {
-    if (!prompt.trim()) return;
 
-    // In a real app, call your createThread API, then navigate:
-    const fakeId = crypto.randomUUID();
-    navigate(`/aria/${fakeId}`);
+  const [messages, setMessages] = useState<Msg[]>([
+    {
+      id: "welcome",
+      role: "assistant",
+      text: "Hi 👋 — what can I do for you?",
+    },
+  ]);
+  const [draft, setDraft] = useState("");
+
+  async function sendMessage() {
+    if (!draft.trim()) return;
+
+    // optimistic UI
+    const userMsg: Msg = { id: crypto.randomUUID(), role: "user", text: draft };
+    setMessages((m) => [...m, userMsg]);
+    setDraft("");
+
+    /* TODO: stream assistant reply */
+    const assistantMsg: Msg = {
+      id: crypto.randomUUID(),
+      role: "assistant",
+      text: "Pretend this is streamed content from Aria…",
+    };
+    setMessages((m) => [...m, assistantMsg]);
   }
-  return <div className="relative min-h-screen overflow-hidden bg-dark text-white">
-      {/* background layers */}
+
+  return (
+    <div className="relative min-h-screen bg-dark text-white">
       <div ref={bgRef} className="absolute inset-0 -z-10" />
       <div className="absolute top-1/2 left-1/2 w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 bg-accent opacity-10 blur-[100px] rounded-full pointer-events-none" />
 
-      {/* header */}
-      <header className="flex items-center px-6 py-4 border-b border-subtle">
-        <h1 className="font-medium text-2xl">ARIA </h1>
-      </header>
+      {/* sidebar stub */}
+      <aside className="fixed top-0 left-0 h-full w-64 bg-[#15151B] border-r border-subtle hidden lg:block">
+        {/* TODO: fill with threads & tools */}
+      </aside>
 
-      {/* main */}
-      <main className="p-6 max-w-4xl mx-auto">
-        {/* intro */}
-        <div className="text-center mb-12">
-          <h2 className="text-2xl font-bold mb-2">
-            How can I help you today?
-          </h2>
-          <p className="text-gray-400">
-            Ask anything or choose a suggested prompt.
-          </p>
+      {/* main column */}
+      <section className="lg:ml-64 flex flex-col h-screen">
+        {/* top-bar */}
+        <header className="h-16 border-b border-subtle px-6 flex items-center">
+          <span className="text-sm opacity-80 truncate">
+            Thread ID • {threadId}
+          </span>
+        </header>
+
+        {/* chat area */}
+        <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
+          {messages.map((m) => (
+            <div
+              key={m.id}
+              className={`flex ${m.role === "user" ? "justify-end" : ""}`}
+            >
+              {m.role === "assistant" && (
+                <div className="w-8 h-8 rounded-full bg-accent flex-shrink-0 flex items-center justify-center mr-3">
+                  AI
+                </div>
+              )}
+
+              <div
+                className={`max-w-3xl rounded-lg p-4 ${
+                  m.role === "assistant"
+                    ? "bg-[#1E1E26]"
+                    : "bg-accent bg-opacity-20"
+                }`}
+              >
+                {m.text}
+              </div>
+
+              {m.role === "user" && (
+                <div className="w-8 h-8 rounded-full bg-[#2A2A35] flex-shrink-0 flex items-center justify-center ml-3">
+                  U
+                </div>
+              )}
+            </div>
+          ))}
         </div>
 
-        {/* suggestions */}
-        <section className="mb-12">
-          <h3 className="text-sm font-medium text-gray-400 uppercase mb-4">
-            Suggested Prompts
-          </h3>
-          <div className="grid sm:grid-cols-2 gap-4">
-            {SUGGESTIONS.map(s => <button key={s.title} onClick={() => setPrompt(s.title)} className="bg-[#1E1E26] border border-subtle hover:border-accent rounded-xl p-4 text-left transition-colors">
-                <h4 className="font-medium mb-1">{s.title}</h4>
-                <p className="text-sm text-gray-400">{s.desc}</p>
-              </button>)}
+        {/* input bar */}
+        <footer className="h-32 border-t border-subtle px-6 py-4">
+          <div className="bg-[#1E1E26] border border-subtle rounded-lg p-3">
+            <textarea
+              rows={2}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              placeholder="Type your message…"
+              className="w-full bg-transparent outline-none resize-none"
+            />
+            <div className="flex justify-end mt-2">
+              <button
+                onClick={sendMessage}
+                className="bg-accent hover:bg-opacity-90 px-4 py-2 rounded-md"
+              >
+                Send
+              </button>
+            </div>
           </div>
-        </section>
-
-        {/* input */}
-        <div className="bg-[#1E1E26] border border-subtle rounded-lg p-5">
-          <textarea rows={2} value={prompt} onChange={e => setPrompt(e.target.value)} placeholder="Type your message..." className="w-full bg-transparent outline-none resize-none" />
-          <div className="flex justify-end mt-3">
-            <button onClick={handleStart} className="bg-accent hover:bg-opacity-90 px-5 py-2 rounded-md">
-              Start Chat
-            </button>
-          </div>
-        </div>
-      </main>
-    </div>;
+        </footer>
+      </section>
+    </div>
+  );
 }
