@@ -35,57 +35,58 @@ export default function Chat() {
   const bgRef = useRef<HTMLDivElement>(null);
   useVantaBackground(bgRef);
 
-  // Suggested questions for data insights
-  const suggestedQuestions = [
-    {
-      title: "How has my sleep improved this week?",
-      description: "Summarize my sleep data, highlight improvements and regressions.",
-    },
-    {
-      title: "What is my training load trend?",
-      description: "Tell me how my recent load compares to previous weeks.",
-    },
-    {
-      title: "Am I at risk of overtraining?",
-      description: "Spot any overreaching or injury risk from my sessions.",
-    },
-    {
-      title: "Which day was my best recovery?",
-      description: "Find my optimal readiness score this week.",
-    },
-    {
-      title: "How does my strain compare to last month?",
-      description: "Break down my workout strain over time.",
-    },
-    {
-      title: "Can you summarize my recent performance metrics?",
-      description: "Provide a readable summary from the main metrics.",
-    },
-    {
-      title: "Which habit should I focus on to improve readiness?",
-      description: "Analyze habits affecting my sleep & recovery.",
-    },
-    {
-      title: "Any patterns in my sleep or HRV?",
-      description: "Look for correlations in sleep and HRV trends.",
-    },
-  ];
-
-  const recentTopics = [
-    "Training load",
-    "Sleep efficiency",
-    "Performance trend",
-    "HRV patterns",
-  ];
-
-  // If no threadId, show the new chat template UI with native design/colors/fonts
+  // --- show new chat UI only when NOT in a thread ---
   if (!threadId) {
     const [draft, setDraft] = useState("");
     const [error, setError] = useState<string | null>(null);
 
+    // Suggested questions for data insights
+    const suggestedQuestions = [
+      {
+        title: "How has my sleep improved this week?",
+        description: "Summarize my sleep data, highlight improvements and regressions.",
+      },
+      {
+        title: "What is my training load trend?",
+        description: "Tell me how my recent load compares to previous weeks.",
+      },
+      {
+        title: "Am I at risk of overtraining?",
+        description: "Spot any overreaching or injury risk from my sessions.",
+      },
+      {
+        title: "Which day was my best recovery?",
+        description: "Find my optimal readiness score this week.",
+      },
+      {
+        title: "How does my strain compare to last month?",
+        description: "Break down my workout strain over time.",
+      },
+      {
+        title: "Can you summarize my recent performance metrics?",
+        description: "Provide a readable summary from the main metrics.",
+      },
+      {
+        title: "Which habit should I focus on to improve readiness?",
+        description: "Analyze habits affecting my sleep & recovery.",
+      },
+      {
+        title: "Any patterns in my sleep or HRV?",
+        description: "Look for correlations in sleep and HRV trends.",
+      },
+    ];
+
+    const recentTopics = [
+      "Training load",
+      "Sleep efficiency",
+      "Performance trend",
+      "HRV patterns",
+    ];
+
     // Prefill draft from a suggested prompt or topic
     const handleSuggestionClick = (q: string) => setDraft(q);
 
+    // On starting a thread, navigate to /chat/:threadId with initial prompt in location.state
     const handleStartThread = () => {
       if (!draft.trim()) {
         setError("Please enter your question to start chatting.");
@@ -93,7 +94,6 @@ export default function Chat() {
       }
       setError(null);
       const newThreadId = crypto.randomUUID();
-      // Navigate to new thread and pass initial question in state
       navigate(`/chat/${newThreadId}`, {
         state: { initialQuestion: draft.trim() },
         replace: false,
@@ -231,54 +231,40 @@ export default function Chat() {
     );
   }
 
-  // --- Thread view logic ---
-  // We want to show the initial user question if landing via navigation state or if threadId changes.
+  // --- If there IS a threadId, show only the chat thread UI, do not render duplicate sidebar/header ---
+  // (Assume AppLayout already provides sidebar/topbar)
   const locationState = location.state as { initialQuestion?: string } | null;
 
-  // Instead of initializing messages once, watch for threadId and location.state.initialQuestion
   const [messages, setMessages] = useState<Msg[]>([]);
   const [draft, setDraft] = useState("");
 
-  // If the threadId or incoming state changes, reset messages accordingly
   useEffect(() => {
     if (locationState?.initialQuestion) {
       setMessages([
         { id: "user-initial", role: "user", text: locationState.initialQuestion },
-        {
-          id: "welcome",
-          role: "assistant",
-          text: "Hi 👋 — what can I do for you?",
-        },
+        { id: "welcome", role: "assistant", text: "Hi 👋 — what can I do for you?" },
       ]);
     } else {
       setMessages([
-        {
-          id: "welcome",
-          role: "assistant",
-          text: "Hi 👋 — what can I do for you?",
-        },
+        { id: "welcome", role: "assistant", text: "Hi 👋 — what can I do for you?" },
       ]);
     }
-    // Clear draft when new thread starts
     setDraft("");
-    // Remove location.state after using initialQuestion so browser back works as-expected
-    // (Only works if we replace state with undefined)
     if (locationState?.initialQuestion) {
-      // Avoid infinite rerender: only replace if present
       navigate(location.pathname, { replace: true, state: {} });
     }
     // eslint-disable-next-line
-  }, [threadId]); // Only when threadId changes
+  }, [threadId]);
 
   async function sendMessage() {
     if (!draft.trim()) return;
 
-    // optimistic UI
+    // optimistic UI for user
     const userMsg: Msg = { id: crypto.randomUUID(), role: "user", text: draft.trim() };
     setMessages((m) => [...m, userMsg]);
     setDraft("");
 
-    /* TODO: stream assistant reply */
+    // TODO: connect AI backend! For now, simple placeholder:
     const assistantMsg: Msg = {
       id: crypto.randomUUID(),
       role: "assistant",
@@ -290,22 +276,14 @@ export default function Chat() {
   return (
     <div className="relative min-h-screen bg-dark text-white">
       <div ref={bgRef} className="absolute inset-0 -z-10" />
+      {/* simple particle bg, no extra sidebar or header */}
       <div className="absolute top-1/2 left-1/2 w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 bg-accent opacity-10 blur-[100px] rounded-full pointer-events-none" />
-
-      {/* sidebar stub */}
-      <aside className="fixed top-0 left-0 h-full w-64 bg-[#15151B] border-r border-subtle hidden lg:block">
-        {/* TODO: fill with threads & tools */}
-      </aside>
-
       {/* main column */}
-      <section className="lg:ml-64 flex flex-col h-screen">
+      <section className="flex flex-col h-screen">
         {/* top-bar */}
         <header className="h-16 border-b border-subtle px-6 flex items-center">
-          <span className="text-sm opacity-80 truncate">
-            Thread ID • {threadId}
-          </span>
+          <span className="text-sm opacity-80 truncate">Thread ID • {threadId}</span>
         </header>
-
         {/* chat area */}
         <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
           {messages.map((m) => (
@@ -318,7 +296,6 @@ export default function Chat() {
                   AI
                 </div>
               )}
-
               <div
                 className={`max-w-3xl rounded-lg p-4 ${
                   m.role === "assistant"
@@ -328,7 +305,6 @@ export default function Chat() {
               >
                 {m.text}
               </div>
-
               {m.role === "user" && (
                 <div className="w-8 h-8 rounded-full bg-[#2A2A35] flex-shrink-0 flex items-center justify-center ml-3">
                   U
@@ -337,7 +313,6 @@ export default function Chat() {
             </div>
           ))}
         </div>
-
         {/* input bar */}
         <footer className="h-32 border-t border-subtle px-6 py-4">
           <div className="bg-[#1E1E26] border border-subtle rounded-lg p-3">

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import DashboardPage from '../pages/Dashboard';
@@ -46,7 +47,9 @@ const AppRouter = () => {
         <Route path="analytics/load" element={<LoadDetailPage />} />
         <Route path="athletes" element={<AthletesPage />} />
         <Route path="calendar" element={<CalendarPage />} />
+        {/* Add dedicated chat routes */}
         <Route path="chat" element={<ChatPage />} />
+        <Route path="chat/:threadId" element={<ChatPage />} />
         <Route path="risk-board" element={<RiskBoardPage />} />
         <Route path="workouts" element={<WorkoutsPage />} />
         <Route path="workout" element={<WorkoutsPage />} />
