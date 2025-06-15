@@ -93,8 +93,10 @@ export default function Chat() {
       }
       setError(null);
       const newThreadId = crypto.randomUUID();
+      // Navigate to new thread and pass initial question in state
       navigate(`/chat/${newThreadId}`, {
         state: { initialQuestion: draft.trim() },
+        replace: false,
       });
     };
 
@@ -229,31 +231,44 @@ export default function Chat() {
     );
   }
 
-  // If on /chat/:threadId, show chat UI
-  // Try to get the initial user question from location.state
-  // Otherwise show welcome message
-  // We want to only initialize this once with useState's initializer
+  // --- Thread view logic ---
+  // We want to show the initial user question if landing via navigation state or if threadId changes.
   const locationState = location.state as { initialQuestion?: string } | null;
-  const [messages, setMessages] = useState<Msg[]>(() => {
+
+  // Instead of initializing messages once, watch for threadId and location.state.initialQuestion
+  const [messages, setMessages] = useState<Msg[]>([]);
+  const [draft, setDraft] = useState("");
+
+  // If the threadId or incoming state changes, reset messages accordingly
+  useEffect(() => {
     if (locationState?.initialQuestion) {
-      return [
+      setMessages([
         { id: "user-initial", role: "user", text: locationState.initialQuestion },
         {
           id: "welcome",
           role: "assistant",
           text: "Hi 👋 — what can I do for you?",
         },
-      ];
+      ]);
+    } else {
+      setMessages([
+        {
+          id: "welcome",
+          role: "assistant",
+          text: "Hi 👋 — what can I do for you?",
+        },
+      ]);
     }
-    return [
-      {
-        id: "welcome",
-        role: "assistant",
-        text: "Hi 👋 — what can I do for you?",
-      },
-    ];
-  });
-  const [draft, setDraft] = useState("");
+    // Clear draft when new thread starts
+    setDraft("");
+    // Remove location.state after using initialQuestion so browser back works as-expected
+    // (Only works if we replace state with undefined)
+    if (locationState?.initialQuestion) {
+      // Avoid infinite rerender: only replace if present
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+    // eslint-disable-next-line
+  }, [threadId]); // Only when threadId changes
 
   async function sendMessage() {
     if (!draft.trim()) return;
