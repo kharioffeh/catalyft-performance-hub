@@ -32,10 +32,26 @@ export default function Chat() {
   const bgRef = useRef<HTMLDivElement>(null);
   useVantaBackground(bgRef);
 
-  // If on /chat, handle initial-question-only UI
+  // Suggested questions for data insights
+  const suggestedQuestions = [
+    "How has my sleep improved this week?",
+    "What is my training load trend?",
+    "Am I at risk of overtraining?",
+    "Which day was my best recovery?",
+    "How does my strain compare to last month?",
+    "Can you summarize my recent performance metrics?",
+    "Which habit should I focus on to improve readiness?",
+    "Any patterns in my sleep or HRV?",
+    "How have my active minutes changed over time?",
+    "Peak training times or insights?",
+  ];
+
   if (!threadId) {
     const [draft, setDraft] = useState("");
     const [error, setError] = useState<string | null>(null);
+
+    // Fill textarea with a suggested question
+    const handleSuggestedClick = (q: string) => setDraft(q);
 
     const handleStartThread = () => {
       if (!draft.trim()) {
@@ -44,7 +60,6 @@ export default function Chat() {
       }
       setError(null);
       const newThreadId = crypto.randomUUID();
-      // Pass the first user message to the chat thread using location.state
       navigate(`/chat/${newThreadId}`, {
         state: { initialQuestion: draft.trim() },
       });
@@ -54,10 +69,29 @@ export default function Chat() {
       <div className="relative min-h-screen flex items-center justify-center bg-dark text-white">
         <div ref={bgRef} className="absolute inset-0 -z-10" />
         <div className="bg-[#23233A]/90 rounded-2xl shadow-xl p-8 w-full max-w-md mx-auto animate-fade-in">
-          <h1 className="text-2xl font-semibold mb-4 text-center">AI Performance Coach</h1>
+          <h1 className="text-2xl font-semibold mb-2 text-center">
+            AI Performance Coach
+          </h1>
           <p className="mb-4 text-center opacity-75">
-            What can Aria help you with today?
+            Get data-driven insights or ask your own question below.
           </p>
+          <div className="mb-4">
+            <div className="mb-1 text-sm text-gray-300 text-center">
+              Try one of these:
+            </div>
+            <div className="flex flex-wrap gap-2 justify-center">
+              {suggestedQuestions.map((q, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleSuggestedClick(q)}
+                  className="bg-accent/20 hover:bg-accent/40 text-accent px-3 py-1 rounded-full text-xs transition-colors duration-200"
+                  type="button"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          </div>
           <textarea
             rows={3}
             value={draft}
