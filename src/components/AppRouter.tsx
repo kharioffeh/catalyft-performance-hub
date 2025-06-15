@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import DashboardGlass from '../pages/DashboardGlass';
+import DashboardPage from '../pages/Dashboard';
 import AnalyticsPage from '../pages/Analytics';
 import ReadinessDetailPage from '../pages/ReadinessDetailPage';
 import SleepDetailPage from '../pages/SleepDetailPage';
@@ -39,9 +39,8 @@ const AppRouter = () => {
           <AppLayout />
         </ProtectedRoute>
       }>
-        {/* Default and dashboard route use DashboardGlass */}
-        <Route index element={<DashboardGlass />} />
-        <Route path="dashboard" element={<DashboardGlass />} />
+        <Route index element={<DashboardPage />} />
+        <Route path="dashboard" element={<DashboardPage />} />
         <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="analytics/readiness" element={<ReadinessDetailPage />} />
         <Route path="analytics/sleep" element={<SleepDetailPage />} />
