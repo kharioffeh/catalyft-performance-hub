@@ -39,6 +39,7 @@ const AppRouter = () => {
           <AppLayout />
         </ProtectedRoute>
       }>
+        {/* Default and dashboard route use DashboardGlass */}
         <Route index element={<DashboardGlass />} />
         <Route path="dashboard" element={<DashboardGlass />} />
         <Route path="analytics" element={<AnalyticsPage />} />
