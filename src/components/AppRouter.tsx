@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import DashboardGlass from '../pages/DashboardGlass';
@@ -62,4 +61,3 @@ const AppRouter = () => {
 };
 
 export default AppRouter;
-
