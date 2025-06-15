@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { DashboardHeader } from './DashboardHeader';
 import { QuickStatusCards } from './QuickStatusCards';
@@ -56,9 +55,9 @@ export const SoloDashboard: React.FC<SoloDashboardProps> = ({
               <Brain className="w-4 h-4" />
               Chat with ARIA
             </Button>
-            <Button variant="outline" onClick={() => navigate('/kai')} className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => navigate('/templates')} className="flex items-center gap-2">
               <Target className="w-4 h-4" />
-              KAI Training Plans
+              Training Templates
             </Button>
           </div>
         </CardContent>

@@ -21,7 +21,7 @@ export const AriaSummary: React.FC = () => {
   const { profile } = useAuth();
 
   const { data: insights = [], isLoading } = useQuery({
-    queryKey: ['dailyInsights_v2', profile?.id],
+    queryKey: ['dailyInsights_unified', profile?.id],
     queryFn: async () => {
       if (!profile?.id || profile.role !== 'coach') return [];
 
@@ -29,7 +29,7 @@ export const AriaSummary: React.FC = () => {
       today.setHours(0, 0, 0, 0);
 
       const { data, error } = await supabase
-        .from('aria_insights_v')
+        .from('ai_insights')
         .select(`
           id,
           athlete_uuid,

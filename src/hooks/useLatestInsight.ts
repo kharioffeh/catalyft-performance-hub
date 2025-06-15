@@ -15,12 +15,12 @@ export const useLatestInsight = (metric: string) => {
   const { profile } = useAuth();
 
   return useQuery({
-    queryKey: ['latestInsight_v2', metric, profile?.id],
+    queryKey: ['latestInsight_unified', metric, profile?.id],
     queryFn: async (): Promise<Insight | null> => {
       if (!profile?.id) return null;
 
       const { data, error } = await supabase
-        .from('aria_insights_v')
+        .from('ai_insights')
         .select('id, json, created_at')
         .eq('athlete_uuid', profile.id)
         .eq('json->>metric', metric)

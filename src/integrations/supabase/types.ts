@@ -1052,124 +1052,12 @@ export type Database = {
       }
     }
     Views: {
-      aria_insights_v: {
-        Row: {
-          athlete_uuid: string | null
-          coach_uuid: string | null
-          created_at: string | null
-          id: string | null
-          json: Json | null
-          source_type: string | null
-        }
-        Insert: {
-          athlete_uuid?: string | null
-          coach_uuid?: string | null
-          created_at?: string | null
-          id?: string | null
-          json?: Json | null
-          source_type?: string | null
-        }
-        Update: {
-          athlete_uuid?: string | null
-          coach_uuid?: string | null
-          created_at?: string | null
-          id?: string | null
-          json?: Json | null
-          source_type?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ai_insights_athlete_uuid_fkey"
-            columns: ["athlete_uuid"]
-            isOneToOne: false
-            referencedRelation: "athletes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ai_insights_athlete_uuid_fkey"
-            columns: ["athlete_uuid"]
-            isOneToOne: false
-            referencedRelation: "vw_coach_athletes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ai_insights_athlete_uuid_fkey"
-            columns: ["athlete_uuid"]
-            isOneToOne: false
-            referencedRelation: "vw_risk_board"
-            referencedColumns: ["athlete_id"]
-          },
-          {
-            foreignKeyName: "ai_insights_coach_uuid_fkey"
-            columns: ["coach_uuid"]
-            isOneToOne: false
-            referencedRelation: "coaches"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       exercises_search: {
         Row: {
           document: unknown | null
           id: string | null
         }
         Relationships: []
-      }
-      kai_insights_v: {
-        Row: {
-          athlete_uuid: string | null
-          coach_uuid: string | null
-          created_at: string | null
-          id: string | null
-          json: Json | null
-          source_type: string | null
-        }
-        Insert: {
-          athlete_uuid?: string | null
-          coach_uuid?: string | null
-          created_at?: string | null
-          id?: string | null
-          json?: Json | null
-          source_type?: string | null
-        }
-        Update: {
-          athlete_uuid?: string | null
-          coach_uuid?: string | null
-          created_at?: string | null
-          id?: string | null
-          json?: Json | null
-          source_type?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ai_insights_athlete_uuid_fkey"
-            columns: ["athlete_uuid"]
-            isOneToOne: false
-            referencedRelation: "athletes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ai_insights_athlete_uuid_fkey"
-            columns: ["athlete_uuid"]
-            isOneToOne: false
-            referencedRelation: "vw_coach_athletes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ai_insights_athlete_uuid_fkey"
-            columns: ["athlete_uuid"]
-            isOneToOne: false
-            referencedRelation: "vw_risk_board"
-            referencedColumns: ["athlete_id"]
-          },
-          {
-            foreignKeyName: "ai_insights_coach_uuid_fkey"
-            columns: ["coach_uuid"]
-            isOneToOne: false
-            referencedRelation: "coaches"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       vw_coach_athletes: {
         Row: {

@@ -20,7 +20,7 @@ export const ARIAInsight: React.FC<ARIAInsightProps> = ({ metric, period }) => {
       setLoading(true);
       try {
         const { data, error } = await supabase
-          .from("aria_insights_v")
+          .from("ai_insights")
           .select("json")
           .eq("athlete_uuid", profile.id)
           .eq("json->>metric", metric)
