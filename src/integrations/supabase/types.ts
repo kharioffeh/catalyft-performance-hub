@@ -168,6 +168,64 @@ export type Database = {
           },
         ]
       }
+      athlete_testing: {
+        Row: {
+          athlete_uuid: string | null
+          cmj_cm: number | null
+          created_at: string | null
+          id: string
+          lift: string | null
+          notes: string | null
+          one_rm_kg: number | null
+          sprint_10m_s: number | null
+          test_date: string
+        }
+        Insert: {
+          athlete_uuid?: string | null
+          cmj_cm?: number | null
+          created_at?: string | null
+          id?: string
+          lift?: string | null
+          notes?: string | null
+          one_rm_kg?: number | null
+          sprint_10m_s?: number | null
+          test_date?: string
+        }
+        Update: {
+          athlete_uuid?: string | null
+          cmj_cm?: number | null
+          created_at?: string | null
+          id?: string
+          lift?: string | null
+          notes?: string | null
+          one_rm_kg?: number | null
+          sprint_10m_s?: number | null
+          test_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "athlete_testing_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "athlete_testing_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "vw_coach_athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "athlete_testing_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "vw_risk_board"
+            referencedColumns: ["athlete_id"]
+          },
+        ]
+      }
       athletes: {
         Row: {
           coach_uuid: string | null

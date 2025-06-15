@@ -1,4 +1,3 @@
-
 # Migrating KAI Insights Into ARIA (Unified Insights)
 
 ## Overview
@@ -46,3 +45,13 @@ This document summarizes the migration to unify "KAI" (chat/program insights) an
 ## Questions & Support
 
 For more information or assistance, please consult the [Supabase dashboard](https://supabase.com/dashboard/project/xeugyryfvilanoiethum) or your engineering lead.
+
+## Program Generator
+
+Catalyft now uses the ARIA Program Generator (OpenAI gpt-4o-mini) for coach-tier S&C plan automation.  
+To enable, set your OPENAI_KEY_ARIA secret. The function uses:  
+- athlete profile
+- latest testing metrics (if any, via `athlete_testing`)
+- plan goal and duration
+
+See /templates and “Generate with ARIA” modal for UI entrypoint. All output is validated by Zod and written to `program_templates` and per-week `workout_blocks`.

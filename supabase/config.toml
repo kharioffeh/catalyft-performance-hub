@@ -1,1 +1,5 @@
+
 project_id = "xeugyryfvilanoiethum"
+
+[functions.aria-generate-program]
+verify_jwt = true
