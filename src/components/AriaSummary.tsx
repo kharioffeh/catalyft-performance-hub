@@ -21,7 +21,7 @@ export const AriaSummary: React.FC = () => {
   const { profile } = useAuth();
 
   const { data: insights = [], isLoading } = useQuery({
-    queryKey: ['dailyInsights', profile?.id],
+    queryKey: ['dailyInsights_v2', profile?.id],
     queryFn: async () => {
       if (!profile?.id || profile.role !== 'coach') return [];
 
@@ -29,28 +29,30 @@ export const AriaSummary: React.FC = () => {
       today.setHours(0, 0, 0, 0);
 
       const { data, error } = await supabase
-        .from('insight_log')
+        .from('aria_insights_v')
         .select(`
           id,
           athlete_uuid,
-          metric,
-          severity,
-          message,
+          coach_uuid,
           created_at,
+          json,
           athletes!inner(name)
         `)
         .gte('created_at', today.toISOString())
-        .order('severity', { ascending: false })
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      // Type assertion since we know severity is constrained by DB trigger
-      return data?.map(item => ({
-        ...item,
-        severity: item.severity as 'info' | 'amber' | 'red',
-        athlete_name: item.athletes?.name
-      })) || [];
+      // json: { message, metric, severity, source }
+      return (data ?? []).map(item => ({
+        id: item.id,
+        athlete_uuid: item.athlete_uuid,
+        metric: item.json.metric,
+        severity: item.json.severity as 'info' | 'amber' | 'red',
+        message: item.json.message,
+        created_at: item.created_at,
+        athlete_name: item.athletes?.name,
+      }));
     },
     enabled: !!profile?.id && profile?.role === 'coach'
   });

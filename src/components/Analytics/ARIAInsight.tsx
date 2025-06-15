@@ -20,9 +20,10 @@ export const ARIAInsight: React.FC<ARIAInsightProps> = ({ metric, period }) => {
       setLoading(true);
       try {
         const { data, error } = await supabase
-          .from("insight_log")
-          .select("message")
+          .from("aria_insights_v")
+          .select("json")
           .eq("athlete_uuid", profile.id)
+          .eq("json->>metric", metric)
           .gte("created_at", new Date(Date.now() - period * 24 * 60 * 60 * 1000).toISOString())
           .order("created_at", { ascending: false })
           .limit(3);
@@ -32,7 +33,7 @@ export const ARIAInsight: React.FC<ARIAInsightProps> = ({ metric, period }) => {
           return;
         }
 
-        setInsights(data?.map((r: any) => r.message) || []);
+        setInsights(data?.map((r: any) => r.json?.message ?? '') || []);
       } catch (error) {
         console.error('Error fetching insights:', error);
       } finally {

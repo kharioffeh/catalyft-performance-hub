@@ -15,27 +15,31 @@ export const useLatestInsight = (metric: string) => {
   const { profile } = useAuth();
 
   return useQuery({
-    queryKey: ['latestInsight', metric, profile?.id],
+    queryKey: ['latestInsight_v2', metric, profile?.id],
     queryFn: async (): Promise<Insight | null> => {
       if (!profile?.id) return null;
 
       const { data, error } = await supabase
-        .from('insight_log')
-        .select('id, metric, severity, message, created_at')
-        .eq('metric', metric)
+        .from('aria_insights_v')
+        .select('id, json, created_at')
         .eq('athlete_uuid', profile.id)
+        .eq('json->>metric', metric)
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
 
       if (error) throw error;
-      
-      // Type assertion since we know severity is constrained by DB trigger
-      return data ? {
-        ...data,
-        severity: data.severity as 'info' | 'amber' | 'red'
-      } : null;
+
+      return data
+        ? {
+            id: data.id,
+            metric: data.json.metric,
+            severity: data.json.severity as 'info' | 'amber' | 'red',
+            message: data.json.message,
+            created_at: data.created_at,
+          }
+        : null;
     },
-    enabled: !!profile?.id
+    enabled: !!profile?.id,
   });
 };
