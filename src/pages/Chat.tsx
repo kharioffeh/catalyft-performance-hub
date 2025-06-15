@@ -99,7 +99,7 @@ export default function Chat() {
     };
 
     return (
-      <div className="relative min-h-screen bg-dark text-white font-sans overflow-hidden">
+      <div className="relative min-h-screen bg-accent text-white font-sans overflow-hidden">
         {/* Animated Background */}
         <div ref={bgRef} className="absolute inset-0 z-0" />
         <div className="absolute top-1/2 left-1/2 w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 bg-accent opacity-10 blur-[100px] rounded-full pointer-events-none" />
@@ -194,7 +194,7 @@ export default function Chat() {
           {/* --- CHAT INPUT SECTION: Centered, below all cards, not fixed --- */}
           <div className="mt-8 flex flex-col items-center">
             <div className="w-full max-w-2xl">
-              <div className="bg-[#1E1E26] border border-subtle rounded-lg p-3 flex flex-col gap-2">
+              <div className="bg-[#232337] border border-subtle rounded-lg p-3 flex flex-col gap-2">
                 <textarea
                   className="w-full bg-transparent outline-none resize-none text-white placeholder:text-muted-foreground text-base font-sans"
                   placeholder="Type your message or '/command'..."
