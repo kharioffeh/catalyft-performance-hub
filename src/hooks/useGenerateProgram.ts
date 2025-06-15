@@ -1,4 +1,5 @@
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
+
+// No need for '@supabase/auth-helpers-react'
 import { supabase } from '@/integrations/supabase/client';
 
 export const useGenerateProgram = () => {
