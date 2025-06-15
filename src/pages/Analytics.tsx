@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { GlassCard } from '@/components/Glass/GlassCard';
 import { ReadinessLine } from '@/components/Analytics/Glass/ReadinessLine';
@@ -12,7 +11,7 @@ import { TrendingUp, Download } from 'lucide-react';
 const AnalyticsPage: React.FC = () => {
   const [period, setPeriod] = useState<"24h" | "7d" | "30d" | "90d">("30d");
   const [selectedAthleteId, setSelectedAthleteId] = useState<string>('');
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -86,7 +85,7 @@ const AnalyticsPage: React.FC = () => {
 
         {/* Training Load Heat-map */}
         <GlassCard className="lg:h-96 flex flex-col lg:flex-row gap-6 p-8">
-          <HeatMapBody period={period} className="flex-1" />
+          <HeatMapBody period={period} className="flex-1" athleteId={selectedAthleteId} />
           <div className="flex-1 flex items-center justify-center">
             <ACWRDial large period={period} />
           </div>
