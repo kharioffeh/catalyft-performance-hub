@@ -82,7 +82,7 @@ export const ProgramTable: React.FC<ProgramTableProps> = ({ data, patchRow }) =>
               ))}
               <td>
                 {row.original.origin === 'ARIA' && (
-                  <Badge variant="warning">ARIA suggested</Badge>
+                  <Badge variant="destructive">ARIA suggested</Badge>
                 )}
                 {/* Accept/Decline logic */}
                 {row.original.origin === 'ARIA' && (
