@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import DashboardPage from '../pages/Dashboard';
+import DashboardGlass from '../pages/DashboardGlass';
 import AnalyticsPage from '../pages/Analytics';
 import ReadinessDetailPage from '../pages/ReadinessDetailPage';
 import SleepDetailPage from '../pages/SleepDetailPage';
@@ -39,8 +40,8 @@ const AppRouter = () => {
           <AppLayout />
         </ProtectedRoute>
       }>
-        <Route index element={<DashboardPage />} />
-        <Route path="dashboard" element={<DashboardPage />} />
+        <Route index element={<DashboardGlass />} />
+        <Route path="dashboard" element={<DashboardGlass />} />
         <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="analytics/readiness" element={<ReadinessDetailPage />} />
         <Route path="analytics/sleep" element={<SleepDetailPage />} />
@@ -61,3 +62,4 @@ const AppRouter = () => {
 };
 
 export default AppRouter;
+
