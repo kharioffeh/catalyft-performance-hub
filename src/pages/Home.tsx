@@ -1,112 +1,194 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import * as THREE from "three";
+import NET from "vanta/dist/vanta.net.min";
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Activity, Shield, Calendar, BarChart3 } from 'lucide-react';
+import { Activity, Shield, Calendar, BarChart3, Zap, Brain } from 'lucide-react';
 
 const Home: React.FC = () => {
+  // Vanta background effect
+  const vantaRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!vantaRef.current) return;
+    const vanta = NET({
+      el: vantaRef.current,
+      THREE,
+      color: 0x5e6ad2,
+      backgroundColor: 0x101014,
+      points: 8,
+      maxDistance: 25,
+      spacing: 20,
+    });
+    return () => vanta.destroy();
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">Catalyft AI</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link to="/login">
-                <Button variant="outline">Sign In</Button>
-              </Link>
-              <Link to="/signup">
-                <Button>Get Started</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 text-white font-[Inter]">
+      {/* Background layers */}
+      <div ref={vantaRef} className="absolute inset-0 -z-10" />
+      <div className="absolute top-1/2 left-1/2 w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 bg-blue-500 opacity-10 blur-[120px] rounded-full pointer-events-none" />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            AI-Powered Performance Coaching
-          </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Optimize your training with intelligent insights from your wearable data, 
-            personalized coaching plans, and advanced analytics.
-          </p>
-          <div className="mt-8">
+      {/* Navigation */}
+      <nav className="container mx-auto px-6 py-6 flex items-center justify-between">
+        <div className="flex items-center">
+          <Activity className="h-8 w-8 text-blue-400" />
+          <span className="ml-3 text-xl tracking-tight font-semibold">Catalyft AI</span>
+        </div>
+
+        <ul className="hidden md:flex space-x-10 text-sm text-gray-300">
+          <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
+          <li><a href="#solutions" className="hover:text-white transition-colors">Solutions</a></li>
+          <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
+        </ul>
+
+        <Link to="/login">
+          <Button variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-md">
+            Sign In
+          </Button>
+        </Link>
+      </nav>
+
+      {/* Hero Section */}
+      <section id="hero" className="container mx-auto px-6 pt-20 md:pt-28 text-center">
+        <h1 className="text-5xl md:text-6xl lg:text-7xl font-light tracking-tight mb-6 leading-tight">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">AI-Powered</span>{" "}
+          Performance Coaching
+        </h1>
+        <p className="text-gray-300 text-xl md:text-2xl mb-10 max-w-3xl mx-auto font-light">
+          Optimize your training with intelligent insights from your wearable data, 
+          personalized coaching plans, and advanced analytics.
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link to="/signup">
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3">
+              Start Free Trial
+            </Button>
+          </Link>
+          <a href="#features" className="flex items-center text-gray-300 hover:text-white transition-colors">
+            Learn more
+            <BarChart3 className="ml-2 h-4 w-4" />
+          </a>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-24 max-w-4xl mx-auto">
+          {[
+            ["10k+", "Athletes trained"],
+            ["95%", "Performance improvement"],
+            ["24/7", "AI monitoring"],
+            ["100%", "Data-driven insights"],
+          ].map(([num, label]) => (
+            <div key={label} className="text-center">
+              <p className="text-4xl font-light mb-1 tracking-tight text-blue-400">{num}</p>
+              <p className="text-gray-400 font-light">{label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="py-24">
+        <div className="container mx-auto px-6">
+          {/* Header */}
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-light tracking-tight mb-4">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                Powerful features
+              </span>{" "}
+              for peak performance
+            </h2>
+            <p className="text-gray-300 text-xl max-w-2xl mx-auto font-light">
+              Everything you need to monitor, analyze, and optimize athletic performance with cutting-edge AI technology.
+            </p>
+          </div>
+
+          {/* Features Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {FEATURE_LIST.map(({ icon: IconComponent, title, desc, color }) => (
+              <div
+                key={title}
+                className="bg-white/5 backdrop-blur-md p-8 rounded-xl border border-white/10 hover:border-blue-500/30 transition-all duration-300 group"
+              >
+                <div className={`w-12 h-12 mb-6 rounded-lg flex items-center justify-center ${color} group-hover:opacity-80 transition-opacity`}>
+                  <IconComponent className="h-6 w-6" />
+                </div>
+                <h3 className="text-xl font-medium mb-3 text-white">{title}</h3>
+                <p className="text-gray-400 font-light leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div className="mt-16 text-center">
             <Link to="/signup">
-              <Button size="lg" className="mr-4">
-                Start Free Trial
-              </Button>
-            </Link>
-            <Link to="/login">
-              <Button variant="outline" size="lg">
-                Sign In
+              <Button size="lg" className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium px-8 py-3">
+                Get Started Today
               </Button>
             </Link>
           </div>
         </div>
+      </section>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 mb-16">
-          <Card>
-            <CardHeader>
-              <Activity className="w-8 h-8 text-blue-600 mb-2" />
-              <CardTitle>Readiness Tracking</CardTitle>
-              <CardDescription>
-                Monitor daily readiness with AI-powered insights from your wearable data.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <Shield className="w-8 h-8 text-green-600 mb-2" />
-              <CardTitle>Risk Assessment</CardTitle>
-              <CardDescription>
-                Prevent injuries with intelligent workload monitoring and risk alerts.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <Calendar className="w-8 h-8 text-purple-600 mb-2" />
-              <CardTitle>Smart Scheduling</CardTitle>
-              <CardDescription>
-                Optimize training schedules based on recovery data and performance goals.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <BarChart3 className="w-8 h-8 text-orange-600 mb-2" />
-              <CardTitle>Analytics Dashboard</CardTitle>
-              <CardDescription>
-                Visualize progress with advanced charts and personalized insights.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm border p-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+      {/* Final CTA Section */}
+      <section className="py-16 bg-white/5 backdrop-blur-md border-t border-white/10">
+        <div className="container mx-auto px-6 text-center">
+          <h2 className="text-2xl font-medium text-white mb-4">
             Ready to optimize your performance?
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-300 mb-6 font-light">
             Join thousands of athletes and coaches already using Catalyft AI.
           </p>
           <Link to="/signup">
-            <Button size="lg">
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-medium">
               Get Started Today
             </Button>
           </Link>
         </div>
-      </main>
+      </section>
     </div>
   );
 };
+
+// Feature data with Lucide icons
+const FEATURE_LIST = [
+  {
+    title: "Readiness Tracking",
+    desc: "Monitor daily readiness with AI-powered insights from your wearable data and recovery metrics.",
+    color: "bg-blue-500/10 text-blue-400",
+    icon: Activity,
+  },
+  {
+    title: "Risk Assessment",
+    desc: "Prevent injuries with intelligent workload monitoring and predictive risk analysis.",
+    color: "bg-purple-500/10 text-purple-400",
+    icon: Shield,
+  },
+  {
+    title: "Smart Scheduling",
+    desc: "Optimize training schedules based on recovery data, performance goals, and athlete availability.",
+    color: "bg-green-500/10 text-green-400",
+    icon: Calendar,
+  },
+  {
+    title: "Advanced Analytics",
+    desc: "Visualize progress with comprehensive charts and personalized performance insights.",
+    color: "bg-orange-500/10 text-orange-400",
+    icon: BarChart3,
+  },
+  {
+    title: "AI Performance Coach",
+    desc: "Get personalized coaching recommendations powered by machine learning algorithms.",
+    color: "bg-indigo-500/10 text-indigo-400",
+    icon: Brain,
+  },
+  {
+    title: "Real-time Optimization",
+    desc: "Receive instant feedback and adjustments to maximize training effectiveness.",
+    color: "bg-pink-500/10 text-pink-400",
+    icon: Zap,
+  },
+];
 
 export default Home;

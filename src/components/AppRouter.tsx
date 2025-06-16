@@ -17,6 +17,7 @@ import ResetPasswordPage from '../pages/Auth';
 import FinishSignupPage from '../pages/FinishSignup';
 import CalendarPage from '../pages/Calendar';
 import ChatPage from '../pages/Chat';
+import HomePage from '../pages/Home';
 import AppLayout from './AppLayout';
 import ProtectedRoute from './ProtectedRoute';
 import RiskBoardPage from '../pages/CoachRiskBoard';
@@ -29,11 +30,15 @@ const AppRouter = () => {
 
   return (
     <Routes>
+      {/* Public routes */}
+      <Route path="/home" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/finish-signup" element={<FinishSignupPage />} />
+      
+      {/* Protected routes */}
       <Route path="/" element={
         <ProtectedRoute>
           <AppLayout />
@@ -59,6 +64,9 @@ const AppRouter = () => {
         <Route path="settings" element={<SettingsPage />} />
         <Route path="subscriptions" element={<SubscriptionsPage />} />
       </Route>
+      
+      {/* Redirect root to home page for non-authenticated users */}
+      <Route path="*" element={<Navigate to="/home" replace />} />
     </Routes>
   );
 };
