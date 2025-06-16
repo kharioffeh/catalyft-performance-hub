@@ -38,7 +38,7 @@ const Home: React.FC = () => {
 
         <ul className="hidden md:flex space-x-10 text-sm text-gray-300">
           <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-          <li><a href="#solutions" className="hover:text-white transition-colors">Solutions</a></li>
+          <li><a href="#testimonials" className="hover:text-white transition-colors">Testimonials</a></li>
           <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
         </ul>
 
@@ -119,14 +119,48 @@ const Home: React.FC = () => {
               </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          {/* CTA */}
-          <div className="mt-16 text-center">
-            <Link to="/signup">
-              <Button size="lg" className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium px-8 py-3">
-                Get Started Today
-              </Button>
-            </Link>
+      {/* Testimonials Section */}
+      <section id="testimonials" className="py-24 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none select-none">
+          <div className="absolute -top-32 left-1/3 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-1/5 w-64 h-64 bg-purple-600/20 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="container mx-auto px-6 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-light tracking-tight mb-4">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                What Athletes Say
+              </span>
+            </h2>
+            <p className="text-gray-300 text-xl max-w-2xl mx-auto font-light">
+              Real feedback from athletes and coaches who've transformed their performance
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {TESTIMONIALS.map((testimonial, index) => (
+              <div
+                key={testimonial.name}
+                className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10 hover:border-blue-500/30 transition-all duration-300 flex flex-col items-center text-center"
+              >
+                <img 
+                  src={testimonial.image} 
+                  alt={testimonial.name}
+                  className="w-16 h-16 rounded-full mb-4 border-2 border-blue-400 shadow-lg"
+                />
+                <p className="text-lg text-white mb-4 font-light leading-relaxed">
+                  "{testimonial.quote}"
+                </p>
+                <div className="mt-auto">
+                  <span className="block text-blue-300 font-medium">{testimonial.name}</span>
+                  <span className="block text-gray-400 text-sm">{testimonial.title}</span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -189,6 +223,28 @@ const FEATURE_LIST = [
     color: "bg-pink-500/10 text-pink-400",
     icon: Zap,
   },
+];
+
+// Testimonials data
+const TESTIMONIALS = [
+  {
+    name: "Sarah Mitchell",
+    title: "Olympic Swimmer",
+    quote: "Catalyft AI transformed my training completely. The readiness insights helped me avoid overtraining and achieve my personal best times.",
+    image: "https://images.unsplash.com/photo-1494790108755-2616b612b5ab?w=150&h=150&fit=crop&crop=face"
+  },
+  {
+    name: "Marcus Rodriguez",
+    title: "Professional Cyclist",
+    quote: "The AI coaching recommendations are spot-on. My power output increased by 15% in just 3 months of using the platform.",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+  },
+  {
+    name: "Coach Jennifer Lee",
+    title: "Track & Field Coach",
+    quote: "Managing 20+ athletes became effortless with Catalyft. The risk assessment features have prevented countless injuries.",
+    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
+  }
 ];
 
 export default Home;
