@@ -1,14 +1,12 @@
 
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { supabase } from '@/lib/supabase'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from '@/hooks/use-toast'
+import * as THREE from "three"
+import NET from "vanta/dist/vanta.net.min"
+import { Activity } from 'lucide-react'
 
 interface SignupForm {
   fullName: string
@@ -19,10 +17,28 @@ interface SignupForm {
 
 const Signup: React.FC = () => {
   const [loading, setLoading] = useState(false)
+  const [selectedRole, setSelectedRole] = useState('')
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const navigate = useNavigate()
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<SignupForm>()
   
   const watchedRole = watch('role')
+
+  // Vanta background effect
+  const vantaRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!vantaRef.current) return
+    const vanta = NET({
+      el: vantaRef.current,
+      THREE,
+      color: 0x5e6ad2,
+      backgroundColor: 0x101014,
+      points: 8,
+      maxDistance: 25,
+      spacing: 20,
+    })
+    return () => vanta.destroy()
+  }, [])
 
   const onSubmit = async (data: SignupForm) => {
     setLoading(true)
@@ -95,84 +111,217 @@ const Signup: React.FC = () => {
     }
   }
 
+  const handleRoleSelect = (role: 'athlete' | 'coach', label: string) => {
+    setSelectedRole(label)
+    setValue('role', role)
+    setIsDropdownOpen(false)
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
-          <CardDescription>Join Catalyft AI today</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
-              <Input
-                id="fullName"
-                type="text"
-                {...register('fullName', { required: 'Full name is required' })}
-                placeholder="Enter your full name"
-              />
+    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 text-white font-[Inter] flex items-center justify-center p-4">
+      {/* Background layers */}
+      <div ref={vantaRef} className="absolute inset-0 -z-10" />
+      <div className="absolute top-1/2 left-1/2 w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 bg-blue-500 opacity-10 blur-[120px] rounded-full pointer-events-none" />
+
+      {/* Main Container */}
+      <div className="relative flex flex-col overflow-hidden cursor-default shadow-2xl transition-all duration-500 max-w-2xl w-full font-semibold text-white rounded-3xl">
+        <div className="absolute z-0 inset-0 backdrop-blur-md overflow-hidden"></div>
+        <div className="z-10 absolute inset-0 bg-white bg-opacity-15"></div>
+        <div className="absolute inset-0 z-20 overflow-hidden shadow-inner border border-white/20 rounded-3xl"></div>
+        
+        {/* Top Section - Welcome & Progress */}
+        <div className="z-30 h-2/4 flex flex-col relative text-center bg-black/10 pt-8 pr-8 pb-8 pl-8 items-center justify-center">
+          {/* Logo & Brand */}
+          <div className="mb-4">
+            <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-3 overflow-hidden">
+              <div className="absolute z-0 inset-0 backdrop-blur-sm"></div>
+              <div className="z-10 absolute inset-0 bg-gradient-to-br from-blue-400/30 to-purple-400/20"></div>
+              <div className="absolute inset-0 z-20 border border-white/30 rounded-2xl"></div>
+              <Activity className="z-30 h-7 w-7 text-blue-400" />
+            </div>
+            <h1 className="leading-tight text-5xl font-light text-white tracking-tight mb-2">Welcome to Catalyft AI</h1>
+            <p className="leading-relaxed text-sm font-light text-white/80">Let's get you set up with your new account in just a few simple steps.</p>
+          </div>
+
+          {/* Progress Steps */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold backdrop-blur-sm bg-gradient-to-br from-blue-400/40 to-purple-400/20 border border-white/30">1</div>
+              <span className="text-xs font-medium text-white/90 hidden sm:block">Account</span>
+            </div>
+            <div className="w-6 h-px bg-white/30"></div>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold backdrop-blur-sm bg-white/10 border border-white/20">2</div>
+              <span className="text-xs font-medium text-white/60 hidden sm:block">Setup</span>
+            </div>
+            <div className="w-6 h-px bg-white/30"></div>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold backdrop-blur-sm bg-white/10 border border-white/20">3</div>
+              <span className="text-xs font-medium text-white/60 hidden sm:block">Complete</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Section - Signup Form */}
+        <div className="z-30 h-full flex flex-col p-8 justify-start overflow-y-auto">
+          {/* Header */}
+          <div className="mb-6">
+            <h2 className="text-2xl font-medium text-white mb-2">Create your account</h2>
+            <p className="text-sm font-light text-white/70">Step 1 of 3 • Join the future of performance coaching</p>
+          </div>
+
+          {/* Signup Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="flex-1 mb-6 space-y-4">
+            {/* Full Name */}
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">Full Name</label>
+              <div className="relative overflow-hidden rounded-xl">
+                <div className="absolute z-0 inset-0 backdrop-blur-sm"></div>
+                <div className="z-10 absolute inset-0 bg-white bg-opacity-10"></div>
+                <div className="absolute inset-0 z-20 border border-white/20 rounded-xl"></div>
+                <input 
+                  type="text" 
+                  {...register('fullName', { required: 'Full name is required' })}
+                  className="z-30 relative bg-transparent w-full px-4 py-3 text-sm placeholder-gray-300 text-white border-none focus:outline-none focus:ring-2 focus:ring-blue-400/50 rounded-xl" 
+                  placeholder="Enter your full name" 
+                />
+              </div>
               {errors.fullName && (
-                <p className="text-sm text-red-600">{errors.fullName.message}</p>
+                <p className="text-sm text-red-400 mt-1">{errors.fullName.message}</p>
               )}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
-              <Select onValueChange={(value) => setValue('role', value as 'athlete' | 'coach')} required>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="athlete">Athlete</SelectItem>
-                  <SelectItem value="coach">Coach</SelectItem>
-                </SelectContent>
-              </Select>
-              {!watchedRole && (
-                <p className="text-sm text-red-600">Role is required</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                {...register('email', { required: 'Email is required' })}
-                placeholder="Enter your email"
-              />
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">Email</label>
+              <div className="relative overflow-hidden rounded-xl">
+                <div className="absolute z-0 inset-0 backdrop-blur-sm"></div>
+                <div className="z-10 absolute inset-0 bg-white bg-opacity-10"></div>
+                <div className="absolute inset-0 z-20 border border-white/20 rounded-xl"></div>
+                <input 
+                  type="email" 
+                  {...register('email', { required: 'Email is required' })}
+                  className="z-30 relative bg-transparent w-full px-4 py-3 text-sm placeholder-gray-300 text-white border-none focus:outline-none focus:ring-2 focus:ring-blue-400/50 rounded-xl" 
+                  placeholder="Enter your email" 
+                />
+              </div>
               {errors.email && (
-                <p className="text-sm text-red-600">{errors.email.message}</p>
+                <p className="text-sm text-red-400 mt-1">{errors.email.message}</p>
               )}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                {...register('password', { 
-                  required: 'Password is required',
-                  minLength: { value: 6, message: 'Password must be at least 6 characters' }
-                })}
-                placeholder="Create a password"
-              />
+
+            {/* Role Selection */}
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">Your role</label>
+              <div className="relative">
+                <div 
+                  className="relative overflow-hidden rounded-xl cursor-pointer"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                >
+                  <div className="absolute z-0 inset-0 backdrop-blur-sm"></div>
+                  <div className="z-10 absolute inset-0 bg-white bg-opacity-10"></div>
+                  <div className="absolute inset-0 z-20 border border-white/20 rounded-xl"></div>
+                  <div className="z-30 relative w-full px-4 py-3 text-sm text-white flex items-center justify-between">
+                    <span className={selectedRole ? "text-white" : "text-gray-300"}>
+                      {selectedRole || "Select your role"}
+                    </span>
+                    <svg 
+                      width="16" 
+                      height="16" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24" 
+                      className={`text-white/50 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </div>
+                </div>
+                
+                {/* Custom Dropdown Menu */}
+                {isDropdownOpen && (
+                  <div className="absolute top-full left-0 right-0 z-50 mt-2">
+                    <div className="relative overflow-hidden rounded-xl">
+                      <div className="absolute z-0 inset-0 backdrop-blur-lg"></div>
+                      <div className="z-10 absolute inset-0 bg-white bg-opacity-15"></div>
+                      <div className="absolute inset-0 z-20 border border-white/30 rounded-xl"></div>
+                      <div className="z-30 relative py-2">
+                        <div 
+                          className="px-4 py-2 text-sm text-white bg-white/5 hover:bg-white/15 cursor-pointer transition-colors"
+                          onClick={() => handleRoleSelect('athlete', 'Athlete')}
+                        >
+                          Athlete
+                        </div>
+                        <div 
+                          className="px-4 py-2 text-sm text-white bg-white/5 hover:bg-white/15 cursor-pointer transition-colors"
+                          onClick={() => handleRoleSelect('coach', 'Coach')}
+                        >
+                          Coach
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              {!watchedRole && (
+                <p className="text-sm text-red-400 mt-1">Role is required</p>
+              )}
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">Create password</label>
+              <div className="relative overflow-hidden rounded-xl">
+                <div className="absolute z-0 inset-0 backdrop-blur-sm"></div>
+                <div className="z-10 absolute inset-0 bg-white bg-opacity-10"></div>
+                <div className="absolute inset-0 z-20 border border-white/20 rounded-xl"></div>
+                <input 
+                  type="password" 
+                  {...register('password', { 
+                    required: 'Password is required',
+                    minLength: { value: 6, message: 'Password must be at least 6 characters' }
+                  })}
+                  className="z-30 relative bg-transparent w-full px-4 py-3 text-sm placeholder-gray-300 text-white border-none focus:outline-none focus:ring-2 focus:ring-blue-400/50 rounded-xl" 
+                  placeholder="Minimum 6 characters" 
+                />
+              </div>
               {errors.password && (
-                <p className="text-sm text-red-600">{errors.password.message}</p>
+                <p className="text-sm text-red-400 mt-1">{errors.password.message}</p>
               )}
             </div>
-            <Button type="submit" className="w-full" disabled={loading || !watchedRole}>
-              {loading ? 'Creating account...' : 'Create Account'}
-            </Button>
+
+            {/* Continue Button */}
+            <div className="relative overflow-hidden rounded-xl cursor-pointer transition-all duration-300 hover:shadow-lg pt-4">
+              <div className="absolute z-0 inset-0 backdrop-blur-sm"></div>
+              <div className="z-10 absolute inset-0 bg-gradient-to-r from-blue-500/30 to-purple-500/20"></div>
+              <div className="absolute inset-0 z-20 border border-white/30 rounded-xl"></div>
+              <button 
+                type="submit" 
+                disabled={loading || !watchedRole}
+                className="z-30 relative w-full border-none flex gap-2 text-sm font-semibold text-white bg-transparent py-3 px-4 items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span>{loading ? 'Creating account...' : 'Create Account'}</span>
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+              </button>
+            </div>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Already have an account?{' '}
-              <Link to="/login" className="text-blue-600 hover:underline">
-                Sign in
-              </Link>
+          {/* Footer */}
+          <div className="text-center mt-auto">
+            <p className="text-sm font-light text-white/70 mb-3">
+              Already have an account? 
+              <Link to="/login" className="text-blue-400 hover:text-blue-300 transition-colors font-medium ml-1">Sign in here</Link>
             </p>
+            <div className="flex gap-4 text-xs font-light text-white/50 items-center justify-center">
+              <a href="#" className="hover:text-white/70 transition-colors">Help Center</a>
+              <span>•</span>
+              <a href="#" className="hover:text-white/70 transition-colors">Contact Support</a>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }
