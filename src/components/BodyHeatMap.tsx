@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from "react";
 import { useMuscleHeatmap } from "@/hooks/useMuscleHeatmap";
 import clsx from "clsx";
@@ -152,18 +153,19 @@ export const BodyHeatMap: React.FC<BodyHeatMapProps> = ({
     <div
       ref={wrapperRef}
       className={clsx(
-        "relative rounded-xl shadow-glass-lg bg-white/10 p-3 sm:p-6 flex items-center justify-center w-full h-full max-h-[36rem] overflow-auto"
+        "relative rounded-xl bg-transparent flex items-center justify-center w-full h-full overflow-hidden"
       )}
     >
       {/* Debug Mode Toggle */}
       <button
-        className="absolute top-2 right-2 bg-white/10 text-xs px-2 py-1 rounded hover:bg-white/20 z-[101]"
+        className="absolute top-2 right-2 bg-white/10 text-xs px-2 py-1 rounded hover:bg-white/20 z-[101] text-white/70"
         onClick={() => setDebugOpen((x) => !x)}
         title="Show/hide debug info"
         type="button"
       >
-        &#9881; Debug
+        &#9881;
       </button>
+      
       {/* Debug Panel */}
       {debugOpen && (
         <div className="absolute top-8 right-2 z-[110] bg-zinc-900/90 backdrop-blur px-4 py-3 rounded border border-zinc-700 text-xs text-white/80 max-w-[370px] min-w-[270px]">
@@ -216,7 +218,7 @@ export const BodyHeatMap: React.FC<BodyHeatMapProps> = ({
       {/* Render: SVG */}
       <TooltipProvider>
         <div
-          className="w-full flex justify-center"
+          className="w-full h-full flex items-center justify-center"
           data-heatmap-svg-wrapper
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: svgWithColors || "" }}

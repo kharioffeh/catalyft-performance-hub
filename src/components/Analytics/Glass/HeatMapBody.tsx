@@ -14,8 +14,11 @@ export const HeatMapBody: React.FC<HeatMapBodyProps> = ({
   athleteId = "",
 }) => {
   return (
-    <div className={`bg-transparent rounded-xl shadow-glass-lg bg-white/10 border border-white/20 p-4 ${className || ""}`}>
-      <BodyHeatMap athleteId={athleteId} window_days={parseInt(period.replace(/\D/g, "")) || 7} />
+    <div className={`bg-transparent rounded-xl shadow-glass-lg bg-white/10 border border-white/20 p-3 ${className || ""}`}>
+      <BodyHeatMap 
+        athleteId={athleteId} 
+        window_days={parseInt(period.replace(/\D/g, "")) || 7} 
+      />
     </div>
   );
 };

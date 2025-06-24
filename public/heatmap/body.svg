@@ -1,29 +1,35 @@
 
-<svg width="600" height="400" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+<svg width="500" height="300" viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>
       .muscle-group {
         fill: #d1d5db;
         stroke: #9ca3af;
-        stroke-width: 1;
+        stroke-width: 0.8;
         cursor: pointer;
         transition: fill 0.3s ease;
       }
       .muscle-group:hover {
         stroke: #4f46e5;
-        stroke-width: 2;
+        stroke-width: 1.5;
       }
       .body-outline {
         fill: none;
         stroke: #6b7280;
-        stroke-width: 1.5;
+        stroke-width: 1.2;
       }
       .label {
         font-family: 'Inter', sans-serif;
-        font-size: 10px;
+        font-size: 9px;
         fill: #374151;
         text-anchor: middle;
         font-weight: 600;
+      }
+      .legend-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 7px;
+        fill: #374151;
+        font-weight: 500;
       }
     </style>
   </defs>
@@ -31,107 +37,107 @@
   <!-- Front View -->
   <g id="front-view">
     <!-- Body outline - front -->
-    <path class="body-outline" d="M80 50 Q75 48 75 55 L75 90 Q75 95 78 100 L78 170 Q78 175 75 180 L75 270 Q75 275 78 280 L78 320 Q78 325 80 330 L90 330 Q95 325 95 320 L95 290 L105 290 L105 320 Q105 325 110 330 L120 330 Q125 325 125 320 L125 280 Q128 275 128 270 L128 180 Q125 175 125 170 L125 100 Q128 95 128 90 L128 55 Q128 48 123 50 Z"/>
+    <path class="body-outline" d="M60 35 Q57 33 57 38 L57 65 Q57 68 59 70 L59 120 Q59 123 57 125 L57 190 Q57 193 59 195 L59 225 Q59 228 60 230 L68 230 Q71 228 71 225 L71 205 L78 205 L78 225 Q78 228 81 230 L89 230 Q92 228 92 225 L92 195 Q94 193 94 190 L94 125 Q92 123 92 120 L92 70 Q94 68 94 65 L94 38 Q94 33 91 35 Z"/>
     
     <!-- Head -->
-    <circle cx="101.5" cy="35" r="18" class="body-outline"/>
+    <circle cx="74.5" cy="25" r="13" class="body-outline"/>
     
     <!-- Arms outline -->
-    <path class="body-outline" d="M75 90 Q70 88 65 90 L65 120 Q65 125 68 130 L68 155 Q68 160 70 165 L75 165"/>
-    <path class="body-outline" d="M128 90 Q133 88 138 90 L138 120 Q138 125 135 130 L135 155 Q135 160 133 165 L128 165"/>
+    <path class="body-outline" d="M57 65 Q54 64 52 65 L52 85 Q52 88 54 90 L54 105 Q54 108 56 110 L57 110"/>
+    <path class="body-outline" d="M94 65 Q97 64 99 65 L99 85 Q99 88 97 90 L97 105 Q97 108 95 110 L94 110"/>
     
     <!-- Legs outline -->
-    <path class="body-outline" d="M78 330 L78 360 Q78 365 85 365 L90 365 Q95 365 95 360 L95 330"/>
-    <path class="body-outline" d="M125 330 L125 360 Q125 365 120 365 L115 365 Q110 365 110 360 L110 330"/>
+    <path class="body-outline" d="M59 230 L59 250 Q59 253 63 253 L68 253 Q71 253 71 250 L71 230"/>
+    <path class="body-outline" d="M92 230 L92 250 Q92 253 89 253 L85 253 Q81 253 81 250 L81 230"/>
     
     <!-- Front Muscles -->
     <!-- Anterior Deltoid (shoulders) -->
-    <ellipse id="anterior_deltoid" cx="68" cy="95" rx="10" ry="12" class="muscle-group"/>
-    <ellipse id="anterior_deltoid_right" cx="135" cy="95" rx="10" ry="12" class="muscle-group"/>
+    <ellipse id="anterior_deltoid" cx="54" cy="68" rx="7" ry="9" class="muscle-group"/>
+    <ellipse id="anterior_deltoid_right" cx="97" cy="68" rx="7" ry="9" class="muscle-group"/>
     
     <!-- Pectoralis Major (chest) -->
-    <path id="pectoralis_major" d="M82 85 Q90 82 95 85 Q105 82 110 85 Q118 82 121 85 L121 115 Q118 118 110 115 Q105 118 95 115 Q90 118 82 115 Z" class="muscle-group"/>
+    <path id="pectoralis_major" d="M62 60 Q68 58 71 60 Q78 58 82 60 Q87 58 89 60 L89 80 Q87 82 82 80 Q78 82 71 80 Q68 82 62 80 Z" class="muscle-group"/>
     
     <!-- Biceps Brachii (front upper arms) -->
-    <ellipse id="biceps_brachii" cx="68" cy="120" rx="6" ry="15" class="muscle-group"/>
-    <ellipse id="biceps_brachii_right" cx="135" cy="120" rx="6" ry="15" class="muscle-group"/>
+    <ellipse id="biceps_brachii" cx="54" cy="85" rx="4" ry="11" class="muscle-group"/>
+    <ellipse id="biceps_brachii_right" cx="97" cy="85" rx="4" ry="11" class="muscle-group"/>
     
     <!-- Rectus Abdominis (abs) -->
-    <rect id="rectus_abdominis" x="88" y="125" width="27" height="50" rx="6" class="muscle-group"/>
+    <rect id="rectus_abdominis" x="66" y="88" width="17" height="35" rx="4" class="muscle-group"/>
     
     <!-- Rectus Femoris (front thigh) -->
-    <ellipse id="rectus_femoris" cx="88" cy="230" rx="8" ry="25" class="muscle-group"/>
-    <ellipse id="rectus_femoris_right" cx="115" cy="230" rx="8" ry="25" class="muscle-group"/>
+    <ellipse id="rectus_femoris" cx="66" cy="160" rx="6" ry="18" class="muscle-group"/>
+    <ellipse id="rectus_femoris_right" cx="85" cy="160" rx="6" ry="18" class="muscle-group"/>
     
     <!-- Vastus Lateralis (outer thigh) -->
-    <ellipse id="vastus_lateralis" cx="78" cy="235" rx="7" ry="22" class="muscle-group"/>
-    <ellipse id="vastus_lateralis_right" cx="125" cy="235" rx="7" ry="22" class="muscle-group"/>
+    <ellipse id="vastus_lateralis" cx="59" cy="165" rx="5" ry="16" class="muscle-group"/>
+    <ellipse id="vastus_lateralis_right" cx="92" cy="165" rx="5" ry="16" class="muscle-group"/>
     
     <!-- Quadriceps (general front thigh) -->
-    <ellipse id="quadriceps" cx="101.5" cy="210" rx="18" ry="20" class="muscle-group"/>
+    <ellipse id="quadriceps" cx="75.5" cy="145" rx="13" ry="15" class="muscle-group"/>
     
     <!-- Labels for front view -->
-    <text x="101.5" y="15" class="label">FRONT VIEW</text>
+    <text x="75.5" y="12" class="label">FRONT VIEW</text>
   </g>
   
   <!-- Back View -->
-  <g id="back-view" transform="translate(250, 0)">
+  <g id="back-view" transform="translate(180, 0)">
     <!-- Body outline - back -->
-    <path class="body-outline" d="M80 50 Q75 48 75 55 L75 90 Q75 95 78 100 L78 170 Q78 175 75 180 L75 270 Q75 275 78 280 L78 320 Q78 325 80 330 L90 330 Q95 325 95 320 L95 290 L105 290 L105 320 Q105 325 110 330 L120 330 Q125 325 125 320 L125 280 Q128 275 128 270 L128 180 Q125 175 125 170 L125 100 Q128 95 128 90 L128 55 Q128 48 123 50 Z"/>
+    <path class="body-outline" d="M60 35 Q57 33 57 38 L57 65 Q57 68 59 70 L59 120 Q59 123 57 125 L57 190 Q57 193 59 195 L59 225 Q59 228 60 230 L68 230 Q71 228 71 225 L71 205 L78 205 L78 225 Q78 228 81 230 L89 230 Q92 228 92 225 L92 195 Q94 193 94 190 L94 125 Q92 123 92 120 L92 70 Q94 68 94 65 L94 38 Q94 33 91 35 Z"/>
     
     <!-- Head -->
-    <circle cx="101.5" cy="35" r="18" class="body-outline"/>
+    <circle cx="74.5" cy="25" r="13" class="body-outline"/>
     
     <!-- Arms outline -->
-    <path class="body-outline" d="M75 90 Q70 88 65 90 L65 120 Q65 125 68 130 L68 155 Q68 160 70 165 L75 165"/>
-    <path class="body-outline" d="M128 90 Q133 88 138 90 L138 120 Q138 125 135 130 L135 155 Q135 160 133 165 L128 165"/>
+    <path class="body-outline" d="M57 65 Q54 64 52 65 L52 85 Q52 88 54 90 L54 105 Q54 108 56 110 L57 110"/>
+    <path class="body-outline" d="M94 65 Q97 64 99 65 L99 85 Q99 88 97 90 L97 105 Q97 108 95 110 L94 110"/>
     
     <!-- Legs outline -->
-    <path class="body-outline" d="M78 330 L78 360 Q78 365 85 365 L90 365 Q95 365 95 360 L95 330"/>
-    <path class="body-outline" d="M125 330 L125 360 Q125 365 120 365 L115 365 Q110 365 110 360 L110 330"/>
+    <path class="body-outline" d="M59 230 L59 250 Q59 253 63 253 L68 253 Q71 253 71 250 L71 230"/>
+    <path class="body-outline" d="M92 230 L92 250 Q92 253 89 253 L85 253 Q81 253 81 250 L81 230"/>
     
     <!-- Back Muscles -->
     <!-- Posterior Deltoid (back shoulders) -->
-    <ellipse id="posterior_deltoid" cx="68" cy="95" rx="10" ry="12" class="muscle-group"/>
-    <ellipse id="posterior_deltoid_right" cx="135" cy="95" rx="10" ry="12" class="muscle-group"/>
+    <ellipse id="posterior_deltoid" cx="54" cy="68" rx="7" ry="9" class="muscle-group"/>
+    <ellipse id="posterior_deltoid_right" cx="97" cy="68" rx="7" ry="9" class="muscle-group"/>
     
     <!-- Latissimus Dorsi (lats) -->
-    <path id="latissimus_dorsi" d="M75 110 Q82 108 88 110 Q95 108 105 110 Q110 108 118 110 Q125 108 128 110 L128 150 Q125 152 118 150 Q110 152 105 150 Q95 152 88 150 Q82 152 75 150 Z" class="muscle-group"/>
+    <path id="latissimus_dorsi" d="M57 78 Q62 76 66 78 Q71 76 78 78 Q82 76 87 78 Q92 76 94 78 L94 105 Q92 107 87 105 Q82 107 78 105 Q71 107 66 105 Q62 107 57 105 Z" class="muscle-group"/>
     
     <!-- Erector Spinae (spine muscles) -->
-    <rect id="erector_spinae" x="96" y="85" width="11" height="75" rx="5" class="muscle-group"/>
+    <rect id="erector_spinae" x="71" y="60" width="8" height="52" rx="3" class="muscle-group"/>
     
     <!-- Rhomboids (upper back) -->
-    <path id="rhomboids" d="M85 90 Q95 88 101.5 90 Q108 88 118 90 L118 105 Q108 107 101.5 105 Q95 107 85 105 Z" class="muscle-group"/>
+    <path id="rhomboids" d="M64 64 Q71 62 75.5 64 Q80 62 87 64 L87 74 Q80 76 75.5 74 Q71 76 64 74 Z" class="muscle-group"/>
     
     <!-- Gluteus Maximus (glutes) -->
-    <ellipse id="gluteus_maximus" cx="88" cy="185" rx="12" ry="15" class="muscle-group"/>
-    <ellipse id="gluteus_maximus_right" cx="115" cy="185" rx="12" ry="15" class="muscle-group"/>
+    <ellipse id="gluteus_maximus" cx="66" cy="130" rx="9" ry="11" class="muscle-group"/>
+    <ellipse id="gluteus_maximus_right" cx="85" cy="130" rx="9" ry="11" class="muscle-group"/>
     
     <!-- Hamstrings (back thigh) -->
-    <ellipse id="hamstrings" cx="88" cy="230" rx="8" ry="25" class="muscle-group"/>
-    <ellipse id="hamstrings_right" cx="115" cy="230" rx="8" ry="25" class="muscle-group"/>
+    <ellipse id="hamstrings" cx="66" cy="160" rx="6" ry="18" class="muscle-group"/>
+    <ellipse id="hamstrings_right" cx="85" cy="160" rx="6" ry="18" class="muscle-group"/>
     
     <!-- Triceps (back upper arms) -->
-    <ellipse id="triceps" cx="68" cy="120" rx="6" ry="15" class="muscle-group"/>
-    <ellipse id="triceps_right" cx="135" cy="120" rx="6" ry="15" class="muscle-group"/>
+    <ellipse id="triceps" cx="54" cy="85" rx="4" ry="11" class="muscle-group"/>
+    <ellipse id="triceps_right" cx="97" cy="85" rx="4" ry="11" class="muscle-group"/>
     
     <!-- Calves -->
-    <ellipse id="gastrocnemius" cx="88" cy="290" rx="6" ry="12" class="muscle-group"/>
-    <ellipse id="gastrocnemius_right" cx="115" cy="290" rx="6" ry="12" class="muscle-group"/>
+    <ellipse id="gastrocnemius" cx="66" cy="205" rx="4" ry="9" class="muscle-group"/>
+    <ellipse id="gastrocnemius_right" cx="85" cy="205" rx="4" ry="9" class="muscle-group"/>
     
     <!-- Labels for back view -->
-    <text x="101.5" y="15" class="label">BACK VIEW</text>
+    <text x="75.5" y="12" class="label">BACK VIEW</text>
   </g>
   
-  <!-- Legend -->
-  <g id="legend" transform="translate(30, 360)">
-    <text x="0" y="12" class="label" style="text-anchor: start; font-weight: 600;">Muscle Load Zones:</text>
-    <circle cx="12" cy="25" r="6" fill="#22c55e"/>
-    <text x="22" y="29" class="label" style="text-anchor: start; font-size: 8px;">Low (≤0.8)</text>
-    <circle cx="80" cy="25" r="6" fill="#fec15f"/>
-    <text x="90" y="29" class="label" style="text-anchor: start; font-size: 8px;">Normal (0.8-1.3)</text>
-    <circle cx="160" cy="25" r="6" fill="#ef4444"/>
-    <text x="170" y="29" class="label" style="text-anchor: start; font-size: 8px;">High (>1.3)</text>
+  <!-- Compact Legend - positioned at top right -->
+  <g id="legend" transform="translate(360, 15)">
+    <text x="0" y="8" class="legend-text" style="font-weight: 600;">Load Zones:</text>
+    <circle cx="8" cy="18" r="4" fill="#22c55e"/>
+    <text x="15" y="21" class="legend-text">Low (≤0.8)</text>
+    <circle cx="8" cy="30" r="4" fill="#fec15f"/>
+    <text x="15" y="33" class="legend-text">Normal (0.8-1.3)</text>
+    <circle cx="8" cy="42" r="4" fill="#ef4444"/>
+    <text x="15" y="45" class="legend-text">High (>1.3)</text>
   </g>
 </svg>
