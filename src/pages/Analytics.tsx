@@ -73,16 +73,21 @@ const AnalyticsPage: React.FC = () => {
         </div>
 
         {/* Muscle HeatMap + ACWR Dial Row */}
-        <div className="flex flex-col lg:flex-row gap-6">
-          <div className="flex-1 flex items-center justify-center min-h-[420px] sm:min-h-[460px]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Muscle HeatMap - takes up 2/3 of the width on larger screens */}
+          <div className="lg:col-span-2">
             <HeatMapBody 
-              className="w-full flex items-center justify-center h-full" 
+              className="w-full h-[380px] sm:h-[420px]" 
               period={period} 
               athleteId={selectedAthleteId} 
             />
           </div>
-          <div className="flex-1 flex items-center justify-center">
-            <ACWRDial large period={period} />
+          
+          {/* ACWR Dial - takes up 1/3 of the width on larger screens */}
+          <div className="flex items-center justify-center">
+            <div className="w-full max-w-[280px]">
+              <ACWRDial large period={period} />
+            </div>
           </div>
         </div>
 
