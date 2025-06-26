@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-export default function ProtectedRoute({ children }: ProtectedRouteProps) {
+function ProtectedRoute({ children }: ProtectedRouteProps): JSX.Element {
   const { session, loading } = useAuth();
 
   if (loading) {
@@ -27,3 +27,5 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   return <>{children}</>;
 }
+
+export default ProtectedRoute;
