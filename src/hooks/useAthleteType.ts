@@ -7,11 +7,15 @@ export const useAthleteType = (profileId?: string, userRole?: string) => {
     queryKey: ['athlete-type', profileId],
     queryFn: async () => {
       if (!profileId) {
-        return { type: userRole === 'coach' ? 'coach' : 'athlete', hasCoach: false };
+        return { type: userRole === 'coach' ? 'coach' : 'solo', hasCoach: false };
       }
 
       if (userRole === 'coach') {
         return { type: 'coach', hasCoach: false };
+      }
+
+      if (userRole === 'solo') {
+        return { type: 'solo', hasCoach: false };
       }
 
       if (userRole !== 'athlete') {

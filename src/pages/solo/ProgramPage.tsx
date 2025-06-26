@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useBlock, useDeleteBlock } from '@/hooks/useBlock';
-import { GlassCard } from '@/components/Glass/GlassCard';
+import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { ProgramBuilderModal } from '@/components/solo/ProgramBuilderModal';
 import WeekTable from '@/components/WeekTable';

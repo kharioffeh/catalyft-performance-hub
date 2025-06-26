@@ -5,10 +5,11 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  roles?: ('coach' | 'athlete' | 'solo')[];
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { session, loading } = useAuth();
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, roles }) => {
+  const { session, profile, loading } = useAuth();
 
   if (loading) {
     return (
@@ -23,6 +24,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (!session) {
     return <Navigate to="/home" replace />;
+  }
+
+  // Check role-based access if roles are specified
+  if (roles && profile && !roles.includes(profile.role)) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <>{children}</>;

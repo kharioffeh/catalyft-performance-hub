@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { Session, User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
@@ -6,7 +7,7 @@ interface Profile {
   id: string
   email: string
   full_name: string | null
-  role: 'coach' | 'athlete'
+  role: 'coach' | 'athlete' | 'solo'
   created_at: string
   updated_at: string
 }

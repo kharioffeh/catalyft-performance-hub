@@ -52,18 +52,38 @@ const AppRouter = () => {
       }>
         <Route index element={<DashboardPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="program" element={<SoloProgramPage />} />
+        <Route path="program" element={
+          <ProtectedRoute roles={['solo']}>
+            <SoloProgramPage />
+          </ProtectedRoute>
+        } />
         <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="analytics/readiness" element={<ReadinessDetailPage />} />
         <Route path="analytics/sleep" element={<SleepDetailPage />} />
         <Route path="analytics/load" element={<LoadDetailPage />} />
-        <Route path="athletes" element={<AthletesPage />} />
+        <Route path="athletes" element={
+          <ProtectedRoute roles={['coach']}>
+            <AthletesPage />
+          </ProtectedRoute>
+        } />
         <Route path="calendar" element={<CalendarPage />} />
         <Route path="chat" element={<ChatPage />} />
         <Route path="chat/:threadId" element={<ChatPage />} />
-        <Route path="risk-board" element={<RiskBoardPage />} />
-        <Route path="workouts" element={<WorkoutsPage />} />
-        <Route path="workout" element={<WorkoutsPage />} />
+        <Route path="risk-board" element={
+          <ProtectedRoute roles={['coach']}>
+            <RiskBoardPage />
+          </ProtectedRoute>
+        } />
+        <Route path="workouts" element={
+          <ProtectedRoute roles={['coach']}>
+            <WorkoutsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="workout" element={
+          <ProtectedRoute roles={['coach']}>
+            <WorkoutsPage />
+          </ProtectedRoute>
+        } />
         <Route path="kai" element={<Navigate to="/chat" replace />} />
         <Route path="template/:id" element={<TemplateDetailPage />} />
         <Route path="settings" element={<SettingsPage />} />

@@ -30,6 +30,11 @@ export const TopBar: React.FC<{ isDarkTheme?: boolean }> = ({ isDarkTheme = fals
         {!isMobile && (
           <span className="text-sm text-white/80">
             {profile?.full_name || 'User'}
+            {profile?.role && (
+              <span className="ml-2 text-xs text-white/60 capitalize">
+                ({profile.role})
+              </span>
+            )}
           </span>
         )}
         <Avatar className="h-8 w-8 md:h-10 md:w-10">
