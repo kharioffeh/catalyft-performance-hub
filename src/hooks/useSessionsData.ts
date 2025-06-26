@@ -21,7 +21,7 @@ interface Profile {
   id: string;
   email: string;
   full_name: string | null;
-  role: 'coach' | 'athlete';
+  role: 'coach' | 'athlete' | 'solo';
   created_at: string;
   updated_at: string;
 }
