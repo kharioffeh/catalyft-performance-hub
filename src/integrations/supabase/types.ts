@@ -1029,23 +1029,32 @@ export type Database = {
       workout_blocks: {
         Row: {
           athlete_uuid: string
+          coach_uuid: string | null
           created_at: string
           data: Json
+          duration_weeks: number | null
           id: string
+          name: string | null
           updated_at: string
         }
         Insert: {
           athlete_uuid: string
+          coach_uuid?: string | null
           created_at?: string
           data: Json
+          duration_weeks?: number | null
           id?: string
+          name?: string | null
           updated_at?: string
         }
         Update: {
           athlete_uuid?: string
+          coach_uuid?: string | null
           created_at?: string
           data?: Json
+          duration_weeks?: number | null
           id?: string
+          name?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1460,6 +1469,10 @@ export type Database = {
       refresh_load_metrics: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      solo_create_block: {
+        Args: { p_name: string; p_duration_weeks: number; p_block: Json }
+        Returns: string
       }
       user_owns_athlete: {
         Args: { athlete_id: string }

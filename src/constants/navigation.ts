@@ -1,105 +1,67 @@
 
-import { 
-  BarChart3, 
-  Users, 
-  Calendar, 
-  MessageSquare, 
-  Settings, 
-  AlertTriangle,
-  Dumbbell,
-  TrendingUp
-} from 'lucide-react';
+import { LucideIcon, Users, BarChart3, Calendar, MessageSquare, Dumbbell, Settings, AlertTriangle, Target } from 'lucide-react';
 
-export type NavItem = {
-  label: string;
-  path: string;
-  icon: typeof BarChart3;
-  visibleTo?: string[];
-};
+export interface NavigationItem {
+  name: string;
+  href: string;
+  icon: LucideIcon;
+  badge?: string;
+  roles?: ('coach' | 'athlete' | 'solo')[];
+}
 
-export const coachNavigation: NavItem[] = [
-  { 
-    label: 'Dashboard', 
-    path: '/dashboard',
-    icon: BarChart3
+export const navigationItems: NavigationItem[] = [
+  {
+    name: 'Dashboard',
+    href: '/dashboard',
+    icon: BarChart3,
+    roles: ['coach', 'athlete', 'solo'],
   },
-  { 
-    label: 'Analytics', 
-    path: '/analytics',
-    icon: TrendingUp
+  {
+    name: 'Program',
+    href: '/program', 
+    icon: Target,
+    roles: ['solo'],
   },
-  { 
-    label: 'Athletes', 
-    path: '/athletes',
-    icon: Users
+  {
+    name: 'Athletes',
+    href: '/athletes',
+    icon: Users,
+    roles: ['coach'],
   },
-  { 
-    label: 'Calendar', 
-    path: '/calendar',
-    icon: Calendar
+  {
+    name: 'Risk Board',
+    href: '/risk-board',
+    icon: AlertTriangle,
+    roles: ['coach'],
   },
-  { 
-    label: 'ARIA', 
-    path: '/chat',
-    icon: MessageSquare
+  {
+    name: 'Analytics',
+    href: '/analytics',
+    icon: BarChart3,
+    roles: ['coach', 'athlete', 'solo'],
   },
-  { 
-    label: 'Workouts', 
-    path: '/workout',
-    icon: Dumbbell
+  {
+    name: 'Calendar',
+    href: '/calendar',
+    icon: Calendar,
+    roles: ['coach', 'athlete', 'solo'],
   },
-  { 
-    label: 'Risk Board', 
-    path: '/risk-board',
-    icon: AlertTriangle
+  {
+    name: 'Chat',
+    href: '/chat',
+    icon: MessageSquare,
+    roles: ['coach', 'athlete', 'solo'],
   },
-  { 
-    label: 'Settings', 
-    path: '/settings',
-    icon: Settings
+  {
+    name: 'Workouts',
+    href: '/workouts',
+    icon: Dumbbell,
+    roles: ['coach'],
+  },
+  {
+    name: 'Settings',
+    href: '/settings',
+    icon: Settings,
+    roles: ['coach', 'athlete', 'solo'],
   },
 ];
-
-export const soloNavigation: NavItem[] = [
-  { 
-    label: 'Dashboard', 
-    path: '/dashboard',
-    icon: BarChart3
-  },
-  { 
-    label: 'Analytics', 
-    path: '/analytics',
-    icon: TrendingUp
-  },
-  { 
-    label: 'Calendar', 
-    path: '/calendar',
-    icon: Calendar
-  },
-  { 
-    label: 'ARIA', 
-    path: '/chat',
-    icon: MessageSquare
-  },
-  { 
-    label: 'Workouts', 
-    path: '/workout',
-    icon: Dumbbell
-  },
-  { 
-    label: 'Settings', 
-    path: '/settings',
-    icon: Settings
-  },
-];
-
-// Legacy support for mobile nav format
-export const mobileCoachNavigation = coachNavigation.map(item => ({
-  ...item,
-  visibleTo: ['coach']
-}));
-
-export const mobileSoloNavigation = soloNavigation.map(item => ({
-  ...item,
-  visibleTo: ['athlete']
-}));

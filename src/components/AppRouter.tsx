@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import DashboardPage from '../pages/Dashboard';
@@ -18,6 +19,7 @@ import CalendarPage from '../pages/Calendar';
 import ChatPage from '../pages/Chat';
 import HomePage from '../pages/Home';
 import OAuthCallback from '../pages/OAuthCallback';
+import SoloProgramPage from '../pages/solo/ProgramPage';
 import AppLayout from './AppLayout';
 import ProtectedRoute from './ProtectedRoute';
 import RiskBoardPage from '../pages/CoachRiskBoard';
@@ -50,6 +52,7 @@ const AppRouter = () => {
       }>
         <Route index element={<DashboardPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="program" element={<SoloProgramPage />} />
         <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="analytics/readiness" element={<ReadinessDetailPage />} />
         <Route path="analytics/sleep" element={<SleepDetailPage />} />
