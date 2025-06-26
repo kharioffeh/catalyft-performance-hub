@@ -10,12 +10,14 @@ import { useLastSessionLoad } from '@/hooks/useLastSessionLoad';
 import { useAcwr } from '@/hooks/useAcwr';
 import { useAriaInsights } from '@/hooks/useAriaInsights';
 import { useDashboardData } from '@/hooks/useDashboardData';
+import { useWearableStatus } from '@/hooks/useWearableStatus';
 import { Activity, Zap, Target, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const SoloDashboard: React.FC = () => {
   const { profile } = useAuth();
-  const { currentReadiness, athleteData } = useDashboardData(profile?.id);
+  const { currentReadiness } = useDashboardData(profile?.id);
+  const { data: wearableStatus } = useWearableStatus(profile?.id);
   const { data: lastSessionLoad, isLoading: loadingLastSession } = useLastSessionLoad();
   const { data: acwrValue, isLoading: loadingAcwr } = useAcwr();
   const { data: insights, isLoading: loadingInsights } = useAriaInsights();
@@ -56,7 +58,7 @@ const SoloDashboard: React.FC = () => {
         </div>
 
         {/* Wearable Connection Banner */}
-        {!athleteData?.wearable_connected && (
+        {!wearableStatus?.wearable_connected && (
           <GlassCard className="flex items-center justify-between p-6 mb-6" accent="primary">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-indigo-500/20 rounded-lg">
