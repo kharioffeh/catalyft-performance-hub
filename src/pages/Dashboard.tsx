@@ -4,13 +4,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AriaSummary } from '@/components/AriaSummary';
 import { InjuryForecastCard } from '@/components/InjuryForecastCard';
 import { TodaysSchedule } from '@/components/Dashboard/TodaysSchedule';
-import { SoloDashboard } from '@/components/Dashboard/SoloDashboard';
 import { CoachedDashboard } from '@/components/Dashboard/CoachedDashboard';
 import { VerticalMetricCards } from '@/components/Dashboard/VerticalMetricCards';
 import { QuickActionsCard } from '@/components/Dashboard/QuickActionsCard';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useDashboardInsights } from '@/hooks/useDashboardInsights';
 import { useAthleteType } from '@/hooks/useAthleteType';
+import SoloDashboard from '@/pages/solo/Dashboard';
 
 const Dashboard: React.FC = () => {
   const { profile } = useAuth();
@@ -26,17 +26,9 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  // Solo Athlete Dashboard
+  // Solo Athlete Dashboard - use the new dedicated solo dashboard
   if (athleteTypeData?.type === 'solo') {
-    return (
-      <SoloDashboard
-        currentReadiness={currentReadiness}
-        todaySessions={todaySessions}
-        weeklyStats={weeklyStats}
-        injuryRisk={injuryRisk}
-        insights={insights}
-      />
-    );
+    return <SoloDashboard />;
   }
 
   // Coached Athlete Dashboard
