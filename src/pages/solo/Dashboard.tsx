@@ -1,22 +1,25 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { GlassCard } from '@/components/Glass/GlassCard';
 import { ACWRDial } from '@/components/Analytics/Glass/ACWRDial';
 import { AriaInsightsCard } from '@/components/cards/AriaInsightsCard';
 import { HeatMapCard } from '@/components/cards/HeatMapCard';
+import { ConnectWearableModal } from '@/components/ConnectWearableModal';
 import { useLastSessionLoad } from '@/hooks/useLastSessionLoad';
 import { useAcwr } from '@/hooks/useAcwr';
 import { useAriaInsights } from '@/hooks/useAriaInsights';
 import { useDashboardData } from '@/hooks/useDashboardData';
-import { Activity, Zap, Target } from 'lucide-react';
+import { Activity, Zap, Target, Smartphone } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const SoloDashboard: React.FC = () => {
   const { profile } = useAuth();
-  const { currentReadiness } = useDashboardData(profile?.id);
+  const { currentReadiness, athleteData } = useDashboardData(profile?.id);
   const { data: lastSessionLoad, isLoading: loadingLastSession } = useLastSessionLoad();
   const { data: acwrValue, isLoading: loadingAcwr } = useAcwr();
   const { data: insights, isLoading: loadingInsights } = useAriaInsights();
+  const [showConnectModal, setShowConnectModal] = useState(false);
 
   const formatValue = (value: number | null, suffix = '') => {
     if (value === null || value === undefined) return '—';
@@ -28,6 +31,11 @@ const SoloDashboard: React.FC = () => {
     if (score >= 80) return 'text-green-400';
     if (score >= 60) return 'text-yellow-400';
     return 'text-red-400';
+  };
+
+  const handleWearableConnected = () => {
+    // Refresh the page data after successful connection
+    window.location.reload();
   };
 
   if (!profile?.id) {
@@ -46,6 +54,29 @@ const SoloDashboard: React.FC = () => {
           <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
           <p className="text-white/70">Your daily overview</p>
         </div>
+
+        {/* Wearable Connection Banner */}
+        {!athleteData?.wearable_connected && (
+          <GlassCard className="flex items-center justify-between p-6 mb-6" accent="primary">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-indigo-500/20 rounded-lg">
+                <Smartphone className="w-6 h-6 text-indigo-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-white">Connect your wearable</h3>
+                <p className="text-sm text-white/70">
+                  Link Whoop or Apple Health so ARIA can personalise your program.
+                </p>
+              </div>
+            </div>
+            <Button 
+              onClick={() => setShowConnectModal(true)}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+            >
+              Connect Device
+            </Button>
+          </GlassCard>
+        )}
 
         {/* Responsive Grid */}
         <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 auto-rows-[minmax(120px,auto)]">
@@ -111,6 +142,13 @@ const SoloDashboard: React.FC = () => {
           {/* Heat Map Card - spans 2 rows on large screens */}
           <HeatMapCard athleteId={profile.id} />
         </div>
+
+        {/* Connect Wearable Modal */}
+        <ConnectWearableModal
+          open={showConnectModal}
+          onClose={() => setShowConnectModal(false)}
+          onSuccess={handleWearableConnected}
+        />
       </div>
     </div>
   );

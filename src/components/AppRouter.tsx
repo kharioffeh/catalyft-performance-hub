@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import DashboardPage from '../pages/Dashboard';
@@ -18,6 +17,7 @@ import FinishSignupPage from '../pages/FinishSignup';
 import CalendarPage from '../pages/Calendar';
 import ChatPage from '../pages/Chat';
 import HomePage from '../pages/Home';
+import OAuthCallback from '../pages/OAuthCallback';
 import AppLayout from './AppLayout';
 import ProtectedRoute from './ProtectedRoute';
 import RiskBoardPage from '../pages/CoachRiskBoard';
@@ -38,6 +38,10 @@ const AppRouter = () => {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/finish-signup" element={<FinishSignupPage />} />
       
+      {/* OAuth callback routes */}
+      <Route path="/oauth/whoop" element={<OAuthCallback />} />
+      <Route path="/oauth/callback" element={<OAuthCallback />} />
+      
       {/* Protected routes */}
       <Route path="/" element={
         <ProtectedRoute>
@@ -52,13 +56,11 @@ const AppRouter = () => {
         <Route path="analytics/load" element={<LoadDetailPage />} />
         <Route path="athletes" element={<AthletesPage />} />
         <Route path="calendar" element={<CalendarPage />} />
-        {/* Add dedicated chat routes */}
         <Route path="chat" element={<ChatPage />} />
         <Route path="chat/:threadId" element={<ChatPage />} />
         <Route path="risk-board" element={<RiskBoardPage />} />
         <Route path="workouts" element={<WorkoutsPage />} />
         <Route path="workout" element={<WorkoutsPage />} />
-        {/* KAI route removed, redirect legacy */}
         <Route path="kai" element={<Navigate to="/chat" replace />} />
         <Route path="template/:id" element={<TemplateDetailPage />} />
         <Route path="settings" element={<SettingsPage />} />
