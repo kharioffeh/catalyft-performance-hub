@@ -30,11 +30,7 @@ const AppLayout: React.FC = () => {
     if (!loading && session && profile) {
       const currentPath = location.pathname;
       if (currentPath === '/' || currentPath === '/home') {
-        if (profile.role === 'coach') {
-          navigate('/dashboard', { replace: true });
-        } else {
-          navigate('/dashboard', { replace: true });
-        }
+        navigate('/dashboard', { replace: true });
       }
     }
   }, [profile, loading, session, navigate, location.pathname]);
@@ -51,6 +47,7 @@ const AppLayout: React.FC = () => {
 
   const isDarkTheme = isChatRoute(location.pathname);
 
+  // Loading state - show spinner while authentication is loading
   if (loading) {
     return (
       <GlassLayout variant={getLayoutVariant()}>
@@ -64,10 +61,12 @@ const AppLayout: React.FC = () => {
     );
   }
 
+  // Not authenticated - ProtectedRoute will handle redirect
   if (!session) {
-    return null; // ProtectedRoute will handle redirect
+    return null;
   }
 
+  // Profile not found - show error with retry option
   if (!profile) {
     return (
       <GlassLayout variant={getLayoutVariant()}>
@@ -91,6 +90,12 @@ const AppLayout: React.FC = () => {
         </div>
       </GlassLayout>
     );
+  }
+
+  // Role validation - redirect to onboarding if role is missing
+  if (!profile.role) {
+    navigate('/onboarding/role', { replace: true });
+    return null;
   }
 
   return (

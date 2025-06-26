@@ -2,16 +2,6 @@
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { 
-  BarChart3, 
-  Users, 
-  Calendar, 
-  MessageSquare, 
-  Settings, 
-  AlertTriangle,
-  Dumbbell,
-  TrendingUp
-} from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from '@/components/ui/button';
 import {
@@ -22,104 +12,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { coachNavigation, soloNavigation } from '@/constants/navigation';
 import { supabase } from '@/integrations/supabase/client';
 
 // Accept isDarkTheme prop
 const Sidebar = ({ isDarkTheme = false }: { isDarkTheme?: boolean }) => {
   const { profile } = useAuth();
   const location = useLocation();
-  const coachItems = [
-    { 
-      icon: BarChart3, 
-      label: 'Dashboard', 
-      path: '/dashboard',
-      isActive: location.pathname === '/dashboard'
-    },
-    { 
-      icon: TrendingUp, 
-      label: 'Analytics', 
-      path: '/analytics',
-      isActive: location.pathname === '/analytics' || location.pathname.startsWith('/analytics/')
-    },
-    { 
-      icon: Users, 
-      label: 'Athletes', 
-      path: '/athletes',
-      isActive: location.pathname === '/athletes'
-    },
-    { 
-      icon: Calendar, 
-      label: 'Calendar', 
-      path: '/calendar',
-      isActive: location.pathname === '/calendar'
-    },
-    { 
-      icon: MessageSquare, 
-      label: 'ARIA', 
-      path: '/chat',
-      isActive: location.pathname === '/chat'
-    },
-    { 
-      icon: Dumbbell, 
-      label: 'Workouts', 
-      path: '/workout',
-      isActive: location.pathname === '/workout'
-    },
-    { 
-      icon: AlertTriangle, 
-      label: 'Risk Board', 
-      path: '/risk-board',
-      isActive: location.pathname === '/risk-board'
-    },
-    { 
-      icon: Settings, 
-      label: 'Settings', 
-      path: '/settings',
-      isActive: location.pathname === '/settings'
-    },
-  ];
-
-  const athleteItems = [
-    { 
-      icon: BarChart3, 
-      label: 'Dashboard', 
-      path: '/dashboard',
-      isActive: location.pathname === '/dashboard'
-    },
-    { 
-      icon: TrendingUp, 
-      label: 'Analytics', 
-      path: '/analytics',
-      isActive: location.pathname === '/analytics' || location.pathname.startsWith('/analytics/')
-    },
-    { 
-      icon: Calendar, 
-      label: 'Calendar', 
-      path: '/calendar',
-      isActive: location.pathname === '/calendar'
-    },
-    { 
-      icon: MessageSquare, 
-      label: 'ARIA', 
-      path: '/chat',
-      isActive: location.pathname === '/chat'
-    },
-    { 
-      icon: Dumbbell, 
-      label: 'Workouts', 
-      path: '/workout',
-      isActive: location.pathname === '/workout'
-    },
-    { 
-      icon: Settings, 
-      label: 'Settings', 
-      path: '/settings',
-      isActive: location.pathname === '/settings'
-    },
-  ];
-
-  const items = profile?.role === 'coach' ? coachItems : athleteItems;
   const navigate = useNavigate();
+
+  // Select navigation based on user role
+  const navigationItems = profile?.role === 'coach' ? coachNavigation : soloNavigation;
+  
+  // Map navigation items to include active state
+  const items = navigationItems.map(item => ({
+    ...item,
+    isActive: location.pathname === item.path || 
+             (item.path === '/analytics' && location.pathname.startsWith('/analytics/'))
+  }));
 
   // Styling for dark glass effect on chat/aria page
   const glassBg = isDarkTheme
@@ -131,8 +41,14 @@ const Sidebar = ({ isDarkTheme = false }: { isDarkTheme?: boolean }) => {
   const inactiveText = isDarkTheme ? "text-white/80 hover:bg-black/30" : "text-white/80 hover:bg-white/10";
   const borderBottom = isDarkTheme ? "border-gray-800/30" : "border-white/20";
 
+  // Aria label for testing
+  const ariaLabel = profile?.role === 'coach' ? 'coach-sidebar' : 'solo-sidebar';
+
   return (
-    <div className={`w-64 h-full flex flex-col ${glassBg} border-r ${borderBottom} shadow-2xl`}>
+    <aside 
+      className={`w-64 h-full flex flex-col ${glassBg} border-r ${borderBottom} shadow-2xl`}
+      aria-label={ariaLabel}
+    >
       <div className={`flex items-center justify-center h-20 px-4 border-b ${borderBottom}`}>
         <span className="text-2xl font-bold text-white">
           Catalyft
@@ -201,7 +117,7 @@ const Sidebar = ({ isDarkTheme = false }: { isDarkTheme?: boolean }) => {
           </DropdownMenu>
         </div>
       </div>
-    </div>
+    </aside>
   );
 };
 

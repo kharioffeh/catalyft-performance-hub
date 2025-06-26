@@ -3,68 +3,17 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { ReadinessBadge } from '@/components/ReadinessBadge';
-import { 
-  Activity, 
-  CalendarClock, 
-  Dumbbell, 
-  BrainCircuit, 
-  Settings2,
-  AlertTriangle,
-  TrendingUp
-} from 'lucide-react';
-
-const navigationItems = [
-  {
-    path: '/dashboard',
-    label: 'Dashboard',
-    icon: Activity,
-    visibleTo: ['athlete', 'coach']
-  },
-  {
-    path: '/analytics',
-    label: 'Analytics',
-    icon: TrendingUp,
-    visibleTo: ['athlete', 'coach']
-  },
-  {
-    path: '/calendar',
-    label: 'Calendar',
-    icon: CalendarClock,
-    visibleTo: ['athlete', 'coach']
-  },
-  {
-    path: '/workout',
-    label: 'Workouts',
-    icon: Dumbbell,
-    visibleTo: ['athlete', 'coach']
-  },
-  {
-    path: '/chat',
-    label: 'Chat',
-    icon: BrainCircuit,
-    visibleTo: ['athlete', 'coach']
-  },
-  {
-    path: '/risk-board',
-    label: 'Risk',
-    icon: AlertTriangle,
-    visibleTo: ['coach']
-  },
-  {
-    path: '/settings',
-    label: 'Settings',
-    icon: Settings2,
-    visibleTo: ['athlete', 'coach']
-  }
-];
+import { coachNavigation, soloNavigation } from '@/constants/navigation';
 
 export const MobileNav: React.FC = () => {
   const { profile } = useAuth();
   const location = useLocation();
 
-  const visibleItems = navigationItems.filter(item => 
-    item.visibleTo.includes(profile?.role || 'athlete')
-  );
+  // Select navigation based on user role
+  const navigationItems = profile?.role === 'coach' ? coachNavigation : soloNavigation;
+  
+  // Filter items that should be visible in mobile nav (all items for now)
+  const visibleItems = navigationItems;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 h-16 bg-black/20 backdrop-blur-md border-t border-white/20 shadow-2xl flex items-center justify-around z-50 safe-area-pb">
