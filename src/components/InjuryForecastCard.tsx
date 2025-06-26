@@ -9,10 +9,12 @@ import { AlertTriangle, Shield, TrendingUp } from 'lucide-react';
 interface InjuryForecast {
   id: string;
   athlete_uuid: string;
-  risk_level: 'low' | 'medium' | 'high';
-  risk_score: number;
-  body_part: string;
-  recommendation: string;
+  probabilities: {
+    risk_level: 'low' | 'medium' | 'high';
+    risk_score: number;
+    body_part: string;
+    recommendation: string;
+  };
   created_at: string;
   athlete_name?: string;
 }
@@ -26,32 +28,34 @@ export const InjuryForecastCard: React.FC = () => {
       if (!profile?.id || profile.role !== 'coach') return [];
 
       const { data, error } = await supabase
-        .from('injury_forecasts')
+        .from('injury_risk_forecast')
         .select(`
           id,
           athlete_uuid,
-          risk_level,
-          risk_score,
-          body_part,
-          recommendation,
+          probabilities,
           created_at,
           athletes!inner(name)
         `)
         .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
-        .order('risk_score', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      return (data ?? []).map(item => ({
-        id: item.id,
-        athlete_uuid: item.athlete_uuid,
-        risk_level: item.risk_level as 'low' | 'medium' | 'high',
-        risk_score: item.risk_score,
-        body_part: item.body_part,
-        recommendation: item.recommendation,
-        created_at: item.created_at,
-        athlete_name: item.athletes?.name,
-      }));
+      return (data ?? []).map(item => {
+        const probs = item.probabilities as any;
+        return {
+          id: item.id,
+          athlete_uuid: item.athlete_uuid,
+          probabilities: {
+            risk_level: probs.risk_level || 'low',
+            risk_score: probs.risk_score || 0,
+            body_part: probs.body_part || 'General',
+            recommendation: probs.recommendation || 'Continue monitoring'
+          },
+          created_at: item.created_at,
+          athlete_name: (item.athletes as any)?.name,
+        };
+      });
     },
     enabled: !!profile?.id && profile?.role === 'coach'
   });
@@ -114,32 +118,32 @@ export const InjuryForecastCard: React.FC = () => {
       ) : (
         <div className="space-y-4">
           {forecasts.slice(0, 3).map((forecast) => (
-            <div key={forecast.id} className={`border rounded-xl p-4 ${getRiskBgColor(forecast.risk_level)}`}>
+            <div key={forecast.id} className={`border rounded-xl p-4 ${getRiskBgColor(forecast.probabilities.risk_level)}`}>
               <div className="flex items-center justify-between mb-3">
                 <div className="text-sm font-medium text-white">
                   {forecast.athlete_name}
                 </div>
                 <Badge 
                   variant="outline" 
-                  className={`text-xs ${getRiskColor(forecast.risk_level)}`}
+                  className={`text-xs ${getRiskColor(forecast.probabilities.risk_level)}`}
                 >
-                  {forecast.risk_level} risk
+                  {forecast.probabilities.risk_level} risk
                 </Badge>
               </div>
               
               <div className="flex items-start space-x-3">
-                {getRiskIcon(forecast.risk_level)}
+                {getRiskIcon(forecast.probabilities.risk_level)}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-2 mb-1">
                     <span className="text-sm text-white/80 font-medium">
-                      {forecast.body_part}
+                      {forecast.probabilities.body_part}
                     </span>
                     <span className="text-xs text-white/60">
-                      {Math.round(forecast.risk_score * 100)}% risk
+                      {Math.round(forecast.probabilities.risk_score * 100)}% risk
                     </span>
                   </div>
                   <p className="text-xs text-white/70 leading-relaxed">
-                    {forecast.recommendation}
+                    {forecast.probabilities.recommendation}
                   </p>
                 </div>
               </div>
