@@ -235,6 +235,7 @@ export type Database = {
           name: string
           sex: string | null
           updated_at: string
+          wearable_connected: boolean | null
         }
         Insert: {
           coach_uuid?: string | null
@@ -244,6 +245,7 @@ export type Database = {
           name: string
           sex?: string | null
           updated_at?: string
+          wearable_connected?: boolean | null
         }
         Update: {
           coach_uuid?: string | null
@@ -253,6 +255,7 @@ export type Database = {
           name?: string
           sex?: string | null
           updated_at?: string
+          wearable_connected?: boolean | null
         }
         Relationships: [
           {
@@ -900,6 +903,64 @@ export type Database = {
           },
           {
             foreignKeyName: "wearable_raw_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "vw_risk_board"
+            referencedColumns: ["athlete_id"]
+          },
+        ]
+      }
+      wearable_tokens: {
+        Row: {
+          access_token: string
+          athlete_uuid: string
+          created_at: string | null
+          expires_at: string | null
+          provider: string
+          refresh_token: string | null
+          scope: string | null
+          token_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          access_token: string
+          athlete_uuid: string
+          created_at?: string | null
+          expires_at?: string | null
+          provider: string
+          refresh_token?: string | null
+          scope?: string | null
+          token_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          access_token?: string
+          athlete_uuid?: string
+          created_at?: string | null
+          expires_at?: string | null
+          provider?: string
+          refresh_token?: string | null
+          scope?: string | null
+          token_type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wearable_tokens_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wearable_tokens_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "vw_coach_athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wearable_tokens_athlete_uuid_fkey"
             columns: ["athlete_uuid"]
             isOneToOne: false
             referencedRelation: "vw_risk_board"
