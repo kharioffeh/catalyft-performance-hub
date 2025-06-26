@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { session, loading } = useAuth();
 
   if (loading) {
@@ -22,7 +22,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   if (!session) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   return <>{children}</>;
