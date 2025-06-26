@@ -45,7 +45,7 @@ export const BodyHeatMapDebugPanel: React.FC<DebugPanelProps> = ({
       {/* Debug Mode Toggle */}
       <button
         className="absolute top-2 right-2 bg-white/10 text-xs px-2 py-1 rounded hover:bg-white/20 z-[101] text-white/70"
-        onClick={() => setDebugOpen((x) => !x)}
+        onClick={() => setDebugOpen(!debugOpen)}
         title="Show/hide debug info"
         type="button"
       >
