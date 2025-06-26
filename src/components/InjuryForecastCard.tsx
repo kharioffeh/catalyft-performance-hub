@@ -98,7 +98,7 @@ export const InjuryForecastCard: React.FC = () => {
   }
 
   return (
-    <div className="glass-card p-6 min-h-[18rem]">
+    <div className="glass-card p-6 min-h-[220px]">
       <div className="flex items-center gap-2 mb-4">
         <Shield className="w-5 h-5 text-orange-400" />
         <h3 className="text-lg font-semibold text-white">Injury Risk Forecast</h3>

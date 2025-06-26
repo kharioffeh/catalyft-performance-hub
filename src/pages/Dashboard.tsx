@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { AriaSummary } from '@/components/AriaSummary';
@@ -73,11 +74,11 @@ const Dashboard: React.FC = () => {
         {/* Today's Schedule */}
         <TodaysSchedule todaySessions={todaySessions} />
 
-        {/* Bottom grid for insights and forecast - now matching Today's Schedule sizing */}
-        <div className="grid gap-6 md:grid-cols-2">
-          <AriaSummary />
-          <InjuryForecastCard />
-        </div>
+        {/* ARIA Insights - now full width and same height as Today's Schedule */}
+        <AriaSummary />
+
+        {/* Injury Risk Forecast - now full width and same height as Today's Schedule */}
+        <InjuryForecastCard />
       </div>
     </div>
   );
