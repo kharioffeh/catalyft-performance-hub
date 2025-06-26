@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import AppLayout from '../../AppLayout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -67,12 +67,12 @@ describe('AppLayout', () => {
       signOut: jest.fn()
     });
 
-    renderWithRouter(<AppLayout />);
+    const { getByText, getByLabelText } = renderWithRouter(<AppLayout />);
 
     // Should contain coach-specific navigation items
-    expect(screen.getByText('Athletes')).toBeInTheDocument();
-    expect(screen.getByText('Risk Board')).toBeInTheDocument();
-    expect(screen.getByLabelText('coach-sidebar')).toBeInTheDocument();
+    expect(getByText('Athletes')).toBeInTheDocument();
+    expect(getByText('Risk Board')).toBeInTheDocument();
+    expect(getByLabelText('coach-sidebar')).toBeInTheDocument();
   });
 
   it('renders solo sidebar when user is an athlete', () => {
@@ -84,12 +84,12 @@ describe('AppLayout', () => {
       signOut: jest.fn()
     });
 
-    renderWithRouter(<AppLayout />);
+    const { queryByText, getByLabelText } = renderWithRouter(<AppLayout />);
 
     // Should NOT contain coach-specific items
-    expect(screen.queryByText('Athletes')).not.toBeInTheDocument();
-    expect(screen.queryByText('Risk Board')).not.toBeInTheDocument();
-    expect(screen.getByLabelText('solo-sidebar')).toBeInTheDocument();
+    expect(queryByText('Athletes')).not.toBeInTheDocument();
+    expect(queryByText('Risk Board')).not.toBeInTheDocument();
+    expect(getByLabelText('solo-sidebar')).toBeInTheDocument();
   });
 
   it('shows loading spinner when auth is loading', () => {
@@ -101,9 +101,9 @@ describe('AppLayout', () => {
       signOut: jest.fn()
     });
 
-    renderWithRouter(<AppLayout />);
+    const { getByText } = renderWithRouter(<AppLayout />);
 
-    expect(screen.getByText('Loading your account...')).toBeInTheDocument();
+    expect(getByText('Loading your account...')).toBeInTheDocument();
   });
 
   it('shows error state when profile is missing', () => {
@@ -115,9 +115,9 @@ describe('AppLayout', () => {
       signOut: jest.fn()
     });
 
-    renderWithRouter(<AppLayout />);
+    const { getByText } = renderWithRouter(<AppLayout />);
 
-    expect(screen.getByText('Profile Not Found')).toBeInTheDocument();
-    expect(screen.getByText('Refresh Page')).toBeInTheDocument();
+    expect(getByText('Profile Not Found')).toBeInTheDocument();
+    expect(getByText('Refresh Page')).toBeInTheDocument();
   });
 });
