@@ -9,6 +9,7 @@ export interface NavigationItem {
   roles?: ('coach' | 'athlete' | 'solo')[];
 }
 
+// Individual navigation item definitions
 export const navigationItems: NavigationItem[] = [
   {
     name: 'Dashboard',
@@ -65,3 +66,20 @@ export const navigationItems: NavigationItem[] = [
     roles: ['coach', 'athlete', 'solo'],
   },
 ];
+
+// Role-based navigation arrays for components
+export const coachNavigation = navigationItems
+  .filter(item => item.roles?.includes('coach'))
+  .map(item => ({
+    label: item.name,
+    path: item.href,
+    icon: item.icon,
+  }));
+
+export const soloNavigation = navigationItems
+  .filter(item => item.roles?.includes('solo'))
+  .map(item => ({
+    label: item.name,
+    path: item.href,
+    icon: item.icon,
+  }));

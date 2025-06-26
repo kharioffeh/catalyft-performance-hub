@@ -4,7 +4,7 @@ import { useBlock, useDeleteBlock } from '@/hooks/useBlock';
 import { GlassCard } from '@/components/Glass/GlassCard';
 import { Button } from '@/components/ui/button';
 import { ProgramBuilderModal } from '@/components/solo/ProgramBuilderModal';
-import { WeekTable } from '@/components/WeekTable';
+import WeekTable from '@/components/WeekTable';
 import { Activity, Calendar, Trash2, Sparkles } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
@@ -132,7 +132,7 @@ const SoloProgramPage: React.FC = () => {
 
             {/* Program Content */}
             <GlassCard className="p-6">
-              <WeekTable block={block} editable={false} />
+              <WeekTable week={block.data} />
             </GlassCard>
           </div>
         )}
