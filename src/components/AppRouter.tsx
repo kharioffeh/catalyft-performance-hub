@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import AppLayout from './AppLayout';
-import { ProtectedRoute } from './ProtectedRoute';
+import ProtectedRoute from './ProtectedRoute';
 import Home from '@/pages/Home';
 import Index from '@/pages/Index';
 import Dashboard from '@/pages/Dashboard';
