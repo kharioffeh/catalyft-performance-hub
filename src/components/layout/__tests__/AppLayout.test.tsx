@@ -2,7 +2,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import AppLayout from '../AppLayout';
+import AppLayout from '../../AppLayout';
 import { useAuth } from '@/contexts/AuthContext';
 
 // Setup Jest DOM matchers
