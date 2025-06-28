@@ -6,11 +6,15 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/useBreakpoint';
 import { NotificationBell } from '@/components/NotificationBell';
+import { useTimezoneDetection } from '@/hooks/useTimezoneDetection';
 
 // Accept isDarkTheme prop
 export const TopBar: React.FC<{ isDarkTheme?: boolean }> = ({ isDarkTheme = false }) => {
   const { profile, signOut } = useAuth();
   const isMobile = useIsMobile();
+  
+  // Initialize timezone detection
+  useTimezoneDetection();
 
   // glass class based on theme
   const glass = isDarkTheme

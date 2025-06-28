@@ -2,14 +2,16 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect } from 'react';
+import { toast } from 'sonner';
 
 export interface Notification {
   id: string;
-  type: 'digest' | 'reminder' | 'system';
+  type: 'digest' | 'reminder' | 'system' | 'daily_summary' | 'missed_workout' | 'abnormal_readiness';
   title: string;
   body: string;
   read: boolean;
   created_at: string;
+  meta?: Record<string, any>;
 }
 
 export const useNotifications = () => {
@@ -75,14 +77,52 @@ export const useNotifications = () => {
     );
   };
 
-  // Set up real-time listener
+  // Set up real-time listener with toast notifications
   useEffect(() => {
     const channel = supabase
       .channel('notifications')
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications'
+        },
+        (payload) => {
+          const newNotification = payload.new as Notification;
+          console.log('New notification received:', newNotification);
+          
+          // Show toast notification for new notifications
+          if (newNotification.type === 'abnormal_readiness') {
+            toast.error(newNotification.title, {
+              description: newNotification.body,
+              duration: 8000,
+            });
+          } else if (newNotification.type === 'missed_workout') {
+            toast.warning(newNotification.title, {
+              description: newNotification.body,
+              duration: 6000,
+            });
+          } else if (newNotification.type === 'daily_summary') {
+            toast.success(newNotification.title, {
+              description: "Your daily summary is ready",
+              duration: 4000,
+            });
+          } else {
+            toast.info(newNotification.title, {
+              description: newNotification.body,
+              duration: 4000,
+            });
+          }
+          
+          // Invalidate and refetch notifications
+          queryClient.invalidateQueries({ queryKey: ['notifications'] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
           schema: 'public',
           table: 'notifications'
         },

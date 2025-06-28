@@ -879,11 +879,39 @@ export type Database = {
           },
         ]
       }
+      notification_thresholds: {
+        Row: {
+          created_at: string | null
+          id: string
+          readiness_threshold: number | null
+          strain_threshold: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          readiness_threshold?: number | null
+          strain_threshold?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          readiness_threshold?: number | null
+          strain_threshold?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string
           created_at: string | null
           id: string
+          meta: Json | null
           read: boolean | null
           title: string
           type: string | null
@@ -893,6 +921,7 @@ export type Database = {
           body: string
           created_at?: string | null
           id?: string
+          meta?: Json | null
           read?: boolean | null
           title: string
           type?: string | null
@@ -902,6 +931,7 @@ export type Database = {
           body?: string
           created_at?: string | null
           id?: string
+          meta?: Json | null
           read?: boolean | null
           title?: string
           type?: string | null
@@ -957,7 +987,9 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          notification_prefs: Json | null
           role: string
+          timezone: string | null
           updated_at: string
         }
         Insert: {
@@ -965,7 +997,9 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          notification_prefs?: Json | null
           role: string
+          timezone?: string | null
           updated_at?: string
         }
         Update: {
@@ -973,7 +1007,9 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          notification_prefs?: Json | null
           role?: string
+          timezone?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -1187,8 +1223,10 @@ export type Database = {
           id: string
           load: number | null
           notes: string | null
+          planned_start: string | null
           rpe: number | null
           start_ts: string
+          status: string | null
           type: string
           updated_at: string
         }
@@ -1200,8 +1238,10 @@ export type Database = {
           id?: string
           load?: number | null
           notes?: string | null
+          planned_start?: string | null
           rpe?: number | null
           start_ts: string
+          status?: string | null
           type: string
           updated_at?: string
         }
@@ -1213,8 +1253,10 @@ export type Database = {
           id?: string
           load?: number | null
           notes?: string | null
+          planned_start?: string | null
           rpe?: number | null
           start_ts?: string
+          status?: string | null
           type?: string
           updated_at?: string
         }
@@ -2241,6 +2283,10 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: number
       }
+      get_user_timezone: {
+        Args: { user_uuid: string }
+        Returns: string
+      }
       is_current_user_coach: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -2248,6 +2294,10 @@ export type Database = {
       refresh_load_metrics: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      should_send_notification: {
+        Args: { user_uuid: string; notification_kind: string }
+        Returns: boolean
       }
       solo_create_block: {
         Args: { p_name: string; p_duration_weeks: number; p_block: Json }

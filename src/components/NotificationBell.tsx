@@ -1,12 +1,44 @@
 
 import React, { useState } from 'react';
-import { Bell, X, Check, CheckCheck } from 'lucide-react';
+import { Bell, X, Check, CheckCheck, BarChart3, Clock, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useNotifications } from '@/hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
+
+const getNotificationIcon = (type: string) => {
+  switch (type) {
+    case 'daily_summary':
+      return <BarChart3 className="h-4 w-4" />;
+    case 'missed_workout':
+      return <Clock className="h-4 w-4" />;
+    case 'abnormal_readiness':
+      return <AlertTriangle className="h-4 w-4" />;
+    default:
+      return <Bell className="h-4 w-4" />;
+  }
+};
+
+const getNotificationBadge = (type: string) => {
+  switch (type) {
+    case 'daily_summary':
+      return <Badge variant="secondary" className="text-xs">Summary</Badge>;
+    case 'missed_workout':
+      return <Badge variant="outline" className="text-xs">Workout</Badge>;
+    case 'abnormal_readiness':
+      return <Badge variant="destructive" className="text-xs">Alert</Badge>;
+    case 'digest':
+      return <Badge variant="secondary" className="text-xs">Digest</Badge>;
+    case 'reminder':
+      return <Badge variant="outline" className="text-xs">Reminder</Badge>;
+    case 'system':
+      return <Badge variant="default" className="text-xs">System</Badge>;
+    default:
+      return <Badge variant="default" className="text-xs">Info</Badge>;
+  }
+};
 
 export const NotificationBell: React.FC = () => {
   const { notifications, unreadCount, markAsRead, markAllAsRead, isLoading } = useNotifications();
@@ -78,7 +110,8 @@ export const NotificationBell: React.FC = () => {
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 mb-1">
+                        {getNotificationIcon(notification.type)}
                         <h4 className="font-medium truncate">{notification.title}</h4>
                         {!notification.read && (
                           <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
@@ -87,27 +120,12 @@ export const NotificationBell: React.FC = () => {
                       <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">
                         {notification.body}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
-                      </p>
-                    </div>
-                    
-                    <div className="flex items-center space-x-1 ml-2">
-                      {notification.type === 'digest' && (
-                        <Badge variant="secondary" className="text-xs">
-                          Digest
-                        </Badge>
-                      )}
-                      {notification.type === 'reminder' && (
-                        <Badge variant="outline" className="text-xs">
-                          Reminder
-                        </Badge>
-                      )}
-                      {notification.type === 'system' && (
-                        <Badge variant="default" className="text-xs">
-                          System
-                        </Badge>
-                      )}
+                      <div className="flex items-center justify-between mt-2">
+                        <p className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+                        </p>
+                        {getNotificationBadge(notification.type)}
+                      </div>
                     </div>
                   </div>
                 </div>
