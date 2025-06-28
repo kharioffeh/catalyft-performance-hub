@@ -486,6 +486,47 @@ export type Database = {
         }
         Relationships: []
       }
+      exercise_library: {
+        Row: {
+          category: string
+          coach_uuid: string | null
+          created_at: string | null
+          id: string
+          name: string
+          primary_muscle: string
+          secondary_muscle: string[] | null
+          video_url: string | null
+        }
+        Insert: {
+          category: string
+          coach_uuid?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          primary_muscle: string
+          secondary_muscle?: string[] | null
+          video_url?: string | null
+        }
+        Update: {
+          category?: string
+          coach_uuid?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          primary_muscle?: string
+          secondary_muscle?: string[] | null
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_coach"
+            columns: ["coach_uuid"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exercises: {
         Row: {
           created_at: string
@@ -809,6 +850,64 @@ export type Database = {
         }
         Relationships: []
       }
+      program_instance: {
+        Row: {
+          athlete_uuid: string
+          coach_uuid: string
+          created_at: string | null
+          end_date: string
+          id: string
+          source: string
+          start_date: string
+          status: string
+          template_id: string | null
+        }
+        Insert: {
+          athlete_uuid: string
+          coach_uuid: string
+          created_at?: string | null
+          end_date: string
+          id?: string
+          source: string
+          start_date: string
+          status?: string
+          template_id?: string | null
+        }
+        Update: {
+          athlete_uuid?: string
+          coach_uuid?: string
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          source?: string
+          start_date?: string
+          status?: string
+          template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_instance_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_instance_coach_uuid_fkey"
+            columns: ["coach_uuid"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_instance_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "template"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       program_templates: {
         Row: {
           block_json: Json
@@ -893,6 +992,50 @@ export type Database = {
           },
         ]
       }
+      session: {
+        Row: {
+          acwr_snapshot: number | null
+          completed_at: string | null
+          created_at: string | null
+          exercises: Json
+          id: string
+          planned_at: string
+          program_id: string
+          rpe: number | null
+          strain: number | null
+        }
+        Insert: {
+          acwr_snapshot?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          exercises?: Json
+          id?: string
+          planned_at: string
+          program_id: string
+          rpe?: number | null
+          strain?: number | null
+        }
+        Update: {
+          acwr_snapshot?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          exercises?: Json
+          id?: string
+          planned_at?: string
+          program_id?: string
+          rpe?: number | null
+          strain?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "program_instance"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sessions: {
         Row: {
           athlete_uuid: string
@@ -964,6 +1107,54 @@ export type Database = {
           },
         ]
       }
+      set_log: {
+        Row: {
+          created_at: string | null
+          exercise_id: string
+          id: string
+          load: number | null
+          reps: number | null
+          rpe: number | null
+          session_id: string
+          set_no: number
+        }
+        Insert: {
+          created_at?: string | null
+          exercise_id: string
+          id?: string
+          load?: number | null
+          reps?: number | null
+          rpe?: number | null
+          session_id: string
+          set_no: number
+        }
+        Update: {
+          created_at?: string | null
+          exercise_id?: string
+          id?: string
+          load?: number | null
+          reps?: number | null
+          rpe?: number | null
+          session_id?: string
+          set_no?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "set_log_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_library"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "set_log_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "session"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_plans: {
         Row: {
           athlete_limit: number | null
@@ -996,6 +1187,76 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      template: {
+        Row: {
+          created_at: string | null
+          goal: string
+          id: string
+          owner_uuid: string
+          title: string
+          visibility: string
+          weeks: number
+        }
+        Insert: {
+          created_at?: string | null
+          goal: string
+          id?: string
+          owner_uuid: string
+          title: string
+          visibility?: string
+          weeks: number
+        }
+        Update: {
+          created_at?: string | null
+          goal?: string
+          id?: string
+          owner_uuid?: string
+          title?: string
+          visibility?: string
+          weeks?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_owner_uuid_fkey"
+            columns: ["owner_uuid"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_block: {
+        Row: {
+          day_no: number
+          exercises: Json
+          session_title: string | null
+          template_id: string
+          week_no: number
+        }
+        Insert: {
+          day_no: number
+          exercises?: Json
+          session_title?: string | null
+          template_id: string
+          week_no: number
+        }
+        Update: {
+          day_no?: number
+          exercises?: Json
+          session_title?: string | null
+          template_id?: string
+          week_no?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_block_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "template"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_currency_preferences: {
         Row: {
