@@ -1,32 +1,6 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
-
-// Zod schema for program validation
-const BlockSchema = z.object({
-  week: z.number().int(),
-  sessions: z.array(z.object({
-    day: z.enum(['Mon','Tue','Wed','Thu','Fri','Sat','Sun']),
-    session_type: z.enum(['strength','conditioning','recovery']),
-    exercises: z.array(z.object({
-      name: z.string(),
-      sets: z.number().int().min(1),
-      reps: z.number().int().min(1),
-      intensity: z.string(),
-      rest_sec: z.number().int().min(30),
-      notes: z.string().optional()
-    }))
-  }))
-});
-
-const AriaProgramSchema = z.object({
-  meta: z.object({
-    goal: z.enum(['max_strength','hypertrophy','speed_power','in-season_maint']),
-    weeks: z.number().int().min(2).max(12),
-    metrics_available: z.boolean()
-  }),
-  blocks: z.array(BlockSchema)
-});
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -34,159 +8,130 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  if (req.method === "OPTIONS")
+  if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
+  }
 
   try {
-    const supabaseClient = (await import("https://deno.land/x/supabase_js@2.38.1/mod.ts")).createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
-    const OPENAI_KEY = Deno.env.get("OPENAI_KEY_ARIA");
-    if (!OPENAI_KEY) throw new Error("Missing OPENAI_KEY_ARIA");
 
-    const input = await req.json();
-    const { athlete_uuid, coach_uuid, goal, weeks, is_solo = false } = input;
+    const authHeader = req.headers.get('Authorization')!;
+    const token = authHeader.replace('Bearer ', '');
+    const { data } = await supabaseClient.auth.getUser(token);
+    const user = data.user;
 
-    if (!athlete_uuid || !goal || !weeks)
-      return new Response(JSON.stringify({ error: "Missing required params" }), { status: 400, headers: corsHeaders });
-
-    // For solo users, athlete_uuid is the authenticated user
-    // For coached users, coach_uuid must be provided
-    if (!is_solo && !coach_uuid)
-      return new Response(JSON.stringify({ error: "Coach UUID required for coached programs" }), { status: 400, headers: corsHeaders });
-
-    // Fetch athlete profile
-    const { data: athleteProfile, error: profileError } = await supabaseClient
-      .from("athletes").select("id, name").eq("id", athlete_uuid).maybeSingle();
-
-    // For solo users, create a basic profile if none exists
-    let athleteName = "Athlete";
-    if (is_solo) {
-      const { data: userProfile } = await supabaseClient
-        .from("profiles").select("full_name").eq("id", athlete_uuid).maybeSingle();
-      athleteName = userProfile?.full_name || "Solo Athlete";
-    } else {
-      athleteName = athleteProfile?.name || "Unknown";
+    if (!user?.email) {
+      return new Response('Unauthorized', { status: 401 });
     }
 
-    // Fetch latest test metrics
-    const { data: metrics, error: testError } = await supabaseClient
-      .from("athlete_testing").select("*")
-      .eq("athlete_uuid", athlete_uuid)
-      .order("test_date", { ascending: false }).limit(1);
+    const { athlete_uuid, coach_uuid, goal, weeks } = await req.json();
 
-    const metrics_available = !!(metrics && metrics.length);
+    // Use consistent naming with OPENAI_ARIA_KEY instead of OPENAI_KEY_ARIA
+    const OPENAI_ARIA_KEY = Deno.env.get('OPENAI_ARIA_KEY');
+    if (!OPENAI_ARIA_KEY) {
+      throw new Error('OpenAI API key not configured');
+    }
 
-    // Compose prompt with solo-specific context
-    const systemPrompt = [
-      "You are an elite strength & conditioning program generator (ARIA), creating detailed weekly programs.",
-      "Output must be valid JSON, strictly matching the provided schema, for import by the Catalyft app.",
-      `${is_solo ? 'Solo' : 'Coached'} Athlete: ${athleteName}${metrics_available ? ", with recent test data." : "."}`,
-      "Schema: {meta:{goal, weeks, metrics_available},blocks:[{week,sessions:[{day,session_type,exercises:[{name,sets,reps,intensity,rest_sec,notes}]}]}",
-      "Instructions: Use modern S&C best practices and periodized block structure. Do NOT include bodyweight-only or rehab content unless specified.",
-      is_solo ? "This is for a solo athlete training independently - ensure exercises are safe to perform alone and include proper warm-up/cool-down." : "",
-      metrics_available && metrics?.[0] ? `Recent metrics: 1RM (${metrics[0].lift||""}/${metrics[0].one_rm_kg||""}), CMJ (${metrics[0].cmj_cm||""}), Sprint10m (${metrics[0].sprint_10m_s||""})` : ""
-    ].filter(Boolean).join("\n");
+    const prompt = `Create a ${weeks}-week training program for the following goal: "${goal}".
 
-    const userPrompt = `Goal: ${goal}, Duration: ${weeks} weeks.${is_solo ? ' Solo training program needed.' : ''}`;
+Return a JSON object with this exact structure:
+{
+  "title": "Program Title",
+  "goal": "Training goal description", 
+  "weeks": ${weeks},
+  "blocks": [
+    {
+      "week_no": 1,
+      "day_no": 1,
+      "session_title": "Session Name",
+      "exercises": [
+        {
+          "name": "Exercise Name",
+          "sets": 3,
+          "reps": 12,
+          "load_pct": 75,
+          "rest_seconds": 60
+        }
+      ]
+    }
+  ]
+}
 
-    // OpenAI Request
-    const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
+Include 7 days per week for ${weeks} weeks. Focus on progressive overload and periodization.`;
+
+    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
       headers: {
-        "Authorization": `Bearer ${OPENAI_KEY}`,
-        "Content-Type": "application/json"
+        'Authorization': `Bearer ${OPENAI_ARIA_KEY}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
-        response_format: { type: "json_object" },
+        model: 'gpt-4o-mini',
         messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ]
-      })
+          { role: 'system', content: 'You are ARIA, an expert fitness coach. Return only valid JSON.' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.7,
+      }),
     });
-    if (!openaiRes.ok) throw new Error(`OpenAI error: ${openaiRes.statusText}`);
-    const completions = await openaiRes.json();
-    let parsed: z.infer<typeof AriaProgramSchema>;
+
+    const aiResponse = await openaiResponse.json();
+    const content = aiResponse.choices[0].message.content;
+    
+    let programData;
     try {
-      parsed = AriaProgramSchema.parse(
-        typeof completions.choices[0].message.content === 'string'
-          ? JSON.parse(completions.choices[0].message.content)
-          : completions.choices[0].message.content
-      );
-    } catch (e: any) {
-      console.error("Zod parse error", e);
-      return new Response(JSON.stringify({ error: "Program output did not match expected schema", detail: e.errors }), { status: 400, headers: corsHeaders });
-    }
-
-    if (is_solo) {
-      // For solo users, use the new solo_create_block RPC
-      const { data: blockId, error: blockError } = await supabaseClient
-        .rpc('solo_create_block', {
-          p_name: `ARIA: ${parsed.meta.goal} (${weeks}wk)`,
-          p_duration_weeks: weeks,
-          p_block: parsed
-        });
-
-      if (blockError) throw blockError;
-
-      return new Response(JSON.stringify({ block_id: blockId }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    } else {
-      // Existing coach workflow
-      const { data: tmpl, error: tmplError } = await supabaseClient
-        .from("program_templates")
-        .insert({
-          block_json: parsed, 
-          coach_uuid,
-          name: `ARIA: ${parsed.meta.goal} (${weeks}wk)`,
-          origin: "ARIA"
-        })
-        .select('id')
-        .single();
-
-      if (tmplError) throw tmplError;
-
-      // Generate workout_blocks and sessions for coaches
-      for (const block of parsed.blocks ?? []) {
-        const { data: wbRow, error: wbError } = await supabaseClient
-          .from('workout_blocks')
-          .insert({
-            athlete_uuid, 
-            coach_uuid,
-            name: `ARIA: ${parsed.meta.goal} Week ${block.week}`,
-            duration_weeks: 1,
-            data: block
-          })
-          .select('id')
-          .single();
-        if (wbError) throw wbError;
-
-        for (const session of block.sessions ?? []) {
-          await supabaseClient.from('sessions').insert({
-            coach_uuid,
-            athlete_uuid,
-            start_ts: null,
-            end_ts: null,
-            type: session.session_type,
-            notes: `ARIA gen: ${session.day} wk${block.week}`,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          });
-        }
+      programData = JSON.parse(content);
+    } catch (e) {
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        programData = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error('Could not parse AI response as JSON');
       }
-
-      return new Response(JSON.stringify({ template_id: tmpl.id }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
     }
-  } catch (err: any) {
-    console.error("ARIA-GENERATE error:", err);
-    return new Response(JSON.stringify({ error: err.message || "Unknown error" }), { status: 500, headers: corsHeaders });
+
+    // Create template
+    const { data: template, error: templateError } = await supabaseClient
+      .from('template')
+      .insert({
+        title: programData.title,
+        goal: programData.goal,
+        weeks: programData.weeks,
+        owner_uuid: coach_uuid,
+        visibility: 'private'
+      })
+      .select()
+      .single();
+
+    if (templateError) throw templateError;
+
+    // Create template blocks
+    const blocks = programData.blocks.map((block: any) => ({
+      template_id: template.id,
+      week_no: block.week_no,
+      day_no: block.day_no,
+      session_title: block.session_title,
+      exercises: block.exercises
+    }));
+
+    const { error: blocksError } = await supabaseClient
+      .from('template_block')
+      .insert(blocks);
+
+    if (blocksError) throw blocksError;
+
+    return new Response(JSON.stringify({ template_id: template.id }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+
+  } catch (error) {
+    console.error('Error:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });

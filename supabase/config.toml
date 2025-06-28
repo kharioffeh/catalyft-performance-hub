@@ -6,3 +6,6 @@ verify_jwt = true
 
 [functions.create-program-from-template]
 verify_jwt = true
+
+[functions.aria-chat-proxy]
+verify_jwt = true

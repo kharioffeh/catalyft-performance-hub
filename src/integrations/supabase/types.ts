@@ -1946,6 +1946,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      fn_can_call_aria: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       fn_create_program_from_template: {
         Args: {
           p_template_id: string
