@@ -168,6 +168,60 @@ export type Database = {
           },
         ]
       }
+      athlete_purchases: {
+        Row: {
+          athlete_pack_size: number
+          billing_customer_id: string | null
+          created_at: string
+          currency_code: string
+          id: string
+          is_active: boolean
+          monthly_cost_added: number
+          purchase_date: string
+          stripe_subscription_item_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          athlete_pack_size?: number
+          billing_customer_id?: string | null
+          created_at?: string
+          currency_code: string
+          id?: string
+          is_active?: boolean
+          monthly_cost_added: number
+          purchase_date?: string
+          stripe_subscription_item_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          athlete_pack_size?: number
+          billing_customer_id?: string | null
+          created_at?: string
+          currency_code?: string
+          id?: string
+          is_active?: boolean
+          monthly_cost_added?: number
+          purchase_date?: string
+          stripe_subscription_item_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "athlete_purchases_billing_customer_id_fkey"
+            columns: ["billing_customer_id"]
+            isOneToOne: false
+            referencedRelation: "billing_customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "athlete_purchases_currency_code_fkey"
+            columns: ["currency_code"]
+            isOneToOne: false
+            referencedRelation: "currencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       athlete_testing: {
         Row: {
           athlete_uuid: string | null
@@ -269,30 +323,42 @@ export type Database = {
       }
       billing_customers: {
         Row: {
+          additional_athletes_purchased: number
           created_at: string
+          current_athlete_count: number
           id: string
+          monthly_addon_cost: number
           plan_id: string | null
           plan_status: string
+          preferred_currency: string | null
           role: string
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           trial_end: string
         }
         Insert: {
+          additional_athletes_purchased?: number
           created_at?: string
+          current_athlete_count?: number
           id: string
+          monthly_addon_cost?: number
           plan_id?: string | null
           plan_status?: string
+          preferred_currency?: string | null
           role: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           trial_end: string
         }
         Update: {
+          additional_athletes_purchased?: number
           created_at?: string
+          current_athlete_count?: number
           id?: string
+          monthly_addon_cost?: number
           plan_id?: string | null
           plan_status?: string
+          preferred_currency?: string | null
           role?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -304,6 +370,13 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "billing_customers_preferred_currency_fkey"
+            columns: ["preferred_currency"]
+            isOneToOne: false
+            referencedRelation: "currencies"
             referencedColumns: ["id"]
           },
         ]
@@ -379,6 +452,36 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      currencies: {
+        Row: {
+          created_at: string
+          exchange_rate_to_gbp: number
+          id: string
+          is_active: boolean
+          name: string
+          symbol: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          exchange_rate_to_gbp?: number
+          id: string
+          is_active?: boolean
+          name: string
+          symbol: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          exchange_rate_to_gbp?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          symbol?: string
           updated_at?: string
         }
         Relationships: []
@@ -893,6 +996,38 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      user_currency_preferences: {
+        Row: {
+          created_at: string
+          currency_code: string
+          id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          currency_code?: string
+          id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          currency_code?: string
+          id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_currency_preferences_currency_code_fkey"
+            columns: ["currency_code"]
+            isOneToOne: false
+            referencedRelation: "currencies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_subscriptions: {
         Row: {
@@ -1507,6 +1642,18 @@ export type Database = {
       can_add_athlete: {
         Args: { user_uuid: string }
         Returns: boolean
+      }
+      can_add_athlete_enhanced: {
+        Args: { user_uuid: string }
+        Returns: boolean
+      }
+      convert_price: {
+        Args: {
+          base_price: number
+          from_currency?: string
+          to_currency?: string
+        }
+        Returns: number
       }
       expire_old_invites: {
         Args: Record<PropertyKey, never>

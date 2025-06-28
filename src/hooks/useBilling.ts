@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -78,8 +77,8 @@ export const useBilling = () => {
 
   const startCheckoutMutation = useMutation({
     mutationFn: async (planId: string) => {
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan_id: planId }
+      const { data, error } = await supabase.functions.invoke('create-checkout-enhanced', {
+        body: { plan_id: planId, currency: 'GBP' }
       });
 
       if (error) throw error;
@@ -127,13 +126,13 @@ export const useBilling = () => {
   // Calculate pricing based on plan type and features
   const getPlanPrice = (plan: Plan) => {
     if (plan.type === 'coach') {
-      return plan.has_adaptive_replan ? '$29/month' : '$19/month';
+      return plan.has_adaptive_replan ? '£49.99/month' : '£29.99/month';
     } else {
-      return plan.has_adaptive_replan ? '$19/month' : '$9/month';
+      return plan.has_adaptive_replan ? '£14.99/month' : '£7.99/month';
     }
   };
 
-  const planPrice = currentPlan ? getPlanPrice(currentPlan) : '$0/month';
+  const planPrice = currentPlan ? getPlanPrice(currentPlan) : '£0/month';
 
   // Get plans by type for display
   const coachPlans = allPlans?.filter(p => p.type === 'coach') || [];
