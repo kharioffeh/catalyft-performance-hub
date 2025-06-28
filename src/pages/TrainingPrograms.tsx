@@ -15,7 +15,7 @@ import { useWorkoutTemplates } from '@/hooks/useWorkoutTemplates';
 import { useExercises } from '@/hooks/useExercises';
 import { useNavigate } from 'react-router-dom';
 import { NewTemplateBuilder } from '@/components/NewTemplateBuilder';
-import { ProgramBuilder } from '@/components/ProgramBuilder';
+import ProgramBuilder from '@/components/ProgramBuilder';
 import { ExerciseLibrary } from '@/components/ExerciseLibrary';
 import { AssignTemplateDialog } from '@/components/AssignTemplateDialog';
 import { toast } from '@/hooks/use-toast';
@@ -212,15 +212,16 @@ const TrainingPrograms = () => {
       </Tabs>
 
       {/* Modals and Dialogs */}
-      <NewTemplateBuilder
-        isOpen={showTemplateBuilder}
-        onClose={(refresh) => {
-          setShowTemplateBuilder(false);
-          if (refresh) {
-            refetchTemplates();
-          }
-        }}
-      />
+      {showTemplateBuilder && (
+        <NewTemplateBuilder
+          onClose={(refresh) => {
+            setShowTemplateBuilder(false);
+            if (refresh) {
+              refetchTemplates();
+            }
+          }}
+        />
+      )}
 
       <ProgramBuilder
         isOpen={showProgramBuilder}
