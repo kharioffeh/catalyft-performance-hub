@@ -10,6 +10,7 @@ import { useTemplate } from '@/hooks/useTemplates';
 import { useProgramInstances } from '@/hooks/useProgramInstances';
 import { TemplateGridView } from '@/components/TemplateGridView';
 import { CreateProgramFromTemplateDialog } from '@/components/CreateProgramFromTemplateDialog';
+import { GenerateButton } from '@/components/GenerateButton';
 import { useAuth } from '@/contexts/AuthContext';
 
 const TemplateDetailPage: React.FC = () => {
@@ -37,6 +38,7 @@ const TemplateDetailPage: React.FC = () => {
 
   const relatedPrograms = programInstances.filter(p => p.template_id === template.id);
   const isCoach = profile?.role === 'coach';
+  const isSolo = profile?.role === 'solo';
 
   return (
     <div className="space-y-6">
@@ -57,12 +59,28 @@ const TemplateDetailPage: React.FC = () => {
           </div>
         </div>
         
-        {isCoach && (
-          <Button onClick={() => setShowCreateProgramDialog(true)}>
-            <Users className="w-4 h-4 mr-2" />
-            Assign to Athlete
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {isSolo && (
+            <GenerateButton
+              templateId={template.id}
+              label="Start This Program"
+              className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600"
+            />
+          )}
+          {isCoach && (
+            <>
+              <GenerateButton
+                templateId={template.id}
+                label="Quick Generate"
+                className="bg-green-600 hover:bg-green-700 text-white border-green-600"
+              />
+              <Button onClick={() => setShowCreateProgramDialog(true)}>
+                <Users className="w-4 h-4 mr-2" />
+                Assign to Athlete
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Template Overview */}
@@ -151,6 +169,13 @@ const TemplateDetailPage: React.FC = () => {
                 >
                   Create First Program
                 </Button>
+              )}
+              {isSolo && (
+                <GenerateButton
+                  templateId={template.id}
+                  label="Start This Program"
+                  className="mt-4 bg-blue-600 hover:bg-blue-700 text-white border-blue-600"
+                />
               )}
             </div>
           )}

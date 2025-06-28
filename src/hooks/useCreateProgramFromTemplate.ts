@@ -17,6 +17,8 @@ export const useCreateProgramFromTemplate = () => {
 
   return useMutation({
     mutationFn: async (params: CreateProgramFromTemplateParams): Promise<string> => {
+      console.log('Creating program with params:', params);
+      
       const { data, error } = await supabase.functions.invoke('create-program-from-template', {
         body: {
           templateId: params.templateId,
@@ -29,13 +31,17 @@ export const useCreateProgramFromTemplate = () => {
         throw new Error(error.message || 'Failed to create program');
       }
 
+      console.log('Program creation response:', data);
       const response = data as CreateProgramResponse;
       return response.programId;
     },
-    onSuccess: () => {
+    onSuccess: (programId) => {
+      console.log('Program created successfully with ID:', programId);
       // Invalidate relevant queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['program-instances'] });
       queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      queryClient.invalidateQueries({ queryKey: ['templates'] });
+      
       toast({
         title: "Program Created",
         description: "Training program has been successfully created from template",

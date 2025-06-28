@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTemplates } from '@/hooks/useTemplates';
 import { useProgramInstances } from '@/hooks/useProgramInstances';
 import { NewTemplateBuilder } from '@/components/NewTemplateBuilder';
+import { GenerateButton } from '@/components/GenerateButton';
 import { useNavigate } from 'react-router-dom';
 
 const TrainingObjectsPage: React.FC = () => {
@@ -20,6 +20,7 @@ const TrainingObjectsPage: React.FC = () => {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
 
   const isCoach = profile?.role === 'coach';
+  const isSolo = profile?.role === 'solo';
 
   const handleViewTemplate = (templateId: string) => {
     navigate(`/template/${templateId}`);
@@ -117,7 +118,7 @@ const TrainingObjectsPage: React.FC = () => {
           {templates.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {templates.map((template) => (
-                <Card key={template.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                <Card key={template.id} className="hover:shadow-md transition-shadow">
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg">{template.title}</CardTitle>
@@ -127,28 +128,45 @@ const TrainingObjectsPage: React.FC = () => {
                       {template.weeks} week{template.weeks !== 1 ? 's' : ''} • {template.visibility}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm text-gray-600">
-                        Created {new Date(template.created_at).toLocaleDateString()}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleViewTemplate(template.id)}
-                        >
-                          View
-                        </Button>
-                        {isCoach && (
+                  <CardContent className="space-y-3">
+                    <div className="text-sm text-gray-600">
+                      Created {new Date(template.created_at).toLocaleDateString()}
+                    </div>
+                    
+                    {isSolo && (
+                      <GenerateButton
+                        templateId={template.id}
+                        label="Start This Program"
+                        full
+                        className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600"
+                      />
+                    )}
+                    
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleViewTemplate(template.id)}
+                        className="flex-1"
+                      >
+                        View
+                      </Button>
+                      {isCoach && (
+                        <>
                           <Button
                             size="sm"
                             onClick={() => handleEditTemplate(template.id)}
+                            className="flex-1"
                           >
                             Edit
                           </Button>
-                        )}
-                      </div>
+                          <GenerateButton
+                            templateId={template.id}
+                            label="Generate"
+                            className="bg-green-600 hover:bg-green-700 text-white border-green-600 text-sm px-3 py-1"
+                          />
+                        </>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
