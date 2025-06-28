@@ -2,14 +2,18 @@
 import React, { useState } from 'react';
 import { useTemplates, useCreateTemplate, useTemplateBlocks, useUpdateTemplateBlock } from '@/hooks/useTemplates';
 import { useExerciseLibrary } from '@/hooks/useExerciseLibrary';
+import { useUpsertExercise } from '@/hooks/useUpsertExercise';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Save, Trash2 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Save, Trash2, Grid } from 'lucide-react';
 import { Template, TemplateBlock, TemplateExercise } from '@/types/training';
+import { TemplateGridView } from '@/components/TemplateGridView';
+import { CreateProgramFromTemplateDialog } from '@/components/CreateProgramFromTemplateDialog';
 
 interface NewTemplateBuilderProps {
   templateId?: string;
@@ -24,13 +28,17 @@ export const NewTemplateBuilder: React.FC<NewTemplateBuilderProps> = ({ template
     visibility: 'private' as Template['visibility'],
   });
 
-  const { data: exercises } = useExerciseLibrary();
-  const { data: templateBlocks } = useTemplateBlocks(templateId || '');
-  const createTemplate = useCreateTemplate();
-  const updateTemplateBlock = useUpdateTemplateBlock();
-
   const [selectedWeek, setSelectedWeek] = useState(1);
   const [selectedDay, setSelectedDay] = useState(1);
+  const [showCreateProgramDialog, setShowCreateProgramDialog] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+
+  const { data: exercises } = useExerciseLibrary();
+  const { data: templateBlocks } = useTemplateBlocks(templateId || '');
+  const { data: template } = useTemplates();
+  const createTemplate = useCreateTemplate();
+  const updateTemplateBlock = useUpdateTemplateBlock();
+  const upsertExercise = useUpsertExercise();
 
   const handleCreateTemplate = async () => {
     if (!templateData.title) return;
@@ -105,6 +113,16 @@ export const NewTemplateBuilder: React.FC<NewTemplateBuilderProps> = ({ template
     updateTemplateBlock.mutate(updatedBlock);
   };
 
+  const handleCreateProgram = () => {
+    if (templateId && template) {
+      const currentTemplate = template.find(t => t.id === templateId);
+      if (currentTemplate) {
+        setSelectedTemplate(currentTemplate);
+        setShowCreateProgramDialog(true);
+      }
+    }
+  };
+
   const currentBlock = getCurrentBlock();
   const exerciseOptions = exercises || [];
 
@@ -177,140 +195,173 @@ export const NewTemplateBuilder: React.FC<NewTemplateBuilderProps> = ({ template
 
       {/* Template Builder */}
       {templateId && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Week/Day Navigator */}
-          <GlassCard className="p-4">
-            <h3 className="text-lg font-semibold text-white mb-4">Week & Day</h3>
-            <div className="space-y-3">
-              <div>
-                <Label className="text-white">Week</Label>
-                <Select value={selectedWeek.toString()} onValueChange={(value) => setSelectedWeek(parseInt(value))}>
-                  <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 12 }, (_, i) => i + 1).map(week => (
-                      <SelectItem key={week} value={week.toString()}>Week {week}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-white">Day</Label>
-                <Select value={selectedDay.toString()} onValueChange={(value) => setSelectedDay(parseInt(value))}>
-                  <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 7 }, (_, i) => i + 1).map(day => (
-                      <SelectItem key={day} value={day.toString()}>Day {day}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </GlassCard>
+        <div className="space-y-6">
+          {/* Template Actions */}
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-white">Template Builder</h2>
+            <Button onClick={handleCreateProgram} className="bg-green-600 hover:bg-green-700">
+              <Plus className="w-4 h-4 mr-2" />
+              Create Program
+            </Button>
+          </div>
 
-          {/* Exercise Library */}
-          <GlassCard className="p-4">
-            <h3 className="text-lg font-semibold text-white mb-4">Exercise Library</h3>
-            <div className="space-y-2 max-h-96 overflow-y-auto">
-              {exerciseOptions.map((exercise) => (
-                <div key={exercise.id} className="flex items-center justify-between p-2 bg-white/5 rounded">
-                  <div>
-                    <p className="text-white font-medium">{exercise.name}</p>
-                    <p className="text-white/60 text-sm">{exercise.category} • {exercise.primary_muscle}</p>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleAddExercise(exercise.id)}
-                    className="text-white hover:bg-white/10"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </GlassCard>
+          <Tabs defaultValue="builder" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="builder">Builder</TabsTrigger>
+              <TabsTrigger value="grid">
+                <Grid className="w-4 h-4 mr-2" />
+                Grid View
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Session Builder */}
-          <GlassCard className="p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">
-                Week {selectedWeek}, Day {selectedDay}
-              </h3>
-              <Badge variant="outline" className="text-white border-white/20">
-                {currentBlock?.exercises.length || 0} exercises
-              </Badge>
-            </div>
-
-            <div className="space-y-3">
-              {currentBlock?.exercises.map((exercise, index) => {
-                const exerciseInfo = exerciseOptions.find(e => e.id === exercise.exercise_id);
-                return (
-                  <div key={index} className="p-3 bg-white/5 rounded border border-white/10">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-white font-medium">{exerciseInfo?.name}</p>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleRemoveExercise(index)}
-                        className="text-red-400 hover:bg-red-400/10"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+            <TabsContent value="builder" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Week/Day Navigator */}
+                <GlassCard className="p-4">
+                  <h3 className="text-lg font-semibold text-white mb-4">Week & Day</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <Label className="text-white">Week</Label>
+                      <Select value={selectedWeek.toString()} onValueChange={(value) => setSelectedWeek(parseInt(value))}>
+                        <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 12 }, (_, i) => i + 1).map(week => (
+                            <SelectItem key={week} value={week.toString()}>Week {week}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <Label className="text-white/70 text-xs">Sets</Label>
-                        <Input
-                          type="number"
-                          value={exercise.sets}
-                          onChange={(e) => handleUpdateExercise(index, { sets: parseInt(e.target.value) })}
-                          className="bg-white/10 border-white/20 text-white h-8"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-white/70 text-xs">Reps</Label>
-                        <Input
-                          type="number"
-                          value={exercise.reps}
-                          onChange={(e) => handleUpdateExercise(index, { reps: parseInt(e.target.value) })}
-                          className="bg-white/10 border-white/20 text-white h-8"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-white/70 text-xs">Load %</Label>
-                        <Input
-                          type="number"
-                          value={exercise.load_percent || ''}
-                          onChange={(e) => handleUpdateExercise(index, { load_percent: parseInt(e.target.value) })}
-                          className="bg-white/10 border-white/20 text-white h-8"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-white/70 text-xs">Rest (s)</Label>
-                        <Input
-                          type="number"
-                          value={exercise.rest_seconds || ''}
-                          onChange={(e) => handleUpdateExercise(index, { rest_seconds: parseInt(e.target.value) })}
-                          className="bg-white/10 border-white/20 text-white h-8"
-                        />
-                      </div>
+                    <div>
+                      <Label className="text-white">Day</Label>
+                      <Select value={selectedDay.toString()} onValueChange={(value) => setSelectedDay(parseInt(value))}>
+                        <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 7 }, (_, i) => i + 1).map(day => (
+                            <SelectItem key={day} value={day.toString()}>Day {day}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                </GlassCard>
 
-            {(!currentBlock || currentBlock.exercises.length === 0) && (
-              <div className="text-center py-8">
-                <p className="text-white/60">No exercises added yet</p>
-                <p className="text-white/40 text-sm">Select exercises from the library to get started</p>
+                {/* Exercise Library */}
+                <GlassCard className="p-4">
+                  <h3 className="text-lg font-semibold text-white mb-4">Exercise Library</h3>
+                  <div className="space-y-2 max-h-96 overflow-y-auto">
+                    {exerciseOptions.map((exercise) => (
+                      <div key={exercise.id} className="flex items-center justify-between p-2 bg-white/5 rounded">
+                        <div>
+                          <p className="text-white font-medium">{exercise.name}</p>
+                          <p className="text-white/60 text-sm">{exercise.category} • {exercise.primary_muscle}</p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleAddExercise(exercise.id)}
+                          className="text-white hover:bg-white/10"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </GlassCard>
+
+                {/* Session Builder */}
+                <GlassCard className="p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-white">
+                      Week {selectedWeek}, Day {selectedDay}
+                    </h3>
+                    <Badge variant="outline" className="text-white border-white/20">
+                      {currentBlock?.exercises.length || 0} exercises
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-3">
+                    {currentBlock?.exercises.map((exercise, index) => {
+                      const exerciseInfo = exerciseOptions.find(e => e.id === exercise.exercise_id);
+                      return (
+                        <div key={index} className="p-3 bg-white/5 rounded border border-white/10">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-white font-medium">{exerciseInfo?.name}</p>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleRemoveExercise(index)}
+                              className="text-red-400 hover:bg-red-400/10"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <Label className="text-white/70 text-xs">Sets</Label>
+                              <Input
+                                type="number"
+                                value={exercise.sets}
+                                onChange={(e) => handleUpdateExercise(index, { sets: parseInt(e.target.value) })}
+                                className="bg-white/10 border-white/20 text-white h-8"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-white/70 text-xs">Reps</Label>
+                              <Input
+                                type="number"
+                                value={exercise.reps}
+                                onChange={(e) => handleUpdateExercise(index, { reps: parseInt(e.target.value) })}
+                                className="bg-white/10 border-white/20 text-white h-8"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-white/70 text-xs">Load %</Label>
+                              <Input
+                                type="number"
+                                value={exercise.load_percent || ''}
+                                onChange={(e) => handleUpdateExercise(index, { load_percent: parseInt(e.target.value) })}
+                                className="bg-white/10 border-white/20 text-white h-8"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-white/70 text-xs">Rest (s)</Label>
+                              <Input
+                                type="number"
+                                value={exercise.rest_seconds || ''}
+                                onChange={(e) => handleUpdateExercise(index, { rest_seconds: parseInt(e.target.value) })}
+                                className="bg-white/10 border-white/20 text-white h-8"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {(!currentBlock || currentBlock.exercises.length === 0) && (
+                    <div className="text-center py-8">
+                      <p className="text-white/60">No exercises added yet</p>
+                      <p className="text-white/40 text-sm">Select exercises from the library to get started</p>
+                    </div>
+                  )}
+                </GlassCard>
               </div>
-            )}
-          </GlassCard>
+            </TabsContent>
+
+            <TabsContent value="grid" className="space-y-6">
+              <TemplateGridView templateId={templateId} />
+            </TabsContent>
+          </Tabs>
+
+          <CreateProgramFromTemplateDialog
+            open={showCreateProgramDialog}
+            onOpenChange={setShowCreateProgramDialog}
+            template={selectedTemplate}
+          />
         </div>
       )}
     </div>

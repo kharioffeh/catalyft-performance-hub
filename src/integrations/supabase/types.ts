@@ -906,6 +906,13 @@ export type Database = {
             referencedRelation: "template"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "program_instance_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "v_template_grid"
+            referencedColumns: ["template_id"]
+          },
         ]
       }
       program_templates: {
@@ -1255,6 +1262,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "template"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "template_block_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "v_template_grid"
+            referencedColumns: ["template_id"]
           },
         ]
       }
@@ -1739,6 +1753,18 @@ export type Database = {
         }
         Relationships: []
       }
+      v_template_grid: {
+        Row: {
+          day_no: number | null
+          exercise_id: string | null
+          load_pct: number | null
+          reps: number | null
+          sets: number | null
+          template_id: string | null
+          week_no: number | null
+        }
+        Relationships: []
+      }
       vw_coach_athletes: {
         Row: {
           coach_uuid: string | null
@@ -1919,6 +1945,26 @@ export type Database = {
       expire_old_invites: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      fn_create_program_from_template: {
+        Args: {
+          p_template_id: string
+          p_athlete: string
+          p_coach: string
+          p_start_date: string
+        }
+        Returns: string
+      }
+      fn_upsert_exercise: {
+        Args: {
+          p_name: string
+          p_category: string
+          p_primary_muscle: string
+          p_secondary_muscle?: string[]
+          p_video_url?: string
+          p_coach_uuid?: string
+        }
+        Returns: string
       }
       get_current_coach_id: {
         Args: Record<PropertyKey, never>

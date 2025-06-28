@@ -126,6 +126,7 @@ export const useUpdateTemplateBlock = () => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['template-blocks', data.template_id] });
+      queryClient.invalidateQueries({ queryKey: ['template-grid', data.template_id] });
     },
   });
 };
