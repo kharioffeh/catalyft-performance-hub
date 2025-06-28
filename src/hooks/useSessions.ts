@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, SetLog, SessionExercise } from '@/types/training';
@@ -105,9 +104,11 @@ export const useUpdateSession = () => {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Session> & { id: string }) => {
-      const updateData = updates.exercises 
-        ? { ...updates, exercises: updates.exercises as unknown as any }
-        : updates;
+      // Remove program property if it exists and handle exercises casting
+      const { program, ...cleanUpdates } = updates as any;
+      const updateData = cleanUpdates.exercises 
+        ? { ...cleanUpdates, exercises: cleanUpdates.exercises as unknown as any }
+        : cleanUpdates;
         
       const { data, error } = await supabase
         .from('session')
