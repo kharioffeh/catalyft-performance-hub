@@ -1,12 +1,11 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import * as THREE from "three";
 import NET from "vanta/dist/vanta.net.min";
 import { ArrowLeft, ChevronDown, ExternalLink } from "lucide-react";
-import { ariaChat, getAriaMessages, type AriaChatMessage, type AriaMessage } from "@/lib/aria";
+import { ariaStream, getAriaMessages, type AriaChatMessage, type AriaMessage } from "@/lib/aria";
 
-type Msg = { id: string; role: "assistant" | "user"; text: string };
+type Msg = { id: string; role: "assistant" | "user"; text: string; isStreaming?: boolean };
 
 function useVantaBackground(ref: React.RefObject<HTMLDivElement>) {
   const vantaRef = useRef<any>(null);
@@ -94,6 +93,16 @@ export function ChatThread() {
     if (!messageText) setDraft("");
     setIsLoading(true);
 
+    // Add streaming assistant message placeholder
+    const assistantMsgId = crypto.randomUUID();
+    const assistantMsg: Msg = {
+      id: assistantMsgId,
+      role: "assistant",
+      text: "",
+      isStreaming: true
+    };
+    setMessages((m) => [...m, assistantMsg]);
+
     try {
       // Prepare messages for ARIA
       const conversationHistory: AriaChatMessage[] = [
@@ -107,9 +116,21 @@ export function ChatThread() {
         }
       ];
 
-      // Call ARIA with conversation history
-      const response = await ariaChat(conversationHistory, actualThreadId);
-      const assistantResponse = response.choices[0]?.message?.content || "I'm sorry, I couldn't generate a response.";
+      // Call ARIA with streaming
+      const response = await ariaStream(
+        conversationHistory, 
+        actualThreadId,
+        (token: string) => {
+          // Update the streaming message with each token
+          setMessages((currentMessages) => 
+            currentMessages.map(msg => 
+              msg.id === assistantMsgId 
+                ? { ...msg, text: msg.text + token }
+                : msg
+            )
+          );
+        }
+      );
 
       // Update thread ID if this was a new conversation
       if (response.thread_id && !actualThreadId) {
@@ -118,21 +139,30 @@ export function ChatThread() {
         window.history.replaceState({}, '', `/chat/${response.thread_id}`);
       }
 
-      const assistantMsg: Msg = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        text: assistantResponse
-      };
+      // Mark streaming as complete
+      setMessages((currentMessages) => 
+        currentMessages.map(msg => 
+          msg.id === assistantMsgId 
+            ? { ...msg, isStreaming: false }
+            : msg
+        )
+      );
 
-      setMessages((m) => [...m, assistantMsg]);
     } catch (error) {
       console.error('Error sending message:', error);
-      const errorMsg: Msg = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        text: "I'm sorry, I encountered an error. Please try again."
-      };
-      setMessages((m) => [...m, errorMsg]);
+      
+      // Replace streaming message with error
+      setMessages((currentMessages) => 
+        currentMessages.map(msg => 
+          msg.id === assistantMsgId 
+            ? { 
+                ...msg, 
+                text: "I'm sorry, I encountered an error. Please try again.",
+                isStreaming: false
+              }
+            : msg
+        )
+      );
     } finally {
       setIsLoading(false);
     }
@@ -175,6 +205,9 @@ export function ChatThread() {
                     }`}
                   >
                     {m.text}
+                    {m.isStreaming && (
+                      <span className="inline-block w-2 h-4 bg-white ml-1 animate-pulse" />
+                    )}
                   </div>
                   {m.role === "user" && (
                     <div className="w-8 h-8 rounded-full bg-[#2A2A35] flex-shrink-0 flex items-center justify-center ml-3">
@@ -184,8 +217,8 @@ export function ChatThread() {
                 </div>
               ))}
               
-              {/* Loading indicator */}
-              {isLoading && (
+              {/* Loading indicator only shows when waiting for stream to start */}
+              {isLoading && !messages.some(m => m.isStreaming) && (
                 <div className="flex">
                   <div className="w-8 h-8 rounded-full bg-accent flex-shrink-0 flex items-center justify-center mr-3">
                     AI
