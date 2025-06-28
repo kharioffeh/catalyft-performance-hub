@@ -1,77 +1,25 @@
 
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
+import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import EditableWeekTable from '@/components/EditableWeekTable';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ArrowLeft, Calendar, Users, Eye, Settings } from 'lucide-react';
+import { useTemplate } from '@/hooks/useTemplates';
+import { useProgramInstances } from '@/hooks/useProgramInstances';
+import { TemplateGridView } from '@/components/TemplateGridView';
+import { CreateProgramFromTemplateDialog } from '@/components/CreateProgramFromTemplateDialog';
+import { useAuth } from '@/contexts/AuthContext';
 
-export default function TemplateDetailPage() {
+const TemplateDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const { profile } = useAuth();
-  const [tpl, setTpl] = useState<any | null>(null);
-  const [dirty, setDirty] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const { data: template, isLoading } = useTemplate(id || '');
+  const { data: programInstances = [] } = useProgramInstances();
+  const [showCreateProgramDialog, setShowCreateProgramDialog] = useState(false);
 
-  // Fetch template once
-  useEffect(() => {
-    const fetchTemplate = async () => {
-      if (!id) return;
-      
-      const { data, error } = await supabase
-        .from('program_templates')
-        .select('*')
-        .eq('id', id)
-        .single();
-      
-      if (error) {
-        toast({
-          title: "Error loading template",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        setTpl(data);
-      }
-      setLoading(false);
-    };
-
-    fetchTemplate();
-  }, [id]);
-
-  const save = async () => {
-    if (!tpl) return;
-    
-    setSaving(true);
-    const { error } = await supabase
-      .from('program_templates')
-      .update({ 
-        block_json: tpl.block_json,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', tpl.id);
-    
-    if (error) {
-      toast({
-        title: "Error saving template",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Template saved",
-        description: "Your changes have been saved successfully.",
-      });
-      setDirty(false);
-    }
-    setSaving(false);
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-48">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -79,58 +27,143 @@ export default function TemplateDetailPage() {
     );
   }
 
-  if (!tpl) {
+  if (!template) {
     return (
-      <div className="p-6">
-        <p className="text-gray-500">Template not found.</p>
-        <Button 
-          variant="outline" 
-          onClick={() => navigate('/templates')}
-          className="mt-4"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Templates
-        </Button>
+      <div className="text-center py-8 text-gray-500">
+        <p>Template not found</p>
       </div>
     );
   }
 
+  const relatedPrograms = programInstances.filter(p => p.template_id === template.id);
   const isCoach = profile?.role === 'coach';
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <nav className="text-sm mb-2">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate('/templates')}
-          className="text-blue-600 hover:text-blue-800 p-0 h-auto"
-        >
-          <ArrowLeft className="w-4 h-4 mr-1" />
-          Templates
-        </Button>
-      </nav>
-      
-      <header className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">{tpl.name}</h1>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" onClick={() => window.history.back()}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">{template.title}</h1>
+            <div className="flex items-center gap-2 mt-1">
+              <Badge variant="outline">{template.goal}</Badge>
+              <Badge variant="secondary">{template.weeks} weeks</Badge>
+              <Badge variant="outline">{template.visibility}</Badge>
+            </div>
+          </div>
+        </div>
+        
         {isCoach && (
-          <Button 
-            disabled={!dirty || saving} 
-            onClick={save}
-            className="flex items-center gap-2"
-          >
-            {saving ? 'Saving...' : 'Save Changes'}
+          <Button onClick={() => setShowCreateProgramDialog(true)}>
+            <Users className="w-4 h-4 mr-2" />
+            Assign to Athlete
           </Button>
         )}
-      </header>
-      
-      <EditableWeekTable
-        blockJson={tpl.block_json}
-        editable={isCoach}
-        onChange={(blockJson) => {
-          setTpl({ ...tpl, block_json: blockJson });
-          setDirty(true);
-        }}
+      </div>
+
+      {/* Template Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Duration</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{template.weeks} weeks</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Programs</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{relatedPrograms.length}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Goal</CardTitle>
+            <Settings className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold capitalize">{template.goal}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Template Content */}
+      <Tabs defaultValue="grid" className="w-full">
+        <TabsList>
+          <TabsTrigger value="grid">
+            <Eye className="w-4 h-4 mr-2" />
+            Grid View
+          </TabsTrigger>
+          <TabsTrigger value="programs">Programs ({relatedPrograms.length})</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="grid" className="space-y-6">
+          <TemplateGridView templateId={template.id} />
+        </TabsContent>
+
+        <TabsContent value="programs" className="space-y-6">
+          {relatedPrograms.length > 0 ? (
+            <div className="grid gap-4">
+              {relatedPrograms.map((program) => (
+                <Card key={program.id}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span>Program Instance</span>
+                      <Badge variant={program.status === 'active' ? 'default' : 'secondary'}>
+                        {program.status}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-gray-600">Start Date</p>
+                        <p className="font-medium">{new Date(program.start_date).toLocaleDateString()}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">End Date</p>
+                        <p className="font-medium">{new Date(program.end_date).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <p>No programs created from this template yet</p>
+              {isCoach && (
+                <Button 
+                  onClick={() => setShowCreateProgramDialog(true)}
+                  className="mt-4"
+                >
+                  Create First Program
+                </Button>
+              )}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
+
+      <CreateProgramFromTemplateDialog
+        open={showCreateProgramDialog}
+        onOpenChange={setShowCreateProgramDialog}
+        template={template}
       />
     </div>
   );
-}
+};
+
+export default TemplateDetailPage;

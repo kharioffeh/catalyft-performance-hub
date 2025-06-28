@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Dumbbell } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Plus, Dumbbell, BookOpen, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWorkoutTemplates } from '@/hooks/useWorkoutTemplates';
 import { useAssignedWorkouts } from '@/hooks/useAssignedWorkouts';
@@ -18,9 +19,11 @@ import { useTemplateModal } from '@/store/useTemplateModal';
 import { WorkoutTemplate } from '@/types/workout';
 import ProgramBuilder from '@/components/ProgramBuilder';
 import { useProgramTemplates } from '@/hooks/useProgramTemplates';
+import { useNavigate } from 'react-router-dom';
 
 const Workout: React.FC = () => {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const { data: templates = [], isLoading: templatesLoading, refetch: refetchWorkoutTemplates } = useWorkoutTemplates();
   const { data: programTemplates = [], refetch: refetchProgramTemplates } = useProgramTemplates();
   const { data: assignedWorkouts = [], isLoading: assignedLoading } = useAssignedWorkouts();
@@ -74,11 +77,51 @@ const Workout: React.FC = () => {
         )}
       </div>
 
+      {/* New Training Objects System Card */}
+      <Card className="border-2 border-blue-200 bg-blue-50">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <BookOpen className="w-6 h-6 text-blue-600" />
+              <div>
+                <CardTitle className="text-blue-900">New: Training Objects System</CardTitle>
+                <CardDescription className="text-blue-700">
+                  Advanced template and program management with enhanced features
+                </CardDescription>
+              </div>
+            </div>
+            <Button
+              onClick={() => navigate('/training-objects')}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Explore
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>Template Grid View</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>Atomic Program Creation</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>Session Management</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <WorkoutStats templates={allTemplates} assignedWorkouts={assignedWorkouts} />
 
       <Tabs defaultValue="templates" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="templates">Templates</TabsTrigger>
+          <TabsTrigger value="templates">Legacy Templates</TabsTrigger>
           <TabsTrigger value="exercises">Exercise Library</TabsTrigger>
           <TabsTrigger value="assigned">Assigned Workouts</TabsTrigger>
           {profile?.role === 'athlete' && (

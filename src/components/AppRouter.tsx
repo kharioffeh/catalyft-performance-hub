@@ -8,6 +8,7 @@ import SleepDetailPage from '../pages/SleepDetailPage';
 import LoadDetailPage from '../pages/LoadDetailPage';
 import AthletesPage from '../pages/Athletes';
 import WorkoutsPage from '../pages/Workout';
+import TrainingObjectsPage from '../pages/TrainingObjectsPage';
 import SettingsPage from '../pages/Settings';
 import SubscriptionsPage from '../pages/Subscriptions';
 import BillingEnhancedPage from '../pages/BillingEnhanced';
@@ -86,6 +87,11 @@ const AppRouter = () => {
         <Route path="workout" element={
           <ProtectedRoute roles={['coach']}>
             <WorkoutsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="training-objects" element={
+          <ProtectedRoute roles={['coach']}>
+            <TrainingObjectsPage />
           </ProtectedRoute>
         } />
         <Route path="kai" element={<Navigate to="/chat" replace />} />

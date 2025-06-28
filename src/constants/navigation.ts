@@ -1,85 +1,75 @@
 
-import { LucideIcon, Users, BarChart3, Calendar, MessageSquare, Dumbbell, CreditCard, AlertTriangle, Target } from 'lucide-react';
+import { 
+  BarChart3, 
+  Calendar, 
+  Users, 
+  MessageSquare, 
+  Settings, 
+  Dumbbell,
+  BookOpen,
+  AlertTriangle,
+  Activity,
+} from 'lucide-react';
 
-export interface NavigationItem {
-  name: string;
-  href: string;
-  icon: LucideIcon;
-  badge?: string;
-  roles?: ('coach' | 'athlete' | 'solo')[];
-}
-
-// Individual navigation item definitions
-export const navigationItems: NavigationItem[] = [
+export const navigationItems = [
   {
-    name: 'Dashboard',
+    title: 'Dashboard',
     href: '/dashboard',
     icon: BarChart3,
     roles: ['coach', 'athlete', 'solo'],
   },
   {
-    name: 'Program',
-    href: '/program', 
-    icon: Target,
+    title: 'Program',
+    href: '/program',
+    icon: Activity,
     roles: ['solo'],
   },
   {
-    name: 'Athletes',
+    title: 'Analytics',
+    href: '/analytics',
+    icon: BarChart3,
+    roles: ['coach', 'athlete'],
+  },
+  {
+    title: 'Calendar',
+    href: '/calendar',
+    icon: Calendar,
+    roles: ['coach', 'athlete'],
+  },
+  {
+    title: 'Athletes',
     href: '/athletes',
     icon: Users,
     roles: ['coach'],
   },
   {
-    name: 'Risk Board',
+    title: 'Risk Board',
     href: '/risk-board',
     icon: AlertTriangle,
     roles: ['coach'],
   },
   {
-    name: 'Analytics',
-    href: '/analytics',
-    icon: BarChart3,
-    roles: ['coach', 'athlete', 'solo'],
-  },
-  {
-    name: 'Calendar',
-    href: '/calendar',
-    icon: Calendar,
-    roles: ['coach', 'athlete', 'solo'],
-  },
-  {
-    name: 'Chat',
-    href: '/chat',
-    icon: MessageSquare,
-    roles: ['coach', 'athlete', 'solo'],
-  },
-  {
-    name: 'Workouts',
+    title: 'Workouts',
     href: '/workouts',
     icon: Dumbbell,
     roles: ['coach'],
   },
   {
-    name: 'Account & Billing',
-    href: '/billing',
-    icon: CreditCard,
+    title: 'Training Objects',
+    href: '/training-objects',
+    icon: BookOpen,
+    roles: ['coach'],
+  },
+  {
+    title: 'Chat (KAI)',
+    href: '/chat',
+    icon: MessageSquare,
+    roles: ['coach', 'athlete', 'solo'],
+  },
+  {
+    title: 'Settings',
+    href: '/settings',
+    icon: Settings,
     roles: ['coach', 'athlete', 'solo'],
   },
 ];
-
-// Role-based navigation arrays for components
-export const coachNavigation = navigationItems
-  .filter(item => item.roles?.includes('coach'))
-  .map(item => ({
-    label: item.name,
-    path: item.href,
-    icon: item.icon,
-  }));
-
-export const soloNavigation = navigationItems
-  .filter(item => item.roles?.includes('solo'))
-  .map(item => ({
-    label: item.name,
-    path: item.href,
-    icon: item.icon,
-  }));
