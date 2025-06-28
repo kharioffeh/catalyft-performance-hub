@@ -53,20 +53,22 @@ const TrainingObjectsPage: React.FC = () => {
     if (!templateToDelete) return;
 
     try {
+      console.log('Deleting template:', templateToDelete);
       await deleteTemplate.mutateAsync(templateToDelete);
       toast({
         title: "Template Deleted",
         description: "Template has been successfully deleted",
       });
-    } catch (error) {
-      toast({
-        title: "Deletion Failed",
-        description: "Failed to delete template. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
       setDeleteDialogOpen(false);
       setTemplateToDelete(null);
+    } catch (error) {
+      console.error('Template deletion error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete template. Please try again.';
+      toast({
+        title: "Deletion Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
   };
 

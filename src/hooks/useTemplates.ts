@@ -136,15 +136,48 @@ export const useDeleteTemplate = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      console.log('Attempting to delete template:', id);
+      
+      // First, delete associated template blocks
+      const { error: blocksError } = await supabase
+        .from('template_block')
+        .delete()
+        .eq('template_id', id);
+
+      if (blocksError) {
+        console.error('Error deleting template blocks:', blocksError);
+        throw new Error(`Failed to delete template blocks: ${blocksError.message}`);
+      }
+
+      // Then delete the template
+      const { error: templateError } = await supabase
         .from('template')
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (templateError) {
+        console.error('Error deleting template:', templateError);
+        
+        // Provide specific error messages for common RLS issues
+        if (templateError.code === '42501') {
+          throw new Error('Permission denied: You can only delete templates you own');
+        }
+        
+        if (templateError.message.includes('row-level security')) {
+          throw new Error('Access denied: Insufficient permissions to delete this template');
+        }
+        
+        throw new Error(`Failed to delete template: ${templateError.message}`);
+      }
+
+      console.log('Template deleted successfully:', id);
     },
     onSuccess: () => {
+      console.log('Template deletion successful, invalidating queries');
       queryClient.invalidateQueries({ queryKey: ['templates'] });
+    },
+    onError: (error) => {
+      console.error('Template deletion failed:', error);
     },
   });
 };
