@@ -3,6 +3,7 @@ import React from 'react';
 import { NewTemplateBuilder } from '@/components/NewTemplateBuilder';
 import ProgramBuilder from '@/components/ProgramBuilder';
 import { AssignTemplateDialog } from '@/components/AssignTemplateDialog';
+import { Template } from '@/types/training';
 
 interface TrainingProgramsModalsProps {
   showTemplateBuilder: boolean;
@@ -23,11 +24,15 @@ export const TrainingProgramsModals: React.FC<TrainingProgramsModalsProps> = ({
   onCloseProgram,
   onCloseAssignDialog,
 }) => {
+  const handleTemplateSave = (template: Template) => {
+    onCloseTemplate(true); // Close with refresh
+  };
+
   return (
     <>
       {showTemplateBuilder && (
         <NewTemplateBuilder
-          onClose={onCloseTemplate}
+          onSave={handleTemplateSave}
         />
       )}
 
