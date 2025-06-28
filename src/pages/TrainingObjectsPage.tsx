@@ -1,24 +1,28 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Dumbbell, Calendar, Users, BookOpen } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Plus, Dumbbell, Calendar, Users, BookOpen, Trash2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTemplates } from '@/hooks/useTemplates';
+import { useTemplates, useDeleteTemplate } from '@/hooks/useTemplates';
 import { useProgramInstances } from '@/hooks/useProgramInstances';
 import { NewTemplateBuilder } from '@/components/NewTemplateBuilder';
 import { GenerateButton } from '@/components/GenerateButton';
 import { useNavigate } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 
 const TrainingObjectsPage: React.FC = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const { data: templates = [], isLoading: templatesLoading } = useTemplates();
   const { data: programInstances = [] } = useProgramInstances();
+  const deleteTemplate = useDeleteTemplate();
   const [showTemplateBuilder, setShowTemplateBuilder] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
 
   const isCoach = profile?.role === 'coach';
   const isSolo = profile?.role === 'solo';
@@ -35,6 +39,32 @@ const TrainingObjectsPage: React.FC = () => {
   const handleCreateTemplate = () => {
     setSelectedTemplateId(null);
     setShowTemplateBuilder(true);
+  };
+
+  const handleDeleteClick = (templateId: string) => {
+    setTemplateToDelete(templateId);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!templateToDelete) return;
+
+    try {
+      await deleteTemplate.mutateAsync(templateToDelete);
+      toast({
+        title: "Template Deleted",
+        description: "Template has been successfully deleted",
+      });
+    } catch (error) {
+      toast({
+        title: "Deletion Failed",
+        description: "Failed to delete template. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleteDialogOpen(false);
+      setTemplateToDelete(null);
+    }
   };
 
   if (templatesLoading) {
@@ -166,6 +196,15 @@ const TrainingObjectsPage: React.FC = () => {
                             label="Generate"
                             className="bg-green-600 hover:bg-green-700 text-white border-green-600 text-sm px-3 py-1"
                           />
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDeleteClick(template.id)}
+                            disabled={deleteTemplate.isPending}
+                            className="px-3"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         </>
                       )}
                     </div>
@@ -268,6 +307,28 @@ const TrainingObjectsPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Template</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this template? This action cannot be undone and will permanently remove the template and all its associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-red-600 hover:bg-red-700"
+              disabled={deleteTemplate.isPending}
+            >
+              {deleteTemplate.isPending ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
