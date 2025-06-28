@@ -73,3 +73,65 @@ export const navigationItems = [
     roles: ['coach', 'athlete', 'solo'],
   },
 ];
+
+// Role-specific navigation arrays for mobile and sidebar components
+export const coachNavigation = [
+  {
+    label: 'Dashboard',
+    path: '/dashboard',
+    icon: BarChart3,
+  },
+  {
+    label: 'Analytics',
+    path: '/analytics',
+    icon: BarChart3,
+  },
+  {
+    label: 'Calendar',
+    path: '/calendar',
+    icon: Calendar,
+  },
+  {
+    label: 'Athletes',
+    path: '/athletes',
+    icon: Users,
+  },
+  {
+    label: 'Risk Board',
+    path: '/risk-board',
+    icon: AlertTriangle,
+  },
+  {
+    label: 'Workouts',
+    path: '/workouts',
+    icon: Dumbbell,
+  },
+  {
+    label: 'Training Objects',
+    path: '/training-objects',
+    icon: BookOpen,
+  },
+  {
+    label: 'Chat',
+    path: '/chat',
+    icon: MessageSquare,
+  },
+];
+
+export const soloNavigation = [
+  {
+    label: 'Dashboard',
+    path: '/dashboard',
+    icon: BarChart3,
+  },
+  {
+    label: 'Program',
+    path: '/program',
+    icon: Activity,
+  },
+  {
+    label: 'Chat',
+    path: '/chat',
+    icon: MessageSquare,
+  },
+];
