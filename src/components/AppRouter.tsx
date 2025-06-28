@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import DashboardPage from '../pages/Dashboard';
@@ -7,8 +6,7 @@ import ReadinessDetailPage from '../pages/ReadinessDetailPage';
 import SleepDetailPage from '../pages/SleepDetailPage';
 import LoadDetailPage from '../pages/LoadDetailPage';
 import AthletesPage from '../pages/Athletes';
-import WorkoutsPage from '../pages/Workout';
-import TrainingObjectsPage from '../pages/TrainingObjectsPage';
+import TrainingPrograms from '../pages/TrainingPrograms';
 import SettingsPage from '../pages/Settings';
 import SubscriptionsPage from '../pages/Subscriptions';
 import BillingEnhancedPage from '../pages/BillingEnhanced';
@@ -79,21 +77,15 @@ const AppRouter = () => {
             <RiskBoardPage />
           </ProtectedRoute>
         } />
-        <Route path="workouts" element={
+        <Route path="training-programs" element={
           <ProtectedRoute roles={['coach']}>
-            <WorkoutsPage />
+            <TrainingPrograms />
           </ProtectedRoute>
         } />
-        <Route path="workout" element={
-          <ProtectedRoute roles={['coach']}>
-            <WorkoutsPage />
-          </ProtectedRoute>
-        } />
-        <Route path="training-objects" element={
-          <ProtectedRoute roles={['coach']}>
-            <TrainingObjectsPage />
-          </ProtectedRoute>
-        } />
+        {/* Redirect old routes to new unified page */}
+        <Route path="workouts" element={<Navigate to="/training-programs" replace />} />
+        <Route path="workout" element={<Navigate to="/training-programs" replace />} />
+        <Route path="training-objects" element={<Navigate to="/training-programs" replace />} />
         <Route path="kai" element={<Navigate to="/chat" replace />} />
         <Route path="template/:id" element={<TemplateDetailPage />} />
         <Route path="settings" element={<SettingsPage />} />

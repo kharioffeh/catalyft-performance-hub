@@ -19,7 +19,9 @@ export const MobileNav: React.FC = () => {
     <div className="fixed bottom-0 left-0 right-0 h-16 bg-black/20 backdrop-blur-md border-t border-white/20 shadow-2xl flex items-center justify-around z-50 safe-area-pb">
       {visibleItems.map((item) => {
         const Icon = item.icon;
-        const isActive = location.pathname === item.path || (item.path === '/analytics' && location.pathname.startsWith('/analytics'));
+        const isActive = location.pathname === item.path || 
+                        (item.path === '/analytics' && location.pathname.startsWith('/analytics')) ||
+                        (item.path === '/training-programs' && (location.pathname.startsWith('/workouts') || location.pathname.startsWith('/training-objects')));
         
         return (
           <Link

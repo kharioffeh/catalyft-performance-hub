@@ -49,14 +49,8 @@ export const navigationItems = [
     roles: ['coach'],
   },
   {
-    title: 'Workouts',
-    href: '/workouts',
-    icon: Dumbbell,
-    roles: ['coach'],
-  },
-  {
-    title: 'Training Objects',
-    href: '/training-objects',
+    title: 'Training Programs',
+    href: '/training-programs',
     icon: BookOpen,
     roles: ['coach'],
   },
@@ -102,13 +96,8 @@ export const coachNavigation = [
     icon: AlertTriangle,
   },
   {
-    label: 'Workouts',
-    path: '/workouts',
-    icon: Dumbbell,
-  },
-  {
-    label: 'Training Objects',
-    path: '/training-objects',
+    label: 'Training Programs',
+    path: '/training-programs',
     icon: BookOpen,
   },
   {

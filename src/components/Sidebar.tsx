@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -28,7 +27,8 @@ const Sidebar = ({ isDarkTheme = false }: { isDarkTheme?: boolean }) => {
   const items = navigationItems.map(item => ({
     ...item,
     isActive: location.pathname === item.path || 
-             (item.path === '/analytics' && location.pathname.startsWith('/analytics/'))
+             (item.path === '/analytics' && location.pathname.startsWith('/analytics/')) ||
+             (item.path === '/training-programs' && (location.pathname.startsWith('/workouts') || location.pathname.startsWith('/training-objects')))
   }));
 
   // Styling for dark glass effect on chat/aria page
