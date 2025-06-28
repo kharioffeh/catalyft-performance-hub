@@ -271,6 +271,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          plan_id: string | null
           plan_status: string
           role: string
           stripe_customer_id: string | null
@@ -280,6 +281,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id: string
+          plan_id?: string | null
           plan_status?: string
           role: string
           stripe_customer_id?: string | null
@@ -289,13 +291,22 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          plan_id?: string | null
           plan_status?: string
           role?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           trial_end?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "billing_customers_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       biomech_alerts: {
         Row: {
@@ -625,6 +636,48 @@ export type Database = {
             referencedColumns: ["athlete_id"]
           },
         ]
+      }
+      plans: {
+        Row: {
+          created_at: string | null
+          export_api: boolean | null
+          has_adaptive_replan: boolean | null
+          has_aria_full: boolean | null
+          id: string
+          label: string
+          long_term_analytics: boolean | null
+          max_athletes: number | null
+          price_id: string
+          priority_support: boolean | null
+          type: string
+        }
+        Insert: {
+          created_at?: string | null
+          export_api?: boolean | null
+          has_adaptive_replan?: boolean | null
+          has_aria_full?: boolean | null
+          id: string
+          label: string
+          long_term_analytics?: boolean | null
+          max_athletes?: number | null
+          price_id: string
+          priority_support?: boolean | null
+          type: string
+        }
+        Update: {
+          created_at?: string | null
+          export_api?: boolean | null
+          has_adaptive_replan?: boolean | null
+          has_aria_full?: boolean | null
+          id?: string
+          label?: string
+          long_term_analytics?: boolean | null
+          max_athletes?: number | null
+          price_id?: string
+          priority_support?: boolean | null
+          type?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {

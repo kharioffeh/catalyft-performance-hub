@@ -51,10 +51,10 @@ serve(async (req) => {
 
         if (session.mode === 'subscription') {
           const userId = session.metadata?.user_id;
-          const role = session.metadata?.role;
+          const planId = session.metadata?.plan_id;
           
-          if (!userId) {
-            logStep("No user_id in session metadata");
+          if (!userId || !planId) {
+            logStep("Missing metadata in session", { userId, planId });
             break;
           }
 
@@ -65,11 +65,11 @@ serve(async (req) => {
             .update({
               stripe_subscription_id: subscription.id,
               plan_status: 'active',
-              role: role || 'solo'
+              plan_id: planId
             })
             .eq('id', userId);
 
-          logStep("Billing updated for successful checkout", { userId, role, subscriptionId: subscription.id });
+          logStep("Billing updated for successful checkout", { userId, planId, subscriptionId: subscription.id });
         }
         break;
       }
@@ -108,23 +108,50 @@ serve(async (req) => {
         break;
       }
 
-      case 'customer.subscription.updated':
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object as Stripe.Subscription;
+        logStep("Processing subscription update", { subscriptionId: subscription.id });
+
+        // Get the price ID to determine the new plan
+        const priceId = subscription.items.data[0]?.price?.id;
+        if (priceId) {
+          // Find the plan by price_id
+          const { data: plan } = await supabaseClient
+            .from('plans')
+            .select('id')
+            .eq('price_id', priceId)
+            .single();
+
+          const status = subscription.status === 'active' ? 'active' : 
+                        subscription.status === 'past_due' ? 'past_due' : 'canceled';
+
+          const updateData: any = { plan_status: status };
+          if (plan) {
+            updateData.plan_id = plan.id;
+          }
+
+          await supabaseClient
+            .from('billing_customers')
+            .update(updateData)
+            .eq('stripe_subscription_id', subscription.id);
+
+          logStep("Subscription updated", { subscriptionId: subscription.id, status, planId: plan?.id });
+        }
+        break;
+      }
+
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription;
-        logStep("Processing subscription update/deletion", { subscriptionId: subscription.id });
-
-        const status = event.type === 'customer.subscription.deleted' ? 'canceled' : 
-                      subscription.status === 'active' ? 'active' : 
-                      subscription.status === 'past_due' ? 'past_due' : 'canceled';
+        logStep("Processing subscription deletion", { subscriptionId: subscription.id });
 
         await supabaseClient
           .from('billing_customers')
           .update({
-            plan_status: status
+            plan_status: 'canceled'
           })
           .eq('stripe_subscription_id', subscription.id);
 
-        logStep("Subscription status updated", { subscriptionId: subscription.id, status });
+        logStep("Subscription status updated to canceled", { subscriptionId: subscription.id });
         break;
       }
 
