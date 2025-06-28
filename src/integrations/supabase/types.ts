@@ -65,6 +65,69 @@ export type Database = {
           },
         ]
       }
+      aria_messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: number
+          role: Database["public"]["Enums"]["aria_role"]
+          thread_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: never
+          role: Database["public"]["Enums"]["aria_role"]
+          thread_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: never
+          role?: Database["public"]["Enums"]["aria_role"]
+          thread_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aria_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "aria_threads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aria_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "v_aria_thread_last"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aria_threads: {
+        Row: {
+          created_at: string | null
+          id: string
+          title: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       assigned_workouts: {
         Row: {
           assigned_date: string
@@ -1753,6 +1816,36 @@ export type Database = {
         }
         Relationships: []
       }
+      v_aria_thread_last: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          last_message: string | null
+          message_count: number | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          last_message?: never
+          message_count?: never
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          last_message?: never
+          message_count?: never
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       v_template_grid: {
         Row: {
           day_no: number | null
@@ -2021,7 +2114,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      aria_role: "user" | "assistant" | "system"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2136,6 +2229,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      aria_role: ["user", "assistant", "system"],
+    },
   },
 } as const

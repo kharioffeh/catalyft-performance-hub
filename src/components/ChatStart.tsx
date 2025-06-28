@@ -82,8 +82,8 @@ export function ChatStart() {
       return;
     }
     setError(null);
-    const newThreadId = crypto.randomUUID();
-    navigate(`/chat/${newThreadId}`, {
+    // Navigate to new chat without thread ID - ChatThread will handle creating the thread
+    navigate(`/chat/new`, {
       state: { initialQuestion: draft.trim() },
       replace: false,
     });
@@ -192,6 +192,12 @@ export function ChatStart() {
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 rows={2}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleStartThread();
+                  }
+                }}
               />
               {error && <div className="text-red-400 text-xs mb-1">{error}</div>}
               <div className="flex justify-between items-center mt-1">

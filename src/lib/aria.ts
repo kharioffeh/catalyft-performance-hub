@@ -31,24 +31,46 @@ export interface AriaChatResponse {
     completion_tokens: number;
     total_tokens: number;
   };
+  thread_id?: string;
+}
+
+export interface AriaThread {
+  id: string;
+  user_id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  last_message?: string;
+  message_count?: number;
+}
+
+export interface AriaMessage {
+  id: number;
+  thread_id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  created_at: string;
 }
 
 /**
  * Send a chat request to ARIA through the authenticated proxy
  * @param messages Array of chat messages
+ * @param threadId Optional thread ID to continue existing conversation
  * @param options Optional configuration for the chat request
- * @returns Promise resolving to OpenAI chat completion response
+ * @returns Promise resolving to OpenAI chat completion response with thread_id
  */
 export async function ariaChat(
   messages: AriaChatMessage[],
+  threadId?: string,
   options: AriaChatOptions = {}
 ): Promise<AriaChatResponse> {
   try {
-    console.log('Making ARIA chat request:', { messages, options });
+    console.log('Making ARIA chat request:', { messages: messages.length, threadId, options });
     
-    const { data, error } = await supabase.functions.invoke('aria-chat-proxy', {
+    const { data, error } = await supabase.functions.invoke('aria-chat-and-log', {
       body: {
         messages,
+        thread_id: threadId,
         model: options.model,
         temperature: options.temperature,
         max_tokens: options.max_tokens,
@@ -70,6 +92,71 @@ export async function ariaChat(
 }
 
 /**
+ * Get all threads for the current user
+ */
+export async function getAriaThreads(): Promise<AriaThread[]> {
+  try {
+    const { data, error } = await supabase
+      .from('v_aria_thread_last')
+      .select('*')
+      .order('updated_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching threads:', error);
+      throw error;
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getAriaThreads:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get messages for a specific thread
+ */
+export async function getAriaMessages(threadId: string): Promise<AriaMessage[]> {
+  try {
+    const { data, error } = await supabase
+      .from('aria_messages')
+      .select('*')
+      .eq('thread_id', threadId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching messages:', error);
+      throw error;
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getAriaMessages:', error);
+    throw error;
+  }
+}
+
+/**
+ * Update thread title
+ */
+export async function updateThreadTitle(threadId: string, title: string): Promise<void> {
+  try {
+    const { error } = await supabase
+      .from('aria_threads')
+      .update({ title, updated_at: new Date().toISOString() })
+      .eq('id', threadId);
+
+    if (error) {
+      console.error('Error updating thread title:', error);
+      throw error;
+    }
+  } catch (error) {
+    console.error('Error in updateThreadTitle:', error);
+    throw error;
+  }
+}
+
+/**
  * Check if the current user can access ARIA features
  * This is a client-side helper that checks authentication status
  */
@@ -84,16 +171,40 @@ export async function canCallAria(): Promise<boolean> {
 }
 
 /**
- * Simple wrapper for common ARIA chat patterns
+ * Enhanced wrapper for ARIA chat patterns with thread support
  */
 export class AriaChat {
   private messages: AriaChatMessage[] = [];
   private systemPrompt?: string;
+  private threadId?: string;
 
-  constructor(systemPrompt?: string) {
+  constructor(systemPrompt?: string, threadId?: string) {
     this.systemPrompt = systemPrompt;
+    this.threadId = threadId;
     if (systemPrompt) {
       this.messages.push({ role: 'system', content: systemPrompt });
+    }
+  }
+
+  /**
+   * Load existing conversation from thread ID
+   */
+  async loadThread(threadId: string): Promise<void> {
+    try {
+      const messages = await getAriaMessages(threadId);
+      this.threadId = threadId;
+      this.messages = messages.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+      
+      // Re-add system prompt if it exists and isn't already there
+      if (this.systemPrompt && (this.messages.length === 0 || this.messages[0].role !== 'system')) {
+        this.messages.unshift({ role: 'system', content: this.systemPrompt });
+      }
+    } catch (error) {
+      console.error('Error loading thread:', error);
+      throw error;
     }
   }
 
@@ -115,14 +226,22 @@ export class AriaChat {
    * Send the current conversation to ARIA and get a response
    */
   async send(options?: AriaChatOptions): Promise<string> {
-    const response = await ariaChat(this.messages, options);
+    const response = await ariaChat(this.messages, this.threadId, options);
     const assistantMessage = response.choices[0]?.message?.content || '';
     
-    if (assistantMessage) {
-      this.addAssistantMessage(assistantMessage);
+    // Update thread ID if this was a new conversation
+    if (response.thread_id && !this.threadId) {
+      this.threadId = response.thread_id;
     }
     
     return assistantMessage;
+  }
+
+  /**
+   * Get the current thread ID
+   */
+  getThreadId(): string | undefined {
+    return this.threadId;
   }
 
   /**
@@ -139,5 +258,6 @@ export class AriaChat {
     this.messages = this.systemPrompt 
       ? [{ role: 'system', content: this.systemPrompt }]
       : [];
+    this.threadId = undefined;
   }
 }
