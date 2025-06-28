@@ -1,7 +1,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Session, SetLog } from '@/types/training';
+import { Session, SetLog, SessionExercise } from '@/types/training';
 
 export const useSessions = (programId?: string) => {
   return useQuery({
@@ -30,7 +30,12 @@ export const useSessions = (programId?: string) => {
       const { data, error } = await query;
 
       if (error) throw error;
-      return data as Session[];
+      
+      // Convert Json exercises to SessionExercise[]
+      return data.map(session => ({
+        ...session,
+        exercises: (session.exercises as unknown as SessionExercise[]) || []
+      })) as Session[];
     },
   });
 };
@@ -57,7 +62,12 @@ export const useSession = (id: string) => {
         .single();
 
       if (error) throw error;
-      return data as Session;
+      
+      // Convert Json exercises to SessionExercise[]
+      return {
+        ...data,
+        exercises: (data.exercises as unknown as SessionExercise[]) || []
+      } as Session;
     },
     enabled: !!id,
   });
@@ -70,12 +80,19 @@ export const useCreateSession = () => {
     mutationFn: async (sessionData: Omit<Session, 'id' | 'created_at'>) => {
       const { data, error } = await supabase
         .from('session')
-        .insert(sessionData)
+        .insert({
+          ...sessionData,
+          exercises: sessionData.exercises as unknown as any
+        })
         .select()
         .single();
 
       if (error) throw error;
-      return data as Session;
+      
+      return {
+        ...data,
+        exercises: (data.exercises as unknown as SessionExercise[]) || []
+      } as Session;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sessions'] });
@@ -88,15 +105,23 @@ export const useUpdateSession = () => {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Session> & { id: string }) => {
+      const updateData = updates.exercises 
+        ? { ...updates, exercises: updates.exercises as unknown as any }
+        : updates;
+        
       const { data, error } = await supabase
         .from('session')
-        .update(updates)
+        .update(updateData)
         .eq('id', id)
         .select()
         .single();
 
       if (error) throw error;
-      return data as Session;
+      
+      return {
+        ...data,
+        exercises: (data.exercises as unknown as SessionExercise[]) || []
+      } as Session;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['sessions'] });

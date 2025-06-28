@@ -1,7 +1,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Template, TemplateBlock, CreateTemplateData } from '@/types/training';
+import { Template, TemplateBlock, CreateTemplateData, TemplateExercise } from '@/types/training';
 
 export const useTemplates = () => {
   return useQuery({
@@ -47,7 +47,12 @@ export const useTemplateBlocks = (templateId: string) => {
         .order('day_no', { ascending: true });
 
       if (error) throw error;
-      return data as TemplateBlock[];
+      
+      // Convert Json exercises to TemplateExercise[]
+      return data.map(block => ({
+        ...block,
+        exercises: (block.exercises as unknown as TemplateExercise[]) || []
+      })) as TemplateBlock[];
     },
     enabled: !!templateId,
   });
@@ -105,12 +110,19 @@ export const useUpdateTemplateBlock = () => {
     mutationFn: async (block: TemplateBlock) => {
       const { data, error } = await supabase
         .from('template_block')
-        .upsert(block)
+        .upsert({
+          ...block,
+          exercises: block.exercises as unknown as any
+        })
         .select()
         .single();
 
       if (error) throw error;
-      return data as TemplateBlock;
+      
+      return {
+        ...data,
+        exercises: (data.exercises as unknown as TemplateExercise[]) || []
+      } as TemplateBlock;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['template-blocks', data.template_id] });
