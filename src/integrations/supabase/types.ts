@@ -941,6 +941,7 @@ export type Database = {
       }
       plans: {
         Row: {
+          adaptive_adjustments: boolean | null
           created_at: string | null
           export_api: boolean | null
           has_adaptive_replan: boolean | null
@@ -954,6 +955,7 @@ export type Database = {
           type: string
         }
         Insert: {
+          adaptive_adjustments?: boolean | null
           created_at?: string | null
           export_api?: boolean | null
           has_adaptive_replan?: boolean | null
@@ -967,6 +969,7 @@ export type Database = {
           type: string
         }
         Update: {
+          adaptive_adjustments?: boolean | null
           created_at?: string | null
           export_api?: boolean | null
           has_adaptive_replan?: boolean | null
@@ -984,35 +987,94 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          daily_summary: boolean | null
           email: string
           full_name: string | null
           id: string
+          last_metrics_update: string | null
+          last_readiness: number | null
+          last_strain: number | null
+          missed_nudge: boolean | null
           notification_prefs: Json | null
+          readiness_alerts: boolean | null
           role: string
           timezone: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
+          daily_summary?: boolean | null
           email: string
           full_name?: string | null
           id: string
+          last_metrics_update?: string | null
+          last_readiness?: number | null
+          last_strain?: number | null
+          missed_nudge?: boolean | null
           notification_prefs?: Json | null
+          readiness_alerts?: boolean | null
           role: string
           timezone?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
+          daily_summary?: boolean | null
           email?: string
           full_name?: string | null
           id?: string
+          last_metrics_update?: string | null
+          last_readiness?: number | null
+          last_strain?: number | null
+          missed_nudge?: boolean | null
           notification_prefs?: Json | null
+          readiness_alerts?: boolean | null
           role?: string
           timezone?: string | null
           updated_at?: string
         }
         Relationships: []
+      }
+      program_adjustments: {
+        Row: {
+          adjustment_factor: number
+          athlete_uuid: string
+          created_at: string | null
+          id: string
+          new_payload: Json
+          old_payload: Json
+          reason: Database["public"]["Enums"]["adjustment_reason"]
+          session_id: string | null
+        }
+        Insert: {
+          adjustment_factor?: number
+          athlete_uuid: string
+          created_at?: string | null
+          id?: string
+          new_payload: Json
+          old_payload: Json
+          reason: Database["public"]["Enums"]["adjustment_reason"]
+          session_id?: string | null
+        }
+        Update: {
+          adjustment_factor?: number
+          athlete_uuid?: string
+          created_at?: string | null
+          id?: string
+          new_payload?: Json
+          old_payload?: Json
+          reason?: Database["public"]["Enums"]["adjustment_reason"]
+          session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_adjustments_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       program_instance: {
         Row: {
@@ -1223,6 +1285,7 @@ export type Database = {
           id: string
           load: number | null
           notes: string | null
+          payload: Json | null
           planned_start: string | null
           rpe: number | null
           start_ts: string
@@ -1238,6 +1301,7 @@ export type Database = {
           id?: string
           load?: number | null
           notes?: string | null
+          payload?: Json | null
           planned_start?: string | null
           rpe?: number | null
           start_ts: string
@@ -1253,6 +1317,7 @@ export type Database = {
           id?: string
           load?: number | null
           notes?: string | null
+          payload?: Json | null
           planned_start?: string | null
           rpe?: number | null
           start_ts?: string
@@ -2303,12 +2368,21 @@ export type Database = {
         Args: { p_name: string; p_duration_weeks: number; p_block: Json }
         Returns: string
       }
+      update_athlete_metrics_cache: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       user_owns_athlete: {
         Args: { athlete_id: string }
         Returns: boolean
       }
     }
     Enums: {
+      adjustment_reason:
+        | "low_readiness"
+        | "high_readiness"
+        | "over_strain"
+        | "under_strain"
       aria_role: "user" | "assistant" | "system"
     }
     CompositeTypes: {
@@ -2425,6 +2499,12 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      adjustment_reason: [
+        "low_readiness",
+        "high_readiness",
+        "over_strain",
+        "under_strain",
+      ],
       aria_role: ["user", "assistant", "system"],
     },
   },
