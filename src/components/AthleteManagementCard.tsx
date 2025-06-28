@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Users, Plus, Crown } from 'lucide-react';
 import { useBillingEnhanced } from '@/hooks/useBillingEnhanced';
+import { useFeature } from '@/hooks/useFeature';
 
 export const AthleteManagementCard: React.FC = () => {
   const { 
@@ -13,12 +14,13 @@ export const AthleteManagementCard: React.FC = () => {
     currentPlan, 
     maxAthletes, 
     currentAthletes, 
-    canAddAthlete, 
-    canPurchaseAthletes,
     purchaseAthletes,
     isPurchasing,
     getPlanPrice 
   } = useBillingEnhanced();
+
+  const { hasFeature: canAddAthlete } = useFeature('can_add_athlete');
+  const { hasFeature: canPurchaseAthletes } = useFeature('can_purchase_athletes');
 
   if (!billing || !currentPlan) return null;
 
@@ -47,7 +49,6 @@ export const AthleteManagementCard: React.FC = () => {
             <Progress 
               value={usagePercentage} 
               className="h-2"
-              color={isNearLimit ? 'bg-red-500' : 'bg-blue-500'}
             />
           )}
         </div>
@@ -65,7 +66,7 @@ export const AthleteManagementCard: React.FC = () => {
         </div>
 
         {/* Coach Plan - Athlete Limit Warning */}
-        {isCoachPlan && isNearLimit && (
+        {isCoachPlan && isNearLimit && canAddAthlete && (
           <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
             <div className="flex items-center gap-2 text-amber-400 text-sm">
               <Crown className="w-4 h-4" />
@@ -114,7 +115,7 @@ export const AthleteManagementCard: React.FC = () => {
               Upgrade to Coach Pro for expandable athlete limits
             </p>
             <Button
-              onClick={() => window.location.href = '/billing'}
+              onClick={() => window.location.href = '/billing-enhanced'}
               variant="outline"
               className="w-full border-white/20 text-white hover:bg-white/10"
             >
