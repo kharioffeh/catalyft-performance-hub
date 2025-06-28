@@ -18,3 +18,6 @@ verify_jwt = true
 
 [functions.lookup-athlete-metric]
 verify_jwt = false
+
+[functions.ask_aria]
+verify_jwt = true

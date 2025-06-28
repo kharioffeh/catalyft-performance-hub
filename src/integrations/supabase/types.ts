@@ -72,6 +72,36 @@ export type Database = {
           },
         ]
       }
+      aria_docs: {
+        Row: {
+          content_md: string
+          created_at: string | null
+          embedding: string | null
+          id: string
+          source: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          content_md: string
+          created_at?: string | null
+          embedding?: string | null
+          id?: string
+          source: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          content_md?: string
+          created_at?: string | null
+          embedding?: string | null
+          id?: string
+          source?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       aria_messages: {
         Row: {
           content: string
@@ -2299,6 +2329,10 @@ export type Database = {
       }
     }
     Functions: {
+      binary_quantize: {
+        Args: { "": string } | { "": unknown }
+        Returns: unknown
+      }
       calculate_all_readiness: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -2403,13 +2437,79 @@ export type Database = {
         }
         Returns: Json
       }
+      halfvec_avg: {
+        Args: { "": number[] }
+        Returns: unknown
+      }
+      halfvec_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      halfvec_send: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      halfvec_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
+      }
+      hnsw_bit_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnsw_halfvec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnsw_sparsevec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnswhandler: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
       is_current_user_coach: {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      ivfflat_bit_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      ivfflat_halfvec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      ivfflathandler: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      l2_norm: {
+        Args: { "": unknown } | { "": unknown }
+        Returns: number
+      }
+      l2_normalize: {
+        Args: { "": string } | { "": unknown } | { "": unknown }
+        Returns: unknown
+      }
       refresh_load_metrics: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      search_similar_docs: {
+        Args: {
+          query_embedding: string
+          match_threshold?: number
+          match_count?: number
+        }
+        Returns: {
+          id: string
+          title: string
+          source: string
+          content_md: string
+          similarity: number
+        }[]
       }
       should_send_notification: {
         Args: { user_uuid: string; notification_kind: string }
@@ -2423,6 +2523,18 @@ export type Database = {
         Args: { p_name: string; p_duration_weeks: number; p_block: Json }
         Returns: string
       }
+      sparsevec_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      sparsevec_send: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      sparsevec_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
+      }
       update_athlete_metrics_cache: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -2430,6 +2542,30 @@ export type Database = {
       user_owns_athlete: {
         Args: { athlete_id: string }
         Returns: boolean
+      }
+      vector_avg: {
+        Args: { "": number[] }
+        Returns: string
+      }
+      vector_dims: {
+        Args: { "": string } | { "": unknown }
+        Returns: number
+      }
+      vector_norm: {
+        Args: { "": string }
+        Returns: number
+      }
+      vector_out: {
+        Args: { "": string }
+        Returns: unknown
+      }
+      vector_send: {
+        Args: { "": string }
+        Returns: string
+      }
+      vector_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
       }
     }
     Enums: {
