@@ -1000,6 +1000,7 @@ export type Database = {
           role: string
           timezone: string | null
           updated_at: string
+          weekly_summary_opt_in: boolean | null
         }
         Insert: {
           created_at?: string
@@ -1016,6 +1017,7 @@ export type Database = {
           role: string
           timezone?: string | null
           updated_at?: string
+          weekly_summary_opt_in?: boolean | null
         }
         Update: {
           created_at?: string
@@ -1032,6 +1034,7 @@ export type Database = {
           role?: string
           timezone?: string | null
           updated_at?: string
+          weekly_summary_opt_in?: boolean | null
         }
         Relationships: []
       }
@@ -1724,6 +1727,39 @@ export type Database = {
           },
         ]
       }
+      weekly_summaries: {
+        Row: {
+          created_at: string | null
+          delivered: boolean | null
+          id: string
+          owner_uuid: string
+          period_end: string
+          period_start: string
+          role: string
+          summary_md: string
+        }
+        Insert: {
+          created_at?: string | null
+          delivered?: boolean | null
+          id?: string
+          owner_uuid: string
+          period_end: string
+          period_start: string
+          role: string
+          summary_md: string
+        }
+        Update: {
+          created_at?: string | null
+          delivered?: boolean | null
+          id?: string
+          owner_uuid?: string
+          period_end?: string
+          period_start?: string
+          role?: string
+          summary_md?: string
+        }
+        Relationships: []
+      }
       whoop_tokens: {
         Row: {
           access_token: string
@@ -2315,6 +2351,13 @@ export type Database = {
         }
         Returns: string
       }
+      get_active_athletes_for_coach: {
+        Args: { p_coach_uuid: string }
+        Returns: {
+          athlete_uuid: string
+          athlete_name: string
+        }[]
+      }
       get_current_coach_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -2352,6 +2395,14 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: string
       }
+      get_weekly_metrics: {
+        Args: {
+          p_athlete_uuid: string
+          p_start_date: string
+          p_end_date: string
+        }
+        Returns: Json
+      }
       is_current_user_coach: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -2362,6 +2413,10 @@ export type Database = {
       }
       should_send_notification: {
         Args: { user_uuid: string; notification_kind: string }
+        Returns: boolean
+      }
+      should_send_weekly_summary: {
+        Args: { p_user_uuid: string }
         Returns: boolean
       }
       solo_create_block: {
