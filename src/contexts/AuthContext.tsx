@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { Session, User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
@@ -10,6 +9,7 @@ interface Profile {
   role: 'coach' | 'athlete' | 'solo'
   created_at: string
   updated_at: string
+  weekly_summary_opt_in?: boolean
 }
 
 interface AuthContextType {
