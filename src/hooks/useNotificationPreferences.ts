@@ -31,11 +31,22 @@ export const useNotificationPreferences = () => {
         .single();
 
       if (error) throw error;
-      return data?.notification_prefs as NotificationPreferences || {
+      
+      // Safe type casting with validation
+      const prefs = data?.notification_prefs as any;
+      if (prefs && typeof prefs === 'object' && !Array.isArray(prefs)) {
+        return {
+          daily_summary: Boolean(prefs.daily_summary ?? true),
+          missed_workout: Boolean(prefs.missed_workout ?? true),
+          abnormal_readiness: Boolean(prefs.abnormal_readiness ?? true)
+        } as NotificationPreferences;
+      }
+      
+      return {
         daily_summary: true,
         missed_workout: true,
         abnormal_readiness: true
-      };
+      } as NotificationPreferences;
     },
     enabled: !!profile?.id
   });
@@ -64,9 +75,16 @@ export const useNotificationPreferences = () => {
     mutationFn: async (newPreferences: NotificationPreferences) => {
       if (!profile?.id) throw new Error('No user ID');
 
+      // Convert to plain object for JSON storage
+      const prefsObject = {
+        daily_summary: newPreferences.daily_summary,
+        missed_workout: newPreferences.missed_workout,
+        abnormal_readiness: newPreferences.abnormal_readiness
+      };
+
       const { error } = await supabase
         .from('profiles')
-        .update({ notification_prefs: newPreferences })
+        .update({ notification_prefs: prefsObject })
         .eq('id', profile.id);
 
       if (error) throw error;
