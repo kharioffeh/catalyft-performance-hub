@@ -39,6 +39,13 @@ export type Database = {
             foreignKeyName: "ai_insights_athlete_uuid_fkey"
             columns: ["athlete_uuid"]
             isOneToOne: false
+            referencedRelation: "aria_digest_metrics_v"
+            referencedColumns: ["athlete_id"]
+          },
+          {
+            foreignKeyName: "ai_insights_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
             referencedRelation: "athletes"
             referencedColumns: ["id"]
           },
@@ -166,6 +173,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "assigned_workouts_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "aria_digest_metrics_v"
+            referencedColumns: ["athlete_id"]
+          },
           {
             foreignKeyName: "assigned_workouts_athlete_uuid_fkey"
             columns: ["athlete_uuid"]
@@ -320,6 +334,13 @@ export type Database = {
           test_date?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "athlete_testing_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "aria_digest_metrics_v"
+            referencedColumns: ["athlete_id"]
+          },
           {
             foreignKeyName: "athlete_testing_athlete_uuid_fkey"
             columns: ["athlete_uuid"]
@@ -719,6 +740,13 @@ export type Database = {
             foreignKeyName: "insight_log_athlete_uuid_fkey"
             columns: ["athlete_uuid"]
             isOneToOne: false
+            referencedRelation: "aria_digest_metrics_v"
+            referencedColumns: ["athlete_id"]
+          },
+          {
+            foreignKeyName: "insight_log_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
             referencedRelation: "athletes"
             referencedColumns: ["id"]
           },
@@ -825,6 +853,13 @@ export type Database = {
             foreignKeyName: "muscle_load_daily_athlete_id_fkey"
             columns: ["athlete_id"]
             isOneToOne: false
+            referencedRelation: "aria_digest_metrics_v"
+            referencedColumns: ["athlete_id"]
+          },
+          {
+            foreignKeyName: "muscle_load_daily_athlete_id_fkey"
+            columns: ["athlete_id"]
+            isOneToOne: false
             referencedRelation: "athletes"
             referencedColumns: ["id"]
           },
@@ -843,6 +878,36 @@ export type Database = {
             referencedColumns: ["athlete_id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string | null
+          id: string
+          read: boolean | null
+          title: string
+          type: string | null
+          user_id: string | null
+        }
+        Insert: {
+          body: string
+          created_at?: string | null
+          id?: string
+          read?: boolean | null
+          title: string
+          type?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          body?: string
+          created_at?: string | null
+          id?: string
+          read?: boolean | null
+          title?: string
+          type?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       plans: {
         Row: {
@@ -1043,6 +1108,13 @@ export type Database = {
             foreignKeyName: "readiness_scores_athlete_uuid_fkey"
             columns: ["athlete_uuid"]
             isOneToOne: false
+            referencedRelation: "aria_digest_metrics_v"
+            referencedColumns: ["athlete_id"]
+          },
+          {
+            foreignKeyName: "readiness_scores_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
             referencedRelation: "athletes"
             referencedColumns: ["id"]
           },
@@ -1147,6 +1219,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "sessions_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "aria_digest_metrics_v"
+            referencedColumns: ["athlete_id"]
+          },
           {
             foreignKeyName: "sessions_athlete_uuid_fkey"
             columns: ["athlete_uuid"]
@@ -1447,6 +1526,13 @@ export type Database = {
             foreignKeyName: "wearable_raw_athlete_uuid_fkey"
             columns: ["athlete_uuid"]
             isOneToOne: false
+            referencedRelation: "aria_digest_metrics_v"
+            referencedColumns: ["athlete_id"]
+          },
+          {
+            foreignKeyName: "wearable_raw_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
             referencedRelation: "athletes"
             referencedColumns: ["id"]
           },
@@ -1501,6 +1587,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "wearable_tokens_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "aria_digest_metrics_v"
+            referencedColumns: ["athlete_id"]
+          },
           {
             foreignKeyName: "wearable_tokens_athlete_uuid_fkey"
             columns: ["athlete_uuid"]
@@ -1563,6 +1656,13 @@ export type Database = {
             foreignKeyName: "whoop_tokens_athlete_uuid_fkey"
             columns: ["athlete_uuid"]
             isOneToOne: true
+            referencedRelation: "aria_digest_metrics_v"
+            referencedColumns: ["athlete_id"]
+          },
+          {
+            foreignKeyName: "whoop_tokens_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: true
             referencedRelation: "athletes"
             referencedColumns: ["id"]
           },
@@ -1614,6 +1714,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "workout_blocks_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "aria_digest_metrics_v"
+            referencedColumns: ["athlete_id"]
+          },
           {
             foreignKeyName: "workout_blocks_athlete_uuid_fkey"
             columns: ["athlete_uuid"]
@@ -1809,6 +1916,23 @@ export type Database = {
       }
     }
     Views: {
+      aria_digest_metrics_v: {
+        Row: {
+          athlete_id: string | null
+          athlete_name: string | null
+          coach_uuid: string | null
+          metrics: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "athletes_coach_uuid_fkey"
+            columns: ["coach_uuid"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exercises_search: {
         Row: {
           document: unknown | null
@@ -1904,6 +2028,13 @@ export type Database = {
             foreignKeyName: "wearable_raw_athlete_uuid_fkey"
             columns: ["athlete_uuid"]
             isOneToOne: false
+            referencedRelation: "aria_digest_metrics_v"
+            referencedColumns: ["athlete_id"]
+          },
+          {
+            foreignKeyName: "wearable_raw_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
             referencedRelation: "athletes"
             referencedColumns: ["id"]
           },
@@ -1933,6 +2064,13 @@ export type Database = {
           readiness_score: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "readiness_scores_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "aria_digest_metrics_v"
+            referencedColumns: ["athlete_id"]
+          },
           {
             foreignKeyName: "readiness_scores_athlete_uuid_fkey"
             columns: ["athlete_uuid"]
@@ -1986,6 +2124,13 @@ export type Database = {
           total_sleep_hours: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "wearable_raw_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "aria_digest_metrics_v"
+            referencedColumns: ["athlete_id"]
+          },
           {
             foreignKeyName: "wearable_raw_athlete_uuid_fkey"
             columns: ["athlete_uuid"]

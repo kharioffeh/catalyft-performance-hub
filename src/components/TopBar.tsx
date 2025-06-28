@@ -5,6 +5,7 @@ import { ReadinessBadge } from '@/components/ReadinessBadge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/useBreakpoint';
+import { NotificationBell } from '@/components/NotificationBell';
 
 // Accept isDarkTheme prop
 export const TopBar: React.FC<{ isDarkTheme?: boolean }> = ({ isDarkTheme = false }) => {
@@ -27,6 +28,9 @@ export const TopBar: React.FC<{ isDarkTheme?: boolean }> = ({ isDarkTheme = fals
       </div>
       
       <div className="flex items-center space-x-2 md:space-x-4">
+        {/* Notification Bell */}
+        <NotificationBell />
+        
         {!isMobile && (
           <span className="text-sm text-white/80">
             {profile?.full_name || 'User'}
