@@ -10,7 +10,7 @@ import AthletesPage from '../pages/Athletes';
 import WorkoutsPage from '../pages/Workout';
 import SettingsPage from '../pages/Settings';
 import SubscriptionsPage from '../pages/Subscriptions';
-import BillingPage from '../pages/Billing';
+import BillingEnhancedPage from '../pages/BillingEnhanced';
 import LoginPage from '../pages/Login';
 import SignupPage from '../pages/Signup';
 import ForgotPasswordPage from '../pages/Auth';
@@ -92,14 +92,9 @@ const AppRouter = () => {
         <Route path="template/:id" element={<TemplateDetailPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="subscriptions" element={<SubscriptionsPage />} />
+        <Route path="billing" element={<BillingEnhancedPage />} />
+        <Route path="billing-enhanced" element={<BillingEnhancedPage />} />
       </Route>
-      
-      {/* Billing route - accessible even with expired trial */}
-      <Route path="/billing" element={
-        <ProtectedRoute>
-          <BillingPage />
-        </ProtectedRoute>
-      } />
       
       {/* Redirect root to home page for non-authenticated users */}
       <Route path="*" element={<Navigate to="/home" replace />} />
