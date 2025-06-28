@@ -5,27 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Users, Plus, Crown } from 'lucide-react';
+import { useSession } from '@/hooks/useSession';
 import { useBillingEnhanced } from '@/hooks/useBillingEnhanced';
-import { useFeature } from '@/hooks/useFeature';
 
 export const AthleteManagementCard: React.FC = () => {
-  const { 
-    billing, 
-    currentPlan, 
-    maxAthletes, 
-    currentAthletes, 
-    purchaseAthletes,
-    isPurchasing,
-    getPlanPrice 
-  } = useBillingEnhanced();
+  const { org } = useSession();
+  const { purchaseAthletes, isPurchasing, getPlanPrice } = useBillingEnhanced();
 
-  const { hasFeature: canAddAthlete } = useFeature('can_add_athlete');
-  const { hasFeature: canPurchaseAthletes } = useFeature('can_purchase_athletes');
+  if (!org) return null;
 
-  if (!billing || !currentPlan) return null;
-
-  const usagePercentage = maxAthletes > 0 ? (currentAthletes / maxAthletes) * 100 : 0;
-  const isCoachPlan = currentPlan.type === 'coach';
+  const usagePercentage = org.max_athletes > 0 ? (org.athlete_count / org.max_athletes) * 100 : 0;
+  const isCoachPlan = org.plan?.type === 'coach';
   const isNearLimit = usagePercentage >= 80;
 
   return (
@@ -42,10 +32,10 @@ export const AthleteManagementCard: React.FC = () => {
           <div className="flex justify-between items-center">
             <span className="text-white/80 text-sm">Athletes Used</span>
             <span className="text-white font-medium">
-              {currentAthletes} / {maxAthletes === 0 ? '∞' : maxAthletes}
+              {org.athlete_count} / {org.max_athletes === 0 ? '∞' : org.max_athletes}
             </span>
           </div>
-          {maxAthletes > 0 && (
+          {org.max_athletes > 0 && (
             <Progress 
               value={usagePercentage} 
               className="h-2"
@@ -56,9 +46,9 @@ export const AthleteManagementCard: React.FC = () => {
         {/* Plan Type Info */}
         <div className="flex items-center gap-2">
           <Badge variant={isCoachPlan ? 'default' : 'secondary'}>
-            {currentPlan.label}
+            {org.plan?.label}
           </Badge>
-          {currentPlan.type === 'solo' && (
+          {org.plan?.type === 'solo' && (
             <Badge variant="outline" className="text-white/60 border-white/20">
               Unlimited Athletes
             </Badge>
@@ -66,7 +56,7 @@ export const AthleteManagementCard: React.FC = () => {
         </div>
 
         {/* Coach Plan - Athlete Limit Warning */}
-        {isCoachPlan && isNearLimit && canAddAthlete && (
+        {isCoachPlan && isNearLimit && org.can_add_athlete && (
           <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
             <div className="flex items-center gap-2 text-amber-400 text-sm">
               <Crown className="w-4 h-4" />
@@ -79,7 +69,7 @@ export const AthleteManagementCard: React.FC = () => {
         )}
 
         {/* Coach Plan - At Limit */}
-        {isCoachPlan && !canAddAthlete && (
+        {isCoachPlan && !org.can_add_athlete && (
           <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
             <div className="flex items-center gap-2 text-red-400 text-sm">
               <Users className="w-4 h-4" />
@@ -92,7 +82,7 @@ export const AthleteManagementCard: React.FC = () => {
         )}
 
         {/* Add Athletes Button - Coach Pro Only */}
-        {canPurchaseAthletes && (
+        {org.can_purchase_athletes && (
           <div className="space-y-2">
             <Button
               onClick={() => purchaseAthletes(1)}
@@ -109,7 +99,7 @@ export const AthleteManagementCard: React.FC = () => {
         )}
 
         {/* Upgrade Suggestion for Coach Basic */}
-        {currentPlan.id === 'coach_basic' && !canAddAthlete && (
+        {org.plan?.id === 'coach_basic' && !org.can_add_athlete && (
           <div className="space-y-2">
             <p className="text-white/60 text-sm">
               Upgrade to Coach Pro for expandable athlete limits
