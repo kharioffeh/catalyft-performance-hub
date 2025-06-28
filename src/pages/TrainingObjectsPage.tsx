@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -243,21 +244,22 @@ const TrainingObjectsPage: React.FC = () => {
 
       {/* Template Builder Modal */}
       {showTemplateBuilder && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-7xl w-full max-h-[90vh] m-4 overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b">
-              <h2 className="text-xl font-semibold">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+          <div className="bg-gray-900 rounded-lg shadow-xl max-w-7xl w-full max-h-[90vh] m-4 overflow-hidden border border-gray-700">
+            <div className="flex items-center justify-between p-6 border-b border-gray-700 bg-gray-800">
+              <h2 className="text-xl font-semibold text-white">
                 {selectedTemplateId ? 'Edit Template' : 'Create New Template'}
               </h2>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowTemplateBuilder(false)}
+                className="text-white hover:bg-gray-700"
               >
                 ✕
               </Button>
             </div>
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)] bg-gray-900">
               <NewTemplateBuilder
                 templateId={selectedTemplateId || undefined}
                 onSave={() => setShowTemplateBuilder(false)}

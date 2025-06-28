@@ -134,32 +134,32 @@ export const NewTemplateBuilder: React.FC<NewTemplateBuilderProps> = ({ template
           <h2 className="text-xl font-semibold text-white mb-4">Create New Template</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="title" className="text-white">Template Title</Label>
+              <Label htmlFor="title" className="text-gray-200 font-medium">Template Title</Label>
               <Input
                 id="title"
                 value={templateData.title}
                 onChange={(e) => setTemplateData({ ...templateData, title: e.target.value })}
                 placeholder="e.g., Strength Building Program"
-                className="bg-white/10 border-white/20 text-white"
+                className="bg-gray-800/80 border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-400 focus:ring-blue-400/20"
               />
             </div>
             <div>
-              <Label htmlFor="goal" className="text-white">Goal</Label>
+              <Label htmlFor="goal" className="text-gray-200 font-medium">Goal</Label>
               <Select value={templateData.goal} onValueChange={(value) => setTemplateData({ ...templateData, goal: value as Template['goal'] })}>
-                <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                <SelectTrigger className="bg-gray-800/80 border-gray-600 text-white focus:border-blue-400 focus:ring-blue-400/20">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="strength">Strength</SelectItem>
-                  <SelectItem value="power">Power</SelectItem>
-                  <SelectItem value="hypertrophy">Hypertrophy</SelectItem>
-                  <SelectItem value="endurance">Endurance</SelectItem>
-                  <SelectItem value="rehab">Rehabilitation</SelectItem>
+                <SelectContent className="bg-gray-800 border-gray-600">
+                  <SelectItem value="strength" className="text-white hover:bg-gray-700">Strength</SelectItem>
+                  <SelectItem value="power" className="text-white hover:bg-gray-700">Power</SelectItem>
+                  <SelectItem value="hypertrophy" className="text-white hover:bg-gray-700">Hypertrophy</SelectItem>
+                  <SelectItem value="endurance" className="text-white hover:bg-gray-700">Endurance</SelectItem>
+                  <SelectItem value="rehab" className="text-white hover:bg-gray-700">Rehabilitation</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label htmlFor="weeks" className="text-white">Duration (weeks)</Label>
+              <Label htmlFor="weeks" className="text-gray-200 font-medium">Duration (weeks)</Label>
               <Input
                 id="weeks"
                 type="number"
@@ -167,25 +167,25 @@ export const NewTemplateBuilder: React.FC<NewTemplateBuilderProps> = ({ template
                 max="12"
                 value={templateData.weeks}
                 onChange={(e) => setTemplateData({ ...templateData, weeks: parseInt(e.target.value) })}
-                className="bg-white/10 border-white/20 text-white"
+                className="bg-gray-800/80 border-gray-600 text-white focus:border-blue-400 focus:ring-blue-400/20"
               />
             </div>
             <div>
-              <Label htmlFor="visibility" className="text-white">Visibility</Label>
+              <Label htmlFor="visibility" className="text-gray-200 font-medium">Visibility</Label>
               <Select value={templateData.visibility} onValueChange={(value) => setTemplateData({ ...templateData, visibility: value as Template['visibility'] })}>
-                <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                <SelectTrigger className="bg-gray-800/80 border-gray-600 text-white focus:border-blue-400 focus:ring-blue-400/20">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="private">Private</SelectItem>
-                  <SelectItem value="org">Organization</SelectItem>
-                  <SelectItem value="public">Public</SelectItem>
+                <SelectContent className="bg-gray-800 border-gray-600">
+                  <SelectItem value="private" className="text-white hover:bg-gray-700">Private</SelectItem>
+                  <SelectItem value="org" className="text-white hover:bg-gray-700">Organization</SelectItem>
+                  <SelectItem value="public" className="text-white hover:bg-gray-700">Public</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           <div className="mt-4">
-            <Button onClick={handleCreateTemplate} disabled={!templateData.title || createTemplate.isPending}>
+            <Button onClick={handleCreateTemplate} disabled={!templateData.title || createTemplate.isPending} className="bg-blue-600 hover:bg-blue-700 text-white">
               <Save className="w-4 h-4 mr-2" />
               {createTemplate.isPending ? 'Creating...' : 'Create Template'}
             </Button>
@@ -199,16 +199,16 @@ export const NewTemplateBuilder: React.FC<NewTemplateBuilderProps> = ({ template
           {/* Template Actions */}
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold text-white">Template Builder</h2>
-            <Button onClick={handleCreateProgram} className="bg-green-600 hover:bg-green-700">
+            <Button onClick={handleCreateProgram} className="bg-green-600 hover:bg-green-700 text-white">
               <Plus className="w-4 h-4 mr-2" />
               Create Program
             </Button>
           </div>
 
           <Tabs defaultValue="builder" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="builder">Builder</TabsTrigger>
-              <TabsTrigger value="grid">
+            <TabsList className="grid w-full grid-cols-2 bg-gray-800 border-gray-600">
+              <TabsTrigger value="builder" className="text-gray-300 data-[state=active]:text-white data-[state=active]:bg-gray-700">Builder</TabsTrigger>
+              <TabsTrigger value="grid" className="text-gray-300 data-[state=active]:text-white data-[state=active]:bg-gray-700">
                 <Grid className="w-4 h-4 mr-2" />
                 Grid View
               </TabsTrigger>
@@ -221,27 +221,27 @@ export const NewTemplateBuilder: React.FC<NewTemplateBuilderProps> = ({ template
                   <h3 className="text-lg font-semibold text-white mb-4">Week & Day</h3>
                   <div className="space-y-3">
                     <div>
-                      <Label className="text-white">Week</Label>
+                      <Label className="text-gray-200 font-medium">Week</Label>
                       <Select value={selectedWeek.toString()} onValueChange={(value) => setSelectedWeek(parseInt(value))}>
-                        <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                        <SelectTrigger className="bg-gray-800/80 border-gray-600 text-white focus:border-blue-400">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-gray-800 border-gray-600">
                           {Array.from({ length: 12 }, (_, i) => i + 1).map(week => (
-                            <SelectItem key={week} value={week.toString()}>Week {week}</SelectItem>
+                            <SelectItem key={week} value={week.toString()} className="text-white hover:bg-gray-700">Week {week}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
-                      <Label className="text-white">Day</Label>
+                      <Label className="text-gray-200 font-medium">Day</Label>
                       <Select value={selectedDay.toString()} onValueChange={(value) => setSelectedDay(parseInt(value))}>
-                        <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                        <SelectTrigger className="bg-gray-800/80 border-gray-600 text-white focus:border-blue-400">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-gray-800 border-gray-600">
                           {Array.from({ length: 7 }, (_, i) => i + 1).map(day => (
-                            <SelectItem key={day} value={day.toString()}>Day {day}</SelectItem>
+                            <SelectItem key={day} value={day.toString()} className="text-white hover:bg-gray-700">Day {day}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -254,16 +254,16 @@ export const NewTemplateBuilder: React.FC<NewTemplateBuilderProps> = ({ template
                   <h3 className="text-lg font-semibold text-white mb-4">Exercise Library</h3>
                   <div className="space-y-2 max-h-96 overflow-y-auto">
                     {exerciseOptions.map((exercise) => (
-                      <div key={exercise.id} className="flex items-center justify-between p-2 bg-white/5 rounded">
+                      <div key={exercise.id} className="flex items-center justify-between p-2 bg-gray-800/50 rounded border border-gray-600">
                         <div>
                           <p className="text-white font-medium">{exercise.name}</p>
-                          <p className="text-white/60 text-sm">{exercise.category} • {exercise.primary_muscle}</p>
+                          <p className="text-gray-300 text-sm">{exercise.category} • {exercise.primary_muscle}</p>
                         </div>
                         <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => handleAddExercise(exercise.id)}
-                          className="text-white hover:bg-white/10"
+                          className="text-white hover:bg-gray-700"
                         >
                           <Plus className="w-4 h-4" />
                         </Button>
@@ -278,7 +278,7 @@ export const NewTemplateBuilder: React.FC<NewTemplateBuilderProps> = ({ template
                     <h3 className="text-lg font-semibold text-white">
                       Week {selectedWeek}, Day {selectedDay}
                     </h3>
-                    <Badge variant="outline" className="text-white border-white/20">
+                    <Badge variant="outline" className="text-white border-gray-400">
                       {currentBlock?.exercises.length || 0} exercises
                     </Badge>
                   </div>
@@ -287,7 +287,7 @@ export const NewTemplateBuilder: React.FC<NewTemplateBuilderProps> = ({ template
                     {currentBlock?.exercises.map((exercise, index) => {
                       const exerciseInfo = exerciseOptions.find(e => e.id === exercise.exercise_id);
                       return (
-                        <div key={index} className="p-3 bg-white/5 rounded border border-white/10">
+                        <div key={index} className="p-3 bg-gray-800/50 rounded border border-gray-600">
                           <div className="flex items-center justify-between mb-2">
                             <p className="text-white font-medium">{exerciseInfo?.name}</p>
                             <Button
@@ -301,39 +301,39 @@ export const NewTemplateBuilder: React.FC<NewTemplateBuilderProps> = ({ template
                           </div>
                           <div className="grid grid-cols-2 gap-2">
                             <div>
-                              <Label className="text-white/70 text-xs">Sets</Label>
+                              <Label className="text-gray-300 text-xs">Sets</Label>
                               <Input
                                 type="number"
                                 value={exercise.sets}
                                 onChange={(e) => handleUpdateExercise(index, { sets: parseInt(e.target.value) })}
-                                className="bg-white/10 border-white/20 text-white h-8"
+                                className="bg-gray-800/80 border-gray-600 text-white h-8 focus:border-blue-400"
                               />
                             </div>
                             <div>
-                              <Label className="text-white/70 text-xs">Reps</Label>
+                              <Label className="text-gray-300 text-xs">Reps</Label>
                               <Input
                                 type="number"
                                 value={exercise.reps}
                                 onChange={(e) => handleUpdateExercise(index, { reps: parseInt(e.target.value) })}
-                                className="bg-white/10 border-white/20 text-white h-8"
+                                className="bg-gray-800/80 border-gray-600 text-white h-8 focus:border-blue-400"
                               />
                             </div>
                             <div>
-                              <Label className="text-white/70 text-xs">Load %</Label>
+                              <Label className="text-gray-300 text-xs">Load %</Label>
                               <Input
                                 type="number"
                                 value={exercise.load_percent || ''}
                                 onChange={(e) => handleUpdateExercise(index, { load_percent: parseInt(e.target.value) })}
-                                className="bg-white/10 border-white/20 text-white h-8"
+                                className="bg-gray-800/80 border-gray-600 text-white h-8 focus:border-blue-400"
                               />
                             </div>
                             <div>
-                              <Label className="text-white/70 text-xs">Rest (s)</Label>
+                              <Label className="text-gray-300 text-xs">Rest (s)</Label>
                               <Input
                                 type="number"
                                 value={exercise.rest_seconds || ''}
                                 onChange={(e) => handleUpdateExercise(index, { rest_seconds: parseInt(e.target.value) })}
-                                className="bg-white/10 border-white/20 text-white h-8"
+                                className="bg-gray-800/80 border-gray-600 text-white h-8 focus:border-blue-400"
                               />
                             </div>
                           </div>
@@ -344,8 +344,8 @@ export const NewTemplateBuilder: React.FC<NewTemplateBuilderProps> = ({ template
 
                   {(!currentBlock || currentBlock.exercises.length === 0) && (
                     <div className="text-center py-8">
-                      <p className="text-white/60">No exercises added yet</p>
-                      <p className="text-white/40 text-sm">Select exercises from the library to get started</p>
+                      <p className="text-gray-400">No exercises added yet</p>
+                      <p className="text-gray-500 text-sm">Select exercises from the library to get started</p>
                     </div>
                   )}
                 </GlassCard>
