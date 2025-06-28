@@ -4,7 +4,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
@@ -44,7 +43,7 @@ export const CreateProgramFromTemplateDialog: React.FC<CreateProgramFromTemplate
   const { data: athletes = [] } = useQuery({
     queryKey: ['coach-athletes', profile?.id],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!profile?.id || profile.role !== 'coach') return [];
       
       const { data, error } = await supabase
         .from('athletes')
@@ -54,7 +53,7 @@ export const CreateProgramFromTemplateDialog: React.FC<CreateProgramFromTemplate
       if (error) throw error;
       return data;
     },
-    enabled: !!profile?.id && open,
+    enabled: !!profile?.id && profile?.role === 'coach' && open,
   });
 
   const onSubmit = async (data: FormData) => {
@@ -62,10 +61,8 @@ export const CreateProgramFromTemplateDialog: React.FC<CreateProgramFromTemplate
 
     try {
       await createProgram.mutateAsync({
-        template_id: template.id,
-        athlete_uuid: data.athlete_uuid,
-        coach_uuid: profile.id,
-        start_date: format(data.start_date, 'yyyy-MM-dd'),
+        templateId: template.id,
+        athleteUuid: profile.role === 'coach' ? data.athlete_uuid : undefined,
       });
       reset();
       onOpenChange(false);
@@ -75,6 +72,7 @@ export const CreateProgramFromTemplateDialog: React.FC<CreateProgramFromTemplate
   };
 
   const selectedDate = watch('start_date');
+  const isCoach = profile?.role === 'coach';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -82,26 +80,28 @@ export const CreateProgramFromTemplateDialog: React.FC<CreateProgramFromTemplate
         <DialogHeader>
           <DialogTitle>Create Program from Template</DialogTitle>
           <DialogDescription>
-            Create a new training program for an athlete using "{template?.title}" template.
+            Create a new training program {isCoach ? 'for an athlete' : ''} using "{template?.title}" template.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="athlete">Select Athlete</Label>
-            <Select onValueChange={(value) => setValue('athlete_uuid', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose an athlete" />
-              </SelectTrigger>
-              <SelectContent>
-                {athletes.map((athlete) => (
-                  <SelectItem key={athlete.id} value={athlete.id}>
-                    {athlete.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {isCoach && (
+            <div className="space-y-2">
+              <Label htmlFor="athlete">Select Athlete</Label>
+              <Select onValueChange={(value) => setValue('athlete_uuid', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose an athlete" />
+                </SelectTrigger>
+                <SelectContent>
+                  {athletes.map((athlete) => (
+                    <SelectItem key={athlete.id} value={athlete.id}>
+                      {athlete.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label>Start Date</Label>
@@ -138,7 +138,10 @@ export const CreateProgramFromTemplateDialog: React.FC<CreateProgramFromTemplate
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={createProgram.isPending}>
+            <Button 
+              type="submit" 
+              disabled={createProgram.isPending || (isCoach && !watch('athlete_uuid'))}
+            >
               {createProgram.isPending ? 'Creating...' : 'Create Program'}
             </Button>
           </div>
