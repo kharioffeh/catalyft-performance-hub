@@ -1,5 +1,5 @@
 
-import { LucideIcon, Users, BarChart3, Calendar, MessageSquare, Dumbbell, Settings, AlertTriangle, Target } from 'lucide-react';
+import { LucideIcon, Users, BarChart3, Calendar, MessageSquare, Dumbbell, CreditCard, AlertTriangle, Target } from 'lucide-react';
 
 export interface NavigationItem {
   name: string;
@@ -60,9 +60,9 @@ export const navigationItems: NavigationItem[] = [
     roles: ['coach'],
   },
   {
-    name: 'Settings',
-    href: '/settings',
-    icon: Settings,
+    name: 'Account & Billing',
+    href: '/billing',
+    icon: CreditCard,
     roles: ['coach', 'athlete', 'solo'],
   },
 ];

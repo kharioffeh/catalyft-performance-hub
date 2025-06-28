@@ -21,15 +21,25 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    const { priceId } = await req.json();
-    if (!priceId) {
-      throw new Error("Price ID is required");
+    const { role } = await req.json();
+    if (!role || !['coach', 'solo'].includes(role)) {
+      throw new Error("Valid role (coach/solo) is required");
     }
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
       throw new Error("STRIPE_SECRET_KEY is not set");
     }
+
+    // Get price IDs from environment
+    const coachPriceId = Deno.env.get("STRIPE_PRICE_COACH");
+    const soloPriceId = Deno.env.get("STRIPE_PRICE_SOLO");
+    
+    if (!coachPriceId || !soloPriceId) {
+      throw new Error("STRIPE_PRICE_COACH and STRIPE_PRICE_SOLO must be set");
+    }
+
+    const priceId = role === 'coach' ? coachPriceId : soloPriceId;
 
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -45,7 +55,7 @@ serve(async (req) => {
       throw new Error("User not authenticated or email not available");
     }
 
-    logStep("User authenticated", { userId: user.id, email: user.email });
+    logStep("User authenticated", { userId: user.id, email: user.email, role });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     
@@ -56,13 +66,37 @@ serve(async (req) => {
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
       logStep("Found existing customer", { customerId });
+    } else {
+      // Create new customer
+      const customer = await stripe.customers.create({
+        email: user.email,
+        metadata: {
+          user_id: user.id,
+        },
+      });
+      customerId = customer.id;
+      logStep("Created new customer", { customerId });
     }
 
-    const origin = req.headers.get("origin") || "http://localhost:3000";
+    // Update billing_customers with stripe_customer_id
+    const { error: updateError } = await supabaseClient
+      .from('billing_customers')
+      .upsert({
+        id: user.id,
+        stripe_customer_id: customerId,
+        role: role,
+        trial_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        plan_status: 'trialing'
+      });
+
+    if (updateError) {
+      logStep("Error updating billing_customers", { error: updateError });
+    }
+
+    const origin = req.headers.get("origin") || Deno.env.get("SITE_URL") || "http://localhost:3000";
     
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      customer_email: customerId ? undefined : user.email,
       line_items: [
         {
           price: priceId,
@@ -70,10 +104,11 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${origin}/dashboard?success=true`,
-      cancel_url: `${origin}/dashboard?canceled=true`,
+      success_url: `${origin}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/billing`,
       metadata: {
         user_id: user.id,
+        role: role,
       },
     });
 

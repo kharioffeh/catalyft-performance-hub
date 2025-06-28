@@ -10,6 +10,7 @@ import AthletesPage from '../pages/Athletes';
 import WorkoutsPage from '../pages/Workout';
 import SettingsPage from '../pages/Settings';
 import SubscriptionsPage from '../pages/Subscriptions';
+import BillingPage from '../pages/Billing';
 import LoginPage from '../pages/Login';
 import SignupPage from '../pages/Signup';
 import ForgotPasswordPage from '../pages/Auth';
@@ -22,6 +23,7 @@ import OAuthCallback from '../pages/OAuthCallback';
 import SoloProgramPage from '../pages/solo/ProgramPage';
 import AppLayout from './AppLayout';
 import ProtectedRoute from './ProtectedRoute';
+import ProtectAppGate from './ProtectAppGate';
 import RiskBoardPage from '../pages/CoachRiskBoard';
 import TemplateDetailPage from '@/pages/TemplateDetailPage';
 import { useSupabaseHash } from '../hooks/useSupabaseHash';
@@ -44,10 +46,12 @@ const AppRouter = () => {
       <Route path="/oauth/whoop" element={<OAuthCallback />} />
       <Route path="/oauth/callback" element={<OAuthCallback />} />
       
-      {/* Protected routes */}
+      {/* Protected routes with billing gate */}
       <Route path="/" element={
         <ProtectedRoute>
-          <AppLayout />
+          <ProtectAppGate>
+            <AppLayout />
+          </ProtectAppGate>
         </ProtectedRoute>
       }>
         <Route index element={<DashboardPage />} />
@@ -89,6 +93,13 @@ const AppRouter = () => {
         <Route path="settings" element={<SettingsPage />} />
         <Route path="subscriptions" element={<SubscriptionsPage />} />
       </Route>
+      
+      {/* Billing route - accessible even with expired trial */}
+      <Route path="/billing" element={
+        <ProtectedRoute>
+          <BillingPage />
+        </ProtectedRoute>
+      } />
       
       {/* Redirect root to home page for non-authenticated users */}
       <Route path="*" element={<Navigate to="/home" replace />} />

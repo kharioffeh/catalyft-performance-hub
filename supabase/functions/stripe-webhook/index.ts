@@ -5,7 +5,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[STRIPE-WEBHOOK] ${step}${detailsStr}`);
+  console.log(`[BILLING-WEBHOOK] ${step}${detailsStr}`);
 };
 
 serve(async (req) => {
@@ -50,71 +50,43 @@ serve(async (req) => {
         logStep("Processing checkout completion", { sessionId: session.id });
 
         if (session.mode === 'subscription') {
-          const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
-          const customer = await stripe.customers.retrieve(session.customer as string) as Stripe.Customer;
+          const userId = session.metadata?.user_id;
+          const role = session.metadata?.role;
           
-          // Get the plan details
-          const priceId = subscription.items.data[0].price.id;
-          const { data: plan } = await supabaseClient
-            .from('subscription_plans')
-            .select('*')
-            .eq('stripe_price_id', priceId)
-            .single();
-
-          if (plan) {
-            // Update or create user subscription
-            await supabaseClient
-              .from('user_subscriptions')
-              .upsert({
-                user_id: session.metadata?.user_id,
-                stripe_customer_id: customer.id,
-                stripe_subscription_id: subscription.id,
-                plan_id: plan.id,
-                status: subscription.status,
-                current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-                updated_at: new Date().toISOString(),
-              }, { onConflict: 'user_id' });
-
-            logStep("Subscription created/updated", { userId: session.metadata?.user_id, planName: plan.name });
+          if (!userId) {
+            logStep("No user_id in session metadata");
+            break;
           }
+
+          const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+          
+          await supabaseClient
+            .from('billing_customers')
+            .update({
+              stripe_subscription_id: subscription.id,
+              plan_status: 'active',
+              role: role || 'solo'
+            })
+            .eq('id', userId);
+
+          logStep("Billing updated for successful checkout", { userId, role, subscriptionId: subscription.id });
         }
         break;
       }
 
-      case 'customer.subscription.updated':
-      case 'customer.subscription.deleted': {
-        const subscription = event.data.object as Stripe.Subscription;
-        logStep("Processing subscription update/deletion", { subscriptionId: subscription.id });
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object as Stripe.Invoice;
+        logStep("Processing successful payment", { invoiceId: invoice.id });
 
-        const { data: userSub } = await supabaseClient
-          .from('user_subscriptions')
-          .select('*')
-          .eq('stripe_subscription_id', subscription.id)
-          .single();
+        if (invoice.subscription) {
+          await supabaseClient
+            .from('billing_customers')
+            .update({
+              plan_status: 'active'
+            })
+            .eq('stripe_subscription_id', invoice.subscription);
 
-        if (userSub) {
-          if (event.type === 'customer.subscription.deleted') {
-            await supabaseClient
-              .from('user_subscriptions')
-              .update({
-                status: 'canceled',
-                updated_at: new Date().toISOString(),
-              })
-              .eq('stripe_subscription_id', subscription.id);
-          } else {
-            await supabaseClient
-              .from('user_subscriptions')
-              .update({
-                status: subscription.status,
-                current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-                updated_at: new Date().toISOString(),
-              })
-              .eq('stripe_subscription_id', subscription.id);
-          }
-
-          logStep("Subscription status updated", { subscriptionId: subscription.id, status: subscription.status });
+          logStep("Billing status updated to active", { subscriptionId: invoice.subscription });
         }
         break;
       }
@@ -125,15 +97,34 @@ serve(async (req) => {
 
         if (invoice.subscription) {
           await supabaseClient
-            .from('user_subscriptions')
+            .from('billing_customers')
             .update({
-              status: 'past_due',
-              updated_at: new Date().toISOString(),
+              plan_status: 'past_due'
             })
             .eq('stripe_subscription_id', invoice.subscription);
 
-          logStep("Subscription marked as past_due", { subscriptionId: invoice.subscription });
+          logStep("Billing status updated to past_due", { subscriptionId: invoice.subscription });
         }
+        break;
+      }
+
+      case 'customer.subscription.updated':
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object as Stripe.Subscription;
+        logStep("Processing subscription update/deletion", { subscriptionId: subscription.id });
+
+        const status = event.type === 'customer.subscription.deleted' ? 'canceled' : 
+                      subscription.status === 'active' ? 'active' : 
+                      subscription.status === 'past_due' ? 'past_due' : 'canceled';
+
+        await supabaseClient
+          .from('billing_customers')
+          .update({
+            plan_status: status
+          })
+          .eq('stripe_subscription_id', subscription.id);
+
+        logStep("Subscription status updated", { subscriptionId: subscription.id, status });
         break;
       }
 

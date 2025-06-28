@@ -267,6 +267,36 @@ export type Database = {
           },
         ]
       }
+      billing_customers: {
+        Row: {
+          created_at: string
+          id: string
+          plan_status: string
+          role: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          trial_end: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          plan_status?: string
+          role: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          plan_status?: string
+          role?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end?: string
+        }
+        Relationships: []
+      }
       biomech_alerts: {
         Row: {
           alert_type: string
