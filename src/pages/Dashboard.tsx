@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { GlassCard } from '@/components/ui';
 import { AriaSummary } from '@/components/AriaSummary';
 import { InjuryForecastCard } from '@/components/InjuryForecastCard';
 import { TodaysSchedule } from '@/components/Dashboard/TodaysSchedule';
@@ -44,7 +45,7 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  // Coach Dashboard and default fallback - TripVision style layout
+  // Coach Dashboard - New glass morphism layout
   return (
     <div className="mx-auto w-full max-w-7xl p-4 md:p-8 grid gap-4 md:gap-6 lg:grid-cols-[340px_1fr]">
       {/* Left Column */}
@@ -66,10 +67,10 @@ const Dashboard: React.FC = () => {
         {/* Today's Schedule */}
         <TodaysSchedule todaySessions={todaySessions} />
 
-        {/* ARIA Insights - now full width and same height as Today's Schedule */}
+        {/* ARIA Insights */}
         <AriaSummary />
 
-        {/* Injury Risk Forecast - now full width and same height as Today's Schedule */}
+        {/* Injury Risk Forecast */}
         <InjuryForecastCard />
       </div>
     </div>

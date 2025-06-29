@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
 import { Brain, AlertTriangle, Info, AlertCircle } from 'lucide-react';
+import { GlassCard } from '@/components/ui';
 
 interface Insight {
   id: string;
@@ -98,7 +99,7 @@ export const AriaSummary: React.FC = () => {
   }
 
   return (
-    <div className="glass-card p-6 min-h-[220px]">
+    <GlassCard className="p-6 min-h-[220px]">
       <div className="flex items-center gap-2 mb-4">
         <Brain className="w-5 h-5 text-purple-400" />
         <h3 className="text-lg font-semibold text-white">ARIA Insights</h3>
@@ -151,6 +152,6 @@ export const AriaSummary: React.FC = () => {
           ))}
         </div>
       )}
-    </div>
+    </GlassCard>
   );
 };

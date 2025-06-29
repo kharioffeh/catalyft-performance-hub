@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from 'lucide-react';
 import { format } from 'date-fns';
+import { GlassCard } from '@/components/ui';
 
 interface TodaysScheduleProps {
   todaySessions: any[];
@@ -11,7 +12,7 @@ interface TodaysScheduleProps {
 
 export const TodaysSchedule: React.FC<TodaysScheduleProps> = ({ todaySessions }) => {
   return (
-    <div className="glass-card p-6 min-h-[220px]">
+    <GlassCard className="p-6 min-h-[220px]">
       <div className="flex items-center gap-2 mb-4">
         <Calendar className="w-5 h-5 text-white/70" />
         <h3 className="text-lg font-semibold text-white">Today's Schedule</h3>
@@ -49,6 +50,6 @@ export const TodaysSchedule: React.FC<TodaysScheduleProps> = ({ todaySessions })
           ))}
         </div>
       )}
-    </div>
+    </GlassCard>
   );
 };

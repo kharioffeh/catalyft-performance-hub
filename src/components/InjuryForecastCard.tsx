@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Shield, TrendingUp } from 'lucide-react';
+import { GlassCard } from '@/components/ui';
 
 interface InjuryForecast {
   id: string;
@@ -98,7 +98,7 @@ export const InjuryForecastCard: React.FC = () => {
   }
 
   return (
-    <div className="glass-card p-6 min-h-[220px]">
+    <GlassCard className="p-6 min-h-[220px]">
       <div className="flex items-center gap-2 mb-4">
         <Shield className="w-5 h-5 text-orange-400" />
         <h3 className="text-lg font-semibold text-white">Injury Risk Forecast</h3>
@@ -157,6 +157,6 @@ export const InjuryForecastCard: React.FC = () => {
           )}
         </div>
       )}
-    </div>
+    </GlassCard>
   );
 };

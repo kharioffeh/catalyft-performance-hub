@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { GlassCard } from '@/components/Glass/GlassCard';
+import { GlassCard } from '@/components/ui';
 import { ACWRDial } from '@/components/Analytics/Glass/ACWRDial';
 import { AriaInsightsCard } from '@/components/cards/AriaInsightsCard';
 import { HeatMapCard } from '@/components/cards/HeatMapCard';
@@ -59,7 +59,7 @@ const SoloDashboard: React.FC = () => {
 
         {/* Wearable Connection Banner */}
         {!wearableStatus?.wearable_connected && (
-          <GlassCard className="flex items-center justify-between p-6 mb-6" accent="primary">
+          <GlassCard className="flex items-center justify-between p-6 mb-6 bg-indigo-500/10 border-indigo-400/30">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-indigo-500/20 rounded-lg">
                 <Smartphone className="w-6 h-6 text-indigo-400" />
@@ -83,7 +83,7 @@ const SoloDashboard: React.FC = () => {
         {/* Responsive Grid */}
         <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 auto-rows-[minmax(120px,auto)]">
           {/* Readiness Card */}
-          <GlassCard className="p-6" accent="primary">
+          <GlassCard className="p-6 bg-blue-500/10 border-blue-400/30">
             <div className="flex items-center gap-2 mb-4">
               <Activity className="w-5 h-5 text-blue-400" />
               <h3 className="text-lg font-semibold text-white">Readiness</h3>
@@ -101,7 +101,7 @@ const SoloDashboard: React.FC = () => {
           </GlassCard>
 
           {/* Last Session Load Card */}
-          <GlassCard className="p-6" accent="load">
+          <GlassCard className="p-6 bg-purple-500/10 border-purple-400/30">
             <div className="flex items-center gap-2 mb-4">
               <Zap className="w-5 h-5 text-purple-400" />
               <h3 className="text-lg font-semibold text-white">Last Load</h3>
@@ -122,7 +122,7 @@ const SoloDashboard: React.FC = () => {
           </GlassCard>
 
           {/* ACWR Dial Card */}
-          <GlassCard className="p-6" accent="strain">
+          <GlassCard className="p-6 bg-orange-500/10 border-orange-400/30">
             <div className="flex items-center gap-2 mb-4">
               <Target className="w-5 h-5 text-orange-400" />
               <h3 className="text-lg font-semibold text-white">ACWR</h3>

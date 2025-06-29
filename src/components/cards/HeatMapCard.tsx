@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { GlassCard } from '@/components/Glass/GlassCard';
+import { GlassCard } from '@/components/ui';
 import { BodyHeatMap } from '@/components/BodyHeatMap';
 import { Activity } from 'lucide-react';
 

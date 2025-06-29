@@ -2,6 +2,7 @@
 import React from 'react';
 import { BarChart3, Calendar, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { GlassCard } from '@/components/ui';
 
 interface QuickActionsCardProps {
   userRole?: string;
@@ -11,7 +12,7 @@ export const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ userRole }) 
   const navigate = useNavigate();
 
   return (
-    <div className="bg-gradient-to-br from-indigo-500 to-indigo-600/90 text-white rounded-3xl overflow-hidden flex flex-col h-[460px] p-6">
+    <GlassCard className="bg-gradient-to-br from-indigo-500/20 to-indigo-600/20 text-white overflow-hidden flex flex-col h-[460px] p-6">
       <div className="mb-6">
         <h3 className="text-xl font-semibold mb-2">Quick Actions</h3>
         <p className="text-white/80 text-sm">Navigate to key areas of your training platform</p>
@@ -53,6 +54,6 @@ export const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ userRole }) 
           </button>
         )}
       </div>
-    </div>
+    </GlassCard>
   );
 };

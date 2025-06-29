@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { GlassCard } from '@/components/Glass/GlassCard';
+import { GlassCard } from '@/components/ui';
 import { Brain } from 'lucide-react';
 
 interface AriaInsightsCardProps {

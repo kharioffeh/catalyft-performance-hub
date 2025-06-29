@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Activity, Calendar, BarChart3, AlertTriangle } from 'lucide-react';
+import { GlassCard } from '@/components/ui';
 
 interface VerticalMetricCardsProps {
   currentReadiness: any;
@@ -39,7 +40,7 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
   return (
     <div className="space-y-4">
       {/* Readiness Card */}
-      <div className="glass-card px-6 py-5">
+      <GlassCard className="px-6 py-5">
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm font-medium text-white/70">Readiness</p>
           <Activity className="h-4 w-4 text-white/50" />
@@ -56,10 +57,10 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
         ) : (
           <div className="text-2xl font-bold text-white/40">--</div>
         )}
-      </div>
+      </GlassCard>
 
       {/* Today's Sessions Card */}
-      <div className="glass-card px-6 py-5">
+      <GlassCard className="px-6 py-5">
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm font-medium text-white/70">Today's Sessions</p>
           <Calendar className="h-4 w-4 text-white/50" />
@@ -70,10 +71,10 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
            todaySessions.length === 1 ? 'session planned' : 
            'sessions planned'}
         </p>
-      </div>
+      </GlassCard>
 
       {/* This Week Card */}
-      <div className="glass-card px-6 py-5">
+      <GlassCard className="px-6 py-5">
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm font-medium text-white/70">This Week</p>
           <BarChart3 className="h-4 w-4 text-white/50" />
@@ -84,10 +85,10 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
         <p className="text-xs text-white/60">
           sessions completed
         </p>
-      </div>
+      </GlassCard>
 
       {/* Injury Risk Card */}
-      <div className="glass-card px-6 py-5">
+      <GlassCard className="px-6 py-5">
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm font-medium text-white/70">Injury Risk</p>
           <AlertTriangle className="h-4 w-4 text-white/50" />
@@ -104,7 +105,7 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
         ) : (
           <div className="text-2xl font-bold text-white/40">--</div>
         )}
-      </div>
+      </GlassCard>
     </div>
   );
 };
