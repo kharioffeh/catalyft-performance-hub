@@ -50,10 +50,7 @@ export const AthleteModalAnimation: React.FC<AthleteModalAnimationProps> = ({
           initial="hidden"
           animate="visible"
           exit="exit"
-          transition={{
-            ...transition,
-            exit: exitTransition,
-          }}
+          transition={transition}
         >
           {children}
         </motion.div>
