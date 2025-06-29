@@ -3,13 +3,15 @@ import React from 'react';
 import GlassCard from '@/components/ui/GlassCard';
 import { HeatMapBody } from '@/components/Analytics/Glass/HeatMapBody';
 import { Activity } from 'lucide-react';
+import { GlassSkeleton } from '@/components/ui/GlassSkeleton';
 
 interface HeatMapCardProps {
   athleteId: string;
   className?: string;
+  isLoading?: boolean;
 }
 
-export const HeatMapCard: React.FC<HeatMapCardProps> = ({ athleteId, className }) => {
+export const HeatMapCard: React.FC<HeatMapCardProps> = ({ athleteId, className, isLoading }) => {
   return (
     <GlassCard className={`p-6 bg-green-500/10 border-green-400/30 ${className || ''}`}>
       <div className="flex items-center gap-2 mb-4">
@@ -17,11 +19,15 @@ export const HeatMapCard: React.FC<HeatMapCardProps> = ({ athleteId, className }
         <h3 className="text-lg font-semibold text-white">Muscle Load Heat Map</h3>
       </div>
       <div className="h-64">
-        <HeatMapBody 
-          className="w-full h-full" 
-          period="7d" 
-          athleteId={athleteId} 
-        />
+        {isLoading ? (
+          <GlassSkeleton className="w-full h-full" rounded="lg" />
+        ) : (
+          <HeatMapBody 
+            className="w-full h-full" 
+            period="7d" 
+            athleteId={athleteId} 
+          />
+        )}
       </div>
     </GlassCard>
   );

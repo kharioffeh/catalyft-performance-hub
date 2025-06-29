@@ -2,6 +2,7 @@
 import React from 'react';
 import GlassCard from '@/components/ui/GlassCard';
 import { Brain } from 'lucide-react';
+import { GlassSkeletonText } from '@/components/ui/GlassSkeleton';
 
 interface AriaInsightsCardProps {
   data: any;
@@ -16,11 +17,7 @@ export const AriaInsightsCard: React.FC<AriaInsightsCardProps> = ({ data, loadin
         <h3 className="text-lg font-semibold text-white">ARIA Insights</h3>
       </div>
       {loading ? (
-        <div className="animate-pulse space-y-2">
-          <div className="h-4 bg-white/20 rounded w-3/4"></div>
-          <div className="h-4 bg-white/20 rounded w-1/2"></div>
-          <div className="h-4 bg-white/20 rounded w-2/3"></div>
-        </div>
+        <GlassSkeletonText lines={3} />
       ) : (
         <div className="space-y-2">
           {data && data.length > 0 ? (

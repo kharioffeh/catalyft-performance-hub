@@ -2,7 +2,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { useGlassToast } from '@/hooks/useGlassToast';
 
 interface Session {
   id: string;
@@ -28,6 +28,7 @@ interface Profile {
 
 export const useSessionsData = (profile: Profile | null) => {
   const queryClient = useQueryClient();
+  const toast = useGlassToast();
 
   const { data: sessions = [], isLoading } = useQuery({
     queryKey: ['sessions'],
@@ -70,22 +71,13 @@ export const useSessionsData = (profile: Profile | null) => {
           // Invalidate and refetch sessions data
           queryClient.invalidateQueries({ queryKey: ['sessions'] });
           
-          // Show toast notification for the change
+          // Show glass toast notification for the change
           if (payload.eventType === 'INSERT') {
-            toast({
-              title: "New Session Added",
-              description: "A new training session has been scheduled",
-            });
+            toast.success("New Session Added", "A new training session has been scheduled");
           } else if (payload.eventType === 'UPDATE') {
-            toast({
-              title: "Session Updated",
-              description: "A training session has been modified",
-            });
+            toast.info("Session Updated", "A training session has been modified");
           } else if (payload.eventType === 'DELETE') {
-            toast({
-              title: "Session Deleted",
-              description: "A training session has been removed",
-            });
+            toast.info("Session Deleted", "A training session has been removed");
           }
         }
       )
@@ -94,7 +86,7 @@ export const useSessionsData = (profile: Profile | null) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [profile, queryClient]);
+  }, [profile, queryClient, toast]);
 
   return { sessions, isLoading, queryClient };
 };

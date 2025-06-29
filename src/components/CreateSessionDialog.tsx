@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { toast } from '@/hooks/use-toast';
+import { useGlassToast } from '@/hooks/useGlassToast';
 import { Calendar } from 'lucide-react';
 import { AthleteSelect } from './session-form/AthleteSelect';
 import { SessionTypeSelect } from './session-form/SessionTypeSelect';
@@ -31,6 +31,7 @@ export const CreateSessionDialog: React.FC<CreateSessionDialogProps> = ({
   queryClient
 }) => {
   const { profile } = useAuth();
+  const toast = useGlassToast();
   const {
     athletes,
     loading,
@@ -44,11 +45,7 @@ export const CreateSessionDialog: React.FC<CreateSessionDialogProps> = ({
     e.preventDefault();
 
     if (!formData.athlete_id || !formData.type || !formData.date || !formData.start_time || !formData.end_time) {
-      toast({
-        title: "Error",
-        description: "Please fill in all required fields",
-        variant: "destructive",
-      });
+      toast.error("Missing Information", "Please fill in all required fields");
       return;
     }
 
@@ -59,11 +56,7 @@ export const CreateSessionDialog: React.FC<CreateSessionDialogProps> = ({
       const endDateTime = new Date(`${formData.date}T${formData.end_time}`);
 
       if (endDateTime <= startDateTime) {
-        toast({
-          title: "Error",
-          description: "End time must be after start time",
-          variant: "destructive",
-        });
+        toast.error("Invalid Time", "End time must be after start time");
         setLoading(false);
         return;
       }
@@ -77,21 +70,14 @@ export const CreateSessionDialog: React.FC<CreateSessionDialogProps> = ({
         notes: formData.notes || null,
       });
 
-      toast({
-        title: "Success",
-        description: "Training session scheduled successfully",
-      });
+      toast.success("Session Scheduled", "Training session scheduled successfully");
 
       resetForm();
       queryClient.invalidateQueries({ queryKey: ['sessions'] });
       onOpenChange(false);
     } catch (error: any) {
       console.error('Error creating session:', error);
-      toast({
-        title: "Error",
-        description: error?.message ?? "Failed to schedule session",
-        variant: "destructive",
-      });
+      toast.error("Failed to Schedule", error?.message ?? "Failed to schedule session");
     } finally {
       setLoading(false);
     }

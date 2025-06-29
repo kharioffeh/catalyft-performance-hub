@@ -2,7 +2,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect } from 'react';
-import { toast } from 'sonner';
+import { useGlassToast } from '@/hooks/useGlassToast';
 
 export interface Notification {
   id: string;
@@ -16,6 +16,7 @@ export interface Notification {
 
 export const useNotifications = () => {
   const queryClient = useQueryClient();
+  const toast = useGlassToast();
 
   const { data: notifications = [], isLoading } = useQuery({
     queryKey: ['notifications'],
@@ -77,7 +78,7 @@ export const useNotifications = () => {
     );
   };
 
-  // Set up real-time listener with toast notifications
+  // Set up real-time listener with glass toast notifications
   useEffect(() => {
     const channel = supabase
       .channel('notifications')
@@ -92,27 +93,15 @@ export const useNotifications = () => {
           const newNotification = payload.new as Notification;
           console.log('New notification received:', newNotification);
           
-          // Show toast notification for new notifications
+          // Show glass toast notification for new notifications
           if (newNotification.type === 'abnormal_readiness') {
-            toast.error(newNotification.title, {
-              description: newNotification.body,
-              duration: 8000,
-            });
+            toast.error(newNotification.title, newNotification.body);
           } else if (newNotification.type === 'missed_workout') {
-            toast.warning(newNotification.title, {
-              description: newNotification.body,
-              duration: 6000,
-            });
+            toast.warning(newNotification.title, newNotification.body);
           } else if (newNotification.type === 'daily_summary') {
-            toast.success(newNotification.title, {
-              description: "Your daily summary is ready",
-              duration: 4000,
-            });
+            toast.success(newNotification.title, "Your daily summary is ready");
           } else {
-            toast.info(newNotification.title, {
-              description: newNotification.body,
-              duration: 4000,
-            });
+            toast.info(newNotification.title, newNotification.body);
           }
           
           // Invalidate and refetch notifications
@@ -136,7 +125,7 @@ export const useNotifications = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [queryClient]);
+  }, [queryClient, toast]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
