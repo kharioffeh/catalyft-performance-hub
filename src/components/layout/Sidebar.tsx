@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Disclosure, Transition } from '@headlessui/react';
@@ -18,7 +17,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { coachNavigation, soloNavigation } from '@/constants/navigation';
+import { getNavigationForRole } from '@/config/routes';
+import { NavigationGroup } from './NavigationGroup';
 import { supabase } from '@/integrations/supabase/client';
 
 interface SidebarProps {
@@ -29,8 +29,8 @@ export default function Sidebar({ isDarkTheme = false }: SidebarProps) {
   const { profile } = useAuth();
   const navigate = useNavigate();
 
-  // Select navigation based on user role
-  const navigationItems = profile?.role === 'coach' ? coachNavigation : soloNavigation;
+  // Get navigation items based on user role
+  const navigationItems = getNavigationForRole(profile?.role);
 
   // Styling for dark glass effect on chat/aria page
   const glassBg = isDarkTheme
@@ -125,7 +125,7 @@ export default function Sidebar({ isDarkTheme = false }: SidebarProps) {
 }
 
 interface NavListProps {
-  navigationItems: typeof coachNavigation;
+  navigationItems: any[];
   activeBg: string;
   inactiveText: string;
 }
@@ -133,22 +133,13 @@ interface NavListProps {
 function NavList({ navigationItems, activeBg, inactiveText }: NavListProps) {
   return (
     <ul className="flex flex-col gap-1 px-2 py-4">
-      {navigationItems.map(({ path, label, icon: Icon }) => (
-        <li key={path}>
-          <NavLink
-            to={path}
-            className={({ isActive }) =>
-              clsx(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200",
-                isActive
-                  ? activeBg
-                  : inactiveText
-              )
-            }
-          >
-            <Icon className="h-5 w-5 shrink-0" />
-            <span className="truncate">{label}</span>
-          </NavLink>
+      {navigationItems.map((item) => (
+        <li key={item.path}>
+          <NavigationGroup
+            item={item}
+            activeBg={activeBg}
+            inactiveText={inactiveText}
+          />
         </li>
       ))}
     </ul>

@@ -11,6 +11,7 @@ import {
   Activity,
 } from 'lucide-react';
 
+// Legacy exports for backward compatibility
 export const navigationItems = [
   {
     title: 'Dashboard',
@@ -68,7 +69,7 @@ export const navigationItems = [
   },
 ];
 
-// Role-specific navigation arrays for the new unified sidebar component
+// Role-specific navigation arrays for backward compatibility
 export const coachNavigation = [
   {
     label: 'Dashboard',
