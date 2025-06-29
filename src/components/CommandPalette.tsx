@@ -8,8 +8,6 @@ import {
   KBarSearch,
   KBarResults,
   useMatches,
-  ActionImpl,
-  ActionId,
 } from 'kbar';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -26,7 +24,6 @@ import {
   AlertTriangle,
   Moon,
   Sun,
-  Plus,
   UserPlus,
   LogOut
 } from 'lucide-react';
@@ -36,7 +33,7 @@ interface CommandPaletteProps {
 }
 
 const RenderResults = () => {
-  const { results, rootActionId } = useMatches();
+  const { results } = useMatches();
 
   return (
     <KBarResults
@@ -237,7 +234,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ children }) => {
         section: 'Quick Actions',
         icon: <UserPlus className="w-4 h-4" />,
         perform: () => {
-          // This would typically open a modal - for now just navigate to athletes page
           navigate('/athletes');
         },
       });
@@ -257,19 +253,19 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ children }) => {
         <KBarPositioner className="fixed inset-0 z-50 bg-black/20 dark:bg-black/40 backdrop-blur-sm">
           <KBarAnimator className="mx-auto mt-[10vh] max-w-lg">
             <div className={cn(
-              "overflow-hidden rounded-2xl shadow-glass-lg",
-              "bg-glass-card-light/60 dark:bg-glass-card-dark/80",
-              "backdrop-blur-xl border border-white/10 dark:border-white/20"
+              "overflow-hidden rounded-2xl shadow-xl",
+              "bg-white/90 dark:bg-gray-900/90",
+              "backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50"
             )}>
               <KBarSearch 
                 className={cn(
                   "w-full border-none bg-transparent px-4 py-4 text-lg outline-none",
-                  "placeholder:text-gray-500 dark:placeholder:text-white/60",
+                  "placeholder:text-gray-500 dark:placeholder:text-gray-400",
                   "text-gray-900 dark:text-white"
                 )}
                 placeholder="Type a command or search..."
               />
-              <div className="border-t border-white/10 dark:border-white/20">
+              <div className="border-t border-gray-200/50 dark:border-gray-700/50">
                 <RenderResults />
               </div>
             </div>
