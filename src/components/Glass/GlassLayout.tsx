@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface GlassLayoutProps {
   children: React.ReactNode;
@@ -13,7 +14,24 @@ export const GlassLayout: React.FC<GlassLayoutProps> = ({
   className,
   variant = 'default'
 }) => {
-  const getGradient = () => {
+  const { resolvedTheme } = useTheme();
+
+  const getLightGradient = () => {
+    switch (variant) {
+      case 'dashboard':
+        return 'bg-gradient-to-br from-gray-100 via-blue-50 to-gray-100';
+      case 'analytics':
+        return 'bg-gradient-to-br from-gray-100 via-purple-50 to-gray-100';
+      case 'settings':
+        return 'bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100';
+      case 'chat':
+        return 'bg-gradient-to-br from-white via-gray-50 to-white';
+      default:
+        return 'bg-gradient-to-br from-gray-100 via-indigo-50 to-gray-100';
+    }
+  };
+
+  const getDarkGradient = () => {
     switch (variant) {
       case 'dashboard':
         return 'bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900';
@@ -26,6 +44,10 @@ export const GlassLayout: React.FC<GlassLayoutProps> = ({
       default:
         return 'bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900';
     }
+  };
+
+  const getGradient = () => {
+    return resolvedTheme === 'light' ? getLightGradient() : getDarkGradient();
   };
 
   return (
