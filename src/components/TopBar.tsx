@@ -20,7 +20,7 @@ export const TopBar: React.FC = () => {
   return (
     <header className={cn(
       "h-16 flex items-center justify-between px-4 md:px-6",
-      "bg-white/40 dark:bg-gray-900/60",
+      "bg-white/70 dark:bg-gray-900/80",
       "backdrop-blur-lg border-b border-white/20 dark:border-white/10",
       "shadow-glass-sm"
     )}>
@@ -51,7 +51,7 @@ export const TopBar: React.FC = () => {
         )}
         <Avatar className="h-8 w-8 md:h-10 md:w-10">
           <AvatarFallback className={cn(
-            "bg-white/60 dark:bg-gray-900/80",
+            "bg-white/70 dark:bg-gray-900/80",
             "text-gray-800 dark:text-white backdrop-blur-md",
             "border border-white/20 dark:border-white/10"
           )}>
@@ -64,7 +64,7 @@ export const TopBar: React.FC = () => {
           size="sm"
           className={cn(
             "min-h-[44px] md:min-h-auto active:opacity-80",
-            "bg-white/60 dark:bg-gray-900/80",
+            "bg-white/70 dark:bg-gray-900/80",
             "hover:bg-white/80 dark:hover:bg-gray-900/90",
             "border-white/30 dark:border-white/20",
             "text-gray-800 dark:text-white backdrop-blur-md"
