@@ -60,6 +60,13 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      boxShadow: {
+        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+        'glass-sm': '0 2px 8px 0 rgba(31, 38, 135, 0.2)',
+        'glass-md': '0 8px 24px 0 rgba(0, 0, 0, 0.25)',
+        'glass-lg': '0 16px 48px 0 rgba(0, 0, 0, 0.35)',
+        'glass-xl': '0 24px 64px 0 rgba(0, 0, 0, 0.45)',
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
