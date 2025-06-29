@@ -44,8 +44,6 @@ const AppLayout: React.FC = () => {
     return 'default';
   };
 
-  const isDarkTheme = isChatRoute(location.pathname);
-
   // Loading state - show spinner while authentication is loading
   if (loading) {
     return (
@@ -71,15 +69,15 @@ const AppLayout: React.FC = () => {
       <GlassLayout variant={getLayoutVariant()}>
         <div className="min-h-screen flex items-center justify-center p-4">
           <div className="max-w-md w-full text-center">
-            <div className={`rounded-2xl ${isDarkTheme ? "bg-black/40 border border-gray-900/50" : "bg-white/10 border border-white/20"} backdrop-blur-md shadow-xl p-6`}>
-              <AlertCircle className={`h-8 w-8 mx-auto mb-4 ${isDarkTheme ? "text-accent" : "text-red-400"}`} />
-              <h3 className="text-lg font-semibold text-white mb-2">Profile Not Found</h3>
-              <p className="text-white/70 mb-4">
+            <div className="rounded-2xl bg-glass-card-light/80 dark:bg-glass-card-dark/80 border border-white/20 dark:border-white/10 backdrop-blur-md shadow-xl p-6">
+              <AlertCircle className="h-8 w-8 mx-auto mb-4 text-theme-danger" />
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">Profile Not Found</h3>
+              <p className="text-gray-600 dark:text-white/70 mb-4">
                 We couldn't find your profile. Please try refreshing or contact support.
               </p>
               <Button 
                 onClick={() => window.location.reload()} 
-                className={`${isDarkTheme ? "bg-accent hover:bg-accent/80 border border-gray-900/80" : "bg-white/20 hover:bg-white/30 border border-white/30"} text-white backdrop-blur-md`}
+                className="bg-glass-card-light/60 dark:bg-glass-card-dark/60 hover:bg-glass-card-light/80 dark:hover:bg-glass-card-dark/80 border border-white/20 dark:border-white/10 text-gray-800 dark:text-white backdrop-blur-md"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Refresh Page
