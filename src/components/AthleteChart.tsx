@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -17,6 +16,7 @@ import {
   Legend,
 } from 'recharts';
 import { format } from 'date-fns';
+import { SkeletonChart } from '@/components/skeleton/SkeletonChart';
 
 interface AthleteChartProps {
   athleteId: string;
@@ -40,11 +40,8 @@ const chartConfig = {
   },
 };
 
-export const AthleteChart: React.FC<AthleteChartProps> = ({
-  athleteId,
-  isVisible,
-}) => {
-  const { data: chartData, isLoading } = useQuery({
+const ChartContent: React.FC<{ athleteId: string }> = ({ athleteId }) => {
+  const { data: chartData } = useQuery({
     queryKey: ['athleteChart', athleteId],
     queryFn: async () => {
       // Get readiness data for the last 7 days
@@ -58,7 +55,6 @@ export const AthleteChart: React.FC<AthleteChartProps> = ({
         .gte('ts', sevenDaysAgo.toISOString())
         .order('ts', { ascending: true });
 
-      // Get load data
       const { data: loadData } = await supabase
         .from('wearable_raw')
         .select('value, ts')
@@ -68,7 +64,7 @@ export const AthleteChart: React.FC<AthleteChartProps> = ({
         .order('ts', { ascending: true });
 
       // Combine data by date
-      const dateMap = new Map<string, ChartData>();
+      const dateMap = new Map<string, any>();
 
       // Initialize with the last 7 days
       for (let i = 6; i >= 0; i--) {
@@ -111,20 +107,8 @@ export const AthleteChart: React.FC<AthleteChartProps> = ({
         displayDate: format(new Date(item.date), 'MMM dd'),
       }));
     },
-    enabled: !!athleteId && isVisible,
+    enabled: !!athleteId,
   });
-
-  if (!isVisible) {
-    return null;
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
 
   if (!chartData || chartData.length === 0) {
     return (
@@ -184,5 +168,20 @@ export const AthleteChart: React.FC<AthleteChartProps> = ({
         </LineChart>
       </ResponsiveContainer>
     </ChartContainer>
+  );
+};
+
+export const AthleteChart: React.FC<AthleteChartProps> = ({
+  athleteId,
+  isVisible,
+}) => {
+  if (!isVisible) {
+    return null;
+  }
+
+  return (
+    <Suspense fallback={<SkeletonChart showAxes showLegend />}>
+      <ChartContent athleteId={athleteId} />
+    </Suspense>
   );
 };

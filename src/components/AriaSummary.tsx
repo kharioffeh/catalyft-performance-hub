@@ -1,11 +1,12 @@
-
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
 import { Brain, AlertTriangle, Info, AlertCircle } from 'lucide-react';
 import { GlassCard } from '@/components/ui';
+import { SkeletonCard } from '@/components/skeleton/SkeletonCard';
+import { SkeletonBox } from '@/components/skeleton/SkeletonBox';
 
 interface Insight {
   id: string;
@@ -17,10 +18,10 @@ interface Insight {
   athlete_name?: string;
 }
 
-export const AriaSummary: React.FC = () => {
+const InsightsContent: React.FC = () => {
   const { profile } = useAuth();
 
-  const { data: insights = [], isLoading } = useQuery({
+  const { data: insights = [] } = useQuery({
     queryKey: ['dailyInsights_unified', profile?.id],
     queryFn: async () => {
       if (!profile?.id || profile.role !== 'coach') return [];
@@ -94,23 +95,9 @@ export const AriaSummary: React.FC = () => {
     }
   };
 
-  if (profile?.role !== 'coach') {
-    return null;
-  }
-
   return (
-    <GlassCard className="p-6 min-h-[220px]">
-      <div className="flex items-center gap-2 mb-4">
-        <Brain className="w-5 h-5 text-purple-400" />
-        <h3 className="text-lg font-semibold text-white">ARIA Insights</h3>
-      </div>
-      <p className="text-sm text-white/60 mb-6">AI-generated insights for today</p>
-      
-      {isLoading ? (
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-400"></div>
-        </div>
-      ) : Object.keys(insightsByAthlete).length === 0 ? (
+    <>
+      {Object.keys(insightsByAthlete).length === 0 ? (
         <div className="text-center text-white/50 py-8">
           <Brain className="w-12 h-12 mx-auto mb-4 text-white/30" />
           <p className="text-white/70">No insights generated today</p>
@@ -152,6 +139,48 @@ export const AriaSummary: React.FC = () => {
           ))}
         </div>
       )}
+    </>
+  );
+};
+
+export const AriaSummary: React.FC = () => {
+  const { profile } = useAuth();
+
+  if (profile?.role !== 'coach') {
+    return null;
+  }
+
+  const insightsSkeleton = (
+    <div className="space-y-4">
+      {Array.from({ length: 2 }).map((_, i) => (
+        <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-4">
+          <SkeletonBox width={120} height={16} className="mb-3" />
+          <div className="space-y-3">
+            <div className="flex items-start space-x-3">
+              <SkeletonBox width={12} height={12} className="mt-1" />
+              <div className="flex-1 space-y-2">
+                <SkeletonBox width={80} height={20} />
+                <SkeletonBox width="100%" height={14} />
+                <SkeletonBox width="80%" height={14} />
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <GlassCard className="p-6 min-h-[220px]">
+      <div className="flex items-center gap-2 mb-4">
+        <Brain className="w-5 h-5 text-purple-400" />
+        <h3 className="text-lg font-semibold text-white">ARIA Insights</h3>
+      </div>
+      <p className="text-sm text-white/60 mb-6">AI-generated insights for today</p>
+      
+      <Suspense fallback={insightsSkeleton}>
+        <InsightsContent />
+      </Suspense>
     </GlassCard>
   );
 };

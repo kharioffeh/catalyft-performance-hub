@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { GlassCard } from '@/components/ui';
 import { ACWRDial } from '@/components/Analytics/Glass/ACWRDial';
@@ -11,17 +11,15 @@ import { useAcwr } from '@/hooks/useAcwr';
 import { useAriaInsights } from '@/hooks/useAriaInsights';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useWearableStatus } from '@/hooks/useWearableStatus';
+import { SkeletonCard } from '@/components/skeleton/SkeletonCard';
+import { SkeletonBox } from '@/components/skeleton/SkeletonBox';
+import { SkeletonChart } from '@/components/skeleton/SkeletonChart';
+import { SuspenseWrapper } from '@/components/ui/SuspenseWrapper';
 import { Activity, Zap, Target, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const SoloDashboard: React.FC = () => {
-  const { profile } = useAuth();
-  const { currentReadiness } = useDashboardData(profile?.id);
-  const { data: wearableStatus } = useWearableStatus(profile?.id);
-  const { data: lastSessionLoad, isLoading: loadingLastSession } = useLastSessionLoad();
-  const { data: acwrValue, isLoading: loadingAcwr } = useAcwr();
-  const { data: insights, isLoading: loadingInsights } = useAriaInsights();
-  const [showConnectModal, setShowConnectModal] = useState(false);
+const ReadinessCard: React.FC<{ profileId: string }> = ({ profileId }) => {
+  const { currentReadiness } = useDashboardData(profileId);
 
   const formatValue = (value: number | null, suffix = '') => {
     if (value === null || value === undefined) return '—';
@@ -35,6 +33,72 @@ const SoloDashboard: React.FC = () => {
     return 'text-red-400';
   };
 
+  return (
+    <GlassCard className="p-6 bg-blue-500/10 border-blue-400/30">
+      <div className="flex items-center gap-2 mb-4">
+        <Activity className="w-5 h-5 text-blue-400" />
+        <h3 className="text-lg font-semibold text-white">Readiness</h3>
+      </div>
+      {currentReadiness ? (
+        <div>
+          <div className={`text-3xl font-bold ${getReadinessColor(currentReadiness.score)}`}>
+            {formatValue(currentReadiness.score, '%')}
+          </div>
+          <p className="text-white/60 text-sm mt-1">Today's score</p>
+        </div>
+      ) : (
+        <div className="text-3xl font-bold text-white/40">—</div>
+      )}
+    </GlassCard>
+  );
+};
+
+const LastSessionCard: React.FC = () => {
+  const { data: lastSessionLoad } = useLastSessionLoad();
+
+  const formatValue = (value: number | null) => {
+    if (value === null || value === undefined) return '—';
+    return Math.round(value).toString();
+  };
+
+  return (
+    <GlassCard className="p-6 bg-purple-500/10 border-purple-400/30">
+      <div className="flex items-center gap-2 mb-4">
+        <Zap className="w-5 h-5 text-purple-400" />
+        <h3 className="text-lg font-semibold text-white">Last Load</h3>
+      </div>
+      <div>
+        <div className="text-3xl font-bold text-white">
+          {formatValue(lastSessionLoad)}
+        </div>
+        <p className="text-white/60 text-sm mt-1">Most recent session</p>
+      </div>
+    </GlassCard>
+  );
+};
+
+const ACWRCard: React.FC = () => {
+  const { data: acwrValue } = useAcwr();
+
+  return (
+    <GlassCard className="p-6 bg-orange-500/10 border-orange-400/30">
+      <div className="flex items-center gap-2 mb-4">
+        <Target className="w-5 h-5 text-orange-400" />
+        <h3 className="text-lg font-semibold text-white">ACWR</h3>
+      </div>
+      <div className="flex justify-center">
+        <ACWRDial period="7d" mini />
+      </div>
+    </GlassCard>
+  );
+};
+
+const SoloDashboard: React.FC = () => {
+  const { profile } = useAuth();
+  const { data: wearableStatus } = useWearableStatus(profile?.id);
+  const { data: insights } = useAriaInsights();
+  const [showConnectModal, setShowConnectModal] = useState(false);
+
   const handleWearableConnected = () => {
     // Refresh the page data after successful connection
     window.location.reload();
@@ -43,7 +107,7 @@ const SoloDashboard: React.FC = () => {
   if (!profile?.id) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+        <SkeletonBox width={200} height={32} />
       </div>
     );
   }
@@ -83,66 +147,29 @@ const SoloDashboard: React.FC = () => {
         {/* Responsive Grid */}
         <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 auto-rows-[minmax(120px,auto)]">
           {/* Readiness Card */}
-          <GlassCard className="p-6 bg-blue-500/10 border-blue-400/30">
-            <div className="flex items-center gap-2 mb-4">
-              <Activity className="w-5 h-5 text-blue-400" />
-              <h3 className="text-lg font-semibold text-white">Readiness</h3>
-            </div>
-            {currentReadiness ? (
-              <div>
-                <div className={`text-3xl font-bold ${getReadinessColor(currentReadiness.score)}`}>
-                  {formatValue(currentReadiness.score, '%')}
-                </div>
-                <p className="text-white/60 text-sm mt-1">Today's score</p>
-              </div>
-            ) : (
-              <div className="text-3xl font-bold text-white/40">—</div>
-            )}
-          </GlassCard>
+          <SuspenseWrapper fallback={<SkeletonCard className="bg-blue-500/10 border-blue-400/30" />}>
+            <ReadinessCard profileId={profile.id} />
+          </SuspenseWrapper>
 
           {/* Last Session Load Card */}
-          <GlassCard className="p-6 bg-purple-500/10 border-purple-400/30">
-            <div className="flex items-center gap-2 mb-4">
-              <Zap className="w-5 h-5 text-purple-400" />
-              <h3 className="text-lg font-semibold text-white">Last Load</h3>
-            </div>
-            {loadingLastSession ? (
-              <div className="animate-pulse">
-                <div className="h-8 bg-white/20 rounded w-16 mb-2"></div>
-                <div className="h-4 bg-white/20 rounded w-24"></div>
-              </div>
-            ) : (
-              <div>
-                <div className="text-3xl font-bold text-white">
-                  {formatValue(lastSessionLoad)}
-                </div>
-                <p className="text-white/60 text-sm mt-1">Most recent session</p>
-              </div>
-            )}
-          </GlassCard>
+          <SuspenseWrapper fallback={<SkeletonCard className="bg-purple-500/10 border-purple-400/30" />}>
+            <LastSessionCard />
+          </SuspenseWrapper>
 
           {/* ACWR Dial Card */}
-          <GlassCard className="p-6 bg-orange-500/10 border-orange-400/30">
-            <div className="flex items-center gap-2 mb-4">
-              <Target className="w-5 h-5 text-orange-400" />
-              <h3 className="text-lg font-semibold text-white">ACWR</h3>
-            </div>
-            {loadingAcwr ? (
-              <div className="animate-pulse flex justify-center">
-                <div className="w-24 h-24 bg-white/20 rounded-full"></div>
-              </div>
-            ) : (
-              <div className="flex justify-center">
-                <ACWRDial period="7d" mini />
-              </div>
-            )}
-          </GlassCard>
+          <SuspenseWrapper fallback={<SkeletonChart className="bg-orange-500/10 border-orange-400/30 h-48" showAxes={false} />}>
+            <ACWRCard />
+          </SuspenseWrapper>
 
           {/* ARIA Insights Card */}
-          <AriaInsightsCard data={insights} loading={loadingInsights} />
+          <SuspenseWrapper fallback={<SkeletonCard contentLines={4} />}>
+            <AriaInsightsCard data={insights} loading={false} />
+          </SuspenseWrapper>
 
           {/* Heat Map Card - spans 2 rows on large screens */}
-          <HeatMapCard athleteId={profile.id} />
+          <SuspenseWrapper fallback={<SkeletonChart className="lg:col-span-2 h-64" showAxes={false} />}>
+            <HeatMapCard athleteId={profile.id} />
+          </SuspenseWrapper>
         </div>
 
         {/* Connect Wearable Modal */}

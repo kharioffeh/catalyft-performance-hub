@@ -1,0 +1,67 @@
+
+import React from 'react';
+import { cn } from '@/lib/utils';
+import { SkeletonBox } from './SkeletonBox';
+
+interface SkeletonTableProps extends React.HTMLAttributes<HTMLDivElement> {
+  rows?: number;
+  columns?: number;
+  showHeader?: boolean;
+  animate?: boolean;
+}
+
+export const SkeletonTable: React.FC<SkeletonTableProps> = ({
+  className,
+  rows = 5,
+  columns = 4,
+  showHeader = true,
+  animate = true,
+  ...props
+}) => {
+  return (
+    <div
+      className={cn(
+        'bg-glass-card-light/60 dark:bg-glass-card-dark/80',
+        'backdrop-blur-lg border border-white/10 dark:border-white/20',
+        'rounded-xl shadow-glass-md overflow-hidden',
+        className
+      )}
+      role="status"
+      aria-busy="true"
+      aria-label="Loading table"
+      {...props}
+    >
+      {showHeader && (
+        <div className="border-b border-white/10 dark:border-white/10 p-4">
+          <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+            {Array.from({ length: columns }).map((_, i) => (
+              <SkeletonBox key={i} height={20} animate={animate} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="p-4 space-y-3">
+        {Array.from({ length: rows }).map((_, rowIndex) => (
+          <div 
+            key={rowIndex} 
+            className="grid gap-4" 
+            style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+          >
+            {Array.from({ length: columns }).map((_, colIndex) => (
+              <SkeletonBox 
+                key={colIndex} 
+                height={16} 
+                className={cn(
+                  colIndex === 0 && 'w-3/4', // First column shorter for names/IDs
+                  colIndex === columns - 1 && 'w-1/2' // Last column shorter for actions
+                )}
+                animate={animate}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};

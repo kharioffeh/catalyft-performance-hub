@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
@@ -9,6 +8,7 @@ import { useIsMobile } from '@/hooks/useBreakpoint';
 import { useSupabaseHash } from '@/hooks/useSupabaseHash';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, RefreshCw } from 'lucide-react';
+import { SkeletonBox } from '@/components/skeleton/SkeletonBox';
 
 // Detect if current location is chat page
 function isChatRoute(pathname: string) {
@@ -44,14 +44,14 @@ const AppLayout: React.FC = () => {
     return 'default';
   };
 
-  // Loading state - show spinner while authentication is loading
+  // Loading state - show skeleton instead of spinner
   if (loading) {
     return (
       <GlassLayout variant={getLayoutVariant()}>
         <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/50 mx-auto"></div>
-            <p className="mt-4 text-white/70">Loading your account...</p>
+          <div className="text-center space-y-4">
+            <SkeletonBox width={200} height={48} className="mx-auto" />
+            <SkeletonBox width={160} height={16} className="mx-auto" />
           </div>
         </div>
       </GlassLayout>

@@ -8,7 +8,16 @@ import AppRouter from './components/AppRouter';
 import { Toaster } from './components/ui/toaster';
 import { GlassToastProvider } from './components/ui/GlassToastProvider';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      suspense: true,
+      staleTime: 30_000,
+      retry: 2,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
   return (
