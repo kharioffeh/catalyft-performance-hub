@@ -22,28 +22,28 @@ interface GlassToastProps {
 const getToastIcon = (type: ToastType) => {
   switch (type) {
     case 'success':
-      return <CheckCircle className="w-5 h-5 text-emerald-400" />;
+      return <CheckCircle className="w-5 h-5 text-theme-success" />;
     case 'error':
-      return <AlertCircle className="w-5 h-5 text-red-400" />;
+      return <AlertCircle className="w-5 h-5 text-theme-danger" />;
     case 'warning':
-      return <AlertTriangle className="w-5 h-5 text-amber-400" />;
+      return <AlertTriangle className="w-5 h-5 text-theme-warning" />;
     case 'info':
     default:
-      return <Info className="w-5 h-5 text-sky-400" />;
+      return <Info className="w-5 h-5 text-theme-info" />;
   }
 };
 
 const getToastColors = (type: ToastType) => {
   switch (type) {
     case 'success':
-      return 'border-emerald-400/30 bg-emerald-500/10';
+      return 'border-emerald-400/30 dark:border-emerald-400/50 bg-emerald-500/10 dark:bg-emerald-500/20';
     case 'error':
-      return 'border-red-400/30 bg-red-500/10';
+      return 'border-red-400/30 dark:border-red-400/50 bg-red-500/10 dark:bg-red-500/20';
     case 'warning':
-      return 'border-amber-400/30 bg-amber-500/10';
+      return 'border-amber-400/30 dark:border-amber-400/50 bg-amber-500/10 dark:bg-amber-500/20';
     case 'info':
     default:
-      return 'border-sky-400/30 bg-sky-500/10';
+      return 'border-sky-400/30 dark:border-sky-400/50 bg-sky-500/10 dark:bg-sky-500/20';
   }
 };
 
@@ -68,8 +68,9 @@ export const GlassToast: React.FC<GlassToastProps> = ({ toast, onDismiss }) => {
       exit={{ opacity: 0, y: 50, scale: 0.95 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
       className={cn(
-        'relative flex items-start gap-3 p-4 rounded-xl backdrop-blur-md border shadow-lg',
-        'bg-white/10 border-white/15 shadow-inner',
+        'relative flex items-start gap-3 p-4 rounded-xl backdrop-blur-md border shadow-glass-lg',
+        'bg-glass-card-light/80 dark:bg-glass-card-dark/90',
+        'border-white/15 dark:border-white/20',
         getToastColors(toast.type),
         'max-w-sm w-full pointer-events-auto'
       )}
@@ -83,11 +84,11 @@ export const GlassToast: React.FC<GlassToastProps> = ({ toast, onDismiss }) => {
       </div>
       
       <div className="flex-1 min-w-0">
-        <h4 className="text-sm font-semibold text-white mb-1">
+        <h4 className="text-sm font-semibold text-gray-800 dark:text-white mb-1">
           {toast.title}
         </h4>
         {toast.message && (
-          <p className="text-sm text-white/80 leading-relaxed">
+          <p className="text-sm text-gray-600 dark:text-white/80 leading-relaxed">
             {toast.message}
           </p>
         )}
@@ -95,15 +96,15 @@ export const GlassToast: React.FC<GlassToastProps> = ({ toast, onDismiss }) => {
 
       <button
         onClick={() => onDismiss(toast.id)}
-        className="flex-shrink-0 p-1 rounded-md hover:bg-white/10 transition-colors"
+        className="flex-shrink-0 p-1 rounded-md hover:bg-white/10 dark:hover:bg-white/20 transition-colors"
         aria-label="Dismiss notification"
       >
-        <X className="w-4 h-4 text-white/60 hover:text-white/80" />
+        <X className="w-4 h-4 text-gray-500 dark:text-white/60 hover:text-gray-700 dark:hover:text-white/80" />
       </button>
 
       {/* Progress bar */}
       <motion.div
-        className="absolute bottom-0 left-0 h-1 bg-white/20 rounded-b-xl"
+        className="absolute bottom-0 left-0 h-1 bg-white/20 dark:bg-white/30 rounded-b-xl"
         initial={{ width: '100%' }}
         animate={{ width: isPaused ? '100%' : '0%' }}
         transition={{ duration: isPaused ? 0 : duration / 1000, ease: 'linear' }}

@@ -24,7 +24,8 @@ export const GlassSkeleton: React.FC<GlassSkeletonProps> = ({
   return (
     <div
       className={cn(
-        'bg-white/5 backdrop-blur-sm border border-white/10',
+        'bg-glass-card-light/30 dark:bg-glass-card-dark/50',
+        'backdrop-blur-sm border border-white/10 dark:border-white/10',
         roundedClass,
         animate && 'animate-pulse',
         'relative overflow-hidden',
@@ -33,7 +34,7 @@ export const GlassSkeleton: React.FC<GlassSkeletonProps> = ({
       {...props}
     >
       {animate && (
-        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 dark:via-white/20 to-transparent" />
       )}
     </div>
   );

@@ -13,23 +13,23 @@ const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
     const getAccentClasses = () => {
       switch (accent) {
         case 'primary':
-          return 'border-indigo-400/40 bg-indigo-500/10';
+          return 'border-blue-400/40 dark:border-blue-400/60 bg-blue-500/10 dark:bg-blue-500/20';
         case 'secondary':
-          return 'border-purple-400/40 bg-purple-500/10';
+          return 'border-purple-400/40 dark:border-purple-400/60 bg-purple-500/10 dark:bg-purple-500/20';
         case 'success':
-          return 'border-emerald-400/40 bg-emerald-500/10';
+          return 'border-emerald-400/40 dark:border-emerald-400/60 bg-emerald-500/10 dark:bg-emerald-500/20';
         case 'warning':
-          return 'border-amber-400/40 bg-amber-500/10';
+          return 'border-amber-400/40 dark:border-amber-400/60 bg-amber-500/10 dark:bg-amber-500/20';
         case 'error':
-          return 'border-red-400/40 bg-red-500/10';
+          return 'border-red-400/40 dark:border-red-400/60 bg-red-500/10 dark:bg-red-500/20';
         case 'sleep':
-          return 'border-blue-400/30 hover:border-blue-400/50';
+          return 'border-blue-400/30 dark:border-blue-400/50 hover:border-blue-400/50 dark:hover:border-blue-400/70';
         case 'load':
-          return 'border-purple-400/30 hover:border-purple-400/50';
+          return 'border-purple-400/30 dark:border-purple-400/50 hover:border-purple-400/50 dark:hover:border-purple-400/70';
         case 'strain':
-          return 'border-orange-400/30 hover:border-orange-400/50';
+          return 'border-orange-400/30 dark:border-orange-400/50 hover:border-orange-400/50 dark:hover:border-orange-400/70';
         default:
-          return 'border-white/10 hover:border-white/20';
+          return 'border-white/10 dark:border-white/20 hover:border-white/20 dark:hover:border-white/30';
       }
     };
 
@@ -37,19 +37,23 @@ const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
       if (tone === 'flat') {
         return 'bg-transparent border-transparent shadow-none';
       }
-      return 'bg-white/5 backdrop-blur-lg border shadow-glass hover:bg-white/10';
+      return cn(
+        'bg-glass-card-light/60 dark:bg-glass-card-dark/80',
+        'backdrop-blur-lg border shadow-glass',
+        'hover:bg-glass-card-light/80 dark:hover:bg-glass-card-dark/90'
+      );
     };
 
     const getShadowLevel = () => {
       switch (shadowLevel) {
         case 'sm':
-          return 'shadow-sm';
+          return 'shadow-glass-sm';
         case 'lg':
-          return 'shadow-lg';
+          return 'shadow-glass-lg';
         case 'xl':
-          return 'shadow-xl';
+          return 'shadow-glass-xl';
         default:
-          return 'shadow-md';
+          return 'shadow-glass-md';
       }
     };
 

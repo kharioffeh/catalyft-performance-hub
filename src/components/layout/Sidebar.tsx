@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Disclosure, Transition } from '@headlessui/react';
@@ -20,44 +21,49 @@ import {
 import { getNavigationForRole } from '@/config/routes';
 import { NavigationGroup } from './NavigationGroup';
 import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils';
 
-interface SidebarProps {
-  isDarkTheme?: boolean;
-}
-
-export default function Sidebar({ isDarkTheme = false }: SidebarProps) {
+export default function Sidebar() {
   const { profile } = useAuth();
   const navigate = useNavigate();
 
   // Get navigation items based on user role
   const navigationItems = getNavigationForRole(profile?.role);
 
-  // Styling for dark glass effect on chat/aria page
-  const glassBg = isDarkTheme
-    ? "bg-black/40 border-gray-800/40 backdrop-blur-lg"
-    : "bg-slate-900/80 backdrop-blur-md";
+  // Theme-aware styling classes
+  const glassBg = cn(
+    "bg-glass-card-light/40 dark:bg-glass-card-dark/60",
+    "border-white/20 dark:border-white/10 backdrop-blur-lg"
+  );
   
-  const headerBg = isDarkTheme
-    ? "bg-black/40 backdrop-blur-lg border-gray-800/40"
-    : "bg-slate-900/80 backdrop-blur-md";
+  const headerBg = cn(
+    "bg-glass-card-light/40 dark:bg-glass-card-dark/60",
+    "backdrop-blur-lg border-white/20 dark:border-white/10"
+  );
   
-  const drawerBg = isDarkTheme
-    ? "bg-gradient-to-b from-black/60 via-gray-900/60 to-black/60 backdrop-blur-lg"
-    : "bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900";
+  const drawerBg = cn(
+    "bg-gradient-to-b from-surface-light/90 to-surface-light/80",
+    "dark:from-surface-dark/90 dark:to-surface-dark/80"
+  );
   
-  const desktopBg = isDarkTheme
-    ? "bg-gradient-to-b from-black/60 via-gray-900/60 to-black/60 backdrop-blur-lg border-gray-800/40"
-    : "bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900";
+  const desktopBg = cn(
+    "bg-gradient-to-b from-surface-light/90 to-surface-light/80",
+    "dark:from-surface-dark/90 dark:to-surface-dark/80",
+    "border-white/20 dark:border-white/10"
+  );
 
-  const activeBg = isDarkTheme
-    ? "bg-accent/30 text-white font-semibold border border-accent shadow-lg"
-    : "bg-indigo-600 text-white hover:bg-indigo-500";
+  const activeBg = cn(
+    "bg-theme-accent/20 text-gray-800 dark:text-white font-semibold",
+    "border border-theme-accent/30 shadow-glass-sm"
+  );
   
-  const inactiveText = isDarkTheme 
-    ? "text-white/80 hover:bg-black/30 hover:text-white" 
-    : "text-slate-300 hover:bg-slate-700/60 hover:text-white";
+  const inactiveText = cn(
+    "text-gray-700 dark:text-white/80",
+    "hover:bg-glass-card-light/60 dark:hover:bg-glass-card-dark/30",
+    "hover:text-gray-900 dark:hover:text-white"
+  );
 
-  const borderColor = isDarkTheme ? "border-gray-800/30" : "border-slate-700";
+  const borderColor = "border-white/20 dark:border-white/10";
 
   return (
     <>
@@ -65,9 +71,18 @@ export default function Sidebar({ isDarkTheme = false }: SidebarProps) {
       <Disclosure as="nav" className="lg:hidden">
         {({ open }) => (
           <>
-            <div className={`fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between px-4 ${headerBg} ${isDarkTheme ? 'border-b border-gray-800/40' : ''}`}>
-              <span className="font-semibold tracking-tight text-white">Catalyft</span>
-              <Disclosure.Button className="rounded-md p-2 text-slate-100 hover:bg-slate-800 focus:outline-none">
+            <div className={cn(
+              "fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between px-4",
+              headerBg,
+              "border-b"
+            )}>
+              <span className="font-semibold tracking-tight text-gray-800 dark:text-white">Catalyft</span>
+              <Disclosure.Button className={cn(
+                "rounded-md p-2 transition-colors",
+                "text-gray-700 dark:text-white/80",
+                "hover:bg-glass-card-light/60 dark:hover:bg-glass-card-dark/60",
+                "focus:outline-none"
+              )}>
                 {open ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
               </Disclosure.Button>
             </div>
@@ -82,7 +97,10 @@ export default function Sidebar({ isDarkTheme = false }: SidebarProps) {
             >
               <Disclosure.Panel
                 static
-                className={`fixed inset-y-0 left-0 z-30 w-60 overflow-y-auto pt-16 shadow-lg ${drawerBg}`}
+                className={cn(
+                  "fixed inset-y-0 left-0 z-30 w-60 overflow-y-auto pt-16 shadow-glass-lg",
+                  drawerBg
+                )}
               >
                 <NavList 
                   navigationItems={navigationItems} 
@@ -90,7 +108,6 @@ export default function Sidebar({ isDarkTheme = false }: SidebarProps) {
                   inactiveText={inactiveText}
                 />
                 <UserProfile 
-                  isDarkTheme={isDarkTheme} 
                   borderColor={borderColor} 
                   inactiveText={inactiveText}
                   profile={profile}
@@ -103,8 +120,12 @@ export default function Sidebar({ isDarkTheme = false }: SidebarProps) {
       </Disclosure>
 
       {/* ─── Desktop rail (≥ lg) ─── */}
-      <aside className={`hidden lg:flex lg:h-screen lg:w-60 lg:flex-col shadow-inner ${desktopBg} ${isDarkTheme ? 'border-r border-gray-800/40' : ''}`}>
-        <div className="flex items-center justify-center py-6 text-xl font-semibold text-white">
+      <aside className={cn(
+        "hidden lg:flex lg:h-screen lg:w-60 lg:flex-col shadow-glass-md",
+        desktopBg,
+        "border-r"
+      )}>
+        <div className="flex items-center justify-center py-6 text-xl font-semibold text-gray-800 dark:text-white">
           Catalyft
         </div>
         <NavList 
@@ -113,7 +134,6 @@ export default function Sidebar({ isDarkTheme = false }: SidebarProps) {
           inactiveText={inactiveText}
         />
         <UserProfile 
-          isDarkTheme={isDarkTheme} 
           borderColor={borderColor} 
           inactiveText={inactiveText}
           profile={profile}
@@ -147,47 +167,58 @@ function NavList({ navigationItems, activeBg, inactiveText }: NavListProps) {
 }
 
 interface UserProfileProps {
-  isDarkTheme: boolean;
   borderColor: string;
   inactiveText: string;
   profile: any;
   navigate: (path: string) => void;
 }
 
-function UserProfile({ isDarkTheme, borderColor, inactiveText, profile, navigate }: UserProfileProps) {
+function UserProfile({ borderColor, inactiveText, profile, navigate }: UserProfileProps) {
   return (
-    <div className={`mt-auto px-3 py-3 border-t ${borderColor}`}>
+    <div className={cn("mt-auto px-3 py-3 border-t", borderColor)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className={`w-full justify-start px-2 h-auto py-2 ${inactiveText} ${isDarkTheme ? 'hover:bg-black/30' : 'hover:bg-slate-700/60'} hover:text-white`}>
+          <Button variant="ghost" className={cn(
+            "w-full justify-start px-2 h-auto py-2",
+            inactiveText,
+            "hover:text-gray-900 dark:hover:text-white"
+          )}>
             <Avatar className="mr-3 w-8 h-8 flex-shrink-0">
               <AvatarImage src="" />
-              <AvatarFallback className={`${isDarkTheme ? 'bg-black/40 border border-gray-800/40' : 'bg-white/20'} text-white backdrop-blur-md`}>
+              <AvatarFallback className={cn(
+                "bg-glass-card-light/60 dark:bg-glass-card-dark/80",
+                "border border-white/20 dark:border-white/10",
+                "text-gray-800 dark:text-white backdrop-blur-md"
+              )}>
                 {profile?.full_name?.substring(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col text-left truncate min-w-0">
               <span className="text-sm font-medium truncate">{profile?.full_name}</span>
-              <span className="text-xs text-white/60 truncate">{profile?.email}</span>
+              <span className="text-xs text-gray-500 dark:text-white/60 truncate">{profile?.email}</span>
             </div>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent 
-          className={`w-56 ${isDarkTheme ? 'bg-black/40 border border-gray-800/40 backdrop-blur-lg' : 'bg-slate-800/90 border border-slate-700 backdrop-blur-md'} shadow-xl`} 
+          className={cn(
+            "w-56 shadow-glass-lg",
+            "bg-glass-card-light/90 dark:bg-glass-card-dark/90",
+            "border border-white/20 dark:border-white/10 backdrop-blur-md"
+          )} 
           align="end" 
           forceMount
         >
-          <DropdownMenuLabel className="text-white">My Account</DropdownMenuLabel>
+          <DropdownMenuLabel className="text-gray-800 dark:text-white">My Account</DropdownMenuLabel>
           <DropdownMenuSeparator className={borderColor} />
           <DropdownMenuItem 
             onClick={() => navigate('/settings')}
-            className="text-white/80 hover:bg-black/10 hover:text-white focus:bg-black/10 focus:text-white"
+            className="text-gray-700 dark:text-white/80 hover:bg-glass-card-light/60 dark:hover:bg-glass-card-dark/30 hover:text-gray-900 dark:hover:text-white focus:bg-glass-card-light/60 dark:focus:bg-glass-card-dark/30 focus:text-gray-900 dark:focus:text-white"
           >
             Settings
           </DropdownMenuItem>
           <DropdownMenuItem 
             onClick={() => navigate('/subscriptions')}
-            className="text-white/80 hover:bg-black/10 hover:text-white focus:bg-black/10 focus:text-white"
+            className="text-gray-700 dark:text-white/80 hover:bg-glass-card-light/60 dark:hover:bg-glass-card-dark/30 hover:text-gray-900 dark:hover:text-white focus:bg-glass-card-light/60 dark:focus:bg-glass-card-dark/30 focus:text-gray-900 dark:focus:text-white"
           >
             Subscription
           </DropdownMenuItem>
@@ -197,7 +228,7 @@ function UserProfile({ isDarkTheme, borderColor, inactiveText, profile, navigate
               supabase.auth.signOut();
               navigate('/login');
             }}
-            className="text-white/80 hover:bg-black/10 hover:text-white focus:bg-black/10 focus:text-white"
+            className="text-gray-700 dark:text-white/80 hover:bg-glass-card-light/60 dark:hover:bg-glass-card-dark/30 hover:text-gray-900 dark:hover:text-white focus:bg-glass-card-light/60 dark:focus:bg-glass-card-dark/30 focus:text-gray-900 dark:focus:text-white"
           >
             Logout
           </DropdownMenuItem>

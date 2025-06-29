@@ -7,24 +7,25 @@ import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/useBreakpoint';
 import { NotificationBell } from '@/components/NotificationBell';
 import { useTimezoneDetection } from '@/hooks/useTimezoneDetection';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { cn } from '@/lib/utils';
 
-// Accept isDarkTheme prop
-export const TopBar: React.FC<{ isDarkTheme?: boolean }> = ({ isDarkTheme = false }) => {
+export const TopBar: React.FC = () => {
   const { profile, signOut } = useAuth();
   const isMobile = useIsMobile();
   
   // Initialize timezone detection
   useTimezoneDetection();
 
-  // glass class based on theme
-  const glass = isDarkTheme
-    ? "bg-black/40 backdrop-blur-lg border-b border-gray-900/60 shadow-xl"
-    : "bg-white/10 backdrop-blur-md border-b border-white/20 shadow-lg";
-
   return (
-    <header className={`h-16 ${glass} flex items-center justify-between px-4 md:px-6`}>
+    <header className={cn(
+      "h-16 flex items-center justify-between px-4 md:px-6",
+      "bg-glass-card-light/40 dark:bg-glass-card-dark/60",
+      "backdrop-blur-lg border-b border-white/20 dark:border-white/10",
+      "shadow-glass-sm"
+    )}>
       <div className="flex items-center space-x-4">
-        <h1 className="text-lg md:text-xl font-semibold text-white">
+        <h1 className="text-lg md:text-xl font-semibold text-gray-800 dark:text-white">
           Catalyft AI
         </h1>
         {/* Show readiness badge on desktop only */}
@@ -35,18 +36,25 @@ export const TopBar: React.FC<{ isDarkTheme?: boolean }> = ({ isDarkTheme = fals
         {/* Notification Bell */}
         <NotificationBell />
         
+        {/* Theme Toggle */}
+        <ThemeToggle />
+        
         {!isMobile && (
-          <span className="text-sm text-white/80">
+          <span className="text-sm text-gray-600 dark:text-white/80">
             {profile?.full_name || 'User'}
             {profile?.role && (
-              <span className="ml-2 text-xs text-white/60 capitalize">
+              <span className="ml-2 text-xs text-gray-500 dark:text-white/60 capitalize">
                 ({profile.role})
               </span>
             )}
           </span>
         )}
         <Avatar className="h-8 w-8 md:h-10 md:w-10">
-          <AvatarFallback className="bg-white/20 text-white backdrop-blur-md">
+          <AvatarFallback className={cn(
+            "bg-glass-card-light/60 dark:bg-glass-card-dark/80",
+            "text-gray-800 dark:text-white backdrop-blur-md",
+            "border border-white/20 dark:border-white/10"
+          )}>
             {profile?.full_name?.charAt(0) || 'U'}
           </AvatarFallback>
         </Avatar>
@@ -54,7 +62,13 @@ export const TopBar: React.FC<{ isDarkTheme?: boolean }> = ({ isDarkTheme = fals
           variant="outline" 
           onClick={signOut} 
           size="sm"
-          className={`min-h-[44px] md:min-h-auto active:opacity-80 ${isDarkTheme ? "bg-black/30 hover:bg-black/50 border-gray-900/40" : "bg-white/20 hover:bg-white/30 border-white/30"} text-white backdrop-blur-md`}
+          className={cn(
+            "min-h-[44px] md:min-h-auto active:opacity-80",
+            "bg-glass-card-light/60 dark:bg-glass-card-dark/80",
+            "hover:bg-glass-card-light/80 dark:hover:bg-glass-card-dark/90",
+            "border-white/30 dark:border-white/20",
+            "text-gray-800 dark:text-white backdrop-blur-md"
+          )}
         >
           Sign Out
         </Button>

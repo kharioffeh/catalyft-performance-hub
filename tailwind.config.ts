@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -62,15 +63,57 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
+				// Legacy colors
 				'badge-kai': '#5BAFFF',
 				'badge-coach': '#A8A8A8',
 				'row-alt': '#FAFAFA',
 				'chart-green': '#4ade80',
 				'chart-blue': '#60a5fa',
 				'chart-purple': '#c084fc',
-				// New glass morphism design tokens
-				surface: 'rgba(30, 34, 44, 0.45)',
-				stroke: 'rgba(255, 255, 255, 0.08)'
+				// Glass morphism design tokens
+				surface: {
+					light: 'rgba(249, 249, 251, 0.9)',
+					dark: 'rgba(15, 17, 23, 0.9)'
+				},
+				'glass-card': {
+					light: 'rgba(255, 255, 255, 0.6)',
+					dark: 'rgba(255, 255, 255, 0.08)'
+				},
+				'glass-primary': {
+					light: 'rgba(99, 102, 241, 0.1)',
+					dark: 'rgba(99, 102, 241, 0.2)'
+				},
+				'glass-secondary': {
+					light: 'rgba(139, 92, 246, 0.1)',
+					dark: 'rgba(139, 92, 246, 0.2)'
+				},
+				// Semantic colors
+				'theme-accent': '#00ff7b',
+				'theme-danger': '#f43f5e',
+				'theme-info': '#38bdf8',
+				'theme-success': '#22c55e',
+				'theme-warning': '#fbbf24',
+				// Chart colors with light/dark variants
+				'chart-emerald': {
+					light: '#10b981',
+					dark: '#34d399'
+				},
+				'chart-sky': {
+					light: '#0ea5e9',
+					dark: '#38bdf8'
+				},
+				'chart-violet': {
+					light: '#8b5cf6',
+					dark: '#a78bfa'
+				},
+				'chart-amber': {
+					light: '#f59e0b',
+					dark: '#fbbf24'
+				},
+				'chart-rose': {
+					light: '#f43f5e',
+					dark: '#fb7185'
+				}
 			},
 			boxShadow: {
 				card: '0 2px 6px rgba(0,0,0,0.06)',
@@ -110,6 +153,9 @@ export default {
 					}
 				},
 				shimmer: {
+					'0%': {
+						transform: 'translateX(-100%)'
+					},
 					'100%': {
 						transform: 'translateX(100%)'
 					}

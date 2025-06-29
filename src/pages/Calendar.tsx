@@ -14,6 +14,7 @@ import { useIsMobile } from '@/hooks/useBreakpoint';
 import clsx from 'clsx';
 import { getEventColor } from '@/utils/calendarUtils';
 import '@/styles/fullcalendar-glass.css';
+import { cn } from '@/lib/utils';
 
 const Calendar: React.FC = () => {
   const { profile } = useAuth();
@@ -27,17 +28,17 @@ const Calendar: React.FC = () => {
     
     switch (type) {
       case 'strength':
-        return clsx(baseClasses, "bg-green-500/10 border-green-500/35 text-green-400");
+        return clsx(baseClasses, "bg-green-500/10 dark:bg-green-500/20 border-green-500/35 dark:border-green-500/50 text-green-600 dark:text-green-400");
       case 'technical':
-        return clsx(baseClasses, "bg-blue-500/10 border-blue-500/35 text-blue-400");
+        return clsx(baseClasses, "bg-blue-500/10 dark:bg-blue-500/20 border-blue-500/35 dark:border-blue-500/50 text-blue-600 dark:text-blue-400");
       case 'recovery':
-        return clsx(baseClasses, "bg-pink-500/10 border-pink-500/35 text-pink-400");
+        return clsx(baseClasses, "bg-pink-500/10 dark:bg-pink-500/20 border-pink-500/35 dark:border-pink-500/50 text-pink-600 dark:text-pink-400");
       case 'conditioning':
-        return clsx(baseClasses, "bg-orange-500/10 border-orange-500/35 text-orange-400");
+        return clsx(baseClasses, "bg-orange-500/10 dark:bg-orange-500/20 border-orange-500/35 dark:border-orange-500/50 text-orange-600 dark:text-orange-400");
       case 'assessment':
-        return clsx(baseClasses, "bg-purple-500/10 border-purple-500/35 text-purple-400");
+        return clsx(baseClasses, "bg-purple-500/10 dark:bg-purple-500/20 border-purple-500/35 dark:border-purple-500/50 text-purple-600 dark:text-purple-400");
       default:
-        return clsx(baseClasses, "bg-gray-500/10 border-gray-500/35 text-gray-400");
+        return clsx(baseClasses, "bg-gray-500/10 dark:bg-gray-500/20 border-gray-500/35 dark:border-gray-500/50 text-gray-600 dark:text-gray-400");
     }
   };
 
@@ -63,8 +64,8 @@ const Calendar: React.FC = () => {
       <div className="space-y-4 md:space-y-6">
         <GlassContainer>
           <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-white/10 rounded w-1/3"></div>
-            <div className="h-64 bg-white/10 rounded"></div>
+            <div className="h-8 bg-glass-card-light/30 dark:bg-glass-card-dark/50 rounded w-1/3"></div>
+            <div className="h-64 bg-glass-card-light/30 dark:bg-glass-card-dark/50 rounded"></div>
           </div>
         </GlassContainer>
       </div>
@@ -76,8 +77,8 @@ const Calendar: React.FC = () => {
       <GlassContainer>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <CalendarIcon className="w-6 h-6 md:w-8 md:h-8 text-white" />
-            <h1 className="text-2xl md:text-3xl font-bold text-white">Training Calendar</h1>
+            <CalendarIcon className="w-6 h-6 md:w-8 md:h-8 text-gray-800 dark:text-white" />
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Training Calendar</h1>
           </div>
           {profile?.role === 'coach' && (
             <GlassButton
@@ -116,10 +117,16 @@ const Calendar: React.FC = () => {
 
             return (
               <div 
-                className="flex flex-col h-full min-h-[120px] bg-white/5 backdrop-blur-sm rounded-xl p-2 cursor-pointer border border-white/10 hover:bg-white/10 transition-all duration-200"
+                className={cn(
+                  "flex flex-col h-full min-h-[120px] cursor-pointer transition-all duration-200",
+                  "bg-glass-card-light/30 dark:bg-glass-card-dark/50",
+                  "backdrop-blur-sm rounded-xl p-2",
+                  "border border-white/10 dark:border-white/10",
+                  "hover:bg-glass-card-light/50 dark:hover:bg-glass-card-dark/70"
+                )}
                 onClick={() => setSelectedDate(arg.date)}
               >
-                <span className="text-xs ml-auto text-white/80 font-medium mb-2">
+                <span className="text-xs ml-auto text-gray-700 dark:text-white/80 font-medium mb-2">
                   {arg.dayNumberText}
                 </span>
                 <div className="flex flex-col gap-1 flex-1">
@@ -132,7 +139,7 @@ const Calendar: React.FC = () => {
                     </span>
                   ))}
                   {dayEvents.length > 3 && (
-                    <span className="text-[10px] text-white/50 mt-1">
+                    <span className="text-[10px] text-gray-500 dark:text-white/50 mt-1">
                       + {dayEvents.length - 3} more
                     </span>
                   )}
