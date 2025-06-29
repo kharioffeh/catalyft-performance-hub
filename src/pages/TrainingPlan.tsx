@@ -7,6 +7,7 @@ import { useAthleteType } from '@/hooks/useAthleteType';
 import { SkeletonCard } from '@/components/skeleton/SkeletonCard';
 import { SkeletonBox } from '@/components/skeleton/SkeletonBox';
 import { SuspenseWrapper } from '@/components/ui/SuspenseWrapper';
+import { TrainingPlanKpiCards } from '@/components/training-plan/TrainingPlanKpiCards';
 
 const TrainingPlanContent: React.FC = () => {
   const { profile } = useAuth();
@@ -45,6 +46,9 @@ const TrainingPlan: React.FC = () => {
           <h1 className="text-4xl font-bold text-white mb-2">Training Plan</h1>
           <p className="text-white/70">Your personalized training schedule</p>
         </div>
+
+        {/* KPI Cards */}
+        <TrainingPlanKpiCards />
 
         {/* Calendar */}
         <SuspenseWrapper fallback={calendarSkeleton}>

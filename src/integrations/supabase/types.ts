@@ -2535,6 +2535,14 @@ export type Database = {
         Args: { "": unknown[] }
         Returns: number
       }
+      training_plan_kpis: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          templates: number
+          active_programs: number
+          total_sessions: number
+        }[]
+      }
       update_athlete_metrics_cache: {
         Args: Record<PropertyKey, never>
         Returns: undefined
