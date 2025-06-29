@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
@@ -9,6 +10,7 @@ import { useSupabaseHash } from '@/hooks/useSupabaseHash';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { SkeletonBox } from '@/components/skeleton/SkeletonBox';
+import { CommandPalette } from '@/components/CommandPalette';
 
 // Detect if current location is chat page
 function isChatRoute(pathname: string) {
@@ -96,19 +98,21 @@ const AppLayout: React.FC = () => {
   }
 
   return (
-    <GlassLayout variant={getLayoutVariant()}>
-      <div className="min-h-screen flex w-full">
-        {/* New unified sidebar for both mobile and desktop */}
-        <Sidebar />
-        
-        <div className={`flex-1 flex flex-col min-w-0 ${isMobile ? 'pt-14' : ''}`}>
-          {!isMobile && <TopBar />}
-          <main className="flex-1 p-4 md:p-6 overflow-auto">
-            <Outlet />
-          </main>
+    <CommandPalette>
+      <GlassLayout variant={getLayoutVariant()}>
+        <div className="min-h-screen flex w-full">
+          {/* New unified sidebar for both mobile and desktop */}
+          <Sidebar />
+          
+          <div className={`flex-1 flex flex-col min-w-0 ${isMobile ? 'pt-14' : ''}`}>
+            {!isMobile && <TopBar />}
+            <main className="flex-1 p-4 md:p-6 overflow-auto">
+              <Outlet />
+            </main>
+          </div>
         </div>
-      </div>
-    </GlassLayout>
+      </GlassLayout>
+    </CommandPalette>
   );
 };
 
