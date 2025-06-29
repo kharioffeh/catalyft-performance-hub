@@ -6,11 +6,10 @@ interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
   accent?: 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'sleep' | 'load' | 'strain';
   tone?: 'glass' | 'flat';
   shadowLevel?: 'sm' | 'md' | 'lg' | 'xl';
-  as?: keyof JSX.IntrinsicElements;
 }
 
 const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
-  ({ className, accent, tone = 'glass', shadowLevel = 'md', as: Component = 'div', children, ...props }, ref) => {
+  ({ className, accent, tone = 'glass', shadowLevel = 'md', children, ...props }, ref) => {
     const getAccentClasses = () => {
       switch (accent) {
         case 'primary':
@@ -55,7 +54,7 @@ const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
     };
 
     return (
-      <Component
+      <div
         ref={ref}
         className={cn(
           'rounded-xl transition-all duration-300',
@@ -67,7 +66,7 @@ const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
         {...props}
       >
         {children}
-      </Component>
+      </div>
     );
   }
 );
