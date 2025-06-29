@@ -68,7 +68,7 @@ export const navigationItems = [
   },
 ];
 
-// Role-specific navigation arrays for mobile and sidebar components
+// Role-specific navigation arrays for the new unified sidebar component
 export const coachNavigation = [
   {
     label: 'Dashboard',

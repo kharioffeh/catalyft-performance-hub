@@ -2,8 +2,7 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
-import Sidebar from '@/components/Sidebar';
-import { MobileNav } from '@/components/MobileNav';
+import Sidebar from '@/components/layout/Sidebar';
 import { TopBar } from '@/components/TopBar';
 import { GlassLayout } from '@/components/Glass/GlassLayout';
 import { useIsMobile } from '@/hooks/useBreakpoint';
@@ -101,24 +100,15 @@ const AppLayout: React.FC = () => {
   return (
     <GlassLayout variant={getLayoutVariant()}>
       <div className="min-h-screen flex w-full">
-        {/* Desktop Sidebar */}
-        {!isMobile && (
-          <div className="w-64 flex-shrink-0">
-            <div className="fixed top-0 left-0 w-64 h-full">
-              <Sidebar isDarkTheme={isDarkTheme} />
-            </div>
-          </div>
-        )}
+        {/* New unified sidebar for both mobile and desktop */}
+        <Sidebar isDarkTheme={isDarkTheme} />
         
-        <div className={`flex-1 flex flex-col min-w-0 ${isMobile ? 'pb-16' : ''}`}>
-          <TopBar isDarkTheme={isDarkTheme} />
+        <div className={`flex-1 flex flex-col min-w-0 ${isMobile ? 'pt-14' : ''}`}>
+          {!isMobile && <TopBar isDarkTheme={isDarkTheme} />}
           <main className="flex-1 p-4 md:p-6 overflow-auto">
             <Outlet />
           </main>
         </div>
-        
-        {/* Mobile Navigation */}
-        {isMobile && <MobileNav />}
       </div>
     </GlassLayout>
   );
