@@ -25,8 +25,8 @@ export const SkeletonBox: React.FC<SkeletonBoxProps> = ({
   return (
     <div
       className={cn(
-        'bg-gray-200/30 dark:bg-gray-700/30',
-        'border border-gray-200/50 dark:border-gray-600/50',
+        'bg-white/5 dark:bg-white/5',
+        'border border-white/10 dark:border-white/10',
         'rounded-lg relative overflow-hidden',
         animate && 'animate-skeleton-fade',
         className
