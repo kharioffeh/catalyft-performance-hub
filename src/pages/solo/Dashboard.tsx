@@ -15,8 +15,10 @@ import { SkeletonCard } from '@/components/skeleton/SkeletonCard';
 import { SkeletonBox } from '@/components/skeleton/SkeletonBox';
 import { SkeletonChart } from '@/components/skeleton/SkeletonChart';
 import { SuspenseWrapper } from '@/components/ui/SuspenseWrapper';
+import { AnimatedCard } from '@/components/ui/AnimatedCard';
+import { LoadingButton } from '@/components/ui/LoadingButton';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Activity, Zap, Target, Smartphone } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 const ReadinessCard: React.FC<{ profileId: string }> = ({ profileId }) => {
   const { currentReadiness } = useDashboardData(profileId);
@@ -47,7 +49,11 @@ const ReadinessCard: React.FC<{ profileId: string }> = ({ profileId }) => {
           <p className="text-white/60 text-sm mt-1">Today's score</p>
         </div>
       ) : (
-        <div className="text-3xl font-bold text-white/40">—</div>
+        <EmptyState
+          icon={Activity}
+          title="No readiness data"
+          description="Connect your wearable to see readiness scores"
+        />
       )}
     </GlassCard>
   );
@@ -98,9 +104,13 @@ const SoloDashboard: React.FC = () => {
   const { data: wearableStatus } = useWearableStatus(profile?.id);
   const { data: insights } = useAriaInsights();
   const [showConnectModal, setShowConnectModal] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
 
-  const handleWearableConnected = () => {
-    // Refresh the page data after successful connection
+  const handleWearableConnected = async () => {
+    setIsConnecting(true);
+    // Simulate connection process
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setIsConnecting(false);
     window.location.reload();
   };
 
@@ -116,60 +126,76 @@ const SoloDashboard: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-          <p className="text-white/70">Your daily overview</p>
-        </div>
+        <AnimatedCard>
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
+            <p className="text-white/70">Your daily overview</p>
+          </div>
+        </AnimatedCard>
 
         {/* Wearable Connection Banner */}
         {!wearableStatus?.wearable_connected && (
-          <GlassCard className="flex items-center justify-between p-6 mb-6 bg-indigo-500/10 border-indigo-400/30">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-indigo-500/20 rounded-lg">
-                <Smartphone className="w-6 h-6 text-indigo-400" />
+          <AnimatedCard delay={0.1}>
+            <GlassCard className="flex items-center justify-between p-6 mb-6 bg-indigo-500/10 border-indigo-400/30">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-indigo-500/20 rounded-lg">
+                  <Smartphone className="w-6 h-6 text-indigo-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-white">Connect your wearable</h3>
+                  <p className="text-sm text-white/70">
+                    Link Whoop or Apple Health so ARIA can personalise your program.
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg font-medium text-white">Connect your wearable</h3>
-                <p className="text-sm text-white/70">
-                  Link Whoop or Apple Health so ARIA can personalise your program.
-                </p>
-              </div>
-            </div>
-            <Button 
-              onClick={() => setShowConnectModal(true)}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white"
-            >
-              Connect Device
-            </Button>
-          </GlassCard>
+              <LoadingButton 
+                loading={isConnecting}
+                loadingText="Connecting..."
+                onClick={() => setShowConnectModal(true)}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
+                Connect Device
+              </LoadingButton>
+            </GlassCard>
+          </AnimatedCard>
         )}
 
         {/* Responsive Grid */}
         <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 auto-rows-[minmax(120px,auto)]">
           {/* Readiness Card */}
-          <SuspenseWrapper fallback={<SkeletonCard className="bg-blue-500/10 border-blue-400/30" />}>
-            <ReadinessCard profileId={profile.id} />
-          </SuspenseWrapper>
+          <AnimatedCard delay={0.2}>
+            <SuspenseWrapper fallback={<SkeletonCard className="bg-blue-500/10 border-blue-400/30" />}>
+              <ReadinessCard profileId={profile.id} />
+            </SuspenseWrapper>
+          </AnimatedCard>
 
           {/* Last Session Load Card */}
-          <SuspenseWrapper fallback={<SkeletonCard className="bg-purple-500/10 border-purple-400/30" />}>
-            <LastSessionCard />
-          </SuspenseWrapper>
+          <AnimatedCard delay={0.3}>
+            <SuspenseWrapper fallback={<SkeletonCard className="bg-purple-500/10 border-purple-400/30" />}>
+              <LastSessionCard />
+            </SuspenseWrapper>
+          </AnimatedCard>
 
           {/* ACWR Dial Card */}
-          <SuspenseWrapper fallback={<SkeletonChart className="bg-orange-500/10 border-orange-400/30 h-48" showAxes={false} />}>
-            <ACWRCard />
-          </SuspenseWrapper>
+          <AnimatedCard delay={0.4}>
+            <SuspenseWrapper fallback={<SkeletonChart className="bg-orange-500/10 border-orange-400/30 h-48" showAxes={false} />}>
+              <ACWRCard />
+            </SuspenseWrapper>
+          </AnimatedCard>
 
           {/* ARIA Insights Card */}
-          <SuspenseWrapper fallback={<SkeletonCard contentLines={4} />}>
-            <AriaInsightsCard data={insights} loading={false} />
-          </SuspenseWrapper>
+          <AnimatedCard delay={0.5}>
+            <SuspenseWrapper fallback={<SkeletonCard contentLines={4} />}>
+              <AriaInsightsCard data={insights} loading={false} />
+            </SuspenseWrapper>
+          </AnimatedCard>
 
           {/* Heat Map Card - spans 2 rows on large screens */}
-          <SuspenseWrapper fallback={<SkeletonChart className="lg:col-span-2 h-64" showAxes={false} />}>
-            <HeatMapCard athleteId={profile.id} />
-          </SuspenseWrapper>
+          <AnimatedCard delay={0.6} className="lg:col-span-2">
+            <SuspenseWrapper fallback={<SkeletonChart className="h-64" showAxes={false} />}>
+              <HeatMapCard athleteId={profile.id} />
+            </SuspenseWrapper>
+          </AnimatedCard>
         </div>
 
         {/* Connect Wearable Modal */}

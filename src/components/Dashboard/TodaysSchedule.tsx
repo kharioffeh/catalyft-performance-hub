@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import GlassCard from '@/components/ui/GlassCard';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface TodaysScheduleProps {
   todaySessions: any[];
@@ -20,11 +21,11 @@ export const TodaysSchedule: React.FC<TodaysScheduleProps> = ({ todaySessions })
       <p className="text-sm text-white/60 mb-6">Your planned training sessions for today</p>
       
       {todaySessions.length === 0 ? (
-        <div className="text-center py-8 text-white/50">
-          <Calendar className="w-12 h-12 mx-auto mb-4 text-white/30" />
-          <p className="text-white/70">No sessions scheduled for today</p>
-          <p className="text-sm text-white/50">Perfect time for recovery and preparation</p>
-        </div>
+        <EmptyState
+          icon={Calendar}
+          title="No sessions scheduled"
+          description="Perfect time for recovery and preparation"
+        />
       ) : (
         <div className="space-y-3">
           {todaySessions.map((session) => (

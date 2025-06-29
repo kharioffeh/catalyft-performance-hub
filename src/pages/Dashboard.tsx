@@ -14,6 +14,7 @@ import { useAthleteType } from '@/hooks/useAthleteType';
 import { SkeletonCard } from '@/components/skeleton/SkeletonCard';
 import { SkeletonBox } from '@/components/skeleton/SkeletonBox';
 import { SuspenseWrapper } from '@/components/ui/SuspenseWrapper';
+import { AnimatedCard } from '@/components/ui/AnimatedCard';
 import SoloDashboard from '@/pages/solo/Dashboard';
 
 const AthleteTypeLoader: React.FC = () => {
@@ -40,43 +41,53 @@ const AthleteTypeLoader: React.FC = () => {
     );
   }
 
-  // Coach Dashboard - New glass morphism layout
+  // Coach Dashboard - New glass morphism layout with animations
   return (
     <div className="mx-auto w-full max-w-7xl p-4 md:p-8 grid gap-4 md:gap-6 lg:grid-cols-[340px_1fr]">
       {/* Left Column */}
       <div className="space-y-6">
         {/* Vertical Metric Cards */}
-        <SuspenseWrapper fallback={<SkeletonCard className="h-80" contentLines={4} />}>
-          <VerticalMetricCards 
-            currentReadiness={currentReadiness}
-            todaySessions={todaySessions}
-            weeklyStats={weeklyStats}
-            injuryRisk={injuryRisk}
-          />
-        </SuspenseWrapper>
+        <AnimatedCard delay={0.1}>
+          <SuspenseWrapper fallback={<SkeletonCard className="h-80" contentLines={4} />}>
+            <VerticalMetricCards 
+              currentReadiness={currentReadiness}
+              todaySessions={todaySessions}
+              weeklyStats={weeklyStats}
+              injuryRisk={injuryRisk}
+            />
+          </SuspenseWrapper>
+        </AnimatedCard>
         
         {/* Quick Actions Card */}
-        <SuspenseWrapper fallback={<SkeletonCard className="h-48" />}>
-          <QuickActionsCard userRole={profile?.role} />
-        </SuspenseWrapper>
+        <AnimatedCard delay={0.2}>
+          <SuspenseWrapper fallback={<SkeletonCard className="h-48" />}>
+            <QuickActionsCard userRole={profile?.role} />
+          </SuspenseWrapper>
+        </AnimatedCard>
       </div>
 
       {/* Right Column */}
       <div className="space-y-6">
         {/* Today's Schedule */}
-        <SuspenseWrapper fallback={<SkeletonCard className="h-64" contentLines={3} />}>
-          <TodaysSchedule todaySessions={todaySessions} />
-        </SuspenseWrapper>
+        <AnimatedCard delay={0.3}>
+          <SuspenseWrapper fallback={<SkeletonCard className="h-64" contentLines={3} />}>
+            <TodaysSchedule todaySessions={todaySessions} />
+          </SuspenseWrapper>
+        </AnimatedCard>
 
         {/* ARIA Insights */}
-        <SuspenseWrapper fallback={<SkeletonCard className="h-64" contentLines={4} />}>
-          <AriaSummary />
-        </SuspenseWrapper>
+        <AnimatedCard delay={0.4}>
+          <SuspenseWrapper fallback={<SkeletonCard className="h-64" contentLines={4} />}>
+            <AriaSummary />
+          </SuspenseWrapper>
+        </AnimatedCard>
 
         {/* Injury Risk Forecast */}
-        <SuspenseWrapper fallback={<SkeletonCard className="h-64" contentLines={3} />}>
-          <InjuryForecastCard />
-        </SuspenseWrapper>
+        <AnimatedCard delay={0.5}>
+          <SuspenseWrapper fallback={<SkeletonCard className="h-64" contentLines={3} />}>
+            <InjuryForecastCard />
+          </SuspenseWrapper>
+        </AnimatedCard>
       </div>
     </div>
   );

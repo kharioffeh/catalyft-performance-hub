@@ -25,10 +25,10 @@ export const SkeletonBox: React.FC<SkeletonBoxProps> = ({
   return (
     <div
       className={cn(
-        'bg-glass-card-light/60 dark:bg-glass-card-dark/80',
-        'border border-white/10 dark:border-white/20',
+        'bg-white/5 dark:bg-white/5 backdrop-blur-sm',
+        'border border-white/10 dark:border-white/10',
         'rounded-lg relative overflow-hidden',
-        animate && 'animate-skeleton-fade',
+        animate && 'animate-pulse motion-reduce:animate-none',
         className
       )}
       style={combinedStyle}

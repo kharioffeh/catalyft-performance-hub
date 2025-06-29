@@ -7,6 +7,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import AppRouter from './components/AppRouter';
 import { Toaster } from './components/ui/toaster';
 import { GlassToastProvider } from './components/ui/GlassToastProvider';
+import { RouteProgress } from './components/ui/RouteProgress';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,6 +27,7 @@ function App() {
           <GlassToastProvider>
             <Toaster />
             <Router>
+              <RouteProgress />
               <AppRouter />
             </Router>
           </GlassToastProvider>
