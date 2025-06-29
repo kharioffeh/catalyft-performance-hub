@@ -25,8 +25,8 @@ export const SkeletonBox: React.FC<SkeletonBoxProps> = ({
   return (
     <div
       className={cn(
-        'bg-glass-card-light/30 dark:bg-glass-card-dark/50',
-        'backdrop-blur-sm border border-white/10 dark:border-white/10',
+        'bg-white/5 dark:bg-white/10',
+        'border border-white/5 dark:border-white/10',
         'rounded-lg relative overflow-hidden',
         animate && 'animate-pulse',
         className
@@ -38,7 +38,7 @@ export const SkeletonBox: React.FC<SkeletonBoxProps> = ({
       {...props}
     >
       {animate && (
-        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 dark:via-white/20 to-transparent" />
+        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/5 dark:via-white/10 to-transparent" />
       )}
     </div>
   );
