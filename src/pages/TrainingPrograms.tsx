@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTemplates, useDeleteTemplate } from '@/hooks/useTemplates';
@@ -10,6 +9,7 @@ import { TrainingProgramsHeader } from '@/components/TrainingPrograms/TrainingPr
 import { TrainingProgramsStats } from '@/components/TrainingPrograms/TrainingProgramsStats';
 import { TrainingProgramsTabs } from '@/components/TrainingPrograms/TrainingProgramsTabs';
 import { TrainingProgramsModals } from '@/components/TrainingPrograms/TrainingProgramsModals';
+import { GlassCard } from '@/components/ui';
 import { toast } from '@/hooks/use-toast';
 
 const TrainingPrograms = () => {
@@ -89,33 +89,42 @@ const TrainingPrograms = () => {
   const totalExercises = exercises.length;
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
-      <TrainingProgramsHeader 
-        isCoach={isCoach}
-        onCreateTemplate={handleCreateTemplate}
-      />
+    <div className="space-y-6 p-4 md:p-8">
+      {/* Header Card */}
+      <GlassCard className="p-6">
+        <TrainingProgramsHeader 
+          isCoach={isCoach}
+          onCreateTemplate={handleCreateTemplate}
+        />
+      </GlassCard>
 
-      <TrainingProgramsStats
-        totalTemplates={totalTemplates}
-        activePrograms={activePrograms}
-        totalExercises={totalExercises}
-      />
+      {/* Stats Card */}
+      <GlassCard className="p-6">
+        <TrainingProgramsStats
+          totalTemplates={totalTemplates}
+          activePrograms={activePrograms}
+          totalExercises={totalExercises}
+        />
+      </GlassCard>
 
-      <TrainingProgramsTabs
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        templates={templates}
-        workoutTemplates={workoutTemplates}
-        isCoach={isCoach}
-        isSolo={isSolo}
-        deleteLoading={deleteTemplate.isPending}
-        onView={handleViewTemplate}
-        onEdit={handleEditTemplate}
-        onDelete={handleDeleteTemplate}
-        onAssignTemplate={handleAssignTemplate}
-        onCreateTemplate={handleCreateTemplate}
-        onCreateProgram={handleCreateProgram}
-      />
+      {/* Main Content Card */}
+      <GlassCard className="p-6 min-h-[600px]">
+        <TrainingProgramsTabs
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          templates={templates}
+          workoutTemplates={workoutTemplates}
+          isCoach={isCoach}
+          isSolo={isSolo}
+          deleteLoading={deleteTemplate.isPending}
+          onView={handleViewTemplate}
+          onEdit={handleEditTemplate}
+          onDelete={handleDeleteTemplate}
+          onAssignTemplate={handleAssignTemplate}
+          onCreateTemplate={handleCreateTemplate}
+          onCreateProgram={handleCreateProgram}
+        />
+      </GlassCard>
 
       <TrainingProgramsModals
         showTemplateBuilder={showTemplateBuilder}

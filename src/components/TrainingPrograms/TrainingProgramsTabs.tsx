@@ -39,14 +39,22 @@ export const TrainingProgramsTabs: React.FC<TrainingProgramsTabsProps> = ({
 }) => {
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <TabsList className="grid w-full grid-cols-4">
-        <TabsTrigger value="templates">Templates</TabsTrigger>
-        <TabsTrigger value="programs">Programs</TabsTrigger>
-        <TabsTrigger value="exercises">Exercise Library</TabsTrigger>
-        <TabsTrigger value="performance">Performance</TabsTrigger>
+      <TabsList className="grid w-full grid-cols-4 bg-white/5 border border-white/10">
+        <TabsTrigger value="templates" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10">
+          Templates
+        </TabsTrigger>
+        <TabsTrigger value="programs" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10">
+          Programs
+        </TabsTrigger>
+        <TabsTrigger value="exercises" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10">
+          Exercise Library
+        </TabsTrigger>
+        <TabsTrigger value="performance" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10">
+          Performance
+        </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="templates" className="space-y-6">
+      <TabsContent value="templates" className="space-y-6 mt-6">
         <TrainingProgramsTemplatesTab
           templates={templates}
           isCoach={isCoach}
@@ -60,7 +68,7 @@ export const TrainingProgramsTabs: React.FC<TrainingProgramsTabsProps> = ({
         />
       </TabsContent>
 
-      <TabsContent value="programs" className="space-y-6">
+      <TabsContent value="programs" className="space-y-6 mt-6">
         <TrainingProgramsProgramsTab
           workoutTemplates={workoutTemplates}
           isCoach={isCoach}
@@ -68,11 +76,11 @@ export const TrainingProgramsTabs: React.FC<TrainingProgramsTabsProps> = ({
         />
       </TabsContent>
 
-      <TabsContent value="exercises" className="space-y-6">
+      <TabsContent value="exercises" className="space-y-6 mt-6">
         <ExerciseLibrary />
       </TabsContent>
 
-      <TabsContent value="performance" className="space-y-6">
+      <TabsContent value="performance" className="space-y-6 mt-6">
         <PerformanceTab />
       </TabsContent>
     </Tabs>

@@ -31,16 +31,23 @@ export const TrainingProgramsTemplatesTab: React.FC<TrainingProgramsTemplatesTab
     <>
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Training Templates</h2>
-          <p className="text-gray-600">Create and manage training templates</p>
+          <h2 className="text-2xl font-bold text-white">Training Templates</h2>
+          <p className="text-white/70">Create and manage training templates</p>
         </div>
         {isCoach && (
           <div className="flex gap-2">
-            <Button onClick={onCreateTemplate}>
+            <Button 
+              onClick={onCreateTemplate}
+              className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+            >
               <Plus className="w-4 h-4 mr-2" />
               Create Template
             </Button>
-            <Button onClick={onCreateProgram} variant="outline">
+            <Button 
+              onClick={onCreateProgram} 
+              variant="outline"
+              className="bg-transparent hover:bg-white/10 text-white border-white/20"
+            >
               <Plus className="w-4 h-4 mr-2" />
               Create Program
             </Button>
@@ -65,12 +72,15 @@ export const TrainingProgramsTemplatesTab: React.FC<TrainingProgramsTemplatesTab
 
       {templates.length === 0 && (
         <div className="text-center py-12">
-          <BookOpen className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-semibold text-gray-900">No templates</h3>
-          <p className="mt-1 text-sm text-gray-500">Get started by creating a new template.</p>
+          <BookOpen className="mx-auto h-12 w-12 text-white/30" />
+          <h3 className="mt-2 text-sm font-semibold text-white">No templates</h3>
+          <p className="mt-1 text-sm text-white/60">Get started by creating a new template.</p>
           {isCoach && (
             <div className="mt-6">
-              <Button onClick={onCreateTemplate}>
+              <Button 
+                onClick={onCreateTemplate}
+                className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Create Template
               </Button>

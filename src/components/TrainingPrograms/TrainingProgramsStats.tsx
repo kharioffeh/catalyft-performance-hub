@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen } from 'lucide-react';
 
 interface TrainingProgramsStatsProps {
@@ -15,36 +14,30 @@ export const TrainingProgramsStats: React.FC<TrainingProgramsStatsProps> = ({
   totalExercises,
 }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Templates</CardTitle>
-          <BookOpen className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{totalTemplates}</div>
-        </CardContent>
-      </Card>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl">
+        <div>
+          <p className="text-sm font-medium text-white/70">Total Templates</p>
+          <div className="text-2xl font-bold text-white">{totalTemplates}</div>
+        </div>
+        <BookOpen className="h-5 w-5 text-white/50" />
+      </div>
       
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Active Programs</CardTitle>
-          <BookOpen className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{activePrograms}</div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl">
+        <div>
+          <p className="text-sm font-medium text-white/70">Active Programs</p>
+          <div className="text-2xl font-bold text-white">{activePrograms}</div>
+        </div>
+        <BookOpen className="h-5 w-5 text-white/50" />
+      </div>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Exercise Library</CardTitle>
-          <BookOpen className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{totalExercises}</div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl">
+        <div>
+          <p className="text-sm font-medium text-white/70">Exercise Library</p>
+          <div className="text-2xl font-bold text-white">{totalExercises}</div>
+        </div>
+        <BookOpen className="h-5 w-5 text-white/50" />
+      </div>
     </div>
   );
 };
