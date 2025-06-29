@@ -13,6 +13,8 @@ interface TemplateCardProps {
   onEdit?: (templateId: string) => void;
   onDuplicate?: (templateId: string) => void;
   onDelete?: (templateId: string) => void;
+  onView?: (templateId: string) => void;
+  deleteLoading?: boolean;
 }
 
 export const TemplateCard: React.FC<TemplateCardProps> = ({
@@ -21,6 +23,8 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
   onEdit,
   onDuplicate,
   onDelete,
+  onView,
+  deleteLoading = false,
 }) => {
   const { toast } = useToast();
 
@@ -37,6 +41,16 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
       onEdit(template.id);
     } else {
       toast({ description: "Edit functionality coming soon" });
+    }
+  };
+
+  const handleView = () => {
+    if (onView) {
+      onView(template.id);
+    } else if (onEdit) {
+      onEdit(template.id);
+    } else {
+      toast({ description: "View functionality coming soon" });
     }
   };
 
@@ -57,7 +71,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
   };
 
   return (
-    <Card className="relative bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl hover:border-indigo-500/30 transition-colors duration-200 group">
+    <Card className="relative bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl hover:border-indigo-500/30 transition-colors duration-200 group cursor-pointer">
       {/* Quick actions dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -65,6 +79,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
             variant="ghost"
             size="icon"
             className="absolute top-3 right-3 h-8 w-8 rounded-lg bg-black/20 hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            disabled={deleteLoading}
           >
             <MoreVertical className="h-4 w-4 text-white/70" />
           </Button>
@@ -88,21 +103,25 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
           <DropdownMenuItem 
             onClick={handleDelete} 
             className="text-red-400 hover:bg-red-500/10 hover:text-red-300"
+            disabled={deleteLoading}
           >
             <Trash2 className="h-4 w-4 mr-2" />
-            Delete
+            {deleteLoading ? 'Deleting...' : 'Delete'}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <CardHeader className="p-0">
         {/* Thumbnail with gradient fallback */}
-        <div className="h-40 w-full rounded-t-2xl bg-gradient-to-br from-indigo-600/30 to-fuchsia-600/20 flex items-center justify-center">
+        <div 
+          className="h-40 w-full rounded-t-2xl bg-gradient-to-br from-indigo-600/30 to-fuchsia-600/20 flex items-center justify-center"
+          onClick={handleView}
+        >
           <span className="text-sm text-white/60">No preview</span>
         </div>
       </CardHeader>
 
-      <CardContent className="p-4 space-y-1">
+      <CardContent className="p-4 space-y-1" onClick={handleView}>
         <CardTitle className="text-base font-medium text-white truncate" title={template.title}>
           {template.title}
         </CardTitle>

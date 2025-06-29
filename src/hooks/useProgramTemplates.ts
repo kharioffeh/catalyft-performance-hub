@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -67,6 +68,44 @@ export const useCreateProgramTemplate = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['program-templates'] });
+    },
+  });
+};
+
+export const useDeleteTemplate = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      console.log('Attempting to delete program template:', id);
+      
+      const { error } = await supabase
+        .from('program_templates')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting program template:', error);
+        
+        if (error.code === '42501') {
+          throw new Error('Permission denied: You can only delete programs you own');
+        }
+        
+        if (error.message.includes('row-level security')) {
+          throw new Error('Access denied: Insufficient permissions to delete this program');
+        }
+        
+        throw new Error(`Failed to delete program: ${error.message}`);
+      }
+
+      console.log('Program template deleted successfully:', id);
+    },
+    onSuccess: () => {
+      console.log('Program deletion successful, invalidating queries');
+      queryClient.invalidateQueries({ queryKey: ['program-templates'] });
+    },
+    onError: (error) => {
+      console.error('Program deletion failed:', error);
     },
   });
 };

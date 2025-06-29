@@ -10,6 +10,7 @@ import { Plus } from 'lucide-react';
 
 export const TemplateGrid: React.FC = () => {
   const { data: programs = [], isLoading } = useProgramTemplates();
+  const deleteTemplate = useDeleteTemplate();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [builderOpen, setBuilderOpen] = useState(false);
@@ -21,7 +22,7 @@ export const TemplateGrid: React.FC = () => {
   const handleDelete = async (templateId: string) => {
     if (window.confirm('Are you sure you want to delete this program? This action cannot be undone.')) {
       try {
-        // TODO: Implement delete functionality for program_templates
+        await deleteTemplate.mutateAsync(templateId);
         toast({
           title: "Program Deleted",
           description: "Program has been deleted successfully",
@@ -29,7 +30,7 @@ export const TemplateGrid: React.FC = () => {
       } catch (error) {
         toast({
           title: "Delete Failed",
-          description: "Failed to delete program. Please try again.",
+          description: error.message,
           variant: "destructive",
         });
       }
@@ -104,12 +105,14 @@ export const TemplateGrid: React.FC = () => {
               weeks: 4, // TODO: Extract from block_json
               visibility: 'private',
               created_at: program.created_at,
-              owner_uuid: program.coach_uuid
+              owner_uuid: program.coach_uuid,
+              sessions_count: 0 // Calculate from block_json if needed
             }}
             onAssign={handleAssign}
             onEdit={handleEdit}
             onDuplicate={handleDuplicate}
             onDelete={handleDelete}
+            deleteLoading={deleteTemplate.isPending}
           />
         ))}
       </section>

@@ -65,7 +65,8 @@ export const TrainingProgramsTemplatesTab: React.FC<TrainingProgramsTemplatesTab
                 weeks: 4, // TODO: Extract from block_json
                 visibility: 'private',
                 created_at: template.created_at,
-                owner_uuid: template.coach_uuid
+                owner_uuid: template.coach_uuid,
+                sessions_count: 0 // Calculate from block_json if needed
               }}
               onAssign={handleAssign}
               onEdit={onEdit}
