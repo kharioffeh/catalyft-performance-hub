@@ -120,6 +120,11 @@
            rounded-3xl shadow-[0_2px_8px_rgb(0_0_0/.15)];
   }
 
+  /* New glass surface utility */
+  .glass-surface {
+    @apply bg-surface backdrop-blur-md border border-stroke shadow-glass rounded-card;
+  }
+
   /* Responsive grid utilities */
   .grid-responsive {
     @apply grid grid-cols-1 gap-4 sm:gap-6;
