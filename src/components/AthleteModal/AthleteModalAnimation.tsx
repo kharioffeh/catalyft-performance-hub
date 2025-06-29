@@ -23,20 +23,22 @@ export const AthleteModalAnimation: React.FC<AthleteModalAnimationProps> = ({
       opacity: 1, 
       x: 0,
       y: 0,
-      transition: {
-        type: 'spring',
-        damping: 25,
-        stiffness: 300,
-      }
     },
     exit: { 
       opacity: 0, 
       x: isMobile ? 0 : '100%',
       y: isMobile ? '100%' : 0,
-      transition: {
-        duration: 0.2,
-      }
     },
+  };
+
+  const transition = {
+    type: 'spring' as const,
+    damping: 25,
+    stiffness: 300,
+  };
+
+  const exitTransition = {
+    duration: 0.2,
   };
 
   return (
@@ -48,6 +50,10 @@ export const AthleteModalAnimation: React.FC<AthleteModalAnimationProps> = ({
           initial="hidden"
           animate="visible"
           exit="exit"
+          transition={{
+            ...transition,
+            exit: exitTransition,
+          }}
         >
           {children}
         </motion.div>
