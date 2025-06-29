@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import GlassCard from '@/components/ui/GlassCard';
 import { HeatMapBody } from '@/components/Analytics/Glass/HeatMapBody';
@@ -134,7 +135,9 @@ const AnalyticsPage: React.FC = () => {
                 type="button"
                 className="bg-white/10 text-white/80 rounded-full px-3 py-1 text-xs font-medium hover:bg-indigo-500/40 transition"
                 onClick={() => setAriaInput(s)}
-              >{s}</button>
+              >
+                {s}
+              </button>
             ))}
           </div>
           {/* Prompt bar */}
@@ -150,7 +153,9 @@ const AnalyticsPage: React.FC = () => {
               className="shrink-0 bg-indigo-600 hover:bg-indigo-500 transition-colors rounded-lg px-4 py-2 text-sm font-medium text-white"
               type="submit"
               disabled={!ariaInput.trim()}
-            >Send</button>
+            >
+              Send
+            </button>
           </form>
         </GlassCard>
       </div>
