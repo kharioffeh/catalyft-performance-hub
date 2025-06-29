@@ -75,7 +75,7 @@ export function InstancesTable({ data, onView, onEdit, onArchive }: InstancesTab
     },
     {
       id: 'actions',
-      header: () => <span className="sr-only">Actions</span>,
+      header: <span className="sr-only">Actions</span>,
       enableSorting: false,
       cell: ({ row }) => (
         <div className="flex gap-2">
