@@ -144,7 +144,7 @@ const AnalyticsPage: React.FC = () => {
           <form className="mt-1 flex items-center gap-3" onSubmit={sendInsight}>
             <input
               className="flex-1 bg-white/5 rounded-lg px-4 py-2 text-sm placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              placeholder="Ask Aria… e.g. "summarise recovery status""
+              placeholder="Ask Aria… e.g. 'summarise recovery status'"
               value={ariaInput}
               onChange={(e) => setAriaInput(e.target.value)}
             />
