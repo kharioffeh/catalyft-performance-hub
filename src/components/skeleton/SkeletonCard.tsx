@@ -21,9 +21,9 @@ export const SkeletonCard: React.FC<SkeletonCardProps> = ({
   return (
     <div
       className={cn(
-        'bg-white/10 dark:bg-white/5',
-        'backdrop-blur-sm border border-white/10 dark:border-white/20',
-        'rounded-xl shadow-lg p-6',
+        'bg-black/5 dark:bg-white/5',
+        'border border-black/10 dark:border-white/10',
+        'rounded-xl p-6',
         className
       )}
       role="status"

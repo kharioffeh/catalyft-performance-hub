@@ -25,10 +25,10 @@ export const SkeletonBox: React.FC<SkeletonBoxProps> = ({
   return (
     <div
       className={cn(
-        'bg-white/5 dark:bg-white/10',
-        'border border-white/5 dark:border-white/10',
+        'bg-black/5 dark:bg-white/5',
+        'border border-black/5 dark:border-white/5',
         'rounded-lg relative overflow-hidden',
-        animate && 'animate-pulse',
+        animate && 'animate-[skeleton-fade_2s_ease-in-out_infinite]',
         className
       )}
       style={combinedStyle}
@@ -36,10 +36,6 @@ export const SkeletonBox: React.FC<SkeletonBoxProps> = ({
       aria-busy="true"
       aria-label="Loading content"
       {...props}
-    >
-      {animate && (
-        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/5 dark:via-white/10 to-transparent" />
-      )}
-    </div>
+    />
   );
 };

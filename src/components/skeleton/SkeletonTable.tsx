@@ -21,9 +21,9 @@ export const SkeletonTable: React.FC<SkeletonTableProps> = ({
   return (
     <div
       className={cn(
-        'bg-white/10 dark:bg-white/5',
-        'backdrop-blur-sm border border-white/10 dark:border-white/20',
-        'rounded-xl shadow-lg overflow-hidden',
+        'bg-black/5 dark:bg-white/5',
+        'border border-black/10 dark:border-white/10',
+        'rounded-xl overflow-hidden',
         className
       )}
       role="status"
@@ -32,7 +32,7 @@ export const SkeletonTable: React.FC<SkeletonTableProps> = ({
       {...props}
     >
       {showHeader && (
-        <div className="border-b border-white/10 dark:border-white/10 p-4">
+        <div className="border-b border-black/10 dark:border-white/10 p-4">
           <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
             {Array.from({ length: columns }).map((_, i) => (
               <SkeletonBox key={i} height={20} animate={animate} />
@@ -53,8 +53,8 @@ export const SkeletonTable: React.FC<SkeletonTableProps> = ({
                 key={colIndex} 
                 height={16} 
                 className={cn(
-                  colIndex === 0 && 'w-3/4', // First column shorter for names/IDs
-                  colIndex === columns - 1 && 'w-1/2' // Last column shorter for actions
+                  colIndex === 0 && 'w-3/4',
+                  colIndex === columns - 1 && 'w-1/2'
                 )}
                 animate={animate}
               />

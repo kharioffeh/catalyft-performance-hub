@@ -44,4 +44,15 @@ export const glassStyles = {
   cardHover: 'hover:bg-white/10 dark:hover:bg-white/10',
   surface: 'bg-surface-light/90 dark:bg-surface-dark/90 backdrop-blur-md',
   overlay: 'bg-black/20 dark:bg-black/40 backdrop-blur-sm',
+  skeleton: 'bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5',
+};
+
+/**
+ * Skeleton animation keyframes for custom fade effect
+ */
+export const skeletonKeyframes = {
+  'skeleton-fade': {
+    '0%, 100%': { opacity: '0.3' },
+    '50%': { opacity: '0.6' },
+  },
 };
