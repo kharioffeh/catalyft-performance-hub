@@ -1,4 +1,3 @@
-
 export type NavItem = {
   label: string;
   path: string;
@@ -24,6 +23,12 @@ export const NAV_ROUTES: NavItem[] = [
     path: "/program", 
     icon: Activity, 
     roles: ["solo"] 
+  },
+  {
+    label: "Training Plan",
+    path: "/training-plan",
+    icon: Calendar,
+    roles: ["solo", "athlete"]
   },
   {
     label: "Analytics",

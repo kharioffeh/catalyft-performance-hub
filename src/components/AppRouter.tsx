@@ -25,6 +25,7 @@ import ProtectedRoute from './ProtectedRoute';
 import ProtectAppGate from './ProtectAppGate';
 import RiskBoardPage from '../pages/CoachRiskBoard';
 import TemplateDetailPage from '@/pages/TemplateDetailPage';
+import TrainingPlan from '@/pages/TrainingPlan';
 import { useSupabaseHash } from '../hooks/useSupabaseHash';
 
 const AppRouter = () => {
@@ -82,6 +83,7 @@ const AppRouter = () => {
             <TrainingPrograms />
           </ProtectedRoute>
         } />
+        <Route path="/training-plan" element={<TrainingPlan />} />
         {/* Redirect old routes to new unified page */}
         <Route path="workouts" element={<Navigate to="/training-programs" replace />} />
         <Route path="workout" element={<Navigate to="/training-programs" replace />} />

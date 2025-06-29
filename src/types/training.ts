@@ -1,4 +1,3 @@
-
 export interface ExerciseLibrary {
   id: string;
   name: string;
@@ -97,4 +96,28 @@ export interface CreateProgramInstanceData {
   template_id?: string;
   start_date: string;
   end_date: string;
+}
+
+export interface TrainingSession {
+  id: string;
+  title: string;
+  type: 'strength' | 'conditioning' | 'recovery' | 'technical' | 'assessment';
+  start_time: string;
+  end_time: string;
+  athlete_id: string;
+  notes?: string;
+}
+
+export interface Day {
+  date: string;
+  weekday: string;
+  dateLabel: string;
+  fullDate: string;
+  sessions: TrainingSession[];
+}
+
+export interface Week {
+  start: string;
+  end: string;
+  days: Day[];
 }
