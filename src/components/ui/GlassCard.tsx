@@ -29,7 +29,7 @@ const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
         case 'strain':
           return 'border-orange-400/30 dark:border-orange-400/50 hover:border-orange-400/50 dark:hover:border-orange-400/70';
         default:
-          return 'border-white/10 dark:border-white/20 hover:border-white/20 dark:hover:border-white/30';
+          return 'border-gray-200/60 dark:border-white/20 hover:border-gray-300/80 dark:hover:border-white/30';
       }
     };
 
@@ -38,9 +38,9 @@ const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
         return 'bg-transparent border-transparent shadow-none';
       }
       return cn(
-        'bg-glass-card-light/60 dark:bg-glass-card-dark/80',
+        'bg-white/70 dark:bg-gray-900/80',
         'backdrop-blur-lg border shadow-glass',
-        'hover:bg-glass-card-light/80 dark:hover:bg-glass-card-dark/90'
+        'hover:bg-white/80 dark:hover:bg-gray-900/90'
       );
     };
 
