@@ -1,20 +1,18 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { TemplateGrid } from './TemplateGrid';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { EnhancedProgramBuilder } from '@/components/program-builder/EnhancedProgramBuilder';
 
 export const TemplatesTab: React.FC = () => {
   const { profile } = useAuth();
+  const [builderOpen, setBuilderOpen] = useState(false);
   const isCoach = profile?.role === 'coach';
 
-  const handleCreateTemplate = () => {
-    console.log('Create template');
-  };
-
   const handleCreateProgram = () => {
-    console.log('Create program');
+    setBuilderOpen(true);
   };
 
   return (
@@ -22,32 +20,27 @@ export const TemplatesTab: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white">Training Templates</h2>
-          <p className="text-white/70">Create and manage training templates</p>
+          <h2 className="text-2xl font-bold text-white">Training Programs</h2>
+          <p className="text-white/70">Create and manage training programs</p>
         </div>
         {isCoach && (
-          <div className="flex gap-2">
-            <Button 
-              onClick={handleCreateTemplate}
-              className="bg-white/10 hover:bg-white/20 text-white border-white/20"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Create Template
-            </Button>
-            <Button 
-              onClick={handleCreateProgram} 
-              variant="outline"
-              className="bg-transparent hover:bg-white/10 text-white border-white/20"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Create Program
-            </Button>
-          </div>
+          <Button 
+            onClick={handleCreateProgram}
+            className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Create Program
+          </Button>
         )}
       </div>
 
-      {/* Template Grid */}
+      {/* Program Grid */}
       <TemplateGrid />
+      
+      <EnhancedProgramBuilder
+        open={builderOpen}
+        onOpenChange={setBuilderOpen}
+      />
     </div>
   );
 };

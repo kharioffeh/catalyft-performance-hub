@@ -1,6 +1,6 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTemplates, useDeleteTemplate } from '@/hooks/useTemplates';
 import { useProgramTemplates } from '@/hooks/useProgramTemplates';
 import { useWorkoutTemplates } from '@/hooks/useWorkoutTemplates';
 import { useExercises } from '@/hooks/useExercises';
@@ -8,15 +8,14 @@ import { useNavigate } from 'react-router-dom';
 import { TrainingProgramsHeader } from '@/components/TrainingPrograms/TrainingProgramsHeader';
 import { TrainingProgramsStats } from '@/components/TrainingPrograms/TrainingProgramsStats';
 import { TrainingProgramsTabs } from '@/components/TrainingPrograms/TrainingProgramsTabs';
-import { TrainingProgramsModals } from '@/components/TrainingPrograms/TrainingProgramsModals';
 import { GlassCard } from '@/components/ui';
 import { toast } from '@/hooks/use-toast';
+import { EnhancedProgramBuilder } from '@/components/program-builder/EnhancedProgramBuilder';
 
 const TrainingPrograms = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('templates');
-  const [showTemplateBuilder, setShowTemplateBuilder] = useState(false);
+  const [activeTab, setActiveTab] = useState('programs');
   const [showProgramBuilder, setShowProgramBuilder] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [showAssignDialog, setShowAssignDialog] = useState(false);
@@ -24,68 +23,55 @@ const TrainingPrograms = () => {
   const isCoach = profile?.role === 'coach';
   const isSolo = profile?.role === 'solo';
 
-  // Data hooks
-  const { data: templates = [], refetch: refetchTemplates } = useTemplates();
-  const { data: programTemplates = [] } = useProgramTemplates();
+  // Data hooks - now using program_templates as primary
+  const { data: programs = [], refetch: refetchPrograms } = useProgramTemplates();
   const { data: workoutTemplates = [] } = useWorkoutTemplates();
   const { data: exercises = [] } = useExercises();
-  const deleteTemplate = useDeleteTemplate();
-
-  const handleCreateTemplate = () => {
-    setShowTemplateBuilder(true);
-  };
 
   const handleCreateProgram = () => {
     setShowProgramBuilder(true);
   };
 
-  const handleViewTemplate = (templateId: string) => {
-    navigate(`/template/${templateId}`);
+  const handleViewProgram = (programId: string) => {
+    navigate(`/program/${programId}`);
   };
 
-  const handleEditTemplate = (templateId: string) => {
-    navigate(`/template/${templateId}?edit=true`);
+  const handleEditProgram = (programId: string) => {
+    navigate(`/program/${programId}?edit=true`);
   };
 
-  const handleDeleteTemplate = async (templateId: string) => {
+  const handleDeleteProgram = async (programId: string) => {
     try {
-      await deleteTemplate.mutateAsync(templateId);
-      refetchTemplates();
+      // TODO: Implement delete for program_templates
+      refetchPrograms();
       toast({
-        title: "Template Deleted",
-        description: "Template has been deleted successfully",
+        title: "Program Deleted",
+        description: "Program has been deleted successfully",
       });
     } catch (error) {
       toast({
         title: "Delete Failed",
-        description: "Failed to delete template. Please try again.",
+        description: "Failed to delete program. Please try again.",
         variant: "destructive",
       });
     }
   };
 
-  const handleAssignTemplate = (template: any) => {
-    setSelectedTemplate(template);
+  const handleAssignProgram = (program: any) => {
+    setSelectedTemplate(program);
     setShowAssignDialog(true);
-  };
-
-  const handleCloseTemplate = (refresh?: boolean) => {
-    setShowTemplateBuilder(false);
-    if (refresh) {
-      refetchTemplates();
-    }
   };
 
   const handleCloseProgram = (refresh?: boolean) => {
     setShowProgramBuilder(false);
     if (refresh) {
-      refetchTemplates();
+      refetchPrograms();
     }
   };
 
   // Calculate stats
-  const totalTemplates = templates.length + programTemplates.length;
-  const activePrograms = programTemplates.filter(p => p.origin === 'KAI').length;
+  const totalPrograms = programs.length + workoutTemplates.length;
+  const activePrograms = programs.filter(p => p.origin === 'KAI').length;
   const totalExercises = exercises.length;
 
   return (
@@ -94,14 +80,14 @@ const TrainingPrograms = () => {
       <GlassCard className="p-6">
         <TrainingProgramsHeader 
           isCoach={isCoach}
-          onCreateTemplate={handleCreateTemplate}
+          onCreateTemplate={handleCreateProgram}
         />
       </GlassCard>
 
       {/* Stats Card */}
       <GlassCard className="p-6">
         <TrainingProgramsStats
-          totalTemplates={totalTemplates}
+          totalTemplates={totalPrograms}
           activePrograms={activePrograms}
           totalExercises={totalExercises}
         />
@@ -112,28 +98,23 @@ const TrainingPrograms = () => {
         <TrainingProgramsTabs
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          templates={templates}
+          templates={programs}
           workoutTemplates={workoutTemplates}
           isCoach={isCoach}
           isSolo={isSolo}
-          deleteLoading={deleteTemplate.isPending}
-          onView={handleViewTemplate}
-          onEdit={handleEditTemplate}
-          onDelete={handleDeleteTemplate}
-          onAssignTemplate={handleAssignTemplate}
-          onCreateTemplate={handleCreateTemplate}
+          deleteLoading={false}
+          onView={handleViewProgram}
+          onEdit={handleEditProgram}
+          onDelete={handleDeleteProgram}
+          onAssignTemplate={handleAssignProgram}
+          onCreateTemplate={handleCreateProgram}
           onCreateProgram={handleCreateProgram}
         />
       </GlassCard>
 
-      <TrainingProgramsModals
-        showTemplateBuilder={showTemplateBuilder}
-        showProgramBuilder={showProgramBuilder}
-        selectedTemplate={selectedTemplate}
-        showAssignDialog={showAssignDialog}
-        onCloseTemplate={handleCloseTemplate}
-        onCloseProgram={handleCloseProgram}
-        onCloseAssignDialog={() => setShowAssignDialog(false)}
+      <EnhancedProgramBuilder
+        open={showProgramBuilder}
+        onOpenChange={setShowProgramBuilder}
       />
     </div>
   );

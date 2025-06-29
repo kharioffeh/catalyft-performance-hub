@@ -1,7 +1,7 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface ProgramTemplate {
   id: string;
@@ -24,6 +24,49 @@ export const useProgramTemplates = () => {
 
       if (error) throw error;
       return data as ProgramTemplate[];
+    },
+  });
+};
+
+export const useCreateProgramTemplate = () => {
+  const queryClient = useQueryClient();
+  const { profile } = useAuth();
+
+  return useMutation({
+    mutationFn: async ({ name, block_json, origin }: {
+      name: string;
+      block_json: any;
+      origin: string;
+    }) => {
+      if (!profile?.id) throw new Error('User not authenticated');
+
+      // Get coach record
+      const { data: coach, error: coachError } = await supabase
+        .from('coaches')
+        .select('id')
+        .eq('email', profile.email)
+        .single();
+
+      if (coachError || !coach) {
+        throw new Error('Coach not found');
+      }
+
+      const { data, error } = await supabase
+        .from('program_templates')
+        .insert({
+          name,
+          block_json,
+          origin,
+          coach_uuid: coach.id
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['program-templates'] });
     },
   });
 };

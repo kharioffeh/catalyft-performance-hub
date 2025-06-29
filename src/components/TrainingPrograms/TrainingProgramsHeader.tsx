@@ -18,7 +18,7 @@ export const TrainingProgramsHeader: React.FC<TrainingProgramsHeaderProps> = ({
         <BookOpen className="w-8 h-8 text-blue-400" />
         <div>
           <h1 className="text-3xl font-bold text-white">Training Programs</h1>
-          <p className="text-white/70">Advanced template and program management system</p>
+          <p className="text-white/70">Advanced program and workout management system</p>
         </div>
       </div>
       {isCoach && (
@@ -27,7 +27,7 @@ export const TrainingProgramsHeader: React.FC<TrainingProgramsHeaderProps> = ({
           className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white border-white/20"
         >
           <Plus className="w-4 h-4" />
-          Create Template
+          Create Program
         </Button>
       )}
     </div>

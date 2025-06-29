@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, BookOpen } from 'lucide-react';
-import { TemplateCard } from '@/components/TrainingObjects/TemplateCard';
+import { Plus, Sparkles } from 'lucide-react';
+import { TemplateCard } from '@/components/training-plan/TemplateCard';
 
 interface TrainingProgramsTemplatesTabProps {
   templates: any[];
@@ -27,26 +27,23 @@ export const TrainingProgramsTemplatesTab: React.FC<TrainingProgramsTemplatesTab
   onCreateTemplate,
   onCreateProgram,
 }) => {
+  const handleAssign = (templateId: string) => {
+    console.log('Assign program:', templateId);
+  };
+
   return (
-    <>
+    <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white">Training Templates</h2>
-          <p className="text-white/70">Create and manage training templates</p>
+          <h3 className="text-xl font-semibold text-white">Training Programs</h3>
+          <p className="text-white/60">Multi-week periodized training programs</p>
         </div>
         {isCoach && (
           <div className="flex gap-2">
-            <Button 
-              onClick={onCreateTemplate}
+            <Button
+              onClick={onCreateProgram}
               className="bg-white/10 hover:bg-white/20 text-white border-white/20"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Create Template
-            </Button>
-            <Button 
-              onClick={onCreateProgram} 
-              variant="outline"
-              className="bg-transparent hover:bg-white/10 text-white border-white/20"
             >
               <Plus className="w-4 h-4 mr-2" />
               Create Program
@@ -55,39 +52,46 @@ export const TrainingProgramsTemplatesTab: React.FC<TrainingProgramsTemplatesTab
         )}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {templates.map((template) => (
-          <TemplateCard
-            key={template.id}
-            template={template}
-            isCoach={isCoach}
-            isSolo={isSolo}
-            deleteLoading={deleteLoading}
-            onView={onView}
-            onEdit={onEdit}
-            onDelete={onDelete}
-          />
-        ))}
-      </div>
-
-      {templates.length === 0 && (
-        <div className="text-center py-12">
-          <BookOpen className="mx-auto h-12 w-12 text-white/30" />
-          <h3 className="mt-2 text-sm font-semibold text-white">No templates</h3>
-          <p className="mt-1 text-sm text-white/60">Get started by creating a new template.</p>
+      {/* Programs Grid */}
+      {templates.length > 0 ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {templates.map((template) => (
+            <TemplateCard
+              key={template.id}
+              template={{
+                id: template.id,
+                title: template.name,
+                goal: 'strength', // TODO: Extract from block_json
+                weeks: 4, // TODO: Extract from block_json
+                visibility: 'private',
+                created_at: template.created_at,
+                owner_uuid: template.coach_uuid
+              }}
+              onAssign={handleAssign}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onView={onView}
+              deleteLoading={deleteLoading}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12 bg-white/5 rounded-2xl border border-white/10">
+          <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Sparkles className="w-8 h-8 text-white/40" />
+          </div>
+          <h3 className="text-lg font-medium text-white mb-2">No Programs Created</h3>
+          <p className="text-white/60 mb-6">
+            Create your first training program with our intuitive builder
+          </p>
           {isCoach && (
-            <div className="mt-6">
-              <Button 
-                onClick={onCreateTemplate}
-                className="bg-white/10 hover:bg-white/20 text-white border-white/20"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Create Template
-              </Button>
-            </div>
+            <Button onClick={onCreateProgram} className="bg-indigo-600 hover:bg-indigo-500">
+              <Plus className="w-4 h-4 mr-2" />
+              Create Your First Program
+            </Button>
           )}
         </div>
       )}
-    </>
+    </div>
   );
 };
