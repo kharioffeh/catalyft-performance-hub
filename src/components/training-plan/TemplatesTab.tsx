@@ -1,29 +1,13 @@
 
 import React from 'react';
-import { TrainingProgramsTemplatesTab } from '@/components/TrainingPrograms/TrainingProgramsTemplatesTab';
-import { useTemplates } from '@/hooks/useTemplates';
+import { TemplateGrid } from './TemplateGrid';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 
 export const TemplatesTab: React.FC = () => {
   const { profile } = useAuth();
-  const navigate = useNavigate();
-  const { data: templates = [], isLoading } = useTemplates();
-
   const isCoach = profile?.role === 'coach';
-  const isSolo = profile?.role === 'solo';
-
-  const handleView = (templateId: string) => {
-    navigate(`/template/${templateId}`);
-  };
-
-  const handleEdit = (templateId: string) => {
-    navigate(`/template/${templateId}`);
-  };
-
-  const handleDelete = (templateId: string) => {
-    console.log('Delete template:', templateId);
-  };
 
   const handleCreateTemplate = () => {
     console.log('Create template');
@@ -33,29 +17,37 @@ export const TemplatesTab: React.FC = () => {
     console.log('Create program');
   };
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-48 bg-white/5 border border-white/10 rounded-2xl animate-pulse" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <TrainingProgramsTemplatesTab
-      templates={templates}
-      isCoach={isCoach}
-      isSolo={isSolo}
-      deleteLoading={false}
-      onView={handleView}
-      onEdit={handleEdit}
-      onDelete={handleDelete}
-      onCreateTemplate={handleCreateTemplate}
-      onCreateProgram={handleCreateProgram}
-    />
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-white">Training Templates</h2>
+          <p className="text-white/70">Create and manage training templates</p>
+        </div>
+        {isCoach && (
+          <div className="flex gap-2">
+            <Button 
+              onClick={handleCreateTemplate}
+              className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create Template
+            </Button>
+            <Button 
+              onClick={handleCreateProgram} 
+              variant="outline"
+              className="bg-transparent hover:bg-white/10 text-white border-white/20"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create Program
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Template Grid */}
+      <TemplateGrid />
+    </div>
   );
 };

@@ -1,19 +1,42 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Template, TemplateBlock, CreateTemplateData, TemplateExercise } from '@/types/training';
+
+export interface EnhancedTemplate extends Template {
+  sessions_count: number;
+}
 
 export const useTemplates = () => {
   return useQuery({
     queryKey: ['templates'],
     queryFn: async () => {
+      // Get templates with session counts
       const { data, error } = await supabase
         .from('template')
-        .select('*')
+        .select(`
+          *,
+          template_block!inner(week_no, day_no)
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Template[];
+
+      // Calculate sessions count for each template
+      const templatesWithSessions = data.map(template => {
+        const blocks = template.template_block || [];
+        const uniqueSessions = new Set();
+        
+        blocks.forEach(block => {
+          uniqueSessions.add(`${block.week_no}-${block.day_no}`);
+        });
+        
+        return {
+          ...template,
+          sessions_count: uniqueSessions.size
+        } as EnhancedTemplate;
+      });
+
+      return templatesWithSessions;
     },
   });
 };
