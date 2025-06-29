@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { send, edit, copy, trash2, MoreVertical } from 'lucide-react';
+import { Send, Edit, Copy, Trash2, MoreVertical } from 'lucide-react';
 import { EnhancedTemplate } from '@/hooks/useTemplates';
 import { useToast } from '@/hooks/use-toast';
 
@@ -74,22 +74,22 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
           className="bg-[#1A1E26] border-white/10 rounded-xl w-40"
         >
           <DropdownMenuItem onClick={handleAssign} className="text-white/90 hover:bg-white/10">
-            <send className="h-4 w-4 mr-2" />
+            <Send className="h-4 w-4 mr-2" />
             Assign
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleEdit} className="text-white/90 hover:bg-white/10">
-            <edit className="h-4 w-4 mr-2" />
+            <Edit className="h-4 w-4 mr-2" />
             Edit
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleDuplicate} className="text-white/90 hover:bg-white/10">
-            <copy className="h-4 w-4 mr-2" />
+            <Copy className="h-4 w-4 mr-2" />
             Duplicate
           </DropdownMenuItem>
           <DropdownMenuItem 
             onClick={handleDelete} 
             className="text-red-400 hover:bg-red-500/10 hover:text-red-300"
           >
-            <trash2 className="h-4 w-4 mr-2" />
+            <Trash2 className="h-4 w-4 mr-2" />
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -98,13 +98,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
       <CardHeader className="p-0">
         {/* Thumbnail with gradient fallback */}
         <div className="h-40 w-full rounded-t-2xl bg-gradient-to-br from-indigo-600/30 to-fuchsia-600/20 flex items-center justify-center">
-          <span className="text-sm text-white/60">
-            {template.thumbnail ? (
-              <img src={template.thumbnail} alt={template.title} className="w-full h-full object-cover rounded-t-2xl" />
-            ) : (
-              "No preview"
-            )}
-          </span>
+          <span className="text-sm text-white/60">No preview</span>
         </div>
       </CardHeader>
 
