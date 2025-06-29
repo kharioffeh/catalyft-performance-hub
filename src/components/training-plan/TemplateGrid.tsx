@@ -47,17 +47,17 @@ export const TemplateGrid: React.FC = () => {
 
   if (isLoading) {
     return (
-      <section className="auto-fill-320 gap-6">
+      <ul className="grid gap-4 md:[grid-template-columns:repeat(auto-fill,minmax(320px,1fr))] sm:[grid-template-columns:repeat(auto-fill,minmax(240px,1fr))] grid-cols-1 pb-2">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="space-y-3">
-            <Skeleton className="h-40 w-full rounded-t-2xl" />
+          <li key={i} className="space-y-3">
+            <Skeleton className="h-40 w-full rounded-t-2xl bg-white/10" />
             <div className="p-4 space-y-2">
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-3 w-1/2" />
+              <Skeleton className="h-4 w-3/4 bg-white/10" />
+              <Skeleton className="h-3 w-1/2 bg-white/10" />
             </div>
-          </div>
+          </li>
         ))}
-      </section>
+      </ul>
     );
   }
 
@@ -94,7 +94,7 @@ export const TemplateGrid: React.FC = () => {
 
   return (
     <>
-      <section className="auto-fill-320 gap-6">
+      <ul className="grid gap-4 md:[grid-template-columns:repeat(auto-fill,minmax(320px,1fr))] sm:[grid-template-columns:repeat(auto-fill,minmax(240px,1fr))] grid-cols-1 pb-2">
         {programs.map((program) => (
           <TemplateCard
             key={program.id}
@@ -115,7 +115,7 @@ export const TemplateGrid: React.FC = () => {
             deleteLoading={deleteTemplate.isPending}
           />
         ))}
-      </section>
+      </ul>
 
       {/* FAB */}
       <button
