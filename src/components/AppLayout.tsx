@@ -101,10 +101,10 @@ const AppLayout: React.FC = () => {
     <GlassLayout variant={getLayoutVariant()}>
       <div className="min-h-screen flex w-full">
         {/* New unified sidebar for both mobile and desktop */}
-        <Sidebar isDarkTheme={isDarkTheme} />
+        <Sidebar />
         
         <div className={`flex-1 flex flex-col min-w-0 ${isMobile ? 'pt-14' : ''}`}>
-          {!isMobile && <TopBar isDarkTheme={isDarkTheme} />}
+          {!isMobile && <TopBar />}
           <main className="flex-1 p-4 md:p-6 overflow-auto">
             <Outlet />
           </main>
