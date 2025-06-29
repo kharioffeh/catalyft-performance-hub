@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Activity, Calendar, BarChart3, AlertTriangle } from 'lucide-react';
-import { GlassCard } from '@/components/ui';
+import GlassCard from '@/components/ui/GlassCard';
 
 interface VerticalMetricCardsProps {
   currentReadiness: any;

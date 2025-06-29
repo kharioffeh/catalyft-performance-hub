@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from 'lucide-react';
 import { format } from 'date-fns';
-import { GlassCard } from '@/components/ui';
+import GlassCard from '@/components/ui/GlassCard';
 
 interface TodaysScheduleProps {
   todaySessions: any[];
