@@ -28,25 +28,25 @@ export const PulseWrapper: React.FC<PulseWrapperProps> = ({
         return {
           scale: [1, 1.02, 1],
           duration: 2,
-          ease: [0.4, 0.0, 0.2, 1] // easeInOut as cubic-bezier
+          ease: "easeInOut" as const
         };
       case 'medium':
         return {
           scale: [1, 1.05, 1],
           duration: 1.5,
-          ease: [0.4, 0.0, 0.2, 1] // easeInOut as cubic-bezier
+          ease: "easeInOut" as const
         };
       case 'high':
         return {
           scale: [1, 1.08, 1],
           duration: 1,
-          ease: [0.4, 0.0, 0.2, 1] // easeInOut as cubic-bezier
+          ease: "easeInOut" as const
         };
       default:
         return {
           scale: [1, 1.05, 1],
           duration: 1.5,
-          ease: [0.4, 0.0, 0.2, 1] // easeInOut as cubic-bezier
+          ease: "easeInOut" as const
         };
     }
   };
