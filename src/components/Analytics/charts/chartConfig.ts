@@ -1,35 +1,37 @@
 
+import { chartTheme } from '@/lib/chartTheme';
+
 export const chartConfig = {
   value: {
     label: "Value",
-    color: "hsl(var(--chart-1))",
+    color: chartTheme.colors.accent,
   },
   hrv: {
     label: "HRV",
-    color: "hsl(var(--chart-2))",
+    color: chartTheme.colors.info,
   },
   sleep: {
     label: "Sleep Quality",
-    color: "hsl(var(--chart-3))",
+    color: chartTheme.colors.positive,
   },
   deep: {
     label: "Deep",
-    color: "#1e40af",
+    color: chartTheme.colors.info,
   },
   light: {
     label: "Light",
-    color: "#3b82f6",
+    color: chartTheme.colors.accent,
   },
   rem: {
     label: "REM",
-    color: "#60a5fa",
+    color: chartTheme.colors.positive,
   },
   acute: {
     label: "Acute",
-    color: "hsl(var(--chart-2))",
+    color: chartTheme.colors.warning,
   },
   chronic: {
     label: "Chronic",
-    color: "hsl(var(--chart-3))",
+    color: chartTheme.colors.info,
   },
 };

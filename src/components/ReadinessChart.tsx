@@ -2,7 +2,8 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { chartTheme, makeLine, makeYAxis, makeXAxis, referenceLines, formatWithUnit } from '@/lib/chartTheme';
 
 interface ReadinessData {
   date: string;
@@ -16,16 +17,22 @@ interface ReadinessChartProps {
 const chartConfig = {
   score: {
     label: "Readiness Score",
-    color: "hsl(var(--chart-1))",
+    color: chartTheme.colors.accent,
   },
 };
 
 export const ReadinessChart: React.FC<ReadinessChartProps> = ({ data }) => {
+  const yAxisProps = makeYAxis([0, 100], 'Score (%)');
+  const xAxisProps = makeXAxis({
+    tickFormatter: (value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  });
+  const lineProps = makeLine(chartTheme.colors.accent);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Readiness Trend</CardTitle>
-        <CardDescription>7-day readiness score trend</CardDescription>
+        <CardDescription>7-day readiness score trend with performance zones</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[200px]">
@@ -33,16 +40,32 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({ data }) => {
             <LineChart data={data}>
               <XAxis 
                 dataKey="date" 
-                tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                {...xAxisProps}
               />
-              <YAxis domain={[0, 100]} />
-              <ChartTooltip content={<ChartTooltipContent />} />
+              <YAxis 
+                {...yAxisProps}
+              />
+              
+              {/* Reference lines for readiness zones */}
+              {referenceLines.readiness.map((line, index) => (
+                <ReferenceLine 
+                  key={index}
+                  y={line.value}
+                  stroke={line.color}
+                  strokeDasharray={line.strokeDasharray}
+                  strokeOpacity={0.7}
+                />
+              ))}
+              
+              <ChartTooltip 
+                content={<ChartTooltipContent 
+                  formatter={(value, name) => [formatWithUnit(Number(value), '%'), name]}
+                />} 
+              />
               <Line 
                 type="monotone" 
                 dataKey="score" 
-                stroke="var(--color-score)" 
-                strokeWidth={2}
-                dot={{ fill: "var(--color-score)", strokeWidth: 2, r: 4 }}
+                {...lineProps}
               />
             </LineChart>
           </ResponsiveContainer>

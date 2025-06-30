@@ -2,8 +2,9 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Legend, ReferenceLine } from 'recharts';
 import { format } from 'date-fns';
+import { chartTheme, makeLine, makeYAxis, makeXAxis, referenceLines, createTooltipFormatter } from '@/lib/chartTheme';
 
 interface LoadData {
   athlete_uuid: string;
@@ -21,15 +22,15 @@ interface EnhancedTrainingLoadChartProps {
 const chartConfig = {
   daily_load: {
     label: "Daily Load",
-    color: "hsl(var(--chart-1))",
+    color: chartTheme.colors.accent,
   },
   acwr_7_28: {
     label: "ACWR (7:28)",
-    color: "hsl(var(--chart-2))",
+    color: chartTheme.colors.info,
   },
   acute_7d: {
     label: "Acute Load (7d)",
-    color: "hsl(var(--chart-3))",
+    color: chartTheme.colors.warning,
   },
 };
 
@@ -40,11 +41,21 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
     acwr_display: item.acwr_7_28 ? Number(item.acwr_7_28.toFixed(2)) : 0
   }));
 
+  const tooltipFormatter = createTooltipFormatter({
+    daily_load: '',
+    acute_7d: '',
+    acwr_display: ''
+  });
+
+  const xAxisProps = makeXAxis();
+  const leftYAxisProps = makeYAxis(undefined, 'Load');
+  const rightYAxisProps = makeYAxis([0, 2], 'ACWR');
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Training Load & ACWR</CardTitle>
-        <CardDescription>Daily training load with Acute:Chronic Workload Ratio</CardDescription>
+        <CardDescription>Daily training load with Acute:Chronic Workload Ratio and risk zones</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[300px]">
@@ -52,54 +63,53 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
             <LineChart data={formattedData}>
               <XAxis 
                 dataKey="date" 
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
+                {...xAxisProps}
               />
               <YAxis 
                 yAxisId="left"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                label={{ value: 'Load', angle: -90, position: 'insideLeft' }}
+                {...leftYAxisProps}
               />
               <YAxis 
                 yAxisId="right"
                 orientation="right"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                domain={[0, 2]}
-                label={{ value: 'ACWR', angle: 90, position: 'insideRight' }}
+                {...rightYAxisProps}
               />
-              <ChartTooltip content={<ChartTooltipContent />} />
+
+              {/* ACWR reference lines */}
+              {referenceLines.acwr.map((line, index) => (
+                <ReferenceLine 
+                  key={index}
+                  yAxisId="right"
+                  y={line.value}
+                  stroke={line.color}
+                  strokeDasharray={line.strokeDasharray}
+                  strokeOpacity={0.7}
+                />
+              ))}
+              
+              <ChartTooltip 
+                content={<ChartTooltipContent formatter={tooltipFormatter} />} 
+              />
               <Legend />
               <Line
                 yAxisId="left"
                 type="monotone"
                 dataKey="daily_load"
-                stroke={chartConfig.daily_load.color}
-                strokeWidth={2}
-                dot={{ fill: chartConfig.daily_load.color, strokeWidth: 2 }}
+                {...makeLine(chartConfig.daily_load.color)}
                 name="Daily Load"
               />
               <Line
                 yAxisId="left"
                 type="monotone"
                 dataKey="acute_7d"
-                stroke={chartConfig.acute_7d.color}
-                strokeWidth={1}
-                strokeDasharray="5 5"
-                dot={false}
+                {...makeLine(chartConfig.acute_7d.color, { strokeDasharray: "5 5", dot: false })}
                 name="Acute Load (7d)"
               />
               <Line
                 yAxisId="right"
                 type="monotone"
                 dataKey="acwr_display"
-                stroke={chartConfig.acwr_7_28.color}
-                strokeWidth={3}
-                dot={{ fill: chartConfig.acwr_7_28.color, strokeWidth: 2 }}
+                {...makeLine(chartConfig.acwr_7_28.color, { strokeWidth: 3 })}
                 name="ACWR (7:28)"
               />
             </LineChart>
@@ -108,22 +118,23 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
         <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
           <div className="text-center">
             <div className="font-medium">Current Load</div>
-            <div className="text-lg font-bold text-blue-600">
+            <div className="text-lg font-bold" style={{ color: chartTheme.colors.accent }}>
               {formattedData[formattedData.length - 1]?.daily_load?.toFixed(0) || 0}
             </div>
           </div>
           <div className="text-center">
             <div className="font-medium">ACWR</div>
-            <div className={`text-lg font-bold ${
-              formattedData[formattedData.length - 1]?.acwr_display > 1.5 ? 'text-red-600' :
-              formattedData[formattedData.length - 1]?.acwr_display > 1.3 ? 'text-yellow-600' : 'text-green-600'
-            }`}>
+            <div className={`text-lg font-bold`} style={{ 
+              color: formattedData[formattedData.length - 1]?.acwr_display > 1.5 ? chartTheme.colors.negative :
+                     formattedData[formattedData.length - 1]?.acwr_display > 1.3 ? chartTheme.colors.warning : 
+                     chartTheme.colors.positive
+            }}>
               {formattedData[formattedData.length - 1]?.acwr_display?.toFixed(2) || '0.00'}
             </div>
           </div>
           <div className="text-center">
             <div className="font-medium">Acute Load</div>
-            <div className="text-lg font-bold text-purple-600">
+            <div className="text-lg font-bold" style={{ color: chartTheme.colors.warning }}>
               {formattedData[formattedData.length - 1]?.acute_7d?.toFixed(0) || 0}
             </div>
           </div>

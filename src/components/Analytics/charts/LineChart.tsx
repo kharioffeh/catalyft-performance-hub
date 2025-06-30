@@ -5,6 +5,7 @@ import { LineChart as RechartsLineChart, Line, XAxis, YAxis, ResponsiveContainer
 import { BaseChartProps, Zone } from './types';
 import { chartConfig } from './chartConfig';
 import { transformDataForChart, formatXAxis } from './chartUtils';
+import { chartTheme, makeLine, makeYAxis, makeXAxis } from '@/lib/chartTheme';
 
 interface LineChartProps extends BaseChartProps {
   zones?: Zone[];
@@ -17,6 +18,12 @@ export const LineChart: React.FC<LineChartProps> = ({
   className = ""
 }) => {
   const chartData = transformDataForChart(data);
+  const yAxisProps = makeYAxis(zones ? [0, Math.max(...zones.map(z => z.to))] : undefined);
+  const xAxisProps = makeXAxis({
+    tickFormatter: (value) => formatXAxis(value, isHourlyView),
+    interval: isHourlyView ? 3 : 'preserveStartEnd'
+  });
+  const lineProps = makeLine(chartTheme.colors.accent, { strokeWidth: 3 });
 
   return (
     <div className={className}>
@@ -25,10 +32,11 @@ export const LineChart: React.FC<LineChartProps> = ({
           <RechartsLineChart data={chartData}>
             <XAxis 
               dataKey="date" 
-              tickFormatter={(value) => formatXAxis(value, isHourlyView)}
-              interval={isHourlyView ? 3 : 'preserveStartEnd'}
+              {...xAxisProps}
             />
-            <YAxis domain={zones ? [0, Math.max(...zones.map(z => z.to))] : ['auto', 'auto']} />
+            <YAxis 
+              {...yAxisProps}
+            />
             <ChartTooltip content={<ChartTooltipContent />} />
             
             {/* Zone reference lines */}
@@ -45,10 +53,7 @@ export const LineChart: React.FC<LineChartProps> = ({
             <Line 
               type="monotone" 
               dataKey="value" 
-              stroke="var(--color-value)" 
-              strokeWidth={3}
-              dot={{ fill: "var(--color-value)", strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6 }}
+              {...lineProps}
             />
           </RechartsLineChart>
         </ResponsiveContainer>

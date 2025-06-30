@@ -5,6 +5,7 @@ import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, ResponsiveContainer } 
 import { BaseChartProps } from './types';
 import { chartConfig } from './chartConfig';
 import { transformDataForChart, formatXAxis } from './chartUtils';
+import { chartTheme, makeYAxis, makeXAxis } from '@/lib/chartTheme';
 
 interface BarChartProps extends BaseChartProps {
   multiSeries?: boolean;
@@ -19,6 +20,11 @@ export const BarChart: React.FC<BarChartProps> = ({
   className = ""
 }) => {
   const chartData = transformDataForChart(data);
+  const yAxisProps = makeYAxis();
+  const xAxisProps = makeXAxis({
+    tickFormatter: (value) => formatXAxis(value, isHourlyView),
+    interval: isHourlyView ? 3 : 'preserveStartEnd'
+  });
 
   if (stacked) {
     return (
@@ -28,14 +34,13 @@ export const BarChart: React.FC<BarChartProps> = ({
             <RechartsBarChart data={chartData}>
               <XAxis 
                 dataKey="date" 
-                tickFormatter={(value) => formatXAxis(value, isHourlyView)}
-                interval={isHourlyView ? 3 : 'preserveStartEnd'}
+                {...xAxisProps}
               />
-              <YAxis />
+              <YAxis {...yAxisProps} />
               <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey="deep" stackId="sleep" fill="var(--color-deep)" name="Deep" />
-              <Bar dataKey="light" stackId="sleep" fill="var(--color-light)" name="Light" />
-              <Bar dataKey="rem" stackId="sleep" fill="var(--color-rem)" name="REM" />
+              <Bar dataKey="deep" stackId="sleep" fill={chartTheme.colors.info} name="Deep" />
+              <Bar dataKey="light" stackId="sleep" fill={chartTheme.colors.accent} name="Light" />
+              <Bar dataKey="rem" stackId="sleep" fill={chartTheme.colors.positive} name="REM" />
             </RechartsBarChart>
           </ResponsiveContainer>
         </ChartContainer>
@@ -51,13 +56,12 @@ export const BarChart: React.FC<BarChartProps> = ({
             <RechartsBarChart data={chartData}>
               <XAxis 
                 dataKey="date" 
-                tickFormatter={(value) => formatXAxis(value, isHourlyView)}
-                interval={isHourlyView ? 3 : 'preserveStartEnd'}
+                {...xAxisProps}
               />
-              <YAxis />
+              <YAxis {...yAxisProps} />
               <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey="acute" fill="var(--color-acute)" name="Acute" />
-              <Bar dataKey="chronic" fill="var(--color-chronic)" name="Chronic" />
+              <Bar dataKey="acute" fill={chartTheme.colors.warning} name="Acute" />
+              <Bar dataKey="chronic" fill={chartTheme.colors.info} name="Chronic" />
             </RechartsBarChart>
           </ResponsiveContainer>
         </ChartContainer>
@@ -72,12 +76,11 @@ export const BarChart: React.FC<BarChartProps> = ({
           <RechartsBarChart data={chartData}>
             <XAxis 
               dataKey="date" 
-              tickFormatter={(value) => formatXAxis(value, isHourlyView)}
-              interval={isHourlyView ? 3 : 'preserveStartEnd'}
+              {...xAxisProps}
             />
-            <YAxis />
+            <YAxis {...yAxisProps} />
             <ChartTooltip content={<ChartTooltipContent />} />
-            <Bar dataKey="value" fill="var(--color-value)" />
+            <Bar dataKey="value" fill={chartTheme.colors.accent} />
           </RechartsBarChart>
         </ResponsiveContainer>
       </ChartContainer>
