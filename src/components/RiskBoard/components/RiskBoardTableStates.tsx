@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { RiskBoardEmptyState } from './RiskBoardEmptyState';
 
 interface RiskBoardTableStatesProps {
   isLoading: boolean;
@@ -36,8 +37,17 @@ export const RiskBoardTableStates: React.FC<RiskBoardTableStatesProps> = ({
           <p className="text-gray-600">Loading risk assessment...</p>
         </div>
         
-        {/* Loading skeleton */}
-        <div className="space-y-3">
+        {/* Loading skeleton for mobile accordion */}
+        <div className="space-y-3 md:hidden">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="mx-4">
+              <Skeleton className="h-16 w-full rounded-xl" />
+            </div>
+          ))}
+        </div>
+
+        {/* Loading skeleton for desktop table */}
+        <div className="hidden md:block space-y-3">
           {[...Array(3)].map((_, i) => (
             <div key={i} className="flex space-x-4">
               <Skeleton className="h-10 w-32" />
@@ -53,18 +63,7 @@ export const RiskBoardTableStates: React.FC<RiskBoardTableStatesProps> = ({
   }
 
   if (!hasData) {
-    return (
-      <div className="text-center py-12">
-        <div className="text-gray-400 text-6xl mb-4">👥</div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No Athletes Found</h3>
-        <p className="text-gray-500 mb-4">
-          Add athletes to your roster to see their risk assessment data here.
-        </p>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
-          Add Athletes
-        </button>
-      </div>
-    );
+    return <RiskBoardEmptyState />;
   }
 
   return null;

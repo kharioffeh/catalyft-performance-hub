@@ -2,6 +2,8 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RiskBoardTable } from '@/components/RiskBoardTable';
+import { RiskBoardAccordion } from '@/components/RiskBoard/components/RiskBoardAccordion';
+import { RiskBoardTableStates } from '@/components/RiskBoard/components/RiskBoardTableStates';
 
 interface RiskBoardData {
   athlete_id: string;
@@ -26,18 +28,46 @@ export const RiskBoardContent: React.FC<RiskBoardContentProps> = ({
   onAthleteClick,
   isMobile,
 }) => {
+  // Handle loading and empty states
+  if (isLoading || data.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Athlete Risk Assessment</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <RiskBoardTableStates 
+            isLoading={isLoading} 
+            hasData={data.length > 0} 
+          />
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Athlete Risk Assessment</CardTitle>
       </CardHeader>
       <CardContent>
-        <RiskBoardTable
-          data={data}
-          isLoading={isLoading}
-          onAthleteClick={onAthleteClick}
-          isMobile={isMobile}
-        />
+        {/* Mobile Accordion View */}
+        <div className="md:hidden">
+          <RiskBoardAccordion
+            data={data}
+            onAthleteClick={onAthleteClick}
+          />
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden md:block">
+          <RiskBoardTable
+            data={data}
+            isLoading={isLoading}
+            onAthleteClick={onAthleteClick}
+            isMobile={isMobile}
+          />
+        </div>
       </CardContent>
     </Card>
   );
