@@ -1,7 +1,8 @@
-
 import React from 'react';
 import { Activity, Calendar, BarChart3, AlertTriangle } from 'lucide-react';
 import { KpiCard } from '@/components/ui/KpiCard';
+import { MobileKpiGrid } from './MobileKpiGrid';
+import { useIsMobile } from '@/hooks/useBreakpoint';
 
 interface VerticalMetricCardsProps {
   currentReadiness: any;
@@ -16,6 +17,8 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
   weeklyStats,
   injuryRisk
 }) => {
+  const isMobile = useIsMobile();
+
   const getReadinessValue = () => {
     if (!currentReadiness) return '--';
     return `${Math.round(currentReadiness.score)}%`;
@@ -50,6 +53,46 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
     return `${weeklyStats?.completed || 0}/${weeklyStats?.planned || 0}`;
   };
 
+  // Mobile KPI data
+  const mobileKpiData = [
+    {
+      id: 'readiness',
+      title: 'Readiness',
+      value: getReadinessValue(),
+      icon: Activity,
+      color: 'text-blue-600',
+      isLoading: !currentReadiness
+    },
+    {
+      id: 'sessions',
+      title: "Today's Sessions",
+      value: getSessionsValue(),
+      icon: Calendar,
+      color: 'text-green-600'
+    },
+    {
+      id: 'weekly',
+      title: 'This Week',
+      value: getWeeklyValue(),
+      icon: BarChart3,
+      color: 'text-purple-600'
+    },
+    {
+      id: 'injury-risk',
+      title: 'Injury Risk',
+      value: injuryRisk ? getRiskLevel(injuryRisk.probabilities) : '--',
+      icon: AlertTriangle,
+      color: 'text-orange-600',
+      isLoading: !injuryRisk
+    }
+  ];
+
+  // Use mobile grid on small screens
+  if (isMobile) {
+    return <MobileKpiGrid data={mobileKpiData} />;
+  }
+
+  // Desktop vertical layout (unchanged)
   return (
     <div className="space-y-4">
       {/* Readiness Card */}

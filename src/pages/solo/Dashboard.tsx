@@ -6,11 +6,13 @@ import { ACWRDial } from '@/components/Analytics/Glass/ACWRDial';
 import { AriaInsightsCard } from '@/components/cards/AriaInsightsCard';
 import { HeatMapCard } from '@/components/cards/HeatMapCard';
 import { ConnectWearableModal } from '@/components/ConnectWearableModal';
+import { MobileKpiGrid } from '@/components/Dashboard/MobileKpiGrid';
 import { useLastSessionLoad } from '@/hooks/useLastSessionLoad';
 import { useAcwr } from '@/hooks/useAcwr';
 import { useAriaInsights } from '@/hooks/useAriaInsights';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useWearableStatus } from '@/hooks/useWearableStatus';
+import { useIsMobile } from '@/hooks/useBreakpoint';
 import { SkeletonCard } from '@/components/skeleton/SkeletonCard';
 import { SkeletonBox } from '@/components/skeleton/SkeletonBox';
 import { SkeletonChart } from '@/components/skeleton/SkeletonChart';
@@ -103,6 +105,10 @@ const SoloDashboard: React.FC = () => {
   const { profile } = useAuth();
   const { data: wearableStatus } = useWearableStatus(profile?.id);
   const { data: insights } = useAriaInsights();
+  const { currentReadiness } = useDashboardData(profile?.id);
+  const { data: lastSessionLoad } = useLastSessionLoad();
+  const { data: acwrValue } = useAcwr();
+  const isMobile = useIsMobile();
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
 
@@ -113,6 +119,34 @@ const SoloDashboard: React.FC = () => {
     setIsConnecting(false);
     window.location.reload();
   };
+
+  // Mobile KPI data for solo dashboard
+  const mobileKpiData = [
+    {
+      id: 'readiness',
+      title: 'Readiness',
+      value: currentReadiness ? `${Math.round(currentReadiness.score)}%` : '—',
+      icon: Activity,
+      color: 'text-blue-400',
+      isLoading: !currentReadiness
+    },
+    {
+      id: 'last-load',
+      title: 'Last Load',
+      value: lastSessionLoad ? Math.round(lastSessionLoad).toString() : '—',
+      icon: Zap,
+      color: 'text-purple-400',
+      isLoading: !lastSessionLoad
+    },
+    {
+      id: 'acwr',
+      title: 'ACWR',
+      value: acwrValue ? acwrValue.toFixed(1) : '—',
+      icon: Target,
+      color: 'text-orange-400',
+      isLoading: !acwrValue
+    }
+  ];
 
   if (!profile?.id) {
     return (
@@ -160,29 +194,41 @@ const SoloDashboard: React.FC = () => {
           </AnimatedCard>
         )}
 
-        {/* Responsive Grid */}
-        <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 auto-rows-[minmax(120px,auto)]">
-          {/* Readiness Card */}
+        {/* KPI Section - Mobile vs Desktop */}
+        {isMobile ? (
           <AnimatedCard delay={0.2}>
-            <SuspenseWrapper fallback={<SkeletonCard className="bg-blue-500/10 border-blue-400/30" />}>
-              <ReadinessCard profileId={profile.id} />
+            <SuspenseWrapper fallback={<SkeletonCard className="h-96" />}>
+              <MobileKpiGrid data={mobileKpiData} />
             </SuspenseWrapper>
           </AnimatedCard>
+        ) : (
+          /* Desktop Grid */
+          <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 auto-rows-[minmax(120px,auto)] mb-8">
+            {/* Readiness Card */}
+            <AnimatedCard delay={0.2}>
+              <SuspenseWrapper fallback={<SkeletonCard className="bg-blue-500/10 border-blue-400/30" />}>
+                <ReadinessCard profileId={profile.id} />
+              </SuspenseWrapper>
+            </AnimatedCard>
 
-          {/* Last Session Load Card */}
-          <AnimatedCard delay={0.3}>
-            <SuspenseWrapper fallback={<SkeletonCard className="bg-purple-500/10 border-purple-400/30" />}>
-              <LastSessionCard />
-            </SuspenseWrapper>
-          </AnimatedCard>
+            {/* Last Session Load Card */}
+            <AnimatedCard delay={0.3}>
+              <SuspenseWrapper fallback={<SkeletonCard className="bg-purple-500/10 border-purple-400/30" />}>
+                <LastSessionCard />
+              </SuspenseWrapper>
+            </AnimatedCard>
 
-          {/* ACWR Dial Card */}
-          <AnimatedCard delay={0.4}>
-            <SuspenseWrapper fallback={<SkeletonChart className="bg-orange-500/10 border-orange-400/30 h-48" showAxes={false} />}>
-              <ACWRCard />
-            </SuspenseWrapper>
-          </AnimatedCard>
+            {/* ACWR Dial Card */}
+            <AnimatedCard delay={0.4}>
+              <SuspenseWrapper fallback={<SkeletonChart className="bg-orange-500/10 border-orange-400/30 h-48" showAxes={false} />}>
+                <ACWRCard />
+              </SuspenseWrapper>
+            </AnimatedCard>
+          </div>
+        )}
 
+        {/* Bottom Content Grid */}
+        <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 auto-rows-[minmax(120px,auto)]">
           {/* ARIA Insights Card */}
           <AnimatedCard delay={0.5}>
             <SuspenseWrapper fallback={<SkeletonCard contentLines={4} />}>
@@ -191,7 +237,7 @@ const SoloDashboard: React.FC = () => {
           </AnimatedCard>
 
           {/* Heat Map Card - spans 2 rows on large screens */}
-          <AnimatedCard delay={0.6} className="lg:col-span-2">
+          <AnimatedCard delay={0.6} className="lg:col-span-1">
             <SuspenseWrapper fallback={<SkeletonChart className="h-64" showAxes={false} />}>
               <HeatMapCard athleteId={profile.id} />
             </SuspenseWrapper>

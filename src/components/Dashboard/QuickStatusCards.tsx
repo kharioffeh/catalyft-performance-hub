@@ -1,7 +1,8 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Activity, Calendar, BarChart3, AlertTriangle } from 'lucide-react';
+import { MobileKpiGrid } from './MobileKpiGrid';
+import { useIsMobile } from '@/hooks/useBreakpoint';
 
 interface QuickStatusCardsProps {
   currentReadiness: any;
@@ -16,6 +17,8 @@ export const QuickStatusCards: React.FC<QuickStatusCardsProps> = ({
   weeklyStats,
   injuryRisk
 }) => {
+  const isMobile = useIsMobile();
+
   const getReadinessColor = (score: number) => {
     if (score >= 80) return 'text-green-600';
     if (score >= 60) return 'text-yellow-600';
@@ -37,6 +40,46 @@ export const QuickStatusCards: React.FC<QuickStatusCardsProps> = ({
     return { level: 'Low', color: 'text-green-600' };
   };
 
+  // Mobile KPI data
+  const mobileKpiData = [
+    {
+      id: 'readiness',
+      title: 'Readiness',
+      value: currentReadiness ? `${Math.round(currentReadiness.score)}%` : '--',
+      icon: Activity,
+      color: currentReadiness ? getReadinessColor(currentReadiness.score) : 'text-gray-400',
+      isLoading: !currentReadiness
+    },
+    {
+      id: 'sessions',
+      title: "Today's Sessions",
+      value: todaySessions.length,
+      icon: Calendar,
+      color: 'text-blue-600'
+    },
+    {
+      id: 'weekly',
+      title: 'This Week',
+      value: `${weeklyStats?.completed || 0}/${weeklyStats?.planned || 0}`,
+      icon: BarChart3,
+      color: 'text-purple-600'
+    },
+    {
+      id: 'injury-risk',
+      title: 'Injury Risk',
+      value: injuryRisk ? getRiskLevel(injuryRisk.probabilities).level : '--',
+      icon: AlertTriangle,
+      color: injuryRisk ? getRiskLevel(injuryRisk.probabilities).color : 'text-gray-400',
+      isLoading: !injuryRisk
+    }
+  ];
+
+  // Use mobile grid on small screens
+  if (isMobile) {
+    return <MobileKpiGrid data={mobileKpiData} />;
+  }
+
+  // Desktop layout (unchanged)
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       <Card>
