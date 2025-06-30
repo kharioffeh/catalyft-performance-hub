@@ -8,6 +8,7 @@ import { AthleteSelector } from '@/components/Analytics/AthleteSelector';
 import { InsightPanel } from '@/components/aria/InsightPanel';
 import { InsightStrip } from '@/components/Analytics/InsightStrip';
 import { MetricCarousel } from '@/components/Analytics/MetricCarousel';
+import { AriaSpotlight } from '@/components/Analytics/AriaSpotlight';
 import { ReadinessChart } from '@/components/ReadinessChart';
 import { EnhancedSleepChart } from '@/components/EnhancedSleepChart';
 import { EnhancedTrainingLoadChart } from '@/components/EnhancedTrainingLoadChart';
@@ -178,6 +179,9 @@ const AnalyticsPage: React.FC = () => {
             <EnhancedTrainingLoadChart data={mockLoadData} variant="carousel" />
           </MetricCarousel>
         </div>
+
+        {/* ARIA Spotlight - Contextual coaching overlay */}
+        <AriaSpotlight />
 
         {/* Responsive 12-Column Grid Layout for remaining components */}
         <div className="grid grid-cols-12 gap-6 auto-rows-min">
