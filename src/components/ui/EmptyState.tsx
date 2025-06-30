@@ -11,6 +11,7 @@ interface EmptyStateProps {
   className?: string;
   // New props for illustration-based empty states
   type?: 'sleep' | 'readiness' | 'load';
+  metric?: 'readiness' | 'sleep' | 'load' | 'strain';
   illustration?: string;
   ctaLabel?: string;
   onAction?: () => void;
@@ -41,10 +42,14 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   action,
   className,
   type,
+  metric,
   illustration,
   ctaLabel,
   onAction
 }) => {
+  // Determine the metric color from type or explicit metric prop
+  const metricColor = metric || type;
+  
   // Use illustration-based layout if type is provided
   if (type) {
     const copy = defaultCopy[type];
@@ -59,6 +64,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           src={illustrationSrc}
           alt=""
           className="w-40 h-40 max-w-[70%] mb-6 hover:animate-wiggle transition-transform duration-300"
+          style={metricColor ? { filter: `hue-rotate(${getHueRotation(metricColor)}deg)` } : undefined}
         />
         <h3 className="text-lg font-medium text-white mb-2">{title || copy.title}</h3>
         <p className="text-sm text-white/60 mb-6 max-w-[280px]">
@@ -67,7 +73,12 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         {onAction && (
           <button
             onClick={onAction}
-            className="px-6 py-2.5 rounded-full bg-indigo-500 hover:bg-indigo-400 text-white font-medium transition-colors"
+            className={cn(
+              "px-6 py-2.5 rounded-full text-white font-medium transition-colors",
+              metricColor ? 
+                `bg-${metricColor} hover:bg-${metricColor}/90` : 
+                "bg-indigo-500 hover:bg-indigo-400"
+            )}
           >
             {ctaLabel || copy.cta}
           </button>
@@ -85,7 +96,10 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     )}>
       {Icon && (
         <div className="p-4 bg-white/5 dark:bg-white/5 rounded-full mb-4 backdrop-blur-sm">
-          <Icon className="w-8 h-8 text-white/40" />
+          <Icon className={cn(
+            "w-8 h-8",
+            metricColor ? `text-${metricColor}` : "text-white/40"
+          )} />
         </div>
       )}
       <h3 className="text-lg font-medium text-white mb-2">{title || 'No data available'}</h3>
@@ -93,4 +107,15 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       {action}
     </div>
   );
+};
+
+// Helper function to adjust illustration colors based on metric
+const getHueRotation = (metric: string) => {
+  switch (metric) {
+    case 'readiness': return 120; // green
+    case 'sleep': return 240; // blue  
+    case 'load': return 45; // amber
+    case 'strain': return 340; // rose
+    default: return 0;
+  }
 };

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import GlassCard from '@/components/ui/GlassCard';
 import { KpiCard } from '@/components/ui/KpiCard';
@@ -142,7 +143,7 @@ const AnalyticsPageContent: React.FC = () => {
   ];
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-base">
       {/* Controls */}
       <div className="max-w-7xl mx-auto p-6">
         <div className="flex flex-wrap items-center justify-between mb-6 gap-3">
@@ -150,7 +151,7 @@ const AnalyticsPageContent: React.FC = () => {
             selectedAthleteId={selectedAthleteId}
             onAthleteChange={setSelectedAthleteId}
           />
-          <button className="flex items-center gap-2 text-xs px-3 py-2 border border-white/10 rounded-lg hover:bg-white/5 transition text-white">
+          <button className="flex items-center gap-2 text-xs px-3 py-2 border border-border rounded-lg hover:bg-white/5 transition text-white">
             <Download className="h-4 w-4" />
             Export
           </button>
@@ -242,7 +243,7 @@ const AnalyticsPageContent: React.FC = () => {
                 <textarea
                   id="aria-input"
                   rows={3}
-                  className="w-full resize-none rounded-lg bg-black/20 p-3 text-sm placeholder:text-white/40 border border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-white"
+                  className="w-full resize-none rounded-lg bg-black/20 p-3 text-sm placeholder:text-white/40 border border-border focus:outline-none focus:ring-2 focus:ring-indigo-400 text-white"
                   placeholder="Ask ARIA… e.g. 'How can I improve recovery this week?'"
                   value={ariaInput}
                   onChange={(e) => setAriaInput(e.target.value)}

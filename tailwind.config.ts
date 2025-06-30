@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -10,6 +9,24 @@ const config: Config = {
     './src/**/*.{ts,tsx}',
   ],
   prefix: "",
+  safelist: [
+    'ring-readiness',
+    'ring-sleep', 
+    'ring-load',
+    'ring-strain',
+    'text-readiness',
+    'text-sleep',
+    'text-load', 
+    'text-strain',
+    'bg-readiness',
+    'bg-sleep',
+    'bg-load',
+    'bg-strain',
+    'hover:bg-readiness/90',
+    'hover:bg-sleep/90',
+    'hover:bg-load/90',
+    'hover:bg-strain/90'
+  ],
   theme: {
     container: {
       center: true,
@@ -20,6 +37,25 @@ const config: Config = {
     },
     extend: {
       colors: {
+        base: '#0D0B20',
+        card: 'rgba(255,255,255,0.04)',
+        border: 'rgba(255,255,255,0.08)',
+        readiness: {
+          DEFAULT: '#10B981',
+          ring: '#34D399'
+        },
+        sleep: {
+          DEFAULT: '#6366F1', 
+          ring: '#818CF8'
+        },
+        load: {
+          DEFAULT: '#F59E0B',
+          ring: '#FBBF24'  
+        },
+        strain: {
+          DEFAULT: '#F43F5E',
+          ring: '#FB7185'
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

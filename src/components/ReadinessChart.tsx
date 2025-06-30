@@ -20,7 +20,7 @@ interface ReadinessChartProps {
 const chartConfig = {
   score: {
     label: "Readiness Score",
-    color: chartTheme.colors.accent,
+    color: '#10B981', // readiness color
   },
 };
 
@@ -33,7 +33,7 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
   const xAxisProps = makeXAxis({
     tickFormatter: (value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   });
-  const lineProps = makeLine(chartTheme.colors.accent);
+  const lineProps = makeLine('#10B981'); // readiness color
 
   const chartHeight = variant === 'carousel' ? 'h-[200px] md:h-[260px]' : 'h-[200px]';
 
@@ -42,6 +42,7 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
     const emptyStateContent = (
       <EmptyState
         type="readiness"
+        metric="readiness"
         onAction={onConnectWearable}
         className="h-[200px] md:h-[260px]"
       />

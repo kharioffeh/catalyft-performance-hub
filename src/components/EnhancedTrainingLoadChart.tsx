@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -25,15 +24,15 @@ interface EnhancedTrainingLoadChartProps {
 const chartConfig = {
   daily_load: {
     label: "Daily Load",
-    color: chartTheme.colors.accent,
+    color: '#F59E0B', // load color
   },
   acwr_7_28: {
     label: "ACWR (7:28)",
-    color: chartTheme.colors.info,
+    color: '#FBBF24', // load ring color
   },
   acute_7d: {
     label: "Acute Load (7d)",
-    color: chartTheme.colors.warning,
+    color: '#FCD34D', // lighter load variant
   },
 };
 
@@ -50,6 +49,7 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
     const emptyStateContent = (
       <EmptyState
         type="load"
+        metric="load"
         onAction={onLogWorkout}
         className="h-[200px] md:h-[260px]"
       />
@@ -160,23 +160,23 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
     <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
       <div className="text-center">
         <div className="font-medium text-white/70">Current Load</div>
-        <div className="text-lg font-bold text-white">
+        <div className="text-lg font-bold text-load">
           {formattedData[formattedData.length - 1]?.daily_load?.toFixed(0) || 0}
         </div>
       </div>
       <div className="text-center">
         <div className="font-medium text-white/70">ACWR</div>
         <div className={`text-lg font-bold`} style={{ 
-          color: formattedData[formattedData.length - 1]?.acwr_display > 1.5 ? chartTheme.colors.negative :
-                 formattedData[formattedData.length - 1]?.acwr_display > 1.3 ? chartTheme.colors.warning : 
-                 chartTheme.colors.positive
+          color: formattedData[formattedData.length - 1]?.acwr_display > 1.5 ? '#F43F5E' :
+                 formattedData[formattedData.length - 1]?.acwr_display > 1.3 ? '#F59E0B' : 
+                 '#10B981'
         }}>
           {formattedData[formattedData.length - 1]?.acwr_display?.toFixed(2) || '0.00'}
         </div>
       </div>
       <div className="text-center">
         <div className="font-medium text-white/70">Acute Load</div>
-        <div className="text-lg font-bold text-white">
+        <div className="text-lg font-bold text-load">
           {formattedData[formattedData.length - 1]?.acute_7d?.toFixed(0) || 0}
         </div>
       </div>

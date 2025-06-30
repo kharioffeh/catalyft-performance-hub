@@ -1,23 +1,28 @@
 
 import React from 'react';
 import { ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface MetricCardProps {
+  metric: 'readiness' | 'sleep' | 'load' | 'strain';
   title: string;
   latest?: number;
   delta?: number;
   onClick: () => void;
   unit?: string;
   target?: number;
+  children?: React.ReactNode;
 }
 
 export const MetricCard: React.FC<MetricCardProps> = ({
+  metric,
   title,
   latest,
   delta,
   onClick,
   unit = "",
-  target
+  target,
+  children
 }) => {
   const getTrendIcon = () => {
     if (delta === undefined) return null;
@@ -46,13 +51,20 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   return (
     <div 
       onClick={onClick}
-      className="card cursor-pointer hover:shadow-md transition-all duration-200"
+      className={cn(
+        'relative rounded-xl bg-card backdrop-blur-lg border border-border p-4 cursor-pointer transition-all duration-200',
+        `before:absolute before:inset-0 before:rounded-xl before:pointer-events-none before:ring-1 before:ring-${metric}/ring`,
+        `hover:bg-${metric}/10`
+      )}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex flex-col gap-1">
-            <h3 className="text-xs text-gray-500 font-medium">{title}</h3>
-            <span className="text-3xl font-semibold text-gray-900">
+            <h3 className="text-xs text-white/60 font-medium">{title}</h3>
+            <span className={cn(
+              "text-3xl font-semibold",
+              `text-${metric}`
+            )}>
               {formatValue(latest)}{unit}
             </span>
             {delta !== undefined && (
@@ -63,25 +75,30 @@ export const MetricCard: React.FC<MetricCardProps> = ({
             )}
           </div>
           {delta !== undefined && (
-            <p className="text-xs text-gray-400 mt-1">vs 7d avg</p>
+            <p className="text-xs text-white/40 mt-1">vs 7d avg</p>
           )}
         </div>
       </div>
       
       {target && latest !== undefined && (
         <div className="mt-4">
-          <div className="flex justify-between text-xs text-gray-500 mb-1">
+          <div className="flex justify-between text-xs text-white/60 mb-1">
             <span>Progress to target</span>
             <span>{target}{unit}</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-1.5">
+          <div className="w-full bg-white/10 rounded-full h-1.5">
             <div 
-              className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+              className={cn(
+                "h-1.5 rounded-full transition-all duration-300",
+                `bg-${metric}`
+              )}
               style={{ width: `${getProgressPercentage()}%` }}
             />
           </div>
         </div>
       )}
+      
+      {children}
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -25,15 +24,15 @@ interface EnhancedSleepChartProps {
 const chartConfig = {
   sleep_efficiency: {
     label: "Sleep Efficiency (%)",
-    color: chartTheme.colors.positive,
+    color: '#6366F1', // sleep color
   },
   total_sleep_hours: {
     label: "Sleep Duration (hrs)",
-    color: chartTheme.colors.accent,
+    color: '#818CF8', // sleep ring color
   },
   hrv_rmssd: {
     label: "HRV (ms)",
-    color: chartTheme.colors.info,
+    color: '#A5B4FC', // lighter sleep variant
   },
 };
 
@@ -50,6 +49,7 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
     const emptyStateContent = (
       <EmptyState
         type="sleep"
+        metric="sleep"
         onAction={onConnectWearable}
         className="h-[200px] md:h-[260px]"
       />
@@ -162,19 +162,19 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
     <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
       <div className="text-center">
         <div className="font-medium">Sleep Efficiency</div>
-        <div className="text-lg font-bold" style={{ color: chartTheme.colors.positive }}>
+        <div className="text-lg font-bold text-sleep">
           {formattedData[formattedData.length - 1]?.efficiency?.toFixed(1) || 0}%
         </div>
       </div>
       <div className="text-center">
         <div className="font-medium">Duration</div>
-        <div className="text-lg font-bold" style={{ color: chartTheme.colors.accent }}>
+        <div className="text-lg font-bold text-sleep">
           {formattedData[formattedData.length - 1]?.duration?.toFixed(1) || 0}h
         </div>
       </div>
       <div className="text-center">
         <div className="font-medium">HRV</div>
-        <div className="text-lg font-bold" style={{ color: chartTheme.colors.info }}>
+        <div className="text-lg font-bold text-sleep">
           {formattedData[formattedData.length - 1]?.hrv?.toFixed(1) || 0}ms
         </div>
       </div>
