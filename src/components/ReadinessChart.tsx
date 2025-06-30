@@ -34,7 +34,7 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
   onConnectWearable 
 }) => {
   const chartRef = useRef<HTMLDivElement>(null);
-  const [chartRefState, isInView] = useInView<HTMLDivElement>({ threshold: 0.2, triggerOnce: true });
+  const [inViewRef, isInView] = useInView<HTMLDivElement>({ threshold: 0.2, triggerOnce: true });
   const [animationComplete, setAnimationComplete] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const { openSheet } = useShareUI();
@@ -113,7 +113,7 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
     <div 
       ref={(node) => {
         chartRef.current = node;
-        chartRefState(node);
+        inViewRef(node);
       }}
     >
       <ChartContainer config={chartConfig} className={chartHeight}>
