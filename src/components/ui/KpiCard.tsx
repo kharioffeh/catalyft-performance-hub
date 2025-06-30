@@ -38,17 +38,31 @@ export const KpiCard: React.FC<KpiCardProps> = ({
     }
   };
 
+  // Fixed icon rendering logic
+  const renderIcon = () => {
+    if (!Icon) return null;
+    
+    // If it's already a React element, render it directly
+    if (React.isValidElement(Icon)) {
+      return Icon;
+    }
+    
+    // If it's a component (function or forwardRef), render as JSX
+    if (typeof Icon === 'function' || (Icon && typeof Icon === 'object' && 'render' in Icon)) {
+      const IconComponent = Icon as React.ComponentType<any>;
+      return <IconComponent className="w-4 h-4 text-white/60" />;
+    }
+    
+    return null;
+  };
+
   const cardContent = (
     <>
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-medium text-white/70">{title}</h3>
         {Icon && (
           <div className="p-2 bg-white/10 rounded-lg">
-            {typeof Icon === 'function' ? (
-              <Icon className="w-4 h-4 text-white/60" />
-            ) : (
-              Icon
-            )}
+            {renderIcon()}
           </div>
         )}
       </div>
