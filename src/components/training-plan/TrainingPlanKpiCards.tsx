@@ -11,19 +11,19 @@ export const TrainingPlanKpiCards: React.FC = () => {
     <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
       <KpiCard
         title="Templates"
-        value={isLoading ? '—' : data?.templates ?? 0}
+        value={data?.templates ?? 0}
         icon={FilePlus}
         isLoading={isLoading}
       />
       <KpiCard
         title="Active Programs"
-        value={isLoading ? '—' : data?.activePrograms ?? 0}
+        value={data?.activePrograms ?? 0}
         icon={PlayCircle}
         isLoading={isLoading}
       />
       <KpiCard
         title="Total Sessions"
-        value={isLoading ? '—' : data?.totalSessions ?? 0}
+        value={data?.totalSessions ?? 0}
         icon={CalendarClock}
         isLoading={isLoading}
       />

@@ -1,10 +1,11 @@
 
 import React, { useState } from 'react';
 import GlassCard from '@/components/ui/GlassCard';
+import { KpiCard } from '@/components/ui/KpiCard';
 import { HeatMapBody } from '@/components/Analytics/Glass/HeatMapBody';
 import { ACWRDial } from '@/components/Analytics/Glass/ACWRDial';
 import { AthleteSelector } from '@/components/Analytics/AthleteSelector';
-import { Download, Sparkles } from 'lucide-react';
+import { Download, Sparkles, Activity, Moon, Zap, Target } from 'lucide-react';
 
 const ARIA_SUGGESTIONS = [
   "How can I improve recovery this week?",
@@ -79,34 +80,30 @@ const AnalyticsPage: React.FC = () => {
 
         {/* KPI Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-          <GlassCard className="p-5">
-            <p className="text-xs mb-1 tracking-wide text-white/70 uppercase font-medium">Readiness</p>
-            <p className="text-2xl font-semibold text-white mb-1">88%</p>
-            <p className="text-xs flex items-center gap-1 font-medium text-emerald-400">
-              <span>+4.0 vs 7d</span>
-            </p>
-          </GlassCard>
-          <GlassCard accent="sleep" className="p-5">
-            <p className="text-xs mb-1 tracking-wide text-white/70 uppercase font-medium">Sleep Duration</p>
-            <p className="text-2xl font-semibold text-white mb-1">8.3h</p>
-            <p className="text-xs flex items-center gap-1 font-medium text-rose-400">
-              <span>-0.1 vs 7d</span>
-            </p>
-          </GlassCard>
-          <GlassCard accent="load" className="p-5">
-            <p className="text-xs mb-1 tracking-wide text-white/70 uppercase font-medium">ACWR Ratio</p>
-            <p className="text-2xl font-semibold text-white mb-1">0.9</p>
-            <p className="text-xs flex items-center gap-1 font-medium text-rose-400">
-              <span>-0.4 vs 7d</span>
-            </p>
-          </GlassCard>
-          <GlassCard accent="strain" className="p-5">
-            <p className="text-xs mb-1 tracking-wide text-white/70 uppercase font-medium">Latest Strain</p>
-            <p className="text-2xl font-semibold text-white mb-1">20.6</p>
-            <p className="text-xs flex items-center gap-1 font-medium text-rose-400">
-              <span>-2.1 vs 7d</span>
-            </p>
-          </GlassCard>
+          <KpiCard
+            title="Readiness"
+            value="88%"
+            icon={Activity}
+            delta={{ value: "+4.0 vs 7d", positive: true }}
+          />
+          <KpiCard
+            title="Sleep Duration"
+            value="8.3h"
+            icon={Moon}
+            delta={{ value: "-0.1 vs 7d", positive: false }}
+          />
+          <KpiCard
+            title="ACWR Ratio"
+            value="0.9"
+            icon={Target}
+            delta={{ value: "-0.4 vs 7d", positive: false }}
+          />
+          <KpiCard
+            title="Latest Strain"
+            value="20.6"
+            icon={Zap}
+            delta={{ value: "-2.1 vs 7d", positive: false }}
+          />
         </div>
 
         {/* Muscle HeatMap + ACWR Dial Row */}

@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { MetricCard } from './MetricCard';
+import { KpiCard } from '@/components/ui/KpiCard';
 import { useNavigate } from 'react-router-dom';
+import { Activity, Moon, Target, Zap } from 'lucide-react';
 
 interface AnalyticsKPICardsProps {
   readinessData: any;
@@ -18,37 +19,56 @@ export const AnalyticsKPICards: React.FC<AnalyticsKPICardsProps> = ({
 }) => {
   const navigate = useNavigate();
 
+  const formatDelta = (value: number) => {
+    const sign = value >= 0 ? '+' : '';
+    return `${sign}${value.toFixed(1)} vs 7d`;
+  };
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <MetricCard
+      <KpiCard
         title="Readiness Score"
-        latest={readinessData?.latestScore}
-        delta={readinessData?.delta7d}
-        unit="%"
-        target={85}
+        value={readinessData?.latestScore ? `${readinessData.latestScore}%` : '--'}
+        icon={Activity}
+        delta={readinessData?.delta7d ? {
+          value: formatDelta(readinessData.delta7d),
+          positive: readinessData.delta7d >= 0
+        } : undefined}
         onClick={() => navigate('/analytics/readiness')}
+        isLoading={!readinessData}
       />
-      <MetricCard
+      <KpiCard
         title="Sleep Duration"
-        latest={sleepData?.avgHours}
-        delta={sleepData?.delta7d}
-        unit="h"
-        target={8}
+        value={sleepData?.avgHours ? `${sleepData.avgHours}h` : '--'}
+        icon={Moon}
+        delta={sleepData?.delta7d ? {
+          value: formatDelta(sleepData.delta7d),
+          positive: sleepData.delta7d >= 0
+        } : undefined}
         onClick={() => navigate('/analytics/sleep')}
+        isLoading={!sleepData}
       />
-      <MetricCard
+      <KpiCard
         title="ACWR Ratio"
-        latest={loadData?.latestAcwr}
-        delta={loadData?.delta7d}
-        target={1.3}
+        value={loadData?.latestAcwr ? loadData.latestAcwr.toFixed(1) : '--'}
+        icon={Target}
+        delta={loadData?.delta7d ? {
+          value: formatDelta(loadData.delta7d),
+          positive: loadData.delta7d >= 0
+        } : undefined}
         onClick={() => navigate('/analytics/load')}
+        isLoading={!loadData}
       />
-      <MetricCard
+      <KpiCard
         title="Latest Strain"
-        latest={latestStrain?.value}
-        delta={-2.1}
-        target={15}
+        value={latestStrain?.value ? latestStrain.value.toFixed(1) : '--'}
+        icon={Zap}
+        delta={{
+          value: formatDelta(-2.1),
+          positive: false
+        }}
         onClick={() => navigate('/analytics/load')}
+        isLoading={!latestStrain}
       />
     </div>
   );
