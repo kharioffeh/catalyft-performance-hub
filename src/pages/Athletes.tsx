@@ -18,7 +18,9 @@ const Athletes: React.FC = () => {
     handleSubmit,
     handleEdit,
     handleDelete,
-    resetForm
+    resetForm,
+    addAthleteMutation,
+    updateAthleteMutation
   } = useAthletesRealtime();
 
   return (
@@ -45,8 +47,10 @@ const Athletes: React.FC = () => {
           setEditingAthlete={setEditingAthlete}
           formData={formData}
           setFormData={setFormData}
-          onSubmit={handleSubmit}
-          onCancel={resetForm}
+          handleSubmit={handleSubmit}
+          resetForm={resetForm}
+          addAthleteMutation={addAthleteMutation}
+          updateAthleteMutation={updateAthleteMutation}
         />
       </div>
     </div>
