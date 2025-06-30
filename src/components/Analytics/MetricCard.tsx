@@ -1,3 +1,4 @@
+
 import React, { useRef } from 'react';
 import { ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -7,6 +8,8 @@ import { useIsomorphicLayoutEffect } from '@/hooks/useIsomorphicLayoutEffect';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useLongPress } from '@/hooks/useLongPress';
 import { useAnalyticsUI } from '@/context/AnalyticsUIContext';
+import { useShareUI } from '@/context/ShareUIContext';
+import { ShareButton } from '@/components/ShareButton';
 
 interface MetricCardProps {
   metric: 'readiness' | 'sleep' | 'load' | 'strain';
@@ -17,6 +20,7 @@ interface MetricCardProps {
   unit?: string;
   target?: number;
   children?: React.ReactNode;
+  data?: any[];
 }
 
 export const MetricCard: React.FC<MetricCardProps> = ({
@@ -27,18 +31,33 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   onClick,
   unit = "",
   target,
-  children
+  children,
+  data = []
 }) => {
   const valueRef = useRef<HTMLSpanElement>(null);
-  const [cardRef, isInView] = useInView<HTMLDivElement>({ threshold: 0.2, triggerOnce: true });
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [inViewRef, isInView] = useInView<HTMLDivElement>({ threshold: 0.2, triggerOnce: true });
   const prefersReducedMotion = useReducedMotion();
   const { setSelectedMetric } = useAnalyticsUI();
+  const { openSheet } = useShareUI();
 
   const longPressHandlers = useLongPress({
     onLongPress: () => setSelectedMetric(metric),
     delay: 500,
     enabled: true,
   });
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!cardRef.current) return;
+    
+    openSheet({
+      chartRef: cardRef,
+      metrics: data,
+      title: `${title} Metrics`,
+      filename: `catalyft-${metric.toLowerCase()}`
+    });
+  };
 
   const getTrendIcon = () => {
     if (delta === undefined) return null;
@@ -98,7 +117,10 @@ export const MetricCard: React.FC<MetricCardProps> = ({
 
   return (
     <div 
-      ref={cardRef}
+      ref={(node) => {
+        cardRef.current = node;
+        inViewRef(node);
+      }}
       onClick={onClick}
       {...longPressHandlers()}
       className={cn(
@@ -108,7 +130,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         'active:scale-95'
       )}
     >
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between mb-2">
         <div className="flex-1">
           <div className="flex flex-col gap-1">
             <h3 className="text-xs text-white/60 font-medium">{title}</h3>
@@ -132,6 +154,10 @@ export const MetricCard: React.FC<MetricCardProps> = ({
             <p className="text-xs text-white/40 mt-1">vs 7d avg</p>
           )}
         </div>
+        <ShareButton 
+          onClick={handleShare}
+          className="opacity-0 group-hover:opacity-100 transition-opacity"
+        />
       </div>
       
       {target && latest !== undefined && (

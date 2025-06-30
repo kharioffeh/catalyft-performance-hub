@@ -4,6 +4,8 @@ import { animated } from '@react-spring/web';
 import { AnalyticsMobilePager } from './AnalyticsMobilePager';
 import { MetricDetailSheet } from './MetricDetailSheet';
 import { AnalyticsUIProvider } from '@/context/AnalyticsUIContext';
+import { ShareUIProvider } from '@/context/ShareUIContext';
+import { ShareSheet } from '@/components/ShareSheet';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { cn } from '@/lib/utils';
 
@@ -28,22 +30,25 @@ export const AnalyticsMobile: React.FC<AnalyticsMobileProps> = ({
   });
 
   return (
-    <AnalyticsUIProvider onRefresh={onRefresh}>
-      <div className={cn('min-h-screen', className)}>
-        <animated.div
-          {...bind()}
-          style={style}
-          className="w-full"
-        >
-          <AnalyticsMobilePager>
-            {readinessContent}
-            {sleepContent}
-            {loadContent}
-          </AnalyticsMobilePager>
-        </animated.div>
-        
-        <MetricDetailSheet />
-      </div>
-    </AnalyticsUIProvider>
+    <ShareUIProvider>
+      <AnalyticsUIProvider onRefresh={onRefresh}>
+        <div className={cn('min-h-screen', className)}>
+          <animated.div
+            {...bind()}
+            style={style}
+            className="w-full"
+          >
+            <AnalyticsMobilePager>
+              {readinessContent}
+              {sleepContent}
+              {loadContent}
+            </AnalyticsMobilePager>
+          </animated.div>
+          
+          <MetricDetailSheet />
+          <ShareSheet />
+        </div>
+      </AnalyticsUIProvider>
+    </ShareUIProvider>
   );
 };

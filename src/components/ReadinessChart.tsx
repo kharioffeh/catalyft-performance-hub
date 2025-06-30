@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useEffect, useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine } from 'recharts';
@@ -6,6 +7,8 @@ import { chartTheme, makeLine, makeYAxis, makeXAxis, referenceLines, formatWithU
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useInView } from '@/hooks/useInView';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useShareUI } from '@/context/ShareUIContext';
+import { ShareButton } from '@/components/ShareButton';
 
 interface ReadinessData {
   date: string;
@@ -30,9 +33,11 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
   variant = 'default',
   onConnectWearable 
 }) => {
-  const [chartRef, isInView] = useInView<HTMLDivElement>({ threshold: 0.2, triggerOnce: true });
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [chartRefState, isInView] = useInView<HTMLDivElement>({ threshold: 0.2, triggerOnce: true });
   const [animationComplete, setAnimationComplete] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  const { openSheet } = useShareUI();
 
   useEffect(() => {
     if (isInView && !prefersReducedMotion) {
@@ -42,6 +47,17 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
       setAnimationComplete(true);
     }
   }, [isInView, prefersReducedMotion]);
+
+  const handleShare = () => {
+    if (!chartRef.current || !data.length) return;
+    
+    openSheet({
+      chartRef: chartRef,
+      metrics: data,
+      title: 'Readiness Trend',
+      filename: 'catalyft-readiness'
+    });
+  };
 
   const yAxisProps = makeYAxis([0, 100], 'Score (%)');
   const xAxisProps = makeXAxis({
@@ -65,9 +81,12 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
     if (variant === 'carousel') {
       return (
         <div>
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-white">Readiness Trend</h3>
-            <p className="text-sm text-white/70">7-day readiness score trend with performance zones</p>
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-white">Readiness Trend</h3>
+              <p className="text-sm text-white/70">7-day readiness score trend with performance zones</p>
+            </div>
+            <ShareButton onClick={handleShare} disabled />
           </div>
           {emptyStateContent}
         </div>
@@ -76,9 +95,12 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
 
     return (
       <Card>
-        <CardHeader>
-          <CardTitle>Readiness Trend</CardTitle>
-          <CardDescription>7-day readiness score trend with performance zones</CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Readiness Trend</CardTitle>
+            <CardDescription>7-day readiness score trend with performance zones</CardDescription>
+          </div>
+          <ShareButton onClick={handleShare} disabled />
         </CardHeader>
         <CardContent>
           {emptyStateContent}
@@ -88,7 +110,12 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
   }
 
   const chartContent = (
-    <div ref={chartRef}>
+    <div 
+      ref={(node) => {
+        chartRef.current = node;
+        chartRefState(node);
+      }}
+    >
       <ChartContainer config={chartConfig} className={chartHeight}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
@@ -136,9 +163,12 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
   if (variant === 'carousel') {
     return (
       <div>
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-white">Readiness Trend</h3>
-          <p className="text-sm text-white/70">7-day readiness score trend with performance zones</p>
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-white">Readiness Trend</h3>
+            <p className="text-sm text-white/70">7-day readiness score trend with performance zones</p>
+          </div>
+          <ShareButton onClick={handleShare} />
         </div>
         {chartContent}
       </div>
@@ -147,9 +177,12 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Readiness Trend</CardTitle>
-        <CardDescription>7-day readiness score trend with performance zones</CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Readiness Trend</CardTitle>
+          <CardDescription>7-day readiness score trend with performance zones</CardDescription>
+        </div>
+        <ShareButton onClick={handleShare} />
       </CardHeader>
       <CardContent>
         {chartContent}
