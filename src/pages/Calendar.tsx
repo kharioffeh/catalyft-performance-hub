@@ -1,170 +1,111 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSessionsData } from '@/hooks/useSessionsData';
-import FullCalendar from '@fullcalendar/react';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
-import { GlassContainer } from '@/components/Glass/GlassContainer';
 import { GlassButton } from '@/components/Glass/GlassButton';
 import { CreateSessionDialog } from '@/components/CreateSessionDialog';
-import DayDrawer from '@/components/DayDrawer';
-import LegendBar from '@/components/LegendBar';
-import { Plus, Calendar as CalendarIcon } from 'lucide-react';
+import { SessionDetailsDialog } from '@/components/SessionDetailsDialog';
+import { AgendaHeader } from '@/components/Calendar/AgendaHeader';
+import { AgendaList } from '@/components/Calendar/AgendaList';
+import { MiniDatePicker } from '@/components/Calendar/MiniDatePicker';
+import { Plus } from 'lucide-react';
 import { useIsMobile } from '@/hooks/useBreakpoint';
-import clsx from 'clsx';
-import { getEventColor } from '@/utils/calendarUtils';
-import '@/styles/fullcalendar-glass.css';
-import { cn } from '@/lib/utils';
+
+interface Session {
+  id: string;
+  athlete_uuid: string;
+  coach_uuid: string;
+  type: string;
+  start_ts: string;
+  end_ts: string;
+  notes?: string;
+  athletes?: {
+    name: string;
+  };
+}
 
 const Calendar: React.FC = () => {
   const { profile } = useAuth();
   const { sessions, isLoading, queryClient } = useSessionsData(profile);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const isMobile = useIsMobile();
 
-  const pillClasses = (type: string) => {
-    const baseClasses = "inline-flex items-center gap-1 px-1.5 py-0.5 border rounded-full truncate text-[11px] font-medium";
-    
-    switch (type) {
-      case 'strength':
-        return clsx(baseClasses, "bg-green-500/10 dark:bg-green-500/20 border-green-500/35 dark:border-green-500/50 text-green-600 dark:text-green-400");
-      case 'technical':
-        return clsx(baseClasses, "bg-blue-500/10 dark:bg-blue-500/20 border-blue-500/35 dark:border-blue-500/50 text-blue-600 dark:text-blue-400");
-      case 'recovery':
-        return clsx(baseClasses, "bg-pink-500/10 dark:bg-pink-500/20 border-pink-500/35 dark:border-pink-500/50 text-pink-600 dark:text-pink-400");
-      case 'conditioning':
-        return clsx(baseClasses, "bg-orange-500/10 dark:bg-orange-500/20 border-orange-500/35 dark:border-orange-500/50 text-orange-600 dark:text-orange-400");
-      case 'assessment':
-        return clsx(baseClasses, "bg-purple-500/10 dark:bg-purple-500/20 border-purple-500/35 dark:border-purple-500/50 text-purple-600 dark:text-purple-400");
-      default:
-        return clsx(baseClasses, "bg-gray-500/10 dark:bg-gray-500/20 border-gray-500/35 dark:border-gray-500/50 text-gray-600 dark:text-gray-400");
-    }
+  const handleSessionClick = (session: Session) => {
+    setSelectedSession(session);
+    setIsDetailsDialogOpen(true);
   };
 
-  const calendarEvents = sessions.map((session) => ({
-    id: session.id,
-    title: session.athletes?.name || 'Unknown Athlete',
-    start: session.start_ts,
-    end: session.end_ts,
-    backgroundColor: 'transparent',
-    borderColor: 'transparent',
-    textColor: 'transparent',
-    extendedProps: {
-      sessionType: session.type,
-      athleteName: session.athletes?.name,
-      notes: session.notes,
-      session: session,
-      type: session.type,
-    },
-  }));
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(date);
+  };
 
   if (isLoading) {
     return (
       <div className="space-y-4 md:space-y-6">
-        <GlassContainer>
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-glass-card-light/30 dark:bg-glass-card-dark/50 rounded w-1/3"></div>
-            <div className="h-64 bg-glass-card-light/30 dark:bg-glass-card-dark/50 rounded"></div>
-          </div>
-        </GlassContainer>
+        <div className="animate-pulse space-y-4">
+          <div className="h-20 bg-glass-card-light/30 dark:bg-glass-card-dark/50 rounded-xl"></div>
+          <div className="h-64 bg-glass-card-light/30 dark:bg-glass-card-dark/50 rounded-xl"></div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <GlassContainer>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <CalendarIcon className="w-6 h-6 md:w-8 md:h-8 text-gray-800 dark:text-white" />
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Training Calendar</h1>
-          </div>
-          {profile?.role === 'coach' && (
-            <GlassButton
-              onClick={() => setIsCreateDialogOpen(true)}
-              className="flex items-center gap-2 min-h-[44px] w-full sm:w-auto"
-              size={isMobile ? "default" : "default"}
-            >
-              <Plus className="w-4 h-4" />
-              Schedule Session
-            </GlassButton>
-          )}
+      {/* Header with date picker */}
+      <AgendaHeader
+        selectedDate={selectedDate}
+        onDatePickerOpen={() => setShowDatePicker(true)}
+      />
+
+      {/* Create Session Button */}
+      {profile?.role === 'coach' && (
+        <div className="flex justify-center">
+          <GlassButton
+            onClick={() => setIsCreateDialogOpen(true)}
+            className="flex items-center gap-2 min-h-[44px]"
+            size={isMobile ? "default" : "default"}
+          >
+            <Plus className="w-4 h-4" />
+            Schedule Session
+          </GlassButton>
         </div>
-      </GlassContainer>
+      )}
 
-      <GlassContainer>
-        <LegendBar />
-      </GlassContainer>
+      {/* Agenda List */}
+      <AgendaList
+        sessions={sessions}
+        selectedDate={selectedDate}
+        onSessionClick={handleSessionClick}
+      />
 
-      <div className="glass-calendar">
-        <FullCalendar
-          plugins={[dayGridPlugin, interactionPlugin]}
-          initialView="dayGridMonth"
-          height="auto"
-          headerToolbar={{
-            left: 'prev,next',
-            center: 'title',
-            right: 'today'
-          }}
-          events={calendarEvents}
-          dayCellClassNames={() => "p-1.5"}
-          dayCellContent={(arg) => {
-            const dayEvents = calendarEvents.filter(event => {
-              const eventDate = new Date(event.start);
-              return eventDate.toDateString() === arg.date.toDateString();
-            });
+      {/* Mini Date Picker Modal */}
+      <MiniDatePicker
+        isOpen={showDatePicker}
+        onClose={() => setShowDatePicker(false)}
+        selectedDate={selectedDate}
+        onDateSelect={handleDateSelect}
+      />
 
-            return (
-              <div 
-                className={cn(
-                  "flex flex-col h-full min-h-[120px] cursor-pointer transition-all duration-200",
-                  "bg-glass-card-light/30 dark:bg-glass-card-dark/50",
-                  "backdrop-blur-sm rounded-xl p-2",
-                  "border border-white/10 dark:border-white/10",
-                  "hover:bg-glass-card-light/50 dark:hover:bg-glass-card-dark/70"
-                )}
-                onClick={() => setSelectedDate(arg.date)}
-              >
-                <span className="text-xs ml-auto text-gray-700 dark:text-white/80 font-medium mb-2">
-                  {arg.dayNumberText}
-                </span>
-                <div className="flex flex-col gap-1 flex-1">
-                  {dayEvents.slice(0, 3).map(event => (
-                    <span 
-                      key={event.id}
-                      className={pillClasses(event.extendedProps.type)}
-                    >
-                      {event.title}
-                    </span>
-                  ))}
-                  {dayEvents.length > 3 && (
-                    <span className="text-[10px] text-gray-500 dark:text-white/50 mt-1">
-                      + {dayEvents.length - 3} more
-                    </span>
-                  )}
-                </div>
-              </div>
-            );
-          }}
-          dayMaxEvents={false}
-          eventDisplay="none"
-        />
-      </div>
-
+      {/* Create Session Dialog */}
       <CreateSessionDialog 
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
         queryClient={queryClient}
       />
 
-      {selectedDate && (
-        <DayDrawer 
-          date={selectedDate} 
-          sessions={sessions}
-          onClose={() => setSelectedDate(null)} 
-        />
-      )}
+      {/* Session Details Dialog */}
+      <SessionDetailsDialog
+        session={selectedSession}
+        open={isDetailsDialogOpen}
+        onOpenChange={setIsDetailsDialogOpen}
+        queryClient={queryClient}
+        canEdit={profile?.role === 'coach'}
+      />
     </div>
   );
 };
