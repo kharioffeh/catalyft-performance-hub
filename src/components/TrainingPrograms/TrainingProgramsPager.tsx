@@ -18,6 +18,15 @@ interface TrainingProgramsPagerProps {
   deleteLoading: boolean;
 }
 
+type TabType = 'templates' | 'programs';
+
+interface TabConfig {
+  key: TabType;
+  title: string;
+  data: any[];
+  onCreate: () => void;
+}
+
 export const TrainingProgramsPager: React.FC<TrainingProgramsPagerProps> = ({
   templates,
   workoutTemplates,
@@ -32,7 +41,7 @@ export const TrainingProgramsPager: React.FC<TrainingProgramsPagerProps> = ({
 }) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const tabs = [
+  const tabs: TabConfig[] = [
     { key: 'templates', title: 'Templates', data: templates, onCreate: onCreateProgram },
     { key: 'programs', title: 'Programs', data: workoutTemplates, onCreate: onCreateTemplate },
   ];

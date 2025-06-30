@@ -56,7 +56,7 @@ export const MasonryGrid: React.FC<MasonryGridProps> = ({
         />
       ))}
       
-      <style jsx>{`
+      <style>{`
         .masonry-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
