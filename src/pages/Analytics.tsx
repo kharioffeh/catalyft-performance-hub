@@ -9,7 +9,7 @@ import { Download, Sparkles, Activity, Moon, Zap, Target } from 'lucide-react';
 
 const ARIA_SUGGESTIONS = [
   "How can I improve recovery this week?",
-  "Summarise today's readiness drivers.",
+  "Summarise today's readiness drivers.",  
   "Which muscle groups are at highest risk?",
   "Suggest mobility drills before tomorrow's session.",
   "Detect any over-training trends in last 14 days.",
@@ -78,106 +78,118 @@ const AnalyticsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* KPI Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-          <KpiCard
-            title="Readiness"
-            value="88%"
-            icon={Activity}
-            delta={{ value: "+4.0 vs 7d", positive: true }}
-          />
-          <KpiCard
-            title="Sleep Duration"
-            value="8.3h"
-            icon={Moon}
-            delta={{ value: "-0.1 vs 7d", positive: false }}
-          />
-          <KpiCard
-            title="ACWR Ratio"
-            value="0.9"
-            icon={Target}
-            delta={{ value: "-0.4 vs 7d", positive: false }}
-          />
-          <KpiCard
-            title="Latest Strain"
-            value="20.6"
-            icon={Zap}
-            delta={{ value: "-2.1 vs 7d", positive: false }}
-          />
-        </div>
-
-        {/* Muscle HeatMap + ACWR Dial Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Muscle HeatMap - takes up 2/3 of the width on larger screens */}
-          <div className="lg:col-span-2">
-            <HeatMapBody 
-              className="w-full h-[380px] sm:h-[420px]" 
-              period={period} 
-              athleteId={selectedAthleteId} 
+        {/* Responsive 12-Column Grid Layout */}
+        <div className="grid grid-cols-12 gap-6 mt-6 auto-rows-min">
+          {/* KPI Cards - 2 per row on mobile, 4 per row on desktop */}
+          <div className="col-span-6 md:col-span-3">
+            <KpiCard
+              title="Readiness"
+              value="88%"
+              icon={Activity}
+              delta={{ value: "+4.0 vs 7d", positive: true }}
             />
+          </div>
+          <div className="col-span-6 md:col-span-3">
+            <KpiCard
+              title="Sleep Duration"
+              value="8.3h"
+              icon={Moon}
+              delta={{ value: "-0.1 vs 7d", positive: false }}
+            />
+          </div>
+          <div className="col-span-6 md:col-span-3">
+            <KpiCard
+              title="ACWR Ratio"
+              value="0.9"
+              icon={Target}
+              delta={{ value: "-0.4 vs 7d", positive: false }}
+            />
+          </div>
+          <div className="col-span-6 md:col-span-3">
+            <KpiCard
+              title="Latest Strain"
+              value="20.6"
+              icon={Zap}
+              delta={{ value: "-2.1 vs 7d", positive: false }}
+            />
+          </div>
+
+          {/* Muscle HeatMap - 58% width on desktop, full width on mobile */}
+          <div className="col-span-12 lg:col-span-7">
+            <div className="aspect-video md:aspect-auto">
+              <HeatMapBody 
+                className="w-full h-full min-h-[380px] md:h-[420px]" 
+                period={period} 
+                athleteId={selectedAthleteId} 
+              />
+            </div>
           </div>
           
-          {/* ACWR Dial - takes up 1/3 of the width on larger screens */}
-          <div className="flex items-center justify-center">
-            <div className="w-full max-w-[280px]">
-              <ACWRDial large period={period} />
+          {/* ACWR Dial - 42% width on desktop, full width on mobile */}
+          <div className="col-span-12 lg:col-span-5">
+            <div className="aspect-video md:aspect-auto flex items-center justify-center">
+              <div className="w-full max-w-[280px]">
+                <ACWRDial large period={period} />
+              </div>
             </div>
+          </div>
+
+          {/* ARIA Insights - Full width */}
+          <div className="col-span-12">
+            <GlassCard accent="secondary" className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold flex items-center gap-2 text-white">
+                  <Sparkles className="w-5 h-5 text-purple-400" />
+                  ARIA Insights
+                </h3>
+              </div>
+
+              <div className="text-white/90 text-sm mb-4">
+                <ul className="list-disc list-inside space-y-1">
+                  <li>Sleep was slightly reduced last 3 days. Pay attention to recovery.</li>
+                  <li>Load ratio is within optimal range. No overtraining detected.</li>
+                  <li>Readiness increased 4% vs last week.</li>
+                </ul>
+              </div>
+
+              {/* Smart Prompt Chips */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                {ARIA_SUGGESTIONS.map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    className="px-3 py-1.5 text-xs bg-white/10 hover:bg-white/15 rounded-full border border-white/15 transition-colors text-white/80"
+                    onClick={() => handleChipClick(suggestion)}
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+
+              {/* Enhanced Input - Textarea */}
+              <form className="flex flex-col gap-3" onSubmit={sendInsight}>
+                <textarea
+                  id="aria-input"
+                  rows={3}
+                  className="w-full resize-none rounded-lg bg-black/20 p-3 text-sm placeholder:text-white/40 border border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-white"
+                  placeholder="Ask ARIA… e.g. 'How can I improve recovery this week?'"
+                  value={ariaInput}
+                  onChange={(e) => setAriaInput(e.target.value)}
+                />
+                <div className="flex justify-end">
+                  <button
+                    className="bg-indigo-600 hover:bg-indigo-500 transition-colors rounded-lg px-4 py-2 text-sm font-medium text-white flex items-center gap-2"
+                    type="submit"
+                    disabled={!ariaInput.trim()}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Send
+                  </button>
+                </div>
+              </form>
+            </GlassCard>
           </div>
         </div>
-
-        {/* Enhanced Aria Insights card */}
-        <GlassCard accent="secondary" className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold flex items-center gap-2 text-white">
-              <Sparkles className="w-5 h-5 text-purple-400" />
-              ARIA Insights
-            </h3>
-          </div>
-
-          <div className="text-white/90 text-sm mb-4">
-            <ul className="list-disc list-inside space-y-1">
-              <li>Sleep was slightly reduced last 3 days. Pay attention to recovery.</li>
-              <li>Load ratio is within optimal range. No overtraining detected.</li>
-              <li>Readiness increased 4% vs last week.</li>
-            </ul>
-          </div>
-
-          {/* Smart Prompt Chips */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {ARIA_SUGGESTIONS.map((suggestion) => (
-              <button
-                key={suggestion}
-                type="button"
-                className="px-3 py-1.5 text-xs bg-white/10 hover:bg-white/15 rounded-full border border-white/15 transition-colors text-white/80"
-                onClick={() => handleChipClick(suggestion)}
-              >
-                {suggestion}
-              </button>
-            ))}
-          </div>
-
-          {/* Enhanced Input - Textarea */}
-          <form className="flex flex-col gap-3" onSubmit={sendInsight}>
-            <textarea
-              id="aria-input"
-              rows={3}
-              className="w-full resize-none rounded-lg bg-black/20 p-3 text-sm placeholder:text-white/40 border border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-white"
-              placeholder="Ask ARIA… e.g. 'How can I improve recovery this week?'"
-              value={ariaInput}
-              onChange={(e) => setAriaInput(e.target.value)}
-            />
-            <div className="flex justify-end">
-              <button
-                className="bg-indigo-600 hover:bg-indigo-500 transition-colors rounded-lg px-4 py-2 text-sm font-medium text-white flex items-center gap-2"
-                type="submit"
-                disabled={!ariaInput.trim()}
-              >
-                <Sparkles className="w-4 h-4" />
-                Send
-              </button>
-            </div>
-          </form>
-        </GlassCard>
       </div>
     </div>
   );
