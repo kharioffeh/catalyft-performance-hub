@@ -46,7 +46,8 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     enabled: true,
   });
 
-  const handleShare = () => {
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!cardRef.current) return;
     
     openSheet({
@@ -117,7 +118,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     <div 
       ref={(node) => {
         cardRef.current = node;
-        inViewRef(node);
+        inViewRef.current = node;
       }}
       onClick={onClick}
       {...longPressHandlers()}

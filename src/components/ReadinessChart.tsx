@@ -112,7 +112,7 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
     <div 
       ref={(node) => {
         chartRef.current = node;
-        inViewRef(node);
+        inViewRef.current = node;
       }}
     >
       <ChartContainer config={chartConfig} className={chartHeight}>
