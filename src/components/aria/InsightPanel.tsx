@@ -3,8 +3,8 @@ import React from 'react';
 import { Brain } from 'lucide-react';
 
 interface InsightPanelProps {
-  insights: string[];
-  suggestions: string[];
+  insights: readonly string[];
+  suggestions: readonly string[];
   onPrompt: (q: string) => void;
 }
 
