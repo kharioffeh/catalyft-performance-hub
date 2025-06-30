@@ -35,3 +35,25 @@ export const useBreakpoint = (breakpoint: Breakpoint): boolean => {
 export const useIsMobile = (): boolean => {
   return useBreakpoint('sm');
 };
+
+export const useIsPhone = (): boolean => {
+  const [isPhone, setIsPhone] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 414px)');
+    
+    const handler = (event: MediaQueryListEvent) => {
+      setIsPhone(event.matches);
+    };
+
+    // Set initial value
+    setIsPhone(mediaQuery.matches);
+    
+    // Add listener
+    mediaQuery.addEventListener('change', handler);
+    
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
+  return isPhone;
+};

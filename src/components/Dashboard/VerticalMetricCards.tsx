@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { Activity, Calendar, BarChart3, AlertTriangle } from 'lucide-react';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { MobileKpiGrid } from './MobileKpiGrid';
-import { useIsMobile } from '@/hooks/useBreakpoint';
+import { useIsPhone } from '@/hooks/useBreakpoint';
 
 interface VerticalMetricCardsProps {
   currentReadiness: any;
@@ -17,7 +18,7 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
   weeklyStats,
   injuryRisk
 }) => {
-  const isMobile = useIsMobile();
+  const isPhone = useIsPhone();
 
   const getReadinessValue = () => {
     if (!currentReadiness) return '--';
@@ -53,7 +54,7 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
     return `${weeklyStats?.completed || 0}/${weeklyStats?.planned || 0}`;
   };
 
-  // Mobile KPI data
+  // Mobile KPI data for phones only (≤414px)
   const mobileKpiData = [
     {
       id: 'readiness',
@@ -87,8 +88,8 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
     }
   ];
 
-  // Use mobile grid on small screens
-  if (isMobile) {
+  // Use mobile grid only on phones (≤414px)
+  if (isPhone) {
     return <MobileKpiGrid data={mobileKpiData} />;
   }
 

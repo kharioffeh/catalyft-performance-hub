@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Activity, Calendar, BarChart3, AlertTriangle } from 'lucide-react';
 import { MobileKpiGrid } from './MobileKpiGrid';
-import { useIsMobile } from '@/hooks/useBreakpoint';
+import { useIsPhone } from '@/hooks/useBreakpoint';
 
 interface QuickStatusCardsProps {
   currentReadiness: any;
@@ -17,7 +18,7 @@ export const QuickStatusCards: React.FC<QuickStatusCardsProps> = ({
   weeklyStats,
   injuryRisk
 }) => {
-  const isMobile = useIsMobile();
+  const isPhone = useIsPhone();
 
   const getReadinessColor = (score: number) => {
     if (score >= 80) return 'text-green-600';
@@ -40,7 +41,7 @@ export const QuickStatusCards: React.FC<QuickStatusCardsProps> = ({
     return { level: 'Low', color: 'text-green-600' };
   };
 
-  // Mobile KPI data
+  // Mobile KPI data for phones only (≤414px)
   const mobileKpiData = [
     {
       id: 'readiness',
@@ -74,8 +75,8 @@ export const QuickStatusCards: React.FC<QuickStatusCardsProps> = ({
     }
   ];
 
-  // Use mobile grid on small screens
-  if (isMobile) {
+  // Use mobile grid only on phones (≤414px)
+  if (isPhone) {
     return <MobileKpiGrid data={mobileKpiData} />;
   }
 

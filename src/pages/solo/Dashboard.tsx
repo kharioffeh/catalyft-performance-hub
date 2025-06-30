@@ -1,4 +1,3 @@
-
 import React, { useState, Suspense } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { GlassCard } from '@/components/ui';
@@ -12,7 +11,7 @@ import { useAcwr } from '@/hooks/useAcwr';
 import { useAriaInsights } from '@/hooks/useAriaInsights';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useWearableStatus } from '@/hooks/useWearableStatus';
-import { useIsMobile } from '@/hooks/useBreakpoint';
+import { useIsPhone } from '@/hooks/useBreakpoint';
 import { SkeletonCard } from '@/components/skeleton/SkeletonCard';
 import { SkeletonBox } from '@/components/skeleton/SkeletonBox';
 import { SkeletonChart } from '@/components/skeleton/SkeletonChart';
@@ -108,7 +107,7 @@ const SoloDashboard: React.FC = () => {
   const { currentReadiness } = useDashboardData(profile?.id);
   const { data: lastSessionLoad } = useLastSessionLoad();
   const { data: acwrValue } = useAcwr();
-  const isMobile = useIsMobile();
+  const isPhone = useIsPhone();
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
 
@@ -120,7 +119,7 @@ const SoloDashboard: React.FC = () => {
     window.location.reload();
   };
 
-  // Mobile KPI data for solo dashboard
+  // Mobile KPI data for phones only (≤414px)
   const mobileKpiData = [
     {
       id: 'readiness',
@@ -194,15 +193,15 @@ const SoloDashboard: React.FC = () => {
           </AnimatedCard>
         )}
 
-        {/* KPI Section - Mobile vs Desktop */}
-        {isMobile ? (
+        {/* KPI Section - Phone vs Desktop/Tablet */}
+        {isPhone ? (
           <AnimatedCard delay={0.2}>
             <SuspenseWrapper fallback={<SkeletonCard className="h-96" />}>
               <MobileKpiGrid data={mobileKpiData} />
             </SuspenseWrapper>
           </AnimatedCard>
         ) : (
-          /* Desktop Grid */
+          /* Desktop/Tablet Grid (>414px) */
           <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 auto-rows-[minmax(120px,auto)] mb-8">
             {/* Readiness Card */}
             <AnimatedCard delay={0.2}>
