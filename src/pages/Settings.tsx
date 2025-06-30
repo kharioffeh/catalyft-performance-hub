@@ -1,5 +1,6 @@
-
 import React, { useState } from 'react';
+import { useIsMobile } from '@/hooks/useBreakpoint';
+import { MobileSettingsLayout } from '@/components/Settings/MobileSettingsLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,6 +16,14 @@ import { User, Settings as SettingsIcon, Shield, Bell, Trash2 } from 'lucide-rea
 import { useLogout } from '@/hooks/useLogout';
 
 const Settings: React.FC = () => {
+  const isMobile = useIsMobile();
+  
+  // Use mobile layout on mobile devices
+  if (isMobile) {
+    return <MobileSettingsLayout />;
+  }
+
+  // Keep existing desktop layout for larger screens
   const { user, profile } = useAuth();
   const logout = useLogout();
   const [loading, setLoading] = useState(false);
