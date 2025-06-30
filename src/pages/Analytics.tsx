@@ -7,6 +7,10 @@ import { ACWRDial } from '@/components/Analytics/Glass/ACWRDial';
 import { AthleteSelector } from '@/components/Analytics/AthleteSelector';
 import { InsightPanel } from '@/components/aria/InsightPanel';
 import { InsightStrip } from '@/components/Analytics/InsightStrip';
+import { MetricCarousel } from '@/components/Analytics/MetricCarousel';
+import { ReadinessChart } from '@/components/ReadinessChart';
+import { EnhancedSleepChart } from '@/components/EnhancedSleepChart';
+import { EnhancedTrainingLoadChart } from '@/components/EnhancedTrainingLoadChart';
 import { useEnhancedMetricsWithAthlete } from '@/hooks/useEnhancedMetricsWithAthlete';
 import { Download, Sparkles, Activity, Moon, Zap, Target } from 'lucide-react';
 
@@ -55,6 +59,71 @@ const AnalyticsPage: React.FC = () => {
     // TODO: POST to /api/aria/insights
     setAriaInput('');
   };
+
+  // Mock data for charts - in real app, these would come from hooks
+  const mockReadinessData = [
+    { date: '2024-01-01', score: 85 },
+    { date: '2024-01-02', score: 78 },
+    { date: '2024-01-03', score: 92 },
+    { date: '2024-01-04', score: 88 },
+    { date: '2024-01-05', score: 76 },
+    { date: '2024-01-06', score: 84 },
+    { date: '2024-01-07', score: 89 },
+  ];
+
+  const mockSleepData = [
+    {
+      athlete_uuid: '1',
+      day: '2024-01-01',
+      total_sleep_hours: 7.5,
+      sleep_efficiency: 85,
+      avg_sleep_hr: 65,
+      hrv_rmssd: 42
+    },
+    {
+      athlete_uuid: '1',
+      day: '2024-01-02',
+      total_sleep_hours: 8.2,
+      sleep_efficiency: 92,
+      avg_sleep_hr: 62,
+      hrv_rmssd: 45
+    },
+    {
+      athlete_uuid: '1',
+      day: '2024-01-03',
+      total_sleep_hours: 6.8,
+      sleep_efficiency: 78,
+      avg_sleep_hr: 68,
+      hrv_rmssd: 38
+    },
+  ];
+
+  const mockLoadData = [
+    {
+      athlete_uuid: '1',
+      day: '2024-01-01',
+      daily_load: 450,
+      acute_7d: 420,
+      chronic_28d: 380,
+      acwr_7_28: 1.1
+    },
+    {
+      athlete_uuid: '1',
+      day: '2024-01-02',
+      daily_load: 520,
+      acute_7d: 435,
+      chronic_28d: 385,
+      acwr_7_28: 1.13
+    },
+    {
+      athlete_uuid: '1',
+      day: '2024-01-03',
+      daily_load: 380,
+      acute_7d: 425,
+      chronic_28d: 390,
+      acwr_7_28: 1.09
+    },
+  ];
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -101,42 +170,17 @@ const AnalyticsPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* Responsive 12-Column Grid Layout */}
-        <div className="grid grid-cols-12 gap-6 mt-6 auto-rows-min">
-          {/* KPI Cards - 2 per row on mobile, 4 per row on desktop */}
-          <div className="col-span-6 md:col-span-3">
-            <KpiCard
-              title="Readiness"
-              value="88%"
-              icon={Activity}
-              delta={{ value: "+4.0 vs 7d", positive: true }}
-            />
-          </div>
-          <div className="col-span-6 md:col-span-3">
-            <KpiCard
-              title="Sleep Duration"
-              value="8.3h"
-              icon={Moon}
-              delta={{ value: "-0.1 vs 7d", positive: false }}
-            />
-          </div>
-          <div className="col-span-6 md:col-span-3">
-            <KpiCard
-              title="ACWR Ratio"
-              value="0.9"
-              icon={Target}
-              delta={{ value: "-0.4 vs 7d", positive: false }}
-            />
-          </div>
-          <div className="col-span-6 md:col-span-3">
-            <KpiCard
-              title="Latest Strain"
-              value="20.6"
-              icon={Zap}
-              delta={{ value: "-2.1 vs 7d", positive: false }}
-            />
-          </div>
+        {/* Metric Carousel - Replaces the stacked charts */}
+        <div className="mt-6">
+          <MetricCarousel labels={['Readiness', 'Sleep', 'Load']}>
+            <ReadinessChart data={mockReadinessData} variant="carousel" />
+            <EnhancedSleepChart data={mockSleepData} variant="carousel" />
+            <EnhancedTrainingLoadChart data={mockLoadData} variant="carousel" />
+          </MetricCarousel>
+        </div>
 
+        {/* Responsive 12-Column Grid Layout for remaining components */}
+        <div className="grid grid-cols-12 gap-6 auto-rows-min">
           {/* Muscle HeatMap - 58% width on desktop, full width on mobile */}
           <div className="col-span-12 lg:col-span-7">
             <div className="aspect-video md:aspect-auto">

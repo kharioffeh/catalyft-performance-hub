@@ -17,6 +17,7 @@ interface SleepData {
 
 interface EnhancedSleepChartProps {
   data: SleepData[];
+  variant?: 'default' | 'carousel';
 }
 
 const chartConfig = {
@@ -34,7 +35,7 @@ const chartConfig = {
   },
 };
 
-export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({ data }) => {
+export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({ data, variant = 'default' }) => {
   const formattedData = data.map(item => ({
     ...item,
     date: format(new Date(item.day), 'MMM dd'),
@@ -53,6 +54,105 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({ data }) 
   const leftYAxisProps = makeYAxis([0, 100], '%');
   const rightYAxisProps = makeYAxis(undefined, 'hrs/ms');
 
+  const chartHeight = variant === 'carousel' ? 'h-[200px] md:h-[260px]' : 'h-[300px]';
+  const showLegend = variant !== 'carousel';
+
+  const chartContent = (
+    <ChartContainer config={chartConfig} className={chartHeight}>
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={formattedData}>
+          <XAxis 
+            dataKey="date" 
+            {...xAxisProps}
+          />
+          <YAxis 
+            yAxisId="left"
+            {...leftYAxisProps}
+          />
+          <YAxis 
+            yAxisId="right"
+            orientation="right"
+            {...rightYAxisProps}
+          />
+
+          {/* Reference lines for optimal sleep duration */}
+          {referenceLines.sleep.map((line, index) => (
+            <ReferenceLine 
+              key={index}
+              yAxisId="right"
+              y={line.value}
+              stroke={line.color}
+              strokeDasharray={line.strokeDasharray}
+              strokeOpacity={0.5}
+            />
+          ))}
+          
+          <ChartTooltip 
+            content={<ChartTooltipContent formatter={tooltipFormatter} />} 
+          />
+          {showLegend && <Legend />}
+          <Line
+            yAxisId="left"
+            type="monotone"
+            dataKey="efficiency"
+            {...makeLine(chartConfig.sleep_efficiency.color)}
+            name="Sleep Efficiency (%)"
+          />
+          <Line
+            yAxisId="right"
+            type="monotone"
+            dataKey="duration"
+            {...makeLine(chartConfig.total_sleep_hours.color)}
+            name="Duration (hrs)"
+          />
+          <Line
+            yAxisId="right"
+            type="monotone"
+            dataKey="hrv"
+            {...makeLine(chartConfig.hrv_rmssd.color)}
+            name="HRV (ms)"
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </ChartContainer>
+  );
+
+  const statsContent = (
+    <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
+      <div className="text-center">
+        <div className="font-medium">Sleep Efficiency</div>
+        <div className="text-lg font-bold" style={{ color: chartTheme.colors.positive }}>
+          {formattedData[formattedData.length - 1]?.efficiency?.toFixed(1) || 0}%
+        </div>
+      </div>
+      <div className="text-center">
+        <div className="font-medium">Duration</div>
+        <div className="text-lg font-bold" style={{ color: chartTheme.colors.accent }}>
+          {formattedData[formattedData.length - 1]?.duration?.toFixed(1) || 0}h
+        </div>
+      </div>
+      <div className="text-center">
+        <div className="font-medium">HRV</div>
+        <div className="text-lg font-bold" style={{ color: chartTheme.colors.info }}>
+          {formattedData[formattedData.length - 1]?.hrv?.toFixed(1) || 0}ms
+        </div>
+      </div>
+    </div>
+  );
+
+  if (variant === 'carousel') {
+    return (
+      <div>
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-white">Sleep & Recovery</h3>
+          <p className="text-sm text-white/70">Sleep efficiency, duration, and HRV trends</p>
+        </div>
+        {chartContent}
+        {statsContent}
+      </div>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -60,83 +160,8 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({ data }) 
         <CardDescription>Sleep efficiency, duration, and HRV trends with optimal zones</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={formattedData}>
-              <XAxis 
-                dataKey="date" 
-                {...xAxisProps}
-              />
-              <YAxis 
-                yAxisId="left"
-                {...leftYAxisProps}
-              />
-              <YAxis 
-                yAxisId="right"
-                orientation="right"
-                {...rightYAxisProps}
-              />
-
-              {/* Reference lines for optimal sleep duration */}
-              {referenceLines.sleep.map((line, index) => (
-                <ReferenceLine 
-                  key={index}
-                  yAxisId="right"
-                  y={line.value}
-                  stroke={line.color}
-                  strokeDasharray={line.strokeDasharray}
-                  strokeOpacity={0.5}
-                />
-              ))}
-              
-              <ChartTooltip 
-                content={<ChartTooltipContent formatter={tooltipFormatter} />} 
-              />
-              <Legend />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="efficiency"
-                {...makeLine(chartConfig.sleep_efficiency.color)}
-                name="Sleep Efficiency (%)"
-              />
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey="duration"
-                {...makeLine(chartConfig.total_sleep_hours.color)}
-                name="Duration (hrs)"
-              />
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey="hrv"
-                {...makeLine(chartConfig.hrv_rmssd.color)}
-                name="HRV (ms)"
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </ChartContainer>
-        <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
-          <div className="text-center">
-            <div className="font-medium">Sleep Efficiency</div>
-            <div className="text-lg font-bold" style={{ color: chartTheme.colors.positive }}>
-              {formattedData[formattedData.length - 1]?.efficiency?.toFixed(1) || 0}%
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="font-medium">Duration</div>
-            <div className="text-lg font-bold" style={{ color: chartTheme.colors.accent }}>
-              {formattedData[formattedData.length - 1]?.duration?.toFixed(1) || 0}h
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="font-medium">HRV</div>
-            <div className="text-lg font-bold" style={{ color: chartTheme.colors.info }}>
-              {formattedData[formattedData.length - 1]?.hrv?.toFixed(1) || 0}ms
-            </div>
-          </div>
-        </div>
+        {chartContent}
+        {statsContent}
       </CardContent>
     </Card>
   );

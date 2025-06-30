@@ -17,6 +17,7 @@ interface LoadData {
 
 interface EnhancedTrainingLoadChartProps {
   data: LoadData[];
+  variant?: 'default' | 'carousel';
 }
 
 const chartConfig = {
@@ -34,7 +35,7 @@ const chartConfig = {
   },
 };
 
-export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps> = ({ data }) => {
+export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps> = ({ data, variant = 'default' }) => {
   const formattedData = data.map(item => ({
     ...item,
     date: format(new Date(item.day), 'MMM dd'),
@@ -51,6 +52,109 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
   const leftYAxisProps = makeYAxis(undefined, 'Load');
   const rightYAxisProps = makeYAxis([0, 2], 'ACWR');
 
+  const chartHeight = variant === 'carousel' ? 'h-[200px] md:h-[260px]' : 'h-[300px]';
+  const showLegend = variant !== 'carousel';
+
+  const chartContent = (
+    <ChartContainer config={chartConfig} className={chartHeight}>
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={formattedData}>
+          <XAxis 
+            dataKey="date" 
+            {...xAxisProps}
+          />
+          <YAxis 
+            yAxisId="left"
+            {...leftYAxisProps}
+          />
+          <YAxis 
+            yAxisId="right"
+            orientation="right"
+            {...rightYAxisProps}
+          />
+
+          {/* ACWR reference lines */}
+          {referenceLines.acwr.map((line, index) => (
+            <ReferenceLine 
+              key={index}
+              yAxisId="right"
+              y={line.value}
+              stroke={line.color}
+              strokeDasharray={line.strokeDasharray}
+              strokeOpacity={0.7}
+            />
+          ))}
+          
+          <ChartTooltip 
+            content={<ChartTooltipContent formatter={tooltipFormatter} />} 
+          />
+          {showLegend && <Legend />}
+          <Line
+            yAxisId="left"
+            type="monotone"
+            dataKey="daily_load"
+            {...makeLine(chartConfig.daily_load.color)}
+            name="Daily Load"
+          />
+          <Line
+            yAxisId="left"
+            type="monotone"
+            dataKey="acute_7d"
+            {...makeLine(chartConfig.acute_7d.color, { strokeDasharray: "5 5", dot: false })}
+            name="Acute Load (7d)"
+          />
+          <Line
+            yAxisId="right"
+            type="monotone"
+            dataKey="acwr_display"
+            {...makeLine(chartConfig.acwr_7_28.color, { strokeWidth: 3 })}
+            name="ACWR (7:28)"
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </ChartContainer>
+  );
+
+  const statsContent = (
+    <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
+      <div className="text-center">
+        <div className="font-medium text-white/70">Current Load</div>
+        <div className="text-lg font-bold text-white">
+          {formattedData[formattedData.length - 1]?.daily_load?.toFixed(0) || 0}
+        </div>
+      </div>
+      <div className="text-center">
+        <div className="font-medium text-white/70">ACWR</div>
+        <div className={`text-lg font-bold`} style={{ 
+          color: formattedData[formattedData.length - 1]?.acwr_display > 1.5 ? chartTheme.colors.negative :
+                 formattedData[formattedData.length - 1]?.acwr_display > 1.3 ? chartTheme.colors.warning : 
+                 chartTheme.colors.positive
+        }}>
+          {formattedData[formattedData.length - 1]?.acwr_display?.toFixed(2) || '0.00'}
+        </div>
+      </div>
+      <div className="text-center">
+        <div className="font-medium text-white/70">Acute Load</div>
+        <div className="text-lg font-bold text-white">
+          {formattedData[formattedData.length - 1]?.acute_7d?.toFixed(0) || 0}
+        </div>
+      </div>
+    </div>
+  );
+
+  if (variant === 'carousel') {
+    return (
+      <div>
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-white">Training Load & ACWR</h3>
+          <p className="text-sm text-white/70">Daily load with Acute:Chronic Workload Ratio and risk zones</p>
+        </div>
+        {chartContent}
+        {statsContent}
+      </div>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -58,87 +162,8 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
         <CardDescription>Daily training load with Acute:Chronic Workload Ratio and risk zones</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={formattedData}>
-              <XAxis 
-                dataKey="date" 
-                {...xAxisProps}
-              />
-              <YAxis 
-                yAxisId="left"
-                {...leftYAxisProps}
-              />
-              <YAxis 
-                yAxisId="right"
-                orientation="right"
-                {...rightYAxisProps}
-              />
-
-              {/* ACWR reference lines */}
-              {referenceLines.acwr.map((line, index) => (
-                <ReferenceLine 
-                  key={index}
-                  yAxisId="right"
-                  y={line.value}
-                  stroke={line.color}
-                  strokeDasharray={line.strokeDasharray}
-                  strokeOpacity={0.7}
-                />
-              ))}
-              
-              <ChartTooltip 
-                content={<ChartTooltipContent formatter={tooltipFormatter} />} 
-              />
-              <Legend />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="daily_load"
-                {...makeLine(chartConfig.daily_load.color)}
-                name="Daily Load"
-              />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="acute_7d"
-                {...makeLine(chartConfig.acute_7d.color, { strokeDasharray: "5 5", dot: false })}
-                name="Acute Load (7d)"
-              />
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey="acwr_display"
-                {...makeLine(chartConfig.acwr_7_28.color, { strokeWidth: 3 })}
-                name="ACWR (7:28)"
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </ChartContainer>
-        <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
-          <div className="text-center">
-            <div className="font-medium">Current Load</div>
-            <div className="text-lg font-bold" style={{ color: chartTheme.colors.accent }}>
-              {formattedData[formattedData.length - 1]?.daily_load?.toFixed(0) || 0}
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="font-medium">ACWR</div>
-            <div className={`text-lg font-bold`} style={{ 
-              color: formattedData[formattedData.length - 1]?.acwr_display > 1.5 ? chartTheme.colors.negative :
-                     formattedData[formattedData.length - 1]?.acwr_display > 1.3 ? chartTheme.colors.warning : 
-                     chartTheme.colors.positive
-            }}>
-              {formattedData[formattedData.length - 1]?.acwr_display?.toFixed(2) || '0.00'}
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="font-medium">Acute Load</div>
-            <div className="text-lg font-bold" style={{ color: chartTheme.colors.warning }}>
-              {formattedData[formattedData.length - 1]?.acute_7d?.toFixed(0) || 0}
-            </div>
-          </div>
-        </div>
+        {chartContent}
+        {statsContent}
       </CardContent>
     </Card>
   );

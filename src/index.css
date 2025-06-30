@@ -82,4 +82,17 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   }
+  
+  .carousel-card {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 shadow-inner;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    box-shadow: 
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  .carousel-card:hover {
+    @apply bg-white/10;
+  }
 }
