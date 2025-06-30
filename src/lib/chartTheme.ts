@@ -61,7 +61,7 @@ export const makeYAxis = (domain?: [number, number], label?: string, options: {
 export const makeXAxis = (options: {
   fontSize?: number;
   tickFormatter?: (value: any) => string;
-  interval?: number | string;
+  interval?: number | 'preserveStart' | 'preserveEnd' | 'preserveStartEnd';
 } = {}) => ({
   fontSize: options.fontSize || chartTheme.fontSize.small,
   tickLine: false,
