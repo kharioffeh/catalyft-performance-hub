@@ -5,6 +5,7 @@ import { KpiCard } from '@/components/ui/KpiCard';
 import { HeatMapBody } from '@/components/Analytics/Glass/HeatMapBody';
 import { ACWRDial } from '@/components/Analytics/Glass/ACWRDial';
 import { AthleteSelector } from '@/components/Analytics/AthleteSelector';
+import { InsightPanel } from '@/components/aria/InsightPanel';
 import { Download, Sparkles, Activity, Moon, Zap, Target } from 'lucide-react';
 
 const ARIA_SUGGESTIONS = [
@@ -18,12 +19,18 @@ const ARIA_SUGGESTIONS = [
   "Analyze performance patterns this month."
 ] as const;
 
+const SAMPLE_INSIGHTS = [
+  "Sleep was slightly reduced last 3 days. Pay attention to recovery.",
+  "Load ratio is within optimal range. No overtraining detected.",
+  "Readiness increased 4% vs last week."
+];
+
 const AnalyticsPage: React.FC = () => {
   const [period, setPeriod] = useState<"24h" | "7d" | "30d" | "90d">("30d");
   const [selectedAthleteId, setSelectedAthleteId] = useState<string>('');
   const [ariaInput, setAriaInput] = useState('');
   
-  const handleChipClick = (suggestion: string) => {
+  const handleAriaPrompt = (suggestion: string) => {
     setAriaInput(suggestion);
     // Focus the textarea after state update
     setTimeout(() => {
@@ -136,34 +143,21 @@ const AnalyticsPage: React.FC = () => {
 
           {/* ARIA Insights - Full width */}
           <div className="col-span-12">
+            <InsightPanel
+              insights={SAMPLE_INSIGHTS}
+              suggestions={ARIA_SUGGESTIONS}
+              onPrompt={handleAriaPrompt}
+            />
+          </div>
+
+          {/* ARIA Input Section - Full width */}
+          <div className="col-span-12">
             <GlassCard accent="secondary" className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold flex items-center gap-2 text-white">
                   <Sparkles className="w-5 h-5 text-purple-400" />
-                  ARIA Insights
+                  Ask ARIA
                 </h3>
-              </div>
-
-              <div className="text-white/90 text-sm mb-4">
-                <ul className="list-disc list-inside space-y-1">
-                  <li>Sleep was slightly reduced last 3 days. Pay attention to recovery.</li>
-                  <li>Load ratio is within optimal range. No overtraining detected.</li>
-                  <li>Readiness increased 4% vs last week.</li>
-                </ul>
-              </div>
-
-              {/* Smart Prompt Chips */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                {ARIA_SUGGESTIONS.map((suggestion) => (
-                  <button
-                    key={suggestion}
-                    type="button"
-                    className="px-3 py-1.5 text-xs bg-white/10 hover:bg-white/15 rounded-full border border-white/15 transition-colors text-white/80"
-                    onClick={() => handleChipClick(suggestion)}
-                  >
-                    {suggestion}
-                  </button>
-                ))}
               </div>
 
               {/* Enhanced Input - Textarea */}
