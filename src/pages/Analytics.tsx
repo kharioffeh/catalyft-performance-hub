@@ -12,6 +12,8 @@ import { AriaSpotlight } from '@/components/Analytics/AriaSpotlight';
 import { ReadinessChart } from '@/components/ReadinessChart';
 import { EnhancedSleepChart } from '@/components/EnhancedSleepChart';
 import { EnhancedTrainingLoadChart } from '@/components/EnhancedTrainingLoadChart';
+import { PeriodProvider, usePeriod, periodToDays } from '@/lib/hooks/usePeriod';
+import { PeriodToggle } from '@/components/ui/PeriodToggle';
 import { useEnhancedMetricsWithAthlete } from '@/hooks/useEnhancedMetricsWithAthlete';
 import { Download, Sparkles, Activity, Moon, Zap, Target } from 'lucide-react';
 
@@ -32,10 +34,13 @@ const SAMPLE_INSIGHTS = [
   "Readiness increased 4% vs last week."
 ];
 
-const AnalyticsPage: React.FC = () => {
-  const [period, setPeriod] = useState<"24h" | "7d" | "30d" | "90d">("30d");
+const AnalyticsPageContent: React.FC = () => {
   const [selectedAthleteId, setSelectedAthleteId] = useState<string>('');
   const [ariaInput, setAriaInput] = useState('');
+  const { period } = usePeriod();
+
+  // Convert period to days for existing hooks
+  const periodDays = periodToDays(period);
 
   // Get enhanced metrics for the selected athlete
   const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetricsWithAthlete(selectedAthleteId);
@@ -141,23 +146,9 @@ const AnalyticsPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Period Selector */}
+        {/* Period Toggle */}
         <div className="flex justify-center mb-6">
-          <div className="flex bg-white/10 backdrop-blur rounded-xl p-1">
-            {(["24h", "7d", "30d", "90d"] as const).map((p) => (
-              <button
-                key={p}
-                onClick={() => setPeriod(p)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  period === p 
-                    ? 'bg-white/20 text-white shadow-lg' 
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
+          <PeriodToggle />
         </div>
       </div>
 
@@ -250,6 +241,14 @@ const AnalyticsPage: React.FC = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const AnalyticsPage: React.FC = () => {
+  return (
+    <PeriodProvider>
+      <AnalyticsPageContent />
+    </PeriodProvider>
   );
 };
 

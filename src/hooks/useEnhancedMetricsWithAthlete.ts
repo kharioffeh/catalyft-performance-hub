@@ -1,5 +1,7 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { usePeriod, periodToDays } from '@/lib/hooks/usePeriod';
 import { 
   generateReadinessData, 
   generateSleepData, 
@@ -35,9 +37,12 @@ interface LoadACWR {
 }
 
 export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
+  const { period } = usePeriod();
+  const periodDays = periodToDays(period);
+
   // Enhanced readiness with rolling averages
   const { data: readinessRolling = [] } = useQuery({
-    queryKey: ['readiness-rolling', athleteId],
+    queryKey: ['readiness-rolling', athleteId, period],
     queryFn: async () => {
       if (!athleteId) return [];
 
@@ -46,7 +51,7 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
           .from('vw_readiness_rolling')
           .select('*')
           .eq('athlete_uuid', athleteId)
-          .gte('day', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+          .gte('day', new Date(Date.now() - periodDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
           .order('day', { ascending: true });
 
         // Use real data if available, otherwise generate mock data
@@ -54,7 +59,7 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
           return data as ReadinessRolling[];
         } else {
           // Generate mock data and format it correctly
-          const mockData = generateReadinessData(athleteId, 30);
+          const mockData = generateReadinessData(athleteId, periodDays);
           return mockData.map(item => ({
             athlete_uuid: athleteId,
             day: item.day,
@@ -67,7 +72,7 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
       } catch (error) {
         console.error('Error fetching readiness data:', error);
         // Fallback to mock data
-        const mockData = generateReadinessData(athleteId, 30);
+        const mockData = generateReadinessData(athleteId, periodDays);
         return mockData.map(item => ({
           athlete_uuid: athleteId,
           day: item.day,
@@ -83,7 +88,7 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
 
   // Sleep metrics
   const { data: sleepDaily = [] } = useQuery({
-    queryKey: ['sleep-daily', athleteId],
+    queryKey: ['sleep-daily', athleteId, period],
     queryFn: async () => {
       if (!athleteId) return [];
 
@@ -92,7 +97,7 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
           .from('vw_sleep_daily')
           .select('*')
           .eq('athlete_uuid', athleteId)
-          .gte('day', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+          .gte('day', new Date(Date.now() - periodDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
           .order('day', { ascending: true });
 
         // Use real data if available, otherwise generate mock data
@@ -100,7 +105,7 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
           return data as SleepDaily[];
         } else {
           // Generate mock data and format it correctly
-          const mockData = generateSleepData(athleteId, 30);
+          const mockData = generateSleepData(athleteId, periodDays);
           return mockData.map(item => ({
             athlete_uuid: athleteId,
             day: item.day,
@@ -113,7 +118,7 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
       } catch (error) {
         console.error('Error fetching sleep data:', error);
         // Fallback to mock data
-        const mockData = generateSleepData(athleteId, 30);
+        const mockData = generateSleepData(athleteId, periodDays);
         return mockData.map(item => ({
           athlete_uuid: athleteId,
           day: item.day,
@@ -129,7 +134,7 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
 
   // Training load and ACWR
   const { data: loadACWR = [] } = useQuery({
-    queryKey: ['load-acwr', athleteId],
+    queryKey: ['load-acwr', athleteId, period],
     queryFn: async () => {
       if (!athleteId) return [];
 
@@ -138,7 +143,7 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
           .from('vw_load_acwr')
           .select('*')
           .eq('athlete_uuid', athleteId)
-          .gte('day', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+          .gte('day', new Date(Date.now() - periodDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
           .order('day', { ascending: true });
 
         // Use real data if available, otherwise generate mock data
@@ -146,7 +151,7 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
           return data as LoadACWR[];
         } else {
           // Generate mock data and format it correctly
-          const mockData = generateLoadData(athleteId, 30);
+          const mockData = generateLoadData(athleteId, periodDays);
           return mockData.map(item => ({
             athlete_uuid: athleteId,
             day: item.day,
@@ -159,7 +164,7 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
       } catch (error) {
         console.error('Error fetching load data:', error);
         // Fallback to mock data
-        const mockData = generateLoadData(athleteId, 30);
+        const mockData = generateLoadData(athleteId, periodDays);
         return mockData.map(item => ({
           athlete_uuid: athleteId,
           day: item.day,
