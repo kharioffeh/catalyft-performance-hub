@@ -1,7 +1,11 @@
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { animate } from 'framer-motion';
+import { useInView } from '@/hooks/useInView';
+import { useIsomorphicLayoutEffect } from '@/hooks/useIsomorphicLayoutEffect';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 interface MetricCardProps {
   metric: 'readiness' | 'sleep' | 'load' | 'strain';
@@ -24,6 +28,10 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   target,
   children
 }) => {
+  const valueRef = useRef<HTMLSpanElement>(null);
+  const [cardRef, isInView] = useInView({ threshold: 0.2, triggerOnce: true });
+  const prefersReducedMotion = useReducedMotion();
+
   const getTrendIcon = () => {
     if (delta === undefined) return null;
     if (delta > 0) return <ArrowUp className="w-3 h-3 text-green-500" />;
@@ -48,8 +56,41 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     return Math.min((latest / target) * 100, 100);
   };
 
+  // Count-up animation for the main value
+  useIsomorphicLayoutEffect(() => {
+    if (!isInView || !valueRef.current || latest === undefined || prefersReducedMotion) {
+      if (valueRef.current) {
+        valueRef.current.textContent = formatValue(latest) + unit;
+      }
+      return;
+    }
+
+    const numericValue = Number(latest);
+    if (isNaN(numericValue)) {
+      if (valueRef.current) {
+        valueRef.current.textContent = formatValue(latest) + unit;
+      }
+      return;
+    }
+
+    // Animate from 0 to the actual value
+    const controls = animate(0, numericValue, {
+      duration: 1,
+      ease: "easeOut",
+      onUpdate: (value) => {
+        if (valueRef.current) {
+          const formattedValue = numericValue % 1 === 0 ? Math.round(value).toString() : value.toFixed(1);
+          valueRef.current.textContent = formattedValue + unit;
+        }
+      }
+    });
+
+    return () => controls.stop();
+  }, [isInView, latest, unit, prefersReducedMotion]);
+
   return (
     <div 
+      ref={cardRef}
       onClick={onClick}
       className={cn(
         'relative rounded-xl bg-card backdrop-blur-lg border border-border p-4 cursor-pointer transition-all duration-200',
@@ -61,10 +102,13 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         <div className="flex-1">
           <div className="flex flex-col gap-1">
             <h3 className="text-xs text-white/60 font-medium">{title}</h3>
-            <span className={cn(
-              "text-3xl font-semibold",
-              `text-${metric}`
-            )}>
+            <span 
+              ref={valueRef}
+              className={cn(
+                "text-3xl font-semibold",
+                `text-${metric}`
+              )}
+            >
               {formatValue(latest)}{unit}
             </span>
             {delta !== undefined && (

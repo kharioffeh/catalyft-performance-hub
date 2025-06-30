@@ -6,8 +6,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useSpring, animated } from '@react-spring/web';
 import { colorScale, prettyName, normalizeId } from "../bodyHeatMapUtils";
 import { MuscleHeatmapTooltip } from "../MuscleHeatmapTooltip";
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 type MuscleHeatmapEntry = {
   muscle: string;
@@ -31,6 +33,7 @@ export const BodyHeatMapSVG: React.FC<BodyHeatMapSVGProps> = ({
   setHoveredMuscle,
 }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
 
   // Track which muscle (svg) user is hovering
   useEffect(() => {
@@ -49,6 +52,13 @@ export const BodyHeatMapSVG: React.FC<BodyHeatMapSVGProps> = ({
         el.onmouseleave = () => setHoveredMuscle(null);
         el.setAttribute("aria-label", prettyName(muscleId));
         el.setAttribute("tabindex", "0");
+
+        // Add pulse animation for high-risk muscles (acwr > 1.5)
+        const muscleData = muscleMap[normalizeId(muscleId)];
+        if (muscleData && muscleData.acwr > 1.5 && !prefersReducedMotion) {
+          el.style.transformOrigin = 'center';
+          el.style.animation = 'pulse 2s ease-in-out infinite';
+        }
       }
     });
 
@@ -58,12 +68,13 @@ export const BodyHeatMapSVG: React.FC<BodyHeatMapSVGProps> = ({
         if (el) {
           el.onmouseenter = null;
           el.onmouseleave = null;
+          el.style.animation = '';
         }
       });
     };
-  }, [svg, muscleMap, setHoveredMuscle]);
+  }, [svg, muscleMap, setHoveredMuscle, prefersReducedMotion]);
 
-  // Colorize SVG via string-replace
+  // Colorize SVG via string-replace with enhanced colors for high-risk muscles
   let svgWithColors = svg;
   if (svg) {
     svgWithColors = svg.replace(
@@ -71,7 +82,13 @@ export const BodyHeatMapSVG: React.FC<BodyHeatMapSVGProps> = ({
       (full, id: string) => {
         const normId = normalizeId(id);
         const row = muscleMap[normId];
-        const color = row ? colorScale(row.acwr) : "#d1d5db";
+        let color = row ? colorScale(row.acwr) : "#d1d5db";
+        
+        // Enhanced color for high-risk muscles
+        if (row && row.acwr > 1.5) {
+          color = "#FC7465"; // WCAG-compliant red for high risk
+        }
+        
         return `id="${id}" style="fill:${color};transition:fill 300ms;"`;
       }
     );
