@@ -13,6 +13,27 @@ interface Insight {
   created_at: string;
 }
 
+// Type guard to validate severity
+const isValidSeverity = (severity: string): severity is 'info' | 'amber' | 'red' => {
+  return ['info', 'amber', 'red'].includes(severity);
+};
+
+// Transform database row to Insight interface
+const transformToInsight = (row: any): Insight | null => {
+  if (!row || !isValidSeverity(row.severity)) {
+    return null;
+  }
+  
+  return {
+    id: row.id,
+    athlete_uuid: row.athlete_uuid,
+    metric: row.metric,
+    severity: row.severity,
+    message: row.message,
+    created_at: row.created_at
+  };
+};
+
 export const AriaSpotlight: React.FC = () => {
   const { profile } = useAuth();
   const [insight, setInsight] = useState<Insight | null>(null);
@@ -32,8 +53,11 @@ export const AriaSpotlight: React.FC = () => {
         .maybeSingle();
 
       if (!error && data) {
-        setInsight(data);
-        setIsVisible(true);
+        const transformedInsight = transformToInsight(data);
+        if (transformedInsight) {
+          setInsight(transformedInsight);
+          setIsVisible(true);
+        }
       }
     };
 
@@ -51,8 +75,11 @@ export const AriaSpotlight: React.FC = () => {
           filter: `athlete_uuid=eq.${profile.id}`
         },
         (payload) => {
-          setInsight(payload.new as Insight);
-          setIsVisible(true);
+          const transformedInsight = transformToInsight(payload.new);
+          if (transformedInsight) {
+            setInsight(transformedInsight);
+            setIsVisible(true);
+          }
         }
       )
       .subscribe();
