@@ -15,6 +15,8 @@ import { EnhancedTrainingLoadChart } from '@/components/EnhancedTrainingLoadChar
 import { PeriodProvider, usePeriod, periodToDays } from '@/lib/hooks/usePeriod';
 import { PeriodToggle } from '@/components/ui/PeriodToggle';
 import { useEnhancedMetricsWithAthlete } from '@/hooks/useEnhancedMetricsWithAthlete';
+import { ShareUIProvider } from '@/context/ShareUIContext';
+import { ShareSheet } from '@/components/ShareSheet';
 import { Download, Sparkles, Activity, Moon, Zap, Target } from 'lucide-react';
 
 const ARIA_SUGGESTIONS = [
@@ -292,6 +294,9 @@ const AnalyticsPageContent: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* ShareSheet for handling share functionality */}
+      <ShareSheet />
     </div>
   );
 };
@@ -299,7 +304,9 @@ const AnalyticsPageContent: React.FC = () => {
 const AnalyticsPage: React.FC = () => {
   return (
     <PeriodProvider>
-      <AnalyticsPageContent />
+      <ShareUIProvider>
+        <AnalyticsPageContent />
+      </ShareUIProvider>
     </PeriodProvider>
   );
 };
