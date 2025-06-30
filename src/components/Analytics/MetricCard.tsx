@@ -5,6 +5,8 @@ import { animate } from 'framer-motion';
 import { useInView } from '@/hooks/useInView';
 import { useIsomorphicLayoutEffect } from '@/hooks/useIsomorphicLayoutEffect';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useLongPress } from '@/hooks/useLongPress';
+import { useAnalyticsUI } from '@/context/AnalyticsUIContext';
 
 interface MetricCardProps {
   metric: 'readiness' | 'sleep' | 'load' | 'strain';
@@ -30,6 +32,13 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   const valueRef = useRef<HTMLSpanElement>(null);
   const [cardRef, isInView] = useInView<HTMLDivElement>({ threshold: 0.2, triggerOnce: true });
   const prefersReducedMotion = useReducedMotion();
+  const { setSelectedMetric } = useAnalyticsUI();
+
+  const longPressHandlers = useLongPress({
+    onLongPress: () => setSelectedMetric(metric),
+    delay: 500,
+    enabled: true,
+  });
 
   const getTrendIcon = () => {
     if (delta === undefined) return null;
@@ -91,10 +100,12 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     <div 
       ref={cardRef}
       onClick={onClick}
+      {...longPressHandlers()}
       className={cn(
-        'relative rounded-xl bg-card backdrop-blur-lg border border-border p-4 cursor-pointer transition-all duration-200',
+        'relative rounded-xl bg-card backdrop-blur-lg border border-border p-4 cursor-pointer transition-all duration-200 touch-manipulation',
         `before:absolute before:inset-0 before:rounded-xl before:pointer-events-none before:ring-1 before:ring-${metric}/ring`,
-        `hover:bg-${metric}/10`
+        `hover:bg-${metric}/10`,
+        'active:scale-95'
       )}
     >
       <div className="flex items-start justify-between">
