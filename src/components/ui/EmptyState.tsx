@@ -5,8 +5,8 @@ import { LucideIcon } from 'lucide-react';
 
 interface EmptyStateProps {
   icon?: LucideIcon;
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   action?: React.ReactNode;
   className?: string;
   // New props for illustration-based empty states
@@ -88,8 +88,8 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           <Icon className="w-8 h-8 text-white/40" />
         </div>
       )}
-      <h3 className="text-lg font-medium text-white mb-2">{title}</h3>
-      <p className="text-white/60 mb-6 max-w-md">{description}</p>
+      <h3 className="text-lg font-medium text-white mb-2">{title || 'No data available'}</h3>
+      <p className="text-white/60 mb-6 max-w-md">{description || 'There is currently no data to display.'}</p>
       {action}
     </div>
   );
