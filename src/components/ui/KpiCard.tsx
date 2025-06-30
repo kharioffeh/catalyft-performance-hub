@@ -4,6 +4,7 @@ import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowUp, ArrowDown } from 'lucide-react';
+import { AnimatedKpiValue } from '@/components/animations/AnimatedKpiValue';
 
 interface KpiCardProps {
   title: string;
@@ -58,6 +59,32 @@ export const KpiCard: React.FC<KpiCardProps> = ({
     return null;
   };
 
+  // Enhanced value rendering with animation
+  const renderValue = () => {
+    if (isLoading) {
+      return <Skeleton className="h-8 w-16 bg-white/10" />;
+    }
+
+    const numericValue = typeof value === 'number' ? value : parseFloat(value.toString());
+    
+    if (!isNaN(numericValue)) {
+      return (
+        <AnimatedKpiValue
+          value={numericValue}
+          className={layout === 'vertical' ? "text-2xl font-bold text-white" : "text-lg font-bold text-white"}
+          duration={0.8}
+          delay={0.1}
+        />
+      );
+    }
+
+    return (
+      <span className={layout === 'vertical' ? "text-2xl font-bold text-white" : "text-lg font-bold text-white"}>
+        {value}
+      </span>
+    );
+  };
+
   const cardContent = (
     <>
       {layout === 'vertical' ? (
@@ -73,13 +100,7 @@ export const KpiCard: React.FC<KpiCardProps> = ({
           
           <div className="flex items-end justify-between">
             <div className="flex-1">
-              {isLoading ? (
-                <Skeleton className="h-8 w-16 bg-white/10" />
-              ) : (
-                <span className="text-2xl font-bold text-white">
-                  {typeof value === 'number' ? value.toLocaleString() : value}
-                </span>
-              )}
+              {renderValue()}
               
               {delta && !isLoading && (
                 <div className={cn(
@@ -108,13 +129,7 @@ export const KpiCard: React.FC<KpiCardProps> = ({
           <div className="flex-1 min-w-0">
             <h3 className="text-xs font-medium text-white/70 truncate">{title}</h3>
             <div className="flex items-baseline gap-2">
-              {isLoading ? (
-                <Skeleton className="h-5 w-12 bg-white/10" />
-              ) : (
-                <span className="text-lg font-bold text-white">
-                  {typeof value === 'number' ? value.toLocaleString() : value}
-                </span>
-              )}
+              {renderValue()}
               {delta && !isLoading && (
                 <div className={cn(
                   "flex items-center gap-0.5 text-xs",

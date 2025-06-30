@@ -3,6 +3,7 @@ import React from 'react';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ArrowUp, ArrowDown } from 'lucide-react';
+import { AnimatedKpiValue } from '@/components/animations/AnimatedKpiValue';
 
 interface KpiTileProps {
   title: string;
@@ -35,6 +36,32 @@ export const KpiTile: React.FC<KpiTileProps> = ({
     }
   };
 
+  // Enhanced value rendering with animation
+  const renderValue = () => {
+    if (isLoading) {
+      return <div className="h-8 w-16 bg-gray-200 rounded animate-pulse" />;
+    }
+
+    const numericValue = typeof value === 'number' ? value : parseFloat(value.toString());
+    
+    if (!isNaN(numericValue)) {
+      return (
+        <AnimatedKpiValue
+          value={numericValue}
+          className="text-2xl font-bold text-gray-900 leading-none"
+          duration={0.8}
+          delay={0.1}
+        />
+      );
+    }
+
+    return (
+      <div className="text-2xl font-bold text-gray-900 leading-none">
+        {value}
+      </div>
+    );
+  };
+
   const tileContent = (
     <>
       {/* Header with title and icon */}
@@ -51,13 +78,7 @@ export const KpiTile: React.FC<KpiTileProps> = ({
       
       {/* Value display */}
       <div className="flex-1 flex flex-col justify-center">
-        {isLoading ? (
-          <div className="h-8 w-16 bg-gray-200 rounded animate-pulse" />
-        ) : (
-          <div className="text-2xl font-bold text-gray-900 leading-none">
-            {typeof value === 'number' ? value.toLocaleString() : value}
-          </div>
-        )}
+        {renderValue()}
         
         {/* Trend indicator */}
         {trend && !isLoading && (

@@ -10,6 +10,7 @@ import { useSpring, animated } from '@react-spring/web';
 import { colorScale, prettyName, normalizeId } from "../bodyHeatMapUtils";
 import { MuscleHeatmapTooltip } from "../MuscleHeatmapTooltip";
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { PulseWrapper } from '@/components/animations/PulseWrapper';
 
 type MuscleHeatmapEntry = {
   muscle: string;
@@ -35,6 +36,14 @@ export const BodyHeatMapSVG: React.FC<BodyHeatMapSVGProps> = ({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
 
+  // Get pulse intensity based on ACWR value
+  const getPulseIntensity = (acwr: number): 'low' | 'medium' | 'high' | null => {
+    if (acwr > 1.5) return 'high';
+    if (acwr > 1.3) return 'medium';
+    if (acwr > 1.1) return 'low';
+    return null;
+  };
+
   // Track which muscle (svg) user is hovering
   useEffect(() => {
     if (!svg || !wrapperRef.current) return;
@@ -53,11 +62,26 @@ export const BodyHeatMapSVG: React.FC<BodyHeatMapSVGProps> = ({
         el.setAttribute("aria-label", prettyName(muscleId));
         el.setAttribute("tabindex", "0");
 
-        // Add pulse animation for high-risk muscles (acwr > 1.5)
+        // Enhanced pulse animation based on risk level
         const muscleData = muscleMap[normalizeId(muscleId)];
-        if (muscleData && muscleData.acwr > 1.5 && !prefersReducedMotion) {
-          el.style.transformOrigin = 'center';
-          el.style.animation = 'pulse 2s ease-in-out infinite';
+        if (muscleData && !prefersReducedMotion) {
+          const pulseIntensity = getPulseIntensity(muscleData.acwr);
+          if (pulseIntensity) {
+            el.style.transformOrigin = 'center';
+            
+            // Different animation styles based on intensity
+            switch (pulseIntensity) {
+              case 'high':
+                el.style.animation = 'pulse 1s ease-in-out infinite';
+                break;
+              case 'medium':
+                el.style.animation = 'pulse 1.5s ease-in-out infinite';
+                break;
+              case 'low':
+                el.style.animation = 'pulse 2s ease-in-out infinite';
+                break;
+            }
+          }
         }
       }
     });
@@ -84,12 +108,14 @@ export const BodyHeatMapSVG: React.FC<BodyHeatMapSVGProps> = ({
         const row = muscleMap[normId];
         let color = row ? colorScale(row.acwr) : "#d1d5db";
         
-        // Enhanced color for high-risk muscles
+        // Enhanced color for high-risk muscles with better contrast
         if (row && row.acwr > 1.5) {
-          color = "#FC7465"; // WCAG-compliant red for high risk
+          color = "#DC2626"; // Stronger red for high risk
+        } else if (row && row.acwr > 1.3) {
+          color = "#EA580C"; // Orange for medium risk
         }
         
-        return `id="${id}" style="fill:${color};transition:fill 300ms;"`;
+        return `id="${id}" style="fill:${color};transition:fill 300ms ease-out;"`;
       }
     );
   }
