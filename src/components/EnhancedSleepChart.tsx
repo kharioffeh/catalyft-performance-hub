@@ -43,7 +43,7 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
   variant = 'default',
   onConnectWearable 
 }) => {
-  const [chartRef, isInView] = useInView({ threshold: 0.2, triggerOnce: true });
+  const [chartRef, isInView] = useInView<HTMLDivElement>({ threshold: 0.2, triggerOnce: true });
   const [animationComplete, setAnimationComplete] = useState(false);
   const prefersReducedMotion = useReducedMotion();
 

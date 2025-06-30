@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -31,7 +30,7 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
   variant = 'default',
   onConnectWearable 
 }) => {
-  const [chartRef, isInView] = useInView({ threshold: 0.2, triggerOnce: true });
+  const [chartRef, isInView] = useInView<HTMLDivElement>({ threshold: 0.2, triggerOnce: true });
   const [animationComplete, setAnimationComplete] = useState(false);
   const prefersReducedMotion = useReducedMotion();
 

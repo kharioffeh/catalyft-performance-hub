@@ -1,4 +1,3 @@
-
 import React, { useRef } from 'react';
 import { ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -29,7 +28,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   children
 }) => {
   const valueRef = useRef<HTMLSpanElement>(null);
-  const [cardRef, isInView] = useInView({ threshold: 0.2, triggerOnce: true });
+  const [cardRef, isInView] = useInView<HTMLDivElement>({ threshold: 0.2, triggerOnce: true });
   const prefersReducedMotion = useReducedMotion();
 
   const getTrendIcon = () => {
