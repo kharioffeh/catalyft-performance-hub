@@ -1,10 +1,22 @@
-
 import React from "react";
 import { useChatState } from "./ChatThread/hooks/useChatState";
 import { ChatBackground } from "./ChatThread/components/ChatBackground";
 import { ChatMessage } from "./ChatThread/components/ChatMessage";
 import { LoadingIndicator } from "./ChatThread/components/LoadingIndicator";
 import { ChatInput } from "./ChatThread/components/ChatInput";
+import { MobileChatLayout } from "./ChatThread/components/MobileChatLayout";
+import { MobileMessageList } from "./ChatThread/components/MobileMessageList";
+import { MobileChatInput } from "./ChatThread/components/MobileChatInput";
+import { SuggestedPrompts } from "./ChatThread/components/SuggestedPrompts";
+import { useIsMobile } from "@/hooks/useBreakpoint";
+
+const SUGGESTED_PROMPTS = [
+  "How can I improve my training?",
+  "What does my data suggest?",
+  "Am I overtraining?",
+  "Should I rest today?",
+  "Analyze my performance trends"
+];
 
 export function ChatThread() {
   const {
@@ -16,6 +28,39 @@ export function ChatThread() {
     sendMessage
   } = useChatState();
 
+  const isMobile = useIsMobile();
+
+  // Mobile layout
+  if (isMobile) {
+    return (
+      <MobileChatLayout threadId={actualThreadId}>
+        {/* Message list */}
+        <MobileMessageList 
+          messages={messages} 
+          isLoading={isLoading}
+        />
+
+        {/* Suggested prompts - show when no messages */}
+        {messages.length === 0 && (
+          <SuggestedPrompts
+            prompts={SUGGESTED_PROMPTS}
+            onSelectPrompt={setDraft}
+            isVisible={messages.length === 0}
+          />
+        )}
+
+        {/* Mobile input */}
+        <MobileChatInput
+          draft={draft}
+          setDraft={setDraft}
+          isLoading={isLoading}
+          onSendMessage={sendMessage}
+        />
+      </MobileChatLayout>
+    );
+  }
+
+  // Desktop layout (unchanged)
   return (
     <div className="relative min-h-screen bg-dark text-white overflow-hidden">
       {/* Background Effects */}
