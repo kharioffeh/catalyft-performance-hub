@@ -2,8 +2,8 @@
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ReadinessBadge } from '@/components/ReadinessBadge';
+import { AvatarDrawer } from '@/components/layout/AvatarDrawer';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/useBreakpoint';
 import { NotificationBell } from '@/components/NotificationBell';
 import { useTimezoneDetection } from '@/hooks/useTimezoneDetection';
@@ -11,7 +11,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { cn } from '@/lib/utils';
 
 export const TopBar: React.FC = () => {
-  const { profile, signOut } = useAuth();
+  const { profile } = useAuth();
   const isMobile = useIsMobile();
   
   // Initialize timezone detection
@@ -49,29 +49,19 @@ export const TopBar: React.FC = () => {
             )}
           </span>
         )}
-        <Avatar className="h-8 w-8 md:h-10 md:w-10">
-          <AvatarFallback className={cn(
-            "bg-white/70 dark:bg-gray-900/80",
-            "text-gray-800 dark:text-white backdrop-blur-md",
-            "border border-white/20 dark:border-white/10"
-          )}>
-            {profile?.full_name?.charAt(0) || 'U'}
-          </AvatarFallback>
-        </Avatar>
-        <Button 
-          variant="outline" 
-          onClick={signOut} 
-          size="sm"
-          className={cn(
-            "min-h-[44px] md:min-h-auto active:opacity-80",
-            "bg-white/70 dark:bg-gray-900/80",
-            "hover:bg-white/80 dark:hover:bg-gray-900/90",
-            "border-white/30 dark:border-white/20",
-            "text-gray-800 dark:text-white backdrop-blur-md"
-          )}
-        >
-          Sign Out
-        </Button>
+        
+        {/* Avatar Drawer */}
+        <AvatarDrawer>
+          <Avatar className="h-8 w-8 md:h-10 md:w-10 cursor-pointer hover:opacity-80 transition-opacity">
+            <AvatarFallback className={cn(
+              "bg-white/70 dark:bg-gray-900/80",
+              "text-gray-800 dark:text-white backdrop-blur-md",
+              "border border-white/20 dark:border-white/10"
+            )}>
+              {profile?.full_name?.charAt(0) || 'U'}
+            </AvatarFallback>
+          </Avatar>
+        </AvatarDrawer>
       </div>
     </header>
   );
