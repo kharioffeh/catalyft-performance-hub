@@ -1,4 +1,5 @@
 
+
 import { useGesture } from 'react-use-gesture';
 import { useSpring } from '@react-spring/web';
 import { useReducedMotion } from './useReducedMotion';
@@ -29,9 +30,9 @@ export const usePullToRefresh = ({
       // Only allow pull down from top
       if (window.scrollY > 0) return;
       
-      const [, my] = movement;
-      const [, vy] = velocity;
-      const [, dy] = direction;
+      const my = movement[1]; // Y movement
+      const vy = velocity[1]; // Y velocity  
+      const dy = direction[1]; // Y direction
       
       const threshold = refreshThreshold;
       const trigger = my > threshold && !down;
@@ -66,3 +67,4 @@ export const usePullToRefresh = ({
 
   return { bind, style: { y, opacity } };
 };
+
