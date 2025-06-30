@@ -1,8 +1,7 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrainingProgramsTemplatesTab } from './TrainingProgramsTemplatesTab';
-import { TrainingProgramsProgramsTab } from './TrainingProgramsProgramsTab';
+import { TrainingProgramsPager } from './TrainingProgramsPager';
 import { ExerciseLibrary } from '@/components/ExerciseLibrary';
 import { PerformanceTab } from '@/components/PerformanceTab';
 
@@ -41,10 +40,7 @@ export const TrainingProgramsTabs: React.FC<TrainingProgramsTabsProps> = ({
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList className="grid w-full grid-cols-4 bg-white/5 border border-white/10">
         <TabsTrigger value="programs" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10">
-          Programs
-        </TabsTrigger>
-        <TabsTrigger value="workouts" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10">
-          Workouts
+          Training
         </TabsTrigger>
         <TabsTrigger value="exercises" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10">
           Exercise Library
@@ -52,27 +48,23 @@ export const TrainingProgramsTabs: React.FC<TrainingProgramsTabsProps> = ({
         <TabsTrigger value="performance" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10">
           Performance
         </TabsTrigger>
+        <TabsTrigger value="analytics" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10">
+          Analytics
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="programs" className="space-y-6 mt-6">
-        <TrainingProgramsTemplatesTab
+        <TrainingProgramsPager
           templates={templates}
+          workoutTemplates={workoutTemplates}
           isCoach={isCoach}
-          isSolo={isSolo}
           deleteLoading={deleteLoading}
           onView={onView}
           onEdit={onEdit}
           onDelete={onDelete}
-          onCreateTemplate={onCreateProgram}
-          onCreateProgram={onCreateProgram}
-        />
-      </TabsContent>
-
-      <TabsContent value="workouts" className="space-y-6 mt-6">
-        <TrainingProgramsProgramsTab
-          workoutTemplates={workoutTemplates}
-          isCoach={isCoach}
           onAssignTemplate={onAssignTemplate}
+          onCreateTemplate={onCreateTemplate}
+          onCreateProgram={onCreateProgram}
         />
       </TabsContent>
 
@@ -82,6 +74,12 @@ export const TrainingProgramsTabs: React.FC<TrainingProgramsTabsProps> = ({
 
       <TabsContent value="performance" className="space-y-6 mt-6">
         <PerformanceTab />
+      </TabsContent>
+
+      <TabsContent value="analytics" className="space-y-6 mt-6">
+        <div className="text-center py-12 text-white/60">
+          Analytics coming soon
+        </div>
       </TabsContent>
     </Tabs>
   );
