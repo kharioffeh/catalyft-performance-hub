@@ -46,8 +46,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     enabled: true,
   });
 
-  const handleShare = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleShare = () => {
     if (!cardRef.current) return;
     
     openSheet({
