@@ -1,20 +1,32 @@
-import React, { useState } from 'react';
+
+import React, { useState, Suspense } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { MetricChart } from '@/components/Analytics/MetricChart';
-import { ARIAInsight } from '@/components/Analytics/ARIAInsight';
-import { DataTable } from '@/components/Analytics/DataTable';
 import { InsightStrip } from '@/components/Analytics/InsightStrip';
+import { SegmentedControl } from '@/components/Analytics/SegmentedControl';
 import { useMetricData } from '@/hooks/useMetricData';
 import { useEnhancedMetricsWithAthlete } from '@/hooks/useEnhancedMetricsWithAthlete';
+
+// Lazy load segment components
+const TrendView = React.lazy(() => import('@/components/Analytics/Sleep/TrendView').then(module => ({ default: module.TrendView })));
+const FactorsView = React.lazy(() => import('@/components/Analytics/Sleep/FactorsView').then(module => ({ default: module.FactorsView })));
+const TableView = React.lazy(() => import('@/components/Analytics/Sleep/TableView').then(module => ({ default: module.TableView })));
+
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center p-8">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+  </div>
+);
 
 export default function SleepDetailPage() {
   const { profile } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const periodParam = Number(searchParams.get("period")) || 30;
+  const segmentParam = searchParams.get("segment") || "trend";
   const [period, setPeriod] = useState<7 | 30 | 90>(
     periodParam === 7 ? 7 : periodParam === 90 ? 90 : 30
   );
+  const [activeSegment, setActiveSegment] = useState(segmentParam);
 
   // Fetch detailed sleep data
   const { data, isLoading, error } = useMetricData("sleep", period);
@@ -31,30 +43,16 @@ export default function SleepDetailPage() {
   // Handler to change period and update URL
   const changePeriod = (p: 7 | 30 | 90) => {
     setPeriod(p);
-    setSearchParams({ period: String(p) });
+    setSearchParams({ period: String(p), segment: activeSegment });
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <InsightStrip
-          readiness={latestReadiness}
-          sleepHours={latestSleepHours}
-          acwr={latestACWR}
-          strain={latestStrainValue}
-        />
-        <div className="p-6 max-w-5xl mx-auto">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-            <div className="h-64 bg-gray-200 rounded"></div>
-            <div className="h-48 bg-gray-200 rounded"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Handler to change segment
+  const changeSegment = (segment: string) => {
+    setActiveSegment(segment);
+    setSearchParams({ period: String(period), segment });
+  };
 
-  if (error || !data) {
+  if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <InsightStrip
@@ -107,70 +105,25 @@ export default function SleepDetailPage() {
           </div>
         </div>
 
-        {/* Hero Chart: Sleep Stages Over Time */}
-        <section className="card">
-          <h2 className="text-lg font-semibold mb-2">Sleep Stages Over Time</h2>
-          <p className="text-sm text-gray-600 mb-4">
-            Breakdown of sleep stages over the last {period} days
-          </p>
-          <div className="relative w-full pb-[60%]">
-            <MetricChart
-              type="bar"
-              data={data.series || []}
-              stacked={true}
-              xLabel="Date"
-              yLabel="Hours"
-              className="absolute inset-0"
-            />
-          </div>
-        </section>
+        {/* Segmented Control */}
+        <SegmentedControl
+          segments={['Trend', 'Factors', 'Table']}
+          activeSegment={activeSegment}
+          onSegmentChange={changeSegment}
+        />
 
-        {/* Sleep Consistency Chart */}
-        {data.scatter && data.scatter.length > 0 && (
-          <section className="card">
-            <h2 className="text-lg font-semibold mb-2">Sleep Consistency</h2>
-            <p className="text-sm text-gray-600 mb-4">
-              Bedtime vs wake time consistency pattern
-            </p>
-            <div className="relative w-full pb-[60%]">
-              <MetricChart
-                type="scatter"
-                data={data.scatter.map(point => ({ x: point.x.toString(), y: point.y }))}
-                xLabel="Bedtime"
-                yLabel="Wake Time"
-                className="absolute inset-0"
-              />
-            </div>
-          </section>
-        )}
-
-        {/* Data Table: Daily Sleep Details */}
-        <section className="card overflow-x-auto">
-          <h2 className="text-lg font-semibold mb-2">Daily Sleep Details</h2>
-          <p className="text-sm text-gray-600 mb-4">
-            Detailed breakdown of daily sleep metrics and stages
-          </p>
-          <DataTable
-            columns={[
-              { header: "Date", accessor: "day", type: "date" },
-              { header: "Total Hours", accessor: "total_sleep_hours", type: "number" },
-              { header: "Avg HR", accessor: "avg_hr", type: "number" },
-              { header: "Deep (min)", accessor: "deep_minutes", type: "number" },
-              { header: "Light (min)", accessor: "light_minutes", type: "number" },
-              { header: "REM (min)", accessor: "rem_minutes", type: "number" }
-            ]}
-            data={data.tableRows || []}
-          />
-        </section>
-
-        {/* ARIA Insights */}
-        <section className="card">
-          <h2 className="text-lg font-semibold mb-2">Coach ARIA Sleep Insights</h2>
-          <p className="text-sm text-gray-600 mb-4">
-            AI-generated insights about your sleep patterns and quality
-          </p>
-          <ARIAInsight metric="sleep" period={period} />
-        </section>
+        {/* Segment Content */}
+        <Suspense fallback={<LoadingFallback />}>
+          {activeSegment === 'trend' && (
+            <TrendView data={data} period={period} isLoading={isLoading} />
+          )}
+          {activeSegment === 'factors' && (
+            <FactorsView data={data} period={period} isLoading={isLoading} />
+          )}
+          {activeSegment === 'table' && (
+            <TableView data={data} period={period} isLoading={isLoading} />
+          )}
+        </Suspense>
       </div>
     </div>
   );
