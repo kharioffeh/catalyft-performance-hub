@@ -26,8 +26,10 @@ export const InsightStrip: React.FC<InsightStripProps> = ({
   const loadModal = useDisclosure();
   const strainModal = useDisclosure();
 
+  console.log('InsightStrip values:', { readiness, sleepHours, acwr, strain });
+
   const formatValue = (value: number | null, unit: string = '', decimals: number = 0) => {
-    if (value === null) return '--';
+    if (value === null || value === undefined) return '--';
     return `${value.toFixed(decimals)}${unit}`;
   };
 
@@ -38,6 +40,16 @@ export const InsightStrip: React.FC<InsightStripProps> = ({
       value: `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}`,
       positive: diff >= 0
     };
+  };
+
+  // Safe color getter with fallback
+  const safeGetMetricColor = (metric: string, type: 'primary' | 'bg') => {
+    try {
+      return getMetricColor(metric as any, type);
+    } catch (error) {
+      console.warn(`Failed to get color for metric ${metric}:`, error);
+      return type === 'primary' ? '#6366f1' : 'rgba(99, 102, 241, 0.1)';
+    }
   };
 
   return (
@@ -56,8 +68,8 @@ export const InsightStrip: React.FC<InsightStripProps> = ({
                 onClick={readinessModal.open}
                 className="h-16 border-l-2 hover:bg-white/10 transition-colors cursor-pointer"
                 style={{ 
-                  borderLeftColor: getMetricColor('readiness', 'primary'),
-                  backgroundColor: getMetricColor('readiness', 'bg')
+                  borderLeftColor: safeGetMetricColor('readiness', 'primary'),
+                  backgroundColor: safeGetMetricColor('readiness', 'bg')
                 }}
               />
             </div>
@@ -73,8 +85,8 @@ export const InsightStrip: React.FC<InsightStripProps> = ({
                 onClick={sleepModal.open}
                 className="h-16 border-l-2 hover:bg-white/10 transition-colors cursor-pointer"
                 style={{ 
-                  borderLeftColor: getMetricColor('sleep', 'primary'),
-                  backgroundColor: getMetricColor('sleep', 'bg')
+                  borderLeftColor: safeGetMetricColor('sleep', 'primary'),
+                  backgroundColor: safeGetMetricColor('sleep', 'bg')
                 }}
               />
             </div>
@@ -90,8 +102,8 @@ export const InsightStrip: React.FC<InsightStripProps> = ({
                 onClick={loadModal.open}
                 className="h-16 border-l-2 hover:bg-white/10 transition-colors cursor-pointer"
                 style={{ 
-                  borderLeftColor: getMetricColor('load', 'primary'),
-                  backgroundColor: getMetricColor('load', 'bg')
+                  borderLeftColor: safeGetMetricColor('load', 'primary'),
+                  backgroundColor: safeGetMetricColor('load', 'bg')
                 }}
               />
             </div>
@@ -107,8 +119,8 @@ export const InsightStrip: React.FC<InsightStripProps> = ({
                 onClick={strainModal.open}
                 className="h-16 border-l-2 hover:bg-white/10 transition-colors cursor-pointer"
                 style={{ 
-                  borderLeftColor: getMetricColor('strain', 'primary'),
-                  backgroundColor: getMetricColor('strain', 'bg')
+                  borderLeftColor: safeGetMetricColor('strain', 'primary'),
+                  backgroundColor: safeGetMetricColor('strain', 'bg')
                 }}
               />
             </div>
