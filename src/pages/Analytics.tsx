@@ -6,6 +6,8 @@ import { HeatMapBody } from '@/components/Analytics/Glass/HeatMapBody';
 import { ACWRDial } from '@/components/Analytics/Glass/ACWRDial';
 import { AthleteSelector } from '@/components/Analytics/AthleteSelector';
 import { InsightPanel } from '@/components/aria/InsightPanel';
+import { InsightStrip } from '@/components/Analytics/InsightStrip';
+import { useEnhancedMetricsWithAthlete } from '@/hooks/useEnhancedMetricsWithAthlete';
 import { Download, Sparkles, Activity, Moon, Zap, Target } from 'lucide-react';
 
 const ARIA_SUGGESTIONS = [
@@ -29,6 +31,15 @@ const AnalyticsPage: React.FC = () => {
   const [period, setPeriod] = useState<"24h" | "7d" | "30d" | "90d">("30d");
   const [selectedAthleteId, setSelectedAthleteId] = useState<string>('');
   const [ariaInput, setAriaInput] = useState('');
+
+  // Get enhanced metrics for the selected athlete
+  const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetricsWithAthlete(selectedAthleteId);
+
+  // Extract values for InsightStrip
+  const latestReadiness = readinessRolling[readinessRolling.length - 1]?.readiness_score ?? null;
+  const latestSleepHours = sleepDaily[sleepDaily.length - 1]?.total_sleep_hours ?? null;
+  const latestACWR = loadACWR[loadACWR.length - 1]?.acwr_7_28 ?? null;
+  const latestStrainValue = latestStrain?.value ?? null;
   
   const handleAriaPrompt = (suggestion: string) => {
     setAriaInput(suggestion);
@@ -46,15 +57,9 @@ const AnalyticsPage: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Performance Analytics</h1>
-          <p className="text-white/70">Comprehensive performance insights and data trends</p>
-        </div>
-
-        {/* Controls */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Controls */}
+      <div className="max-w-7xl mx-auto p-6">
         <div className="flex flex-wrap items-center justify-between mb-6 gap-3">
           <AthleteSelector 
             selectedAthleteId={selectedAthleteId}
@@ -84,7 +89,18 @@ const AnalyticsPage: React.FC = () => {
             ))}
           </div>
         </div>
+      </div>
 
+      {/* Sticky Insight Strip */}
+      <InsightStrip
+        readiness={latestReadiness}
+        sleepHours={latestSleepHours}
+        acwr={latestACWR}
+        strain={latestStrainValue}
+      />
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Responsive 12-Column Grid Layout */}
         <div className="grid grid-cols-12 gap-6 mt-6 auto-rows-min">
           {/* KPI Cards - 2 per row on mobile, 4 per row on desktop */}

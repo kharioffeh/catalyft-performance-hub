@@ -16,6 +16,7 @@ interface KpiCardProps {
   onClick?: () => void;
   isLoading?: boolean;
   className?: string;
+  style?: React.CSSProperties;
   layout?: 'horizontal' | 'vertical';
 }
 
@@ -27,6 +28,7 @@ export const KpiCard: React.FC<KpiCardProps> = ({
   onClick,
   isLoading = false,
   className,
+  style,
   layout = 'vertical'
 }) => {
   const isClickable = !!onClick;
@@ -58,48 +60,85 @@ export const KpiCard: React.FC<KpiCardProps> = ({
 
   const cardContent = (
     <>
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-medium text-white/70">{title}</h3>
-        {Icon && (
-          <div className="p-2 bg-white/10 rounded-lg">
-            {renderIcon()}
+      {layout === 'vertical' ? (
+        <>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-white/70">{title}</h3>
+            {Icon && (
+              <div className="p-2 bg-white/10 rounded-lg">
+                {renderIcon()}
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      
-      <div className="flex items-end justify-between">
-        <div className="flex-1">
-          {isLoading ? (
-            <Skeleton className="h-8 w-16 bg-white/10" />
-          ) : (
-            <span className="text-2xl font-bold text-white">
-              {typeof value === 'number' ? value.toLocaleString() : value}
-            </span>
-          )}
           
-          {delta && !isLoading && (
-            <div className={cn(
-              "flex items-center gap-1 text-xs mt-1",
-              delta.positive ? "text-emerald-400" : "text-rose-400"
-            )}>
-              {delta.positive ? (
-                <ArrowUp className="w-3 h-3" />
+          <div className="flex items-end justify-between">
+            <div className="flex-1">
+              {isLoading ? (
+                <Skeleton className="h-8 w-16 bg-white/10" />
               ) : (
-                <ArrowDown className="w-3 h-3" />
+                <span className="text-2xl font-bold text-white">
+                  {typeof value === 'number' ? value.toLocaleString() : value}
+                </span>
               )}
-              <span>{delta.value}</span>
+              
+              {delta && !isLoading && (
+                <div className={cn(
+                  "flex items-center gap-1 text-xs mt-1",
+                  delta.positive ? "text-emerald-400" : "text-rose-400"
+                )}>
+                  {delta.positive ? (
+                    <ArrowUp className="w-3 h-3" />
+                  ) : (
+                    <ArrowDown className="w-3 h-3" />
+                  )}
+                  <span>{delta.value}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      ) : (
+        // Horizontal layout for InsightStrip
+        <div className="flex items-center gap-3 h-full">
+          {Icon && (
+            <div className="flex-shrink-0 p-1.5 bg-white/10 rounded-md">
+              {renderIcon()}
             </div>
           )}
+          <div className="flex-1 min-w-0">
+            <h3 className="text-xs font-medium text-white/70 truncate">{title}</h3>
+            <div className="flex items-baseline gap-2">
+              {isLoading ? (
+                <Skeleton className="h-5 w-12 bg-white/10" />
+              ) : (
+                <span className="text-lg font-bold text-white">
+                  {typeof value === 'number' ? value.toLocaleString() : value}
+                </span>
+              )}
+              {delta && !isLoading && (
+                <div className={cn(
+                  "flex items-center gap-0.5 text-xs",
+                  delta.positive ? "text-emerald-400" : "text-rose-400"
+                )}>
+                  {delta.positive ? (
+                    <ArrowUp className="w-2.5 h-2.5" />
+                  ) : (
+                    <ArrowDown className="w-2.5 h-2.5" />
+                  )}
+                  <span className="text-xs">{delta.value}</span>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 
   const baseClasses = cn(
     'backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-4',
-    'flex flex-col justify-between',
     'transition-all duration-200',
-    layout === 'horizontal' ? 'h-24' : 'h-32',
+    layout === 'horizontal' ? 'h-16 flex items-center' : 'h-32 flex flex-col justify-between',
     isClickable && 'cursor-pointer hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/20 focus:ring-offset-2 focus:ring-offset-transparent',
     className
   );
@@ -112,6 +151,7 @@ export const KpiCard: React.FC<KpiCardProps> = ({
         onClick={onClick}
         onKeyDown={handleKeyDown}
         className={baseClasses}
+        style={style}
         aria-label={`${title}: ${value}`}
       >
         {cardContent}
@@ -120,7 +160,7 @@ export const KpiCard: React.FC<KpiCardProps> = ({
   }
 
   return (
-    <div className={baseClasses}>
+    <div className={baseClasses} style={style}>
       {cardContent}
     </div>
   );
