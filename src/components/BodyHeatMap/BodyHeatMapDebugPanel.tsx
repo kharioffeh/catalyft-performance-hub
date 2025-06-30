@@ -40,6 +40,8 @@ export const BodyHeatMapDebugPanel: React.FC<DebugPanelProps> = ({
     return typeof error === "string" ? error : String(error);
   };
 
+  const hasDataArray = data !== null && Array.isArray(data);
+
   return (
     <>
       {/* Debug Mode Toggle */}
@@ -78,7 +80,7 @@ export const BodyHeatMapDebugPanel: React.FC<DebugPanelProps> = ({
                 ? <span className="text-yellow-400">loading…</span>
                 : isError
                 ? <span className="text-red-400">error: {friendlyErrorMessage()}</span>
-                : Array.isArray(data)
+                : hasDataArray
                 ? <span className="text-green-500">ok ({data.length} muscles)</span>
                 : <span className="text-yellow-200">empty</span>
               }
