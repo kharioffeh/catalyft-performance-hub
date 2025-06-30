@@ -5,6 +5,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Legend, ReferenceLine } from 'recharts';
 import { format } from 'date-fns';
 import { chartTheme, makeLine, makeYAxis, makeXAxis, referenceLines, createTooltipFormatter } from '@/lib/chartTheme';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface LoadData {
   athlete_uuid: string;
@@ -18,6 +19,7 @@ interface LoadData {
 interface EnhancedTrainingLoadChartProps {
   data: LoadData[];
   variant?: 'default' | 'carousel';
+  onLogWorkout?: () => void;
 }
 
 const chartConfig = {
@@ -35,7 +37,49 @@ const chartConfig = {
   },
 };
 
-export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps> = ({ data, variant = 'default' }) => {
+export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps> = ({ 
+  data, 
+  variant = 'default',
+  onLogWorkout 
+}) => {
+  const chartHeight = variant === 'carousel' ? 'h-[200px] md:h-[260px]' : 'h-[300px]';
+  const showLegend = variant !== 'carousel';
+
+  // Show empty state if no data
+  if (!data || data.length === 0) {
+    const emptyStateContent = (
+      <EmptyState
+        type="load"
+        onAction={onLogWorkout}
+        className="h-[200px] md:h-[260px]"
+      />
+    );
+
+    if (variant === 'carousel') {
+      return (
+        <div>
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold text-white">Training Load & ACWR</h3>
+            <p className="text-sm text-white/70">Daily load with Acute:Chronic Workload Ratio and risk zones</p>
+          </div>
+          {emptyStateContent}
+        </div>
+      );
+    }
+
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Training Load & ACWR</CardTitle>
+          <CardDescription>Daily training load with Acute:Chronic Workload Ratio and risk zones</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {emptyStateContent}
+        </CardContent>
+      </Card>
+    );
+  }
+
   const formattedData = data.map(item => ({
     ...item,
     date: format(new Date(item.day), 'MMM dd'),
@@ -51,9 +95,6 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
   const xAxisProps = makeXAxis();
   const leftYAxisProps = makeYAxis(undefined, 'Load');
   const rightYAxisProps = makeYAxis([0, 2], 'ACWR');
-
-  const chartHeight = variant === 'carousel' ? 'h-[200px] md:h-[260px]' : 'h-[300px]';
-  const showLegend = variant !== 'carousel';
 
   const chartContent = (
     <ChartContainer config={chartConfig} className={chartHeight}>

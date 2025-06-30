@@ -5,6 +5,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Legend, ReferenceLine } from 'recharts';
 import { format } from 'date-fns';
 import { chartTheme, makeLine, makeYAxis, makeXAxis, referenceLines, createTooltipFormatter } from '@/lib/chartTheme';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface SleepData {
   athlete_uuid: string;
@@ -18,6 +19,7 @@ interface SleepData {
 interface EnhancedSleepChartProps {
   data: SleepData[];
   variant?: 'default' | 'carousel';
+  onConnectWearable?: () => void;
 }
 
 const chartConfig = {
@@ -35,7 +37,49 @@ const chartConfig = {
   },
 };
 
-export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({ data, variant = 'default' }) => {
+export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({ 
+  data, 
+  variant = 'default',
+  onConnectWearable 
+}) => {
+  const chartHeight = variant === 'carousel' ? 'h-[200px] md:h-[260px]' : 'h-[300px]';
+  const showLegend = variant !== 'carousel';
+
+  // Show empty state if no data
+  if (!data || data.length === 0) {
+    const emptyStateContent = (
+      <EmptyState
+        type="sleep"
+        onAction={onConnectWearable}
+        className="h-[200px] md:h-[260px]"
+      />
+    );
+
+    if (variant === 'carousel') {
+      return (
+        <div>
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold text-white">Sleep & Recovery</h3>
+            <p className="text-sm text-white/70">Sleep efficiency, duration, and HRV trends</p>
+          </div>
+          {emptyStateContent}
+        </div>
+      );
+    }
+
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Sleep & Recovery Metrics</CardTitle>
+          <CardDescription>Sleep efficiency, duration, and HRV trends with optimal zones</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {emptyStateContent}
+        </CardContent>
+      </Card>
+    );
+  }
+
   const formattedData = data.map(item => ({
     ...item,
     date: format(new Date(item.day), 'MMM dd'),
@@ -53,9 +97,6 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({ data, va
   const xAxisProps = makeXAxis();
   const leftYAxisProps = makeYAxis([0, 100], '%');
   const rightYAxisProps = makeYAxis(undefined, 'hrs/ms');
-
-  const chartHeight = variant === 'carousel' ? 'h-[200px] md:h-[260px]' : 'h-[300px]';
-  const showLegend = variant !== 'carousel';
 
   const chartContent = (
     <ChartContainer config={chartConfig} className={chartHeight}>

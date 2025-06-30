@@ -1,0 +1,21 @@
+
+<svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Moon -->
+  <circle cx="80" cy="70" r="32" stroke="rgba(255,255,255,0.6)" stroke-width="2" fill="none"/>
+  <circle cx="85" cy="65" r="4" fill="rgba(255,255,255,0.4)"/>
+  <circle cx="75" cy="75" r="2" fill="rgba(255,255,255,0.3)"/>
+  <circle cx="88" cy="78" r="1.5" fill="rgba(255,255,255,0.3)"/>
+  
+  <!-- Stars -->
+  <g stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none">
+    <path d="M50 30 L52 34 L56 32 L54 36 L58 38 L54 40 L56 44 L52 42 L50 46 L48 42 L44 44 L46 40 L42 38 L46 36 L44 32 L48 34 Z"/>
+    <path d="M120 25 L121 27 L123 26 L122 28 L124 29 L122 30 L123 32 L121 31 L120 33 L119 31 L117 32 L118 30 L116 29 L118 28 L117 26 L119 27 Z"/>
+    <path d="M130 50 L131 52 L133 51 L132 53 L134 54 L132 55 L133 57 L131 56 L130 58 L129 56 L127 57 L128 55 L126 54 L128 53 L127 51 L129 52 Z"/>
+  </g>
+  
+  <!-- Pillow -->
+  <rect x="35" y="110" width="90" height="35" rx="8" stroke="rgba(255,255,255,0.6)" stroke-width="2" fill="rgba(94,106,210,0.1)"/>
+  <path d="M45 120 Q50 115 55 120" stroke="rgba(94,106,210,0.8)" stroke-width="2" fill="none"/>
+  <path d="M70 125 Q75 120 80 125" stroke="rgba(94,106,210,0.6)" stroke-width="2" fill="none"/>
+  <path d="M95 130 Q100 125 105 130" stroke="rgba(94,106,210,0.4)" stroke-width="2" fill="none"/>
+</svg>

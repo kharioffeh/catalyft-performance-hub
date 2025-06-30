@@ -36,6 +36,7 @@ const SAMPLE_INSIGHTS = [
 const AnalyticsPageContent: React.FC = () => {
   const [selectedAthleteId, setSelectedAthleteId] = useState<string>('');
   const [ariaInput, setAriaInput] = useState('');
+  const [showConnectModal, setShowConnectModal] = useState(false);
   const { period } = usePeriod();
 
   // Convert period to days for existing hooks
@@ -63,6 +64,16 @@ const AnalyticsPageContent: React.FC = () => {
     e.preventDefault();
     // TODO: POST to /api/aria/insights
     setAriaInput('');
+  };
+
+  // New handlers for empty state CTAs
+  const handleConnectWearable = () => {
+    setShowConnectModal(true);
+  };
+
+  const handleLogWorkout = () => {
+    // TODO: Open workout logging dialog
+    console.log('Log workout clicked');
   };
 
   // Mock data for charts - in real app, these would come from hooks
@@ -161,12 +172,24 @@ const AnalyticsPageContent: React.FC = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* Metric Carousel - Replaces the stacked charts */}
+        {/* Metric Carousel - Updated to pass handlers */}
         <div className="mt-6">
           <MetricCarousel labels={['Readiness', 'Sleep', 'Load']}>
-            <ReadinessChart data={mockReadinessData} variant="carousel" />
-            <EnhancedSleepChart data={mockSleepData} variant="carousel" />
-            <EnhancedTrainingLoadChart data={mockLoadData} variant="carousel" />
+            <ReadinessChart 
+              data={mockReadinessData} 
+              variant="carousel"
+              onConnectWearable={handleConnectWearable}
+            />
+            <EnhancedSleepChart 
+              data={mockSleepData} 
+              variant="carousel"
+              onConnectWearable={handleConnectWearable}
+            />
+            <EnhancedTrainingLoadChart 
+              data={mockLoadData} 
+              variant="carousel"
+              onLogWorkout={handleLogWorkout}
+            />
           </MetricCarousel>
         </div>
 
@@ -239,6 +262,35 @@ const AnalyticsPageContent: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Connect Wearable Modal - Simple placeholder for now */}
+      {showConnectModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="modal-glass p-6 max-w-md w-[90vw]">
+            <h3 className="text-lg font-semibold text-white mb-4">Connect Wearable Device</h3>
+            <p className="text-white/70 mb-6">
+              Connect your Apple Watch, Whoop, or other wearable device to start tracking your metrics.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowConnectModal(false)}
+                className="flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowConnectModal(false);
+                  // TODO: Implement actual connection logic
+                }}
+                className="flex-1 px-4 py-2 bg-indigo-500 hover:bg-indigo-400 rounded-lg text-white transition-colors"
+              >
+                Connect Device
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

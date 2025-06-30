@@ -1,0 +1,26 @@
+
+<svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Heart outline -->
+  <path d="M80 45 C75 35, 60 35, 60 50 C60 65, 80 85, 80 85 C80 85, 100 65, 100 50 C100 35, 85 35, 80 45 Z" 
+        stroke="rgba(255,255,255,0.6)" stroke-width="2.5" fill="none"/>
+  
+  <!-- Heart rate line (flat) -->
+  <g stroke="rgba(94,106,210,0.8)" stroke-width="2" fill="none">
+    <path d="M30 110 L50 110 L55 95 L60 125 L65 85 L70 130 L75 110 L130 110"/>
+    <circle cx="55" cy="95" r="2" fill="#5E6AD2"/>
+    <circle cx="65" cy="85" r="2" fill="#5E6AD2"/>
+  </g>
+  
+  <!-- Energy waves (dimmed) -->
+  <g stroke="rgba(255,255,255,0.3)" stroke-width="1.5" fill="none" opacity="0.5">
+    <path d="M25 70 Q35 60, 45 70 T65 70"/>
+    <path d="M95 70 Q105 60, 115 70 T135 70"/>
+    <path d="M40 130 Q50 120, 60 130 T80 130"/>
+    <path d="M80 130 Q90 120, 100 130 T120 130"/>
+  </g>
+  
+  <!-- Battery indicator (low) -->
+  <rect x="20" y="25" width="30" height="15" rx="3" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none"/>
+  <rect x="50" y="29" width="3" height="7" rx="1" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+  <rect x="22" y="27" width="6" height="11" rx="1" fill="rgba(94,106,210,0.6)"/>
+</svg>
