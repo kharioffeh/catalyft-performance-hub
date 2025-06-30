@@ -23,11 +23,15 @@ export const usePullToRefresh = ({
   }));
 
   const bind = useGesture({
-    onDrag: ({ down, movement: [, my], velocity: [, vy], direction: [, dy] }) => {
+    onDrag: ({ down, movement, velocity, direction }) => {
       if (!enabled) return;
       
       // Only allow pull down from top
       if (window.scrollY > 0) return;
+      
+      const [, my] = movement;
+      const [, vy] = velocity;
+      const [, dy] = direction;
       
       const threshold = refreshThreshold;
       const trigger = my > threshold && !down;

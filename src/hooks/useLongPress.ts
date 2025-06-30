@@ -1,5 +1,4 @@
 
-import { useGesture } from 'react-use-gesture';
 import { useCallback } from 'react';
 
 interface UseLongPressOptions {
@@ -19,30 +18,33 @@ export const useLongPress = ({
     }
   }, [onLongPress, enabled]);
 
-  const bind = useGesture({
-    onPointerDown: ({ event }) => {
-      if (!enabled) return;
-      
-      const timeout = setTimeout(() => {
+  return useCallback(() => {
+    if (!enabled) return {};
+    
+    let timeout: NodeJS.Timeout;
+    let isLongPress = false;
+
+    const handleStart = () => {
+      isLongPress = false;
+      timeout = setTimeout(() => {
+        isLongPress = true;
         handleLongPress();
       }, delay);
-      
-      const cleanup = () => {
-        clearTimeout(timeout);
-        document.removeEventListener('pointerup', cleanup);
-        document.removeEventListener('pointercancel', cleanup);
-        document.removeEventListener('pointermove', cleanup);
-      };
-      
-      document.addEventListener('pointerup', cleanup);
-      document.addEventListener('pointercancel', cleanup);
-      document.addEventListener('pointermove', cleanup);
-    },
-  }, {
-    pointer: {
-      threshold: 10,
-    }
-  });
+    };
 
-  return bind;
+    const handleEnd = () => {
+      clearTimeout(timeout);
+    };
+
+    const handleCancel = () => {
+      clearTimeout(timeout);
+    };
+
+    return {
+      onPointerDown: handleStart,
+      onPointerUp: handleEnd,
+      onPointerLeave: handleCancel,
+      onPointerCancel: handleCancel,
+    };
+  }, [handleLongPress, delay, enabled]);
 };
