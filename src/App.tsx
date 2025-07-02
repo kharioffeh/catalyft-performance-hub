@@ -8,6 +8,7 @@ import AppRouter from './components/AppRouter';
 import { Toaster } from './components/ui/toaster';
 import { GlassToastProvider } from './components/ui/GlassToastProvider';
 import { RouteProgress } from './components/ui/RouteProgress';
+import { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,7 +20,9 @@ const queryClient = new QueryClient({
   },
 });
 
-function App() {
+const AppWithPerformanceMonitoring = () => {
+  usePerformanceMonitor();
+  
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
@@ -35,6 +38,10 @@ function App() {
       </ThemeProvider>
     </QueryClientProvider>
   );
+};
+
+function App() {
+  return <AppWithPerformanceMonitoring />;
 }
 
 export default App;

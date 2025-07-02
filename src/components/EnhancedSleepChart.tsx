@@ -1,9 +1,8 @@
+
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Legend, ReferenceLine } from 'recharts';
+import { LightweightLineChart } from '@/components/charts';
 import { format } from 'date-fns';
-import { chartTheme, makeLine, makeYAxis, makeXAxis, referenceLines, createTooltipFormatter } from '@/lib/chartTheme';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useInView } from '@/hooks/useInView';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
@@ -22,21 +21,6 @@ interface EnhancedSleepChartProps {
   variant?: 'default' | 'carousel';
   onConnectWearable?: () => void;
 }
-
-const chartConfig = {
-  sleep_efficiency: {
-    label: "Sleep Efficiency (%)",
-    color: '#6366F1', // sleep color
-  },
-  total_sleep_hours: {
-    label: "Sleep Duration (hrs)",
-    color: '#818CF8', // sleep ring color
-  },
-  hrv_rmssd: {
-    label: "HRV (ms)",
-    color: '#A5B4FC', // lighter sleep variant
-  },
-};
 
 export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({ 
   data, 
@@ -57,7 +41,6 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
   }, [isInView, prefersReducedMotion]);
 
   const chartHeight = variant === 'carousel' ? 'h-[200px] md:h-[260px]' : 'h-[300px]';
-  const showLegend = variant !== 'carousel';
 
   // Show empty state if no data
   if (!data || data.length === 0) {
@@ -96,97 +79,23 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
   }
 
   const formattedData = data.map(item => ({
-    ...item,
-    date: format(new Date(item.day), 'MMM dd'),
+    x: format(new Date(item.day), 'MMM dd'),
+    y: item.sleep_efficiency || 0,
     efficiency: item.sleep_efficiency || 0,
     duration: item.total_sleep_hours || 0,
     hrv: item.hrv_rmssd || 0
   }));
 
-  const tooltipFormatter = createTooltipFormatter({
-    efficiency: '%',
-    duration: 'h',
-    hrv: 'ms'
-  });
-
-  const xAxisProps = makeXAxis();
-  const leftYAxisProps = makeYAxis([0, 100], '%');
-  const rightYAxisProps = makeYAxis(undefined, 'hrs/ms');
-
   const chartContent = (
-    <div ref={chartRef}>
-      <ChartContainer config={chartConfig} className={chartHeight}>
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={formattedData}>
-            <XAxis 
-              dataKey="date" 
-              {...xAxisProps}
-            />
-            <YAxis 
-              yAxisId="left"
-              {...leftYAxisProps}
-            />
-            <YAxis 
-              yAxisId="right"
-              orientation="right"
-              {...rightYAxisProps}
-            />
-
-            {/* Reference lines for optimal sleep duration */}
-            {referenceLines.sleep.map((line, index) => (
-              <ReferenceLine 
-                key={index}
-                yAxisId="right"
-                y={line.value}
-                stroke={line.color}
-                strokeDasharray={line.strokeDasharray}
-                strokeOpacity={0.5}
-              />
-            ))}
-            
-            <ChartTooltip 
-              content={<ChartTooltipContent formatter={tooltipFormatter} />} 
-            />
-            {showLegend && <Legend />}
-            <Line
-              yAxisId="left"
-              type="monotone"
-              dataKey="efficiency"
-              {...makeLine(chartConfig.sleep_efficiency.color)}
-              name="Sleep Efficiency (%)"
-              strokeDasharray={!animationComplete && !prefersReducedMotion ? "5 5" : "0"}
-              style={{
-                strokeDashoffset: !animationComplete && !prefersReducedMotion ? "1000" : "0",
-                transition: "stroke-dashoffset 1.2s ease-in-out"
-              }}
-            />
-            <Line
-              yAxisId="right"
-              type="monotone"
-              dataKey="duration"
-              {...makeLine(chartConfig.total_sleep_hours.color)}
-              name="Duration (hrs)"
-              strokeDasharray={!animationComplete && !prefersReducedMotion ? "5 5" : "0"}
-              style={{
-                strokeDashoffset: !animationComplete && !prefersReducedMotion ? "800" : "0",
-                transition: "stroke-dashoffset 1.4s ease-in-out 0.2s"
-              }}
-            />
-            <Line
-              yAxisId="right"
-              type="monotone"
-              dataKey="hrv"
-              {...makeLine(chartConfig.hrv_rmssd.color)}
-              name="HRV (ms)"
-              strokeDasharray={!animationComplete && !prefersReducedMotion ? "5 5" : "0"}
-              style={{
-                strokeDashoffset: !animationComplete && !prefersReducedMotion ? "600" : "0",
-                transition: "stroke-dashoffset 1.6s ease-in-out 0.4s"
-              }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </ChartContainer>
+    <div ref={chartRef} className={chartHeight}>
+      <LightweightLineChart
+        data={formattedData}
+        width={400}
+        height={variant === 'carousel' ? 200 : 300}
+        color="#6366F1"
+        showDots={true}
+        className="w-full h-full"
+      />
     </div>
   );
 

@@ -1,9 +1,8 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Legend, ReferenceLine } from 'recharts';
+import { LightweightLineChart } from '@/components/charts';
 import { format } from 'date-fns';
-import { chartTheme, makeLine, makeYAxis, makeXAxis, referenceLines, createTooltipFormatter } from '@/lib/chartTheme';
 import { EmptyState } from '@/components/ui/EmptyState';
 
 interface LoadData {
@@ -21,28 +20,12 @@ interface EnhancedTrainingLoadChartProps {
   onLogWorkout?: () => void;
 }
 
-const chartConfig = {
-  daily_load: {
-    label: "Daily Load",
-    color: '#F59E0B', // load color
-  },
-  acwr_7_28: {
-    label: "ACWR (7:28)",
-    color: '#FBBF24', // load ring color
-  },
-  acute_7d: {
-    label: "Acute Load (7d)",
-    color: '#FCD34D', // lighter load variant
-  },
-};
-
 export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps> = ({ 
   data, 
   variant = 'default',
   onLogWorkout 
 }) => {
   const chartHeight = variant === 'carousel' ? 'h-[200px] md:h-[260px]' : 'h-[300px]';
-  const showLegend = variant !== 'carousel';
 
   // Show empty state if no data
   if (!data || data.length === 0) {
@@ -81,79 +64,22 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
   }
 
   const formattedData = data.map(item => ({
-    ...item,
-    date: format(new Date(item.day), 'MMM dd'),
+    x: format(new Date(item.day), 'MMM dd'),
+    y: item.daily_load,
     acwr_display: item.acwr_7_28 ? Number(item.acwr_7_28.toFixed(2)) : 0
   }));
 
-  const tooltipFormatter = createTooltipFormatter({
-    daily_load: '',
-    acute_7d: '',
-    acwr_display: ''
-  });
-
-  const xAxisProps = makeXAxis();
-  const leftYAxisProps = makeYAxis(undefined, 'Load');
-  const rightYAxisProps = makeYAxis([0, 2], 'ACWR');
-
   const chartContent = (
-    <ChartContainer config={chartConfig} className={chartHeight}>
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={formattedData}>
-          <XAxis 
-            dataKey="date" 
-            {...xAxisProps}
-          />
-          <YAxis 
-            yAxisId="left"
-            {...leftYAxisProps}
-          />
-          <YAxis 
-            yAxisId="right"
-            orientation="right"
-            {...rightYAxisProps}
-          />
-
-          {/* ACWR reference lines */}
-          {referenceLines.acwr.map((line, index) => (
-            <ReferenceLine 
-              key={index}
-              yAxisId="right"
-              y={line.value}
-              stroke={line.color}
-              strokeDasharray={line.strokeDasharray}
-              strokeOpacity={0.7}
-            />
-          ))}
-          
-          <ChartTooltip 
-            content={<ChartTooltipContent formatter={tooltipFormatter} />} 
-          />
-          {showLegend && <Legend />}
-          <Line
-            yAxisId="left"
-            type="monotone"
-            dataKey="daily_load"
-            {...makeLine(chartConfig.daily_load.color)}
-            name="Daily Load"
-          />
-          <Line
-            yAxisId="left"
-            type="monotone"
-            dataKey="acute_7d"
-            {...makeLine(chartConfig.acute_7d.color, { strokeDasharray: "5 5", dot: false })}
-            name="Acute Load (7d)"
-          />
-          <Line
-            yAxisId="right"
-            type="monotone"
-            dataKey="acwr_display"
-            {...makeLine(chartConfig.acwr_7_28.color, { strokeWidth: 3 })}
-            name="ACWR (7:28)"
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </ChartContainer>
+    <div className={chartHeight}>
+      <LightweightLineChart
+        data={formattedData}
+        width={400}
+        height={variant === 'carousel' ? 200 : 300}
+        color="#F59E0B"
+        showDots={true}
+        className="w-full h-full"
+      />
+    </div>
   );
 
   const statsContent = (
@@ -161,7 +87,7 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
       <div className="text-center">
         <div className="font-medium text-white/70">Current Load</div>
         <div className="text-lg font-bold text-load">
-          {formattedData[formattedData.length - 1]?.daily_load?.toFixed(0) || 0}
+          {formattedData[formattedData.length - 1]?.y?.toFixed(0) || 0}
         </div>
       </div>
       <div className="text-center">
@@ -177,7 +103,7 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
       <div className="text-center">
         <div className="font-medium text-white/70">Acute Load</div>
         <div className="text-lg font-bold text-load">
-          {formattedData[formattedData.length - 1]?.acute_7d?.toFixed(0) || 0}
+          {data[data.length - 1]?.acute_7d?.toFixed(0) || 0}
         </div>
       </div>
     </div>
