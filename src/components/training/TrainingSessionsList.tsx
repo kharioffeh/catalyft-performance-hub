@@ -4,10 +4,10 @@ import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { EmptyState } from '@/components/ui/EmptyState';
 import { SessionDetailsDialog } from '@/components/SessionDetailsDialog';
 import { CreateSessionDialog } from '@/components/CreateSessionDialog';
 import { Play, Clock, Users, Plus } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface Session {
   id: string;
@@ -34,6 +34,7 @@ export const TrainingSessionsList: React.FC<TrainingSessionsListProps> = ({
   isLoading,
   isCoach,
 }) => {
+  const queryClient = useQueryClient();
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -68,12 +69,22 @@ export const TrainingSessionsList: React.FC<TrainingSessionsListProps> = ({
 
   if (sessions.length === 0) {
     return (
-      <EmptyState
-        type="sessions"
-        metric="sessions"
-        onAction={() => setIsCreateOpen(true)}
-        className="h-[400px]"
-      />
+      <div className="flex flex-col items-center justify-center h-[400px] text-center">
+        <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4">
+          <Play className="w-8 h-8 text-white/70" />
+        </div>
+        <h3 className="text-lg font-semibold text-white mb-2">No Training Sessions</h3>
+        <p className="text-white/70 mb-4">Start by creating your first training session</p>
+        {isCoach && (
+          <Button
+            onClick={() => setIsCreateOpen(true)}
+            className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Create Session
+          </Button>
+        )}
+      </div>
     );
   }
 
@@ -170,13 +181,14 @@ export const TrainingSessionsList: React.FC<TrainingSessionsListProps> = ({
         session={selectedSession}
         open={isDetailsOpen}
         onOpenChange={setIsDetailsOpen}
-        queryClient={null}
+        queryClient={queryClient}
         canEdit={isCoach}
       />
 
       <CreateSessionDialog
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
+        queryClient={queryClient}
       />
     </>
   );

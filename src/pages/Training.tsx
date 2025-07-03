@@ -49,6 +49,21 @@ const Training: React.FC = () => {
     console.log('Create program');
   };
 
+  // Convert sessions from the hook to match the expected format
+  const formattedSessions = sessions.map(session => ({
+    id: session.id,
+    athlete_uuid: session.program?.athlete_uuid || '',
+    coach_uuid: session.program?.coach_uuid || '',
+    type: 'training', // Default type since sessions don't have a type field
+    start_ts: session.planned_at,
+    end_ts: session.completed_at || session.planned_at,
+    notes: '',
+    status: session.completed_at ? 'completed' : 'planned',
+    athletes: {
+      name: 'Athlete' // Default name since we don't have athlete details
+    }
+  }));
+
   const tabs = [
     {
       id: 'calendar',
@@ -56,7 +71,7 @@ const Training: React.FC = () => {
       icon: Calendar,
       component: (
         <TrainingCalendar
-          sessions={sessions}
+          sessions={formattedSessions}
           isLoading={sessionsLoading}
           queryClient={queryClient}
           isMobile={false}
@@ -88,7 +103,7 @@ const Training: React.FC = () => {
       icon: Clock,
       component: (
         <TrainingSessionsList
-          sessions={sessions}
+          sessions={formattedSessions}
           isLoading={sessionsLoading}
           isCoach={isCoach}
         />
@@ -100,7 +115,7 @@ const Training: React.FC = () => {
       icon: Target,
       component: (
         <TrainingPlanner
-          sessions={sessions}
+          sessions={formattedSessions}
           programs={programs}
           isLoading={sessionsLoading}
           isCoach={isCoach}

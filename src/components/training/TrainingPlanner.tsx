@@ -8,6 +8,7 @@ import { AgendaList } from '@/components/Calendar/AgendaList';
 import { AgendaHeader } from '@/components/Calendar/AgendaHeader';
 import { CreateSessionDialog } from '@/components/CreateSessionDialog';
 import { ChevronLeft, ChevronRight, Plus, Calendar } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface Session {
   id: string;
@@ -43,6 +44,7 @@ export const TrainingPlanner: React.FC<TrainingPlannerProps> = ({
   isLoading,
   isCoach,
 }) => {
+  const queryClient = useQueryClient();
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'week' | 'agenda'>('week');
@@ -74,6 +76,10 @@ export const TrainingPlanner: React.FC<TrainingPlannerProps> = ({
       default:
         return 'bg-gray-500/20 text-gray-300';
     }
+  };
+
+  const handleSessionClick = (session: Session) => {
+    console.log('Session clicked:', session);
   };
 
   if (isLoading) {
@@ -189,6 +195,7 @@ export const TrainingPlanner: React.FC<TrainingPlannerProps> = ({
                           <div
                             key={session.id}
                             className="text-xs p-2 rounded bg-white/10 cursor-pointer hover:bg-white/20 transition-colors"
+                            onClick={() => handleSessionClick(session)}
                           >
                             <div className="font-medium text-white capitalize">
                               {session.type}
@@ -212,17 +219,14 @@ export const TrainingPlanner: React.FC<TrainingPlannerProps> = ({
           </>
         ) : (
           <div className="space-y-4">
-            <AgendaHeader selectedDate={currentWeek} />
+            <AgendaHeader 
+              selectedDate={currentWeek}
+              onDatePickerOpen={() => console.log('Date picker opened')}
+            />
             <AgendaList 
-              sessions={sessions.map(session => ({
-                id: session.id,
-                title: `${session.type.charAt(0).toUpperCase() + session.type.slice(1)} - ${session.athletes?.name || 'Unknown Athlete'}`,
-                start_time: session.start_ts,
-                end_time: session.end_ts,
-                athlete_id: session.athlete_uuid,
-                notes: session.notes,
-                type: session.type
-              }))}
+              sessions={sessions}
+              selectedDate={currentWeek}
+              onSessionClick={handleSessionClick}
             />
           </div>
         )}
@@ -231,6 +235,7 @@ export const TrainingPlanner: React.FC<TrainingPlannerProps> = ({
       <CreateSessionDialog
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
+        queryClient={queryClient}
       />
     </>
   );

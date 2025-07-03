@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { GlassCard } from '@/components/ui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { EmptyState } from '@/components/ui/EmptyState';
 import { Apple, Plus, TrendingUp, Target, Utensils } from 'lucide-react';
 
 const Nutrition: React.FC = () => {
@@ -173,12 +172,20 @@ const Nutrition: React.FC = () => {
           </TabsContent>
 
           <TabsContent value="goals" className="mt-0">
-            <EmptyState
-              type="nutrition"
-              metric="goals"
-              onAction={() => console.log('Set nutrition goals')}
-              className="h-[400px]"
-            />
+            <div className="flex flex-col items-center justify-center h-[400px] text-center">
+              <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4">
+                <Target className="w-8 h-8 text-white/70" />
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">Set Your Goals</h3>
+              <p className="text-white/70 mb-4">Define your nutrition targets and preferences</p>
+              <Button
+                onClick={() => console.log('Set nutrition goals')}
+                className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Set Goals
+              </Button>
+            </div>
           </TabsContent>
         </Tabs>
       </GlassCard>
