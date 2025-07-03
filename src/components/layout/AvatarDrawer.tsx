@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Settings, CreditCard, LogOut } from 'lucide-react';
+import { User, Settings, CreditCard, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AvatarDrawerProps {
@@ -35,6 +35,13 @@ export const AvatarDrawer: React.FC<AvatarDrawerProps> = ({ children }) => {
   };
 
   const menuItems = [
+    {
+      id: 'profile',
+      label: 'Profile',
+      icon: User,
+      onClick: () => handleNavigation('/profile'),
+      show: true,
+    },
     {
       id: 'settings',
       label: 'Settings',

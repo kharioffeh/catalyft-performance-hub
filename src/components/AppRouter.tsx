@@ -33,6 +33,7 @@ const TemplateDetailPage = React.lazy(() => import('@/pages/TemplateDetailPage')
 const TrainingPlan = React.lazy(() => import('@/pages/TrainingPlan'));
 const TrainingPage = React.lazy(() => import('../pages/Training'));
 const NutritionPage = React.lazy(() => import('../pages/Nutrition'));
+const ProfilePage = React.lazy(() => import('../pages/Profile'));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -74,6 +75,7 @@ const AppRouter = () => {
         }>
           <Route index element={<DashboardPage />} />
           <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="profile" element={<ProfilePage />} />
           <Route path="program" element={
             <ProtectedRoute roles={['solo']}>
               <SoloProgramPage />
