@@ -1,4 +1,3 @@
-
 import React, { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { SkeletonCard } from './skeleton/SkeletonCard';
@@ -32,6 +31,8 @@ const SoloProgramPage = React.lazy(() => import('../pages/solo/ProgramPage'));
 const RiskBoardPage = React.lazy(() => import('../pages/CoachRiskBoard'));
 const TemplateDetailPage = React.lazy(() => import('@/pages/TemplateDetailPage'));
 const TrainingPlan = React.lazy(() => import('@/pages/TrainingPlan'));
+const TrainingPage = React.lazy(() => import('../pages/Training'));
+const NutritionPage = React.lazy(() => import('../pages/Nutrition'));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -78,6 +79,8 @@ const AppRouter = () => {
               <SoloProgramPage />
             </ProtectedRoute>
           } />
+          <Route path="training" element={<TrainingPage />} />
+          <Route path="nutrition" element={<NutritionPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="analytics/readiness" element={<ReadinessDetailPage />} />
           <Route path="analytics/sleep" element={<SleepDetailPage />} />

@@ -1,16 +1,14 @@
 
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { BarChart3, Calendar, Users, MessageSquare, Home } from 'lucide-react';
+import { BarChart3, Dumbbell, Settings, Home, Apple } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/contexts/AuthContext';
 
 interface TabItem {
   id: string;
   label: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   path: string;
-  roles?: string[];
 }
 
 const TAB_ITEMS: TabItem[] = [
@@ -21,43 +19,34 @@ const TAB_ITEMS: TabItem[] = [
     path: '/dashboard',
   },
   {
+    id: 'training',
+    label: 'Training',
+    icon: Dumbbell,
+    path: '/training',
+  },
+  {
     id: 'analytics',
     label: 'Analytics',
     icon: BarChart3,
     path: '/analytics',
-    roles: ['coach', 'athlete'],
   },
   {
-    id: 'calendar',
-    label: 'Calendar',  
-    icon: Calendar,
-    path: '/calendar',
-    roles: ['coach', 'athlete'],
+    id: 'nutrition',
+    label: 'Nutrition',
+    icon: Apple,
+    path: '/nutrition',
   },
   {
-    id: 'athletes',
-    label: 'Athletes',
-    icon: Users,
-    path: '/athletes',
-    roles: ['coach'],
-  },
-  {
-    id: 'chat',
-    label: 'Chat',
-    icon: MessageSquare,
-    path: '/chat',
+    id: 'settings',
+    label: 'Settings',
+    icon: Settings,
+    path: '/settings',
   },
 ];
 
 export const BottomTabBar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { profile } = useAuth();
-
-  // Filter tabs based on user role
-  const visibleTabs = TAB_ITEMS.filter(tab => 
-    !tab.roles || tab.roles.includes(profile?.role || '')
-  );
 
   const isTabActive = (tabPath: string) => {
     if (tabPath === '/dashboard') {
@@ -78,7 +67,7 @@ export const BottomTabBar: React.FC = () => {
       "safe-area-pb"
     )}>
       <div className="flex justify-around items-center px-2 pt-2 pb-1">
-        {visibleTabs.map((tab) => {
+        {TAB_ITEMS.map((tab) => {
           const Icon = tab.icon;
           const isActive = isTabActive(tab.path);
           
