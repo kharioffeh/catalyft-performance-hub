@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/hooks/use-toast';
 import { useLogout } from '@/hooks/useLogout';
@@ -19,14 +20,22 @@ import {
   AlertTriangle,
   Trash2,
   LogOut,
-  Shield
+  Shield,
+  Palette,
+  Sun,
+  Moon,
+  Monitor,
+  Check
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export const MobileSettingsLayout: React.FC = () => {
   const { user, profile } = useAuth();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const logout = useLogout();
   const queryClient = useQueryClient();
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showAppearance, setShowAppearance] = useState(false);
   
   // Notification preferences state
   const [notifications, setNotifications] = useState({
@@ -73,6 +82,130 @@ export const MobileSettingsLayout: React.FC = () => {
       });
     }
   };
+
+  const themeOptions = [
+    {
+      value: 'light' as const,
+      label: 'Light',
+      icon: Sun,
+      description: 'Clean, bright interface'
+    },
+    {
+      value: 'dark' as const,
+      label: 'Dark',
+      icon: Moon,
+      description: 'Easy on the eyes'
+    },
+    {
+      value: 'system' as const,
+      label: 'System',
+      icon: Monitor,
+      description: 'Matches your device'
+    }
+  ];
+
+  if (showAppearance) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="sticky top-0 z-10 bg-white border-b px-4 py-3">
+          <button
+            onClick={() => setShowAppearance(false)}
+            className="text-blue-600 font-medium"
+          >
+            ← Back
+          </button>
+          <h1 className="text-lg font-semibold mt-1">Appearance</h1>
+        </div>
+        
+        <div className="p-4">
+          <div className="space-y-4">
+            <div className="mb-6">
+              <h2 className="text-base font-semibold text-gray-900 mb-2">Theme</h2>
+              <p className="text-sm text-gray-600 mb-4">
+                Choose your preferred appearance
+              </p>
+            </div>
+
+            {themeOptions.map((option) => {
+              const Icon = option.icon;
+              const isSelected = theme === option.value;
+              
+              return (
+                <button
+                  key={option.value}
+                  onClick={() => {
+                    setTheme(option.value);
+                    toast({
+                      title: "Theme Updated",
+                      description: `Switched to ${option.label.toLowerCase()} theme`,
+                    });
+                  }}
+                  className={cn(
+                    "w-full flex items-center min-h-[60px] p-4 bg-white rounded-xl shadow-sm",
+                    "transition-all duration-200 touch-manipulation",
+                    "hover:bg-gray-50 active:scale-[0.98]",
+                    isSelected && "ring-2 ring-blue-500 bg-blue-50"
+                  )}
+                  style={{ touchAction: 'manipulation' }}
+                >
+                  <div className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center mr-3",
+                    isSelected ? "bg-blue-100" : "bg-gray-100"
+                  )}>
+                    <Icon className={cn(
+                      "w-5 h-5",
+                      isSelected ? "text-blue-600" : "text-gray-600"
+                    )} />
+                  </div>
+                  
+                  <div className="flex-1 text-left">
+                    <div className={cn(
+                      "text-base font-medium",
+                      isSelected ? "text-blue-900" : "text-gray-900"
+                    )}>
+                      {option.label}
+                    </div>
+                    <div className="text-sm text-gray-500 mt-0.5">
+                      {option.description}
+                    </div>
+                  </div>
+
+                  <div className="flex-shrink-0 ml-3">
+                    {isSelected && <Check className="w-5 h-5 text-blue-600" />}
+                  </div>
+                </button>
+              );
+            })}
+
+            <div className="mt-6 p-4 bg-blue-50 rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center",
+                  resolvedTheme === 'dark' ? "bg-gray-800" : "bg-yellow-400"
+                )}>
+                  {resolvedTheme === 'dark' ? (
+                    <Moon className="w-4 h-4 text-white" />
+                  ) : (
+                    <Sun className="w-4 h-4 text-gray-800" />
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-blue-900">
+                    Currently using {resolvedTheme} theme
+                  </p>
+                  {theme === 'system' && (
+                    <p className="text-xs text-blue-700">
+                      Automatically matches your device
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (showNotifications) {
     return (
@@ -184,6 +317,16 @@ export const MobileSettingsLayout: React.FC = () => {
             title="Change Password"
             subtitle="Update your account password"
             onPress={() => setShowPasswordChange(true)}
+          />
+        </SettingsSection>
+
+        {/* Appearance Section */}
+        <SettingsSection title="Appearance">
+          <SettingsCard
+            icon={Palette}
+            title="Theme"
+            subtitle={`Currently using ${resolvedTheme} theme`}
+            onPress={() => setShowAppearance(true)}
           />
         </SettingsSection>
 

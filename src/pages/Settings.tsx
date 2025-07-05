@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useIsMobile } from '@/hooks/useBreakpoint';
 import { MobileSettingsLayout } from '@/components/Settings/MobileSettingsLayout';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,8 +13,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from '@/hooks/use-toast';
-import { User, Settings as SettingsIcon, Shield, Bell, Trash2 } from 'lucide-react';
+import { User, Settings as SettingsIcon, Shield, Bell, Trash2, Palette, Sun, Moon, Monitor } from 'lucide-react';
 import { useLogout } from '@/hooks/useLogout';
+import { cn } from '@/lib/utils';
 
 const Settings: React.FC = () => {
   const isMobile = useIsMobile();
@@ -25,6 +27,7 @@ const Settings: React.FC = () => {
 
   // Keep existing desktop layout for larger screens
   const { user, profile } = useAuth();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const logout = useLogout();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -159,6 +162,27 @@ const Settings: React.FC = () => {
     }
   };
 
+  const themeOptions = [
+    {
+      value: 'light' as const,
+      label: 'Light',
+      icon: Sun,
+      description: 'Clean, bright interface'
+    },
+    {
+      value: 'dark' as const,
+      label: 'Dark',
+      icon: Moon,
+      description: 'Easy on the eyes'
+    },
+    {
+      value: 'system' as const,
+      label: 'System',
+      icon: Monitor,
+      description: 'Matches your device'
+    }
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -166,9 +190,10 @@ const Settings: React.FC = () => {
       </div>
 
       <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="appearance">Appearance</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="danger">Danger Zone</TabsTrigger>
         </TabsList>
@@ -274,6 +299,90 @@ const Settings: React.FC = () => {
                 <div>
                   <Label className="text-sm font-medium text-gray-500">Account Created</Label>
                   <p className="text-sm">{user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="appearance" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Palette className="w-5 h-5" />
+                Theme Preferences
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-base font-medium">Choose your theme</Label>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Select your preferred appearance. System will automatically switch between light and dark based on your device settings.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {themeOptions.map((option) => {
+                    const Icon = option.icon;
+                    const isSelected = theme === option.value;
+                    
+                    return (
+                      <button
+                        key={option.value}
+                        onClick={() => setTheme(option.value)}
+                        className={cn(
+                          "p-4 rounded-lg border-2 transition-all duration-200 text-left hover:bg-gray-50",
+                          isSelected 
+                            ? "border-blue-500 bg-blue-50 ring-2 ring-blue-200" 
+                            : "border-gray-200 hover:border-gray-300"
+                        )}
+                      >
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className={cn(
+                            "p-2 rounded-md",
+                            isSelected ? "bg-blue-100" : "bg-gray-100"
+                          )}>
+                            <Icon className={cn(
+                              "w-4 h-4",
+                              isSelected ? "text-blue-600" : "text-gray-500"
+                            )} />
+                          </div>
+                          <span className={cn(
+                            "font-medium",
+                            isSelected ? "text-blue-900" : "text-gray-900"
+                          )}>
+                            {option.label}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600">{option.description}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-sm font-medium">Current Theme</Label>
+                      <p className="text-sm text-gray-600">
+                        Currently using <span className="font-medium capitalize">{resolvedTheme}</span> theme
+                        {theme === 'system' && ` (from system preference)`}
+                      </p>
+                    </div>
+                    <div className={cn(
+                      "w-6 h-6 rounded-full flex items-center justify-center",
+                      resolvedTheme === 'dark' ? "bg-gray-800" : "bg-yellow-400"
+                    )}>
+                      {resolvedTheme === 'dark' ? (
+                        <Moon className="w-3 h-3 text-white" />
+                      ) : (
+                        <Sun className="w-3 h-3 text-gray-800" />
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
