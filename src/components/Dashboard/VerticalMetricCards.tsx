@@ -1,9 +1,10 @@
 
 import React from 'react';
-import { Activity, Calendar, BarChart3, AlertTriangle } from 'lucide-react';
+import { Activity, Calendar, BarChart3, AlertTriangle, Zap } from 'lucide-react';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { MobileKpiGrid } from './MobileKpiGrid';
 import { useIsPhone } from '@/hooks/useBreakpoint';
+import { useMetrics } from '@/hooks/useMetrics';
 
 interface VerticalMetricCardsProps {
   currentReadiness: any;
@@ -19,16 +20,17 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
   injuryRisk
 }) => {
   const isPhone = useIsPhone();
+  const { data: metricsData, isLoading: metricsLoading } = useMetrics();
 
-  const getReadinessValue = () => {
-    if (!currentReadiness) return '--';
-    return `${Math.round(currentReadiness.score)}%`;
+  const getRecoveryValue = () => {
+    if (metricsData?.recovery) return `${Math.round(metricsData.recovery)}%`;
+    if (currentReadiness) return `${Math.round(currentReadiness.score)}%`;
+    return '--';
   };
 
-  const getReadinessStatus = (score: number) => {
-    if (score >= 80) return 'Optimal';
-    if (score >= 60) return 'Moderate';
-    return 'Low';
+  const getStrainValue = () => {
+    if (metricsData?.strain) return (Math.round(metricsData.strain * 10) / 10).toString();
+    return '--';
   };
 
   const getRiskLevel = (probabilities: any) => {
@@ -44,12 +46,6 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
     return todaySessions.length;
   };
 
-  const getSessionsSubtext = () => {
-    if (todaySessions.length === 0) return 'Rest day';
-    if (todaySessions.length === 1) return 'session planned';
-    return 'sessions planned';
-  };
-
   const getWeeklyValue = () => {
     return `${weeklyStats?.completed || 0}/${weeklyStats?.planned || 0}`;
   };
@@ -57,26 +53,29 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
   // Mobile KPI data for phones only (≤414px)
   const mobileKpiData = [
     {
-      id: 'readiness',
-      title: 'Readiness',
-      value: getReadinessValue(),
+      id: 'recovery',
+      title: 'Recovery',
+      value: getRecoveryValue(),
       icon: Activity,
-      color: 'text-blue-600',
-      isLoading: !currentReadiness
+      color: 'text-green-600',
+      trend: metricsData?.recoveryTrend,
+      isLoading: metricsLoading || !metricsData
+    },
+    {
+      id: 'strain',
+      title: 'Strain',
+      value: getStrainValue(),
+      icon: Zap,
+      color: 'text-red-600',
+      trend: metricsData?.strainTrend,
+      isLoading: metricsLoading || !metricsData
     },
     {
       id: 'sessions',
       title: "Today's Sessions",
       value: getSessionsValue(),
       icon: Calendar,
-      color: 'text-green-600'
-    },
-    {
-      id: 'weekly',
-      title: 'This Week',
-      value: getWeeklyValue(),
-      icon: BarChart3,
-      color: 'text-purple-600'
+      color: 'text-blue-600'
     },
     {
       id: 'injury-risk',
@@ -93,15 +92,24 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
     return <MobileKpiGrid data={mobileKpiData} />;
   }
 
-  // Desktop vertical layout (unchanged)
+  // Desktop vertical layout
   return (
     <div className="space-y-4">
-      {/* Readiness Card */}
+      {/* Recovery Card */}
       <KpiCard
-        title="Readiness"
-        value={getReadinessValue()}
+        title="Recovery"
+        value={getRecoveryValue()}
         icon={Activity}
-        isLoading={!currentReadiness}
+        isLoading={metricsLoading || !metricsData}
+        layout="vertical"
+      />
+
+      {/* Strain Card */}
+      <KpiCard
+        title="Strain"
+        value={getStrainValue()}
+        icon={Zap}
+        isLoading={metricsLoading || !metricsData}
         layout="vertical"
       />
 
@@ -110,14 +118,6 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
         title="Today's Sessions"
         value={getSessionsValue()}
         icon={Calendar}
-        layout="vertical"
-      />
-
-      {/* This Week Card */}
-      <KpiCard
-        title="This Week"
-        value={getWeeklyValue()}
-        icon={BarChart3}
         layout="vertical"
       />
 

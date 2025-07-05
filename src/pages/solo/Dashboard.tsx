@@ -1,3 +1,4 @@
+
 import React, { useState, Suspense } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { GlassCard } from '@/components/ui';
@@ -6,10 +7,10 @@ import { AriaInsightsCard } from '@/components/cards/AriaInsightsCard';
 import { HeatMapCard } from '@/components/cards/HeatMapCard';
 import { ConnectWearableModal } from '@/components/ConnectWearableModal';
 import { MobileKpiGrid } from '@/components/Dashboard/MobileKpiGrid';
-import { useLastSessionLoad } from '@/hooks/useLastSessionLoad';
-import { useAcwr } from '@/hooks/useAcwr';
+import { RecoveryCard } from '@/components/Dashboard/RecoveryCard';
+import { StrainCard } from '@/components/Dashboard/StrainCard';
+import { useMetrics } from '@/hooks/useMetrics';
 import { useAriaInsights } from '@/hooks/useAriaInsights';
-import { useDashboardData } from '@/hooks/useDashboardData';
 import { useWearableStatus } from '@/hooks/useWearableStatus';
 import { useIsPhone } from '@/hooks/useBreakpoint';
 import { SkeletonCard } from '@/components/skeleton/SkeletonCard';
@@ -21,72 +22,7 @@ import { LoadingButton } from '@/components/ui/LoadingButton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Activity, Zap, Target, Smartphone } from 'lucide-react';
 
-const ReadinessCard: React.FC<{ profileId: string }> = ({ profileId }) => {
-  const { currentReadiness } = useDashboardData(profileId);
-
-  const formatValue = (value: number | null, suffix = '') => {
-    if (value === null || value === undefined) return '—';
-    return `${Math.round(value)}${suffix}`;
-  };
-
-  const getReadinessColor = (score: number | null) => {
-    if (!score) return 'text-white/60';
-    if (score >= 80) return 'text-green-400';
-    if (score >= 60) return 'text-yellow-400';
-    return 'text-red-400';
-  };
-
-  return (
-    <GlassCard className="p-6 bg-blue-500/10 border-blue-400/30">
-      <div className="flex items-center gap-2 mb-4">
-        <Activity className="w-5 h-5 text-blue-400" />
-        <h3 className="text-lg font-semibold text-white">Readiness</h3>
-      </div>
-      {currentReadiness ? (
-        <div>
-          <div className={`text-3xl font-bold ${getReadinessColor(currentReadiness.score)}`}>
-            {formatValue(currentReadiness.score, '%')}
-          </div>
-          <p className="text-white/60 text-sm mt-1">Today's score</p>
-        </div>
-      ) : (
-        <EmptyState
-          icon={Activity}
-          title="No readiness data"
-          description="Connect your wearable to see readiness scores"
-        />
-      )}
-    </GlassCard>
-  );
-};
-
-const LastSessionCard: React.FC = () => {
-  const { data: lastSessionLoad } = useLastSessionLoad();
-
-  const formatValue = (value: number | null) => {
-    if (value === null || value === undefined) return '—';
-    return Math.round(value).toString();
-  };
-
-  return (
-    <GlassCard className="p-6 bg-purple-500/10 border-purple-400/30">
-      <div className="flex items-center gap-2 mb-4">
-        <Zap className="w-5 h-5 text-purple-400" />
-        <h3 className="text-lg font-semibold text-white">Last Load</h3>
-      </div>
-      <div>
-        <div className="text-3xl font-bold text-white">
-          {formatValue(lastSessionLoad)}
-        </div>
-        <p className="text-white/60 text-sm mt-1">Most recent session</p>
-      </div>
-    </GlassCard>
-  );
-};
-
 const ACWRCard: React.FC = () => {
-  const { data: acwrValue } = useAcwr();
-
   return (
     <GlassCard className="p-6 bg-orange-500/10 border-orange-400/30">
       <div className="flex items-center gap-2 mb-4">
@@ -104,9 +40,7 @@ const SoloDashboard: React.FC = () => {
   const { profile } = useAuth();
   const { data: wearableStatus } = useWearableStatus(profile?.id);
   const { data: insights } = useAriaInsights();
-  const { currentReadiness } = useDashboardData(profile?.id);
-  const { data: lastSessionLoad } = useLastSessionLoad();
-  const { data: acwrValue } = useAcwr();
+  const { data: metricsData, isLoading: metricsLoading } = useMetrics();
   const isPhone = useIsPhone();
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -122,28 +56,30 @@ const SoloDashboard: React.FC = () => {
   // Mobile KPI data for phones only (≤414px)
   const mobileKpiData = [
     {
-      id: 'readiness',
-      title: 'Readiness',
-      value: currentReadiness ? `${Math.round(currentReadiness.score)}%` : '—',
+      id: 'recovery',
+      title: 'Recovery',
+      value: metricsData?.recovery ? `${Math.round(metricsData.recovery)}%` : '—',
       icon: Activity,
-      color: 'text-blue-400',
-      isLoading: !currentReadiness
+      color: 'text-green-400',
+      trend: metricsData?.recoveryTrend,
+      isLoading: metricsLoading
     },
     {
-      id: 'last-load',
-      title: 'Last Load',
-      value: lastSessionLoad ? Math.round(lastSessionLoad).toString() : '—',
+      id: 'strain',
+      title: 'Strain',
+      value: metricsData?.strain ? (Math.round(metricsData.strain * 10) / 10).toString() : '—',
       icon: Zap,
-      color: 'text-purple-400',
-      isLoading: !lastSessionLoad
+      color: 'text-red-400',
+      trend: metricsData?.strainTrend,
+      isLoading: metricsLoading
     },
     {
       id: 'acwr',
       title: 'ACWR',
-      value: acwrValue ? acwrValue.toFixed(1) : '—',
+      value: '1.2', // Mock value - this would come from useAcwr hook
       icon: Target,
       color: 'text-orange-400',
-      isLoading: !acwrValue
+      isLoading: false
     }
   ];
 
@@ -202,18 +138,24 @@ const SoloDashboard: React.FC = () => {
           </AnimatedCard>
         ) : (
           /* Desktop/Tablet Grid (>414px) */
-          <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 auto-rows-[minmax(120px,auto)] mb-8">
-            {/* Readiness Card */}
+          <div className="grid gap-6 grid-cols-1 lg:grid-cols-3 auto-rows-[minmax(120px,auto)] mb-8">
+            {/* Recovery Card */}
             <AnimatedCard delay={0.2}>
-              <SuspenseWrapper fallback={<SkeletonCard className="bg-blue-500/10 border-blue-400/30" />}>
-                <ReadinessCard profileId={profile.id} />
+              <SuspenseWrapper fallback={<SkeletonCard className="bg-green-500/10 border-green-400/30" />}>
+                <RecoveryCard 
+                  recovery={metricsData?.recovery ?? null}
+                  trend={metricsData?.recoveryTrend}
+                />
               </SuspenseWrapper>
             </AnimatedCard>
 
-            {/* Last Session Load Card */}
+            {/* Strain Card */}
             <AnimatedCard delay={0.3}>
-              <SuspenseWrapper fallback={<SkeletonCard className="bg-purple-500/10 border-purple-400/30" />}>
-                <LastSessionCard />
+              <SuspenseWrapper fallback={<SkeletonCard className="bg-red-500/10 border-red-400/30" />}>
+                <StrainCard 
+                  strain={metricsData?.strain ?? null}
+                  trend={metricsData?.strainTrend}
+                />
               </SuspenseWrapper>
             </AnimatedCard>
 
