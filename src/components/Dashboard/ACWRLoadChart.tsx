@@ -73,7 +73,7 @@ export const ACWRLoadChart: React.FC<ACWRLoadChartProps> = ({
             y={300} 
             stroke="rgba(34, 197, 94, 0.5)" 
             strokeDasharray="2 2" 
-            label={{ value: "Optimal", position: "topRight", fill: "rgba(34, 197, 94, 0.7)" }}
+            label={{ value: "Optimal", position: "top", fill: "rgba(34, 197, 94, 0.7)" }}
           />
           
           <Line
