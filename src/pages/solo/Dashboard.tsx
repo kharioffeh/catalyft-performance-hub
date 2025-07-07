@@ -9,6 +9,7 @@ import { MobileKpiGrid } from '@/components/Dashboard/MobileKpiGrid';
 import { RecoveryCard } from '@/components/Dashboard/RecoveryCard';
 import { StrainCard } from '@/components/Dashboard/StrainCard';
 import { ACWRLoadCard } from '@/components/Dashboard/ACWRLoadCard';
+import { InsightToastContainer } from '@/components/ui/InsightToastContainer';
 import { useMetrics } from '@/hooks/useMetrics';
 import { useAriaInsights } from '@/hooks/useAriaInsights';
 import { useWearableStatus } from '@/hooks/useWearableStatus';
@@ -178,6 +179,9 @@ const SoloDashboard: React.FC = () => {
           onSuccess={handleWearableConnected}
         />
       </div>
+
+      {/* Insight Toast Container */}
+      <InsightToastContainer />
     </div>
   );
 };
