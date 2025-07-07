@@ -1,10 +1,11 @@
 
 import React from 'react';
-import { Activity, Calendar, BarChart3, AlertTriangle, Zap } from 'lucide-react';
+import { Activity, Calendar, BarChart3, AlertTriangle, Zap, Target } from 'lucide-react';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { MobileKpiGrid } from './MobileKpiGrid';
 import { useIsPhone } from '@/hooks/useBreakpoint';
 import { useMetrics } from '@/hooks/useMetrics';
+import { useAcwr } from '@/hooks/useAcwr';
 
 interface VerticalMetricCardsProps {
   currentReadiness: any;
@@ -21,6 +22,7 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
 }) => {
   const isPhone = useIsPhone();
   const { data: metricsData, isLoading: metricsLoading } = useMetrics();
+  const { data: acwrValue, isLoading: acwrLoading } = useAcwr();
 
   const getRecoveryValue = () => {
     if (metricsData?.recovery) return `${Math.round(metricsData.recovery)}%`;
@@ -31,6 +33,11 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
   const getStrainValue = () => {
     if (metricsData?.strain) return (Math.round(metricsData.strain * 10) / 10).toString();
     return '--';
+  };
+
+  const getACWRValue = () => {
+    if (acwrValue) return acwrValue.toFixed(1);
+    return '1.2'; // Mock fallback
   };
 
   const getRiskLevel = (probabilities: any) => {
@@ -44,10 +51,6 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
 
   const getSessionsValue = () => {
     return todaySessions.length;
-  };
-
-  const getWeeklyValue = () => {
-    return `${weeklyStats?.completed || 0}/${weeklyStats?.planned || 0}`;
   };
 
   // Mobile KPI data for phones only (≤414px)
@@ -69,6 +72,14 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
       color: 'text-red-600',
       trend: metricsData?.strainTrend,
       isLoading: metricsLoading || !metricsData
+    },
+    {
+      id: 'acwr',
+      title: 'ACWR',
+      value: getACWRValue(),
+      icon: Target,
+      color: 'text-orange-600',
+      isLoading: acwrLoading
     },
     {
       id: 'sessions',
@@ -110,6 +121,15 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
         value={getStrainValue()}
         icon={Zap}
         isLoading={metricsLoading || !metricsData}
+        layout="vertical"
+      />
+
+      {/* ACWR Card */}
+      <KpiCard
+        title="ACWR"
+        value={getACWRValue()}
+        icon={Target}
+        isLoading={acwrLoading}
         layout="vertical"
       />
 

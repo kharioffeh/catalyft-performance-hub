@@ -2,13 +2,13 @@
 import React, { useState, Suspense } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { GlassCard } from '@/components/ui';
-import { ACWRDial } from '@/components/Analytics/Glass/ACWRDial';
 import { AriaInsightsCard } from '@/components/cards/AriaInsightsCard';
 import { HeatMapCard } from '@/components/cards/HeatMapCard';
 import { ConnectWearableModal } from '@/components/ConnectWearableModal';
 import { MobileKpiGrid } from '@/components/Dashboard/MobileKpiGrid';
 import { RecoveryCard } from '@/components/Dashboard/RecoveryCard';
 import { StrainCard } from '@/components/Dashboard/StrainCard';
+import { ACWRLoadCard } from '@/components/Dashboard/ACWRLoadCard';
 import { useMetrics } from '@/hooks/useMetrics';
 import { useAriaInsights } from '@/hooks/useAriaInsights';
 import { useWearableStatus } from '@/hooks/useWearableStatus';
@@ -21,20 +21,6 @@ import { AnimatedCard } from '@/components/ui/AnimatedCard';
 import { LoadingButton } from '@/components/ui/LoadingButton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Activity, Zap, Target, Smartphone } from 'lucide-react';
-
-const ACWRCard: React.FC = () => {
-  return (
-    <GlassCard className="p-6 bg-orange-500/10 border-orange-400/30">
-      <div className="flex items-center gap-2 mb-4">
-        <Target className="w-5 h-5 text-orange-400" />
-        <h3 className="text-lg font-semibold text-white">ACWR</h3>
-      </div>
-      <div className="flex justify-center">
-        <ACWRDial period="7d" mini />
-      </div>
-    </GlassCard>
-  );
-};
 
 const SoloDashboard: React.FC = () => {
   const { profile } = useAuth();
@@ -159,10 +145,10 @@ const SoloDashboard: React.FC = () => {
               </SuspenseWrapper>
             </AnimatedCard>
 
-            {/* ACWR Dial Card */}
+            {/* ACWR Load Card - Enhanced with gauge and chart */}
             <AnimatedCard delay={0.4}>
-              <SuspenseWrapper fallback={<SkeletonChart className="bg-orange-500/10 border-orange-400/30 h-48" showAxes={false} />}>
-                <ACWRCard />
+              <SuspenseWrapper fallback={<SkeletonChart className="bg-orange-500/10 border-orange-400/30 h-80" showAxes={false} />}>
+                <ACWRLoadCard />
               </SuspenseWrapper>
             </AnimatedCard>
           </div>
