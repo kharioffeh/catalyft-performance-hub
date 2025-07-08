@@ -10,8 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus } from 'lucide-react';
+import { Plus, Scan } from 'lucide-react';
 import { MealEntry } from '@/hooks/useNutrition';
+import { BarcodeScanner } from './BarcodeScanner';
 
 interface AddMealDialogProps {
   onAddMeal: (meal: Omit<MealEntry, 'id' | 'createdAt'>) => void;
@@ -23,10 +24,14 @@ export const AddMealDialog: React.FC<AddMealDialogProps> = ({
   trigger 
 }) => {
   const [open, setOpen] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     calories: '',
+    protein: '',
+    carbs: '',
+    fat: '',
     time: new Date().toLocaleTimeString('en-US', { 
       hour12: false, 
       hour: '2-digit', 
@@ -34,6 +39,19 @@ export const AddMealDialog: React.FC<AddMealDialogProps> = ({
     }),
     date: new Date().toISOString().split('T')[0],
   });
+
+  const handleScanSuccess = (foodItem: any) => {
+    setFormData(prev => ({
+      ...prev,
+      name: foodItem.name,
+      description: foodItem.description,
+      calories: foodItem.calories.toString(),
+      protein: foodItem.protein.toString(),
+      carbs: foodItem.carbs.toString(),
+      fat: foodItem.fat.toString(),
+    }));
+    setScannerOpen(false);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +64,9 @@ export const AddMealDialog: React.FC<AddMealDialogProps> = ({
       name: formData.name,
       description: formData.description,
       calories: formData.calories ? parseInt(formData.calories) : undefined,
+      protein: formData.protein ? parseInt(formData.protein) : undefined,
+      carbs: formData.carbs ? parseInt(formData.carbs) : undefined,
+      fat: formData.fat ? parseInt(formData.fat) : undefined,
       time: formData.time,
       date: formData.date,
     });
@@ -55,6 +76,9 @@ export const AddMealDialog: React.FC<AddMealDialogProps> = ({
       name: '',
       description: '',
       calories: '',
+      protein: '',
+      carbs: '',
+      fat: '',
       time: new Date().toLocaleTimeString('en-US', { 
         hour12: false, 
         hour: '2-digit', 
@@ -81,6 +105,18 @@ export const AddMealDialog: React.FC<AddMealDialogProps> = ({
           <DialogTitle>Log New Meal</DialogTitle>
         </DialogHeader>
         
+        {/* Barcode Scanner Button */}
+        <div className="flex justify-center mb-4">
+          <Button
+            type="button"
+            onClick={() => setScannerOpen(true)}
+            className="bg-purple-600 hover:bg-purple-700 text-white"
+          >
+            <Scan className="w-4 h-4 mr-2" />
+            Scan Barcode
+          </Button>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -126,10 +162,11 @@ export const AddMealDialog: React.FC<AddMealDialogProps> = ({
             />
           </div>
 
+          {/* Nutrition Information */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="meal-calories" className="text-white/90">
-                Calories (optional)
+                Calories
               </Label>
               <Input
                 id="meal-calories"
@@ -142,18 +179,62 @@ export const AddMealDialog: React.FC<AddMealDialogProps> = ({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="meal-date" className="text-white/90">
-                Date
+              <Label htmlFor="meal-protein" className="text-white/90">
+                Protein (g)
               </Label>
               <Input
-                id="meal-date"
-                type="date"
-                value={formData.date}
-                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                className="bg-white/5 border-white/20 text-white"
-                required
+                id="meal-protein"
+                type="number"
+                placeholder="0"
+                value={formData.protein}
+                onChange={(e) => setFormData(prev => ({ ...prev, protein: e.target.value }))}
+                className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="meal-carbs" className="text-white/90">
+                Carbs (g)
+              </Label>
+              <Input
+                id="meal-carbs"
+                type="number"
+                placeholder="0"
+                value={formData.carbs}
+                onChange={(e) => setFormData(prev => ({ ...prev, carbs: e.target.value }))}
+                className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="meal-fat" className="text-white/90">
+                Fat (g)
+              </Label>
+              <Input
+                id="meal-fat"
+                type="number"
+                placeholder="0"
+                value={formData.fat}
+                onChange={(e) => setFormData(prev => ({ ...prev, fat: e.target.value }))}
+                className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="meal-date" className="text-white/90">
+              Date
+            </Label>
+            <Input
+              id="meal-date"
+              type="date"
+              value={formData.date}
+              onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+              className="bg-white/5 border-white/20 text-white"
+              required
+            />
           </div>
 
           <div className="flex gap-3 pt-4">
@@ -173,6 +254,13 @@ export const AddMealDialog: React.FC<AddMealDialogProps> = ({
             </Button>
           </div>
         </form>
+
+        {/* Barcode Scanner */}
+        <BarcodeScanner
+          isOpen={scannerOpen}
+          onScanSuccess={handleScanSuccess}
+          onClose={() => setScannerOpen(false)}
+        />
       </DialogContent>
     </Dialog>
   );
