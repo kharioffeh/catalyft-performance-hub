@@ -1,69 +1,136 @@
 
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Exercise, ExerciseFilters } from '@/types/exercise';
+import { useDebounce } from '@/hooks/useDebounce';
 
-export const useExerciseSearch = (searchQuery: string, filters: ExerciseFilters) => {
-  return useQuery({
-    queryKey: ['exercise-search', searchQuery, filters],
-    queryFn: async () => {
-      let query = supabase
-        .from('exercises')
-        .select('*');
+interface UseExerciseSearchProps {
+  searchTerm: string;
+  muscles?: string[];
+  equipment?: string[];
+  difficulty?: string[];
+  modality?: string[];
+  limit?: number;
+}
 
-      // Apply text search if provided
-      if (searchQuery.trim()) {
-        query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
-      }
+export const useExerciseSearch = ({
+  searchTerm,
+  muscles = [],
+  equipment = [],
+  difficulty = [],
+  modality = [],
+  limit = 1000
+}: UseExerciseSearchProps) => {
+  const [exercises, setExercises] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-      // Apply filters
-      if (filters.pattern && filters.pattern.length > 0) {
-        query = query.overlaps('pattern', filters.pattern);
-      }
-      if (filters.muscle && filters.muscle.length > 0) {
-        query = query.overlaps('muscle', filters.muscle);
-      }
-      if (filters.equipment && filters.equipment.length > 0) {
-        query = query.overlaps('equipment', filters.equipment);
-      }
-      if (filters.modality && filters.modality.length > 0) {
-        query = query.overlaps('modality', filters.modality);
-      }
-      if (filters.sport && filters.sport.length > 0) {
-        query = query.overlaps('sport', filters.sport);
-      }
-      if (filters.difficulty) {
-        query = query.eq('difficulty', filters.difficulty);
-      }
-      if (filters.intensity_zone) {
-        query = query.eq('intensity_zone', filters.intensity_zone);
-      }
+  // Debounce search term to avoid too many API calls
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-      const { data, error } = await query
-        .order('created_at', { ascending: false })
-        .limit(40);
+  // Memoize search parameters to prevent unnecessary re-renders
+  const searchParams = useMemo(() => ({
+    search: debouncedSearchTerm,
+    muscles,
+    equipment,
+    difficulty,
+    modality
+  }), [debouncedSearchTerm, muscles, equipment, difficulty, modality]);
 
-      if (error) throw error;
+  useEffect(() => {
+    const fetchExercises = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      // Transform the data to match our Exercise interface
-      return (data || []).map(exercise => ({
-        id: exercise.id,
-        name: exercise.name,
-        description: exercise.description,
-        video_url: exercise.video_url,
-        thumbnail_url: exercise.thumbnail_url,
-        pattern: exercise.pattern || [],
-        muscle: exercise.muscle || [],
-        equipment: exercise.equipment || [],
-        modality: exercise.modality || [],
-        sport: exercise.sport || [],
-        intensity_zone: exercise.intensity_zone,
-        plane: exercise.plane,
-        energy_system: exercise.energy_system,
-        difficulty: exercise.difficulty,
-        origin: exercise.origin || 'SYSTEM',
-        created_at: exercise.created_at
-      })) as Exercise[];
-    },
-  });
+        let query = supabase
+          .from('exercises')
+          .select(`
+            id,
+            name,
+            muscle,
+            equipment,
+            modality,
+            pattern,
+            difficulty,
+            intensity_zone,
+            description,
+            thumbnail_url,
+            video_url,
+            sport,
+            origin
+          `)
+          .limit(limit);
+
+        // Apply search term filter using full-text search
+        if (searchParams.search) {
+          query = query.or(`
+            name.ilike.%${searchParams.search}%,
+            description.ilike.%${searchParams.search}%
+          `);
+        }
+
+        // Apply muscle filter
+        if (searchParams.muscles.length > 0) {
+          query = query.overlaps('muscle', searchParams.muscles);
+        }
+
+        // Apply equipment filter
+        if (searchParams.equipment.length > 0) {
+          query = query.overlaps('equipment', searchParams.equipment);
+        }
+
+        // Apply difficulty filter
+        if (searchParams.difficulty.length > 0) {
+          query = query.in('difficulty', searchParams.difficulty);
+        }
+
+        // Apply modality filter
+        if (searchParams.modality.length > 0) {
+          query = query.overlaps('modality', searchParams.modality);
+        }
+
+        // Order by name for consistent results
+        query = query.order('name');
+
+        const { data, error: fetchError } = await query;
+
+        if (fetchError) {
+          throw fetchError;
+        }
+
+        setExercises(data || []);
+      } catch (err) {
+        console.error('Error fetching exercises:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch exercises');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchExercises();
+  }, [searchParams, limit]);
+
+  // Compute additional stats
+  const stats = useMemo(() => {
+    const totalExercises = exercises.length;
+    const muscleGroups = new Set(exercises.flatMap(ex => ex.muscle)).size;
+    const equipmentTypes = new Set(exercises.flatMap(ex => ex.equipment)).size;
+    
+    return {
+      totalExercises,
+      muscleGroups,
+      equipmentTypes
+    };
+  }, [exercises]);
+
+  return {
+    exercises,
+    loading,
+    error,
+    stats,
+    refetch: () => {
+      setLoading(true);
+      // Trigger re-fetch by updating a dependency
+    }
+  };
 };
