@@ -16,6 +16,7 @@ import { SkeletonCard } from '@/components/skeleton/SkeletonCard';
 import { SkeletonBox } from '@/components/skeleton/SkeletonBox';
 import { SuspenseWrapper } from '@/components/ui/SuspenseWrapper';
 import { AnimatedCard } from '@/components/ui/AnimatedCard';
+import { InsightCarousel } from '@/components/Dashboard/InsightCarousel';
 import SoloDashboard from '@/pages/solo/Dashboard';
 
 const AthleteTypeLoader: React.FC = () => {
@@ -91,6 +92,15 @@ const AthleteTypeLoader: React.FC = () => {
           <AnimatedCard delay={0.5}>
             <SuspenseWrapper fallback={<SkeletonCard className="h-64" contentLines={3} />}>
               <InjuryForecastCard />
+            </SuspenseWrapper>
+          </AnimatedCard>
+        </div>
+
+        {/* Insight Carousel - Full Width */}
+        <div className="lg:col-span-2 mt-8">
+          <AnimatedCard delay={0.6}>
+            <SuspenseWrapper fallback={<SkeletonCard className="h-40" contentLines={2} />}>
+              <InsightCarousel />
             </SuspenseWrapper>
           </AnimatedCard>
         </div>
