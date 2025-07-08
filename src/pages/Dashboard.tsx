@@ -17,6 +17,7 @@ import { SkeletonBox } from '@/components/skeleton/SkeletonBox';
 import { SuspenseWrapper } from '@/components/ui/SuspenseWrapper';
 import { AnimatedCard } from '@/components/ui/AnimatedCard';
 import { InsightCarousel } from '@/components/Dashboard/InsightCarousel';
+import { PeriodProvider } from '@/lib/hooks/usePeriod';
 import SoloDashboard from '@/pages/solo/Dashboard';
 
 const AthleteTypeLoader: React.FC = () => {
@@ -122,26 +123,28 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <SuspenseWrapper 
-      fallback={
-        <div className="mx-auto w-full max-w-7xl p-4 md:p-8 space-y-6">
-          <SkeletonBox width={300} height={40} className="mb-8" />
-          <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
-            <div className="space-y-6">
-              <SkeletonCard className="h-80" />
-              <SkeletonCard className="h-48" />
-            </div>
-            <div className="space-y-6">
-              <SkeletonCard className="h-64" />
-              <SkeletonCard className="h-64" />
-              <SkeletonCard className="h-64" />
+    <PeriodProvider>
+      <SuspenseWrapper 
+        fallback={
+          <div className="mx-auto w-full max-w-7xl p-4 md:p-8 space-y-6">
+            <SkeletonBox width={300} height={40} className="mb-8" />
+            <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
+              <div className="space-y-6">
+                <SkeletonCard className="h-80" />
+                <SkeletonCard className="h-48" />
+              </div>
+              <div className="space-y-6">
+                <SkeletonCard className="h-64" />
+                <SkeletonCard className="h-64" />
+                <SkeletonCard className="h-64" />
+              </div>
             </div>
           </div>
-        </div>
-      }
-    >
-      <AthleteTypeLoader />
-    </SuspenseWrapper>
+        }
+      >
+        <AthleteTypeLoader />
+      </SuspenseWrapper>
+    </PeriodProvider>
   );
 };
 
