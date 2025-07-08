@@ -6,6 +6,7 @@ import { AriaSpotlight } from '@/components/Analytics/AriaSpotlight';
 import { ReadinessChart } from '@/components/ReadinessChart';
 import { EnhancedSleepChart } from '@/components/EnhancedSleepChart';
 import { EnhancedTrainingLoadChart } from '@/components/EnhancedTrainingLoadChart';
+import { StressChart } from '@/components/Analytics/StressChart';
 import { PeriodProvider, usePeriod, periodToDays } from '@/lib/hooks/usePeriod';
 import { useEnhancedMetricsWithAthlete } from '@/hooks/useEnhancedMetricsWithAthlete';
 import { ShareUIProvider } from '@/context/ShareUIContext';
@@ -14,6 +15,7 @@ import { AnalyticsControls } from '@/components/Analytics/AnalyticsControls';
 import { AnalyticsGrid } from '@/components/Analytics/AnalyticsGrid';
 import { ARIAInputSection } from '@/components/Analytics/ARIAInputSection';
 import { ConnectWearableModal } from '@/components/Analytics/ConnectWearableModal';
+import { MuscleAnatomyPanel } from '@/components/Analytics/MuscleAnatomyPanel';
 
 const ARIA_SUGGESTIONS = [
   "How can I improve recovery this week?",
@@ -158,9 +160,9 @@ const AnalyticsPageContent: React.FC = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* Metric Carousel - Updated to pass handlers */}
+        {/* Metric Carousel - Updated to include Stress */}
         <div className="mt-6">
-          <MetricCarousel labels={['Readiness', 'Sleep', 'Load']}>
+          <MetricCarousel labels={['Readiness', 'Sleep', 'Load', 'Stress']}>
             <ReadinessChart 
               data={mockReadinessData} 
               variant="carousel"
@@ -176,19 +178,18 @@ const AnalyticsPageContent: React.FC = () => {
               variant="carousel"
               onLogWorkout={handleLogWorkout}
             />
+            <StressChart
+              variant="carousel"
+              onConnectWearable={handleConnectWearable}
+            />
           </MetricCarousel>
         </div>
 
         {/* ARIA Spotlight - Contextual coaching overlay */}
         <AriaSpotlight />
 
-        {/* Responsive 12-Column Grid Layout for remaining components */}
-        <AnalyticsGrid
-          selectedAthleteId={selectedAthleteId}
-          insights={SAMPLE_INSIGHTS}
-          suggestions={ARIA_SUGGESTIONS}
-          onPrompt={handleAriaPrompt}
-        />
+        {/* Muscle Anatomy Panel with Training Load & ACWR Gauges */}
+        <MuscleAnatomyPanel selectedAthleteId={selectedAthleteId} />
 
         {/* ARIA Input Section - Full width */}
         <ARIAInputSection

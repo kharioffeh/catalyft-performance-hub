@@ -9,7 +9,7 @@ export type NavItem = {
 import {
   Home, BarChart3, Dumbbell, UsersRound,
   Settings, ChevronDown, ChevronUp, Calendar,
-  MessageSquare, AlertTriangle, BookOpen, Activity
+  MessageSquare, AlertTriangle, BookOpen, Activity, Target
 } from "lucide-react";
 
 export const NAV_ROUTES: NavItem[] = [
@@ -39,8 +39,14 @@ export const NAV_ROUTES: NavItem[] = [
       { label: "Overview", path: "/analytics", icon: BarChart3 },
       { label: "Readiness", path: "/analytics/readiness", icon: BarChart3 },
       { label: "Sleep", path: "/sleep", icon: BarChart3 },
-      { label: "Load", path: "/analytics/load", icon: BarChart3 }
+      { label: "Load", path: "/analytics/load", icon: BarChart3 },
+      { label: "Stress", path: "/stress", icon: Target }
     ]
+  },
+  { 
+    label: "Stress", 
+    path: "/stress", 
+    icon: Target 
   },
   { 
     label: "Calendar", 

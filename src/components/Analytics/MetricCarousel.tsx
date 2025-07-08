@@ -11,7 +11,7 @@ interface MetricCarouselProps {
 
 export const MetricCarousel: React.FC<MetricCarouselProps> = ({ 
   children, 
-  labels = ['Readiness', 'Sleep', 'Load'] 
+  labels = ['Readiness', 'Sleep', 'Load', 'Stress'] 
 }) => {
   return (
     <div className="relative">
