@@ -31,7 +31,7 @@ const SoloProgramPage = React.lazy(() => import('../pages/solo/ProgramPage'));
 const RiskBoardPage = React.lazy(() => import('../pages/CoachRiskBoard'));
 const TemplateDetailPage = React.lazy(() => import('@/pages/TemplateDetailPage'));
 const TrainingPlan = React.lazy(() => import('@/pages/TrainingPlan'));
-const TrainingPage = React.lazy(() => import('../pages/Training'));
+
 const NutritionPage = React.lazy(() => import('../pages/Nutrition'));
 const LiveSessionPage = React.lazy(() => import('../pages/LiveSession'));
 const ProfilePage = React.lazy(() => import('../pages/Profile'));
@@ -82,7 +82,7 @@ const AppRouter = () => {
               <SoloProgramPage />
             </ProtectedRoute>
           } />
-          <Route path="training" element={<TrainingPage />} />
+          <Route path="training" element={<Navigate to="/training-programs" replace />} />
           <Route path="training/live" element={<LiveSessionPage />} />
           <Route path="nutrition" element={<NutritionPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />
