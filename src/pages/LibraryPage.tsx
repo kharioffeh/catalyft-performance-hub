@@ -1,44 +1,77 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ExerciseCard } from '@/components/ExerciseCard';
-import { FilterDrawer } from '@/components/FilterDrawer';
-import { ExerciseModal } from '@/components/ExerciseModal';
 import { useExerciseSearch } from '@/hooks/useExerciseSearch';
-import { Exercise, ExerciseFilters } from '@/types/exercise';
 import { Search, Library } from 'lucide-react';
-import { useDebounce } from '@/hooks/use-debounce';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 const LibraryPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filters, setFilters] = useState<ExerciseFilters>({});
-  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedMuscles, setSelectedMuscles] = useState<string[]>([]);
+  const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string[]>([]);
 
-  // Debounce search query to avoid too many API calls
-  const debouncedSearchQuery = useDebounce(searchQuery, 400);
+  const { exercises, loading, error } = useExerciseSearch({
+    searchTerm: searchQuery,
+    muscles: selectedMuscles,
+    equipment: selectedEquipment,
+    difficulty: selectedDifficulty,
+  });
 
-  const { data: exercises = [], isLoading, error } = useExerciseSearch(debouncedSearchQuery, filters);
-
-  const handleExerciseClick = (exercise: Exercise) => {
-    setSelectedExercise(exercise);
-    setIsModalOpen(true);
+  const handleExerciseClick = (exercise: any) => {
+    console.log('Exercise clicked:', exercise);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedExercise(null);
+  const muscleOptions = [
+    'chest', 'back', 'shoulders', 'biceps', 'triceps', 'forearms',
+    'quadriceps', 'hamstrings', 'glutes', 'calves', 'core', 'traps'
+  ];
+
+  const equipmentOptions = [
+    'bodyweight', 'dumbbell', 'barbell', 'cable', 'machine', 'resistance_band',
+    'kettlebell', 'medicine_ball', 'pull_up_bar', 'battle_ropes'
+  ];
+
+  const difficultyOptions = ['beginner', 'intermediate', 'advanced'];
+
+  const handleMuscleToggle = (muscle: string) => {
+    setSelectedMuscles(prev => 
+      prev.includes(muscle) 
+        ? prev.filter(m => m !== muscle)
+        : [...prev, muscle]
+    );
   };
 
-  const activeFilterCount = useMemo(() => {
-    return Object.values(filters).filter(value => 
-      Array.isArray(value) ? value.length > 0 : Boolean(value)
-    ).length;
-  }, [filters]);
+  const handleEquipmentToggle = (equipment: string) => {
+    setSelectedEquipment(prev => 
+      prev.includes(equipment) 
+        ? prev.filter(e => e !== equipment)
+        : [...prev, equipment]
+    );
+  };
+
+  const handleDifficultyToggle = (difficulty: string) => {
+    setSelectedDifficulty(prev => 
+      prev.includes(difficulty) 
+        ? prev.filter(d => d !== difficulty)
+        : [...prev, difficulty]
+    );
+  };
+
+  const clearAllFilters = () => {
+    setSelectedMuscles([]);
+    setSelectedEquipment([]);
+    setSelectedDifficulty([]);
+  };
+
+  const activeFilterCount = selectedMuscles.length + selectedEquipment.length + selectedDifficulty.length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Library className="w-8 h-8 text-blue-600" />
@@ -59,7 +92,6 @@ const LibraryPage: React.FC = () => {
               />
             </div>
             <div className="flex items-center gap-2">
-              <FilterDrawer filters={filters} onFiltersChange={setFilters} />
               {activeFilterCount > 0 && (
                 <span className="text-sm text-gray-500">
                   {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active
@@ -68,6 +100,73 @@ const LibraryPage: React.FC = () => {
             </div>
           </div>
         </CardHeader>
+      </Card>
+
+      {/* Filters */}
+      <Card>
+        <CardContent className="p-4 space-y-4">
+          {/* Muscle Groups */}
+          <div>
+            <h3 className="text-sm font-medium text-gray-700 mb-2">Muscle Groups</h3>
+            <div className="flex flex-wrap gap-2">
+              {muscleOptions.map(muscle => (
+                <Badge
+                  key={muscle}
+                  variant={selectedMuscles.includes(muscle) ? "default" : "outline"}
+                  className="cursor-pointer capitalize"
+                  onClick={() => handleMuscleToggle(muscle)}
+                >
+                  {muscle}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          {/* Equipment */}
+          <div>
+            <h3 className="text-sm font-medium text-gray-700 mb-2">Equipment</h3>
+            <div className="flex flex-wrap gap-2">
+              {equipmentOptions.map(equipment => (
+                <Badge
+                  key={equipment}
+                  variant={selectedEquipment.includes(equipment) ? "default" : "outline"}
+                  className="cursor-pointer capitalize"
+                  onClick={() => handleEquipmentToggle(equipment)}
+                >
+                  {equipment.replace('_', ' ')}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          {/* Difficulty */}
+          <div>
+            <h3 className="text-sm font-medium text-gray-700 mb-2">Difficulty</h3>
+            <div className="flex flex-wrap gap-2">
+              {difficultyOptions.map(difficulty => (
+                <Badge
+                  key={difficulty}
+                  variant={selectedDifficulty.includes(difficulty) ? "default" : "outline"}
+                  className="cursor-pointer capitalize"
+                  onClick={() => handleDifficultyToggle(difficulty)}
+                >
+                  {difficulty}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          {/* Clear Filters */}
+          {activeFilterCount > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={clearAllFilters}
+            >
+              Clear All Filters
+            </Button>
+          )}
+        </CardContent>
       </Card>
 
       {/* Exercise Grid */}
@@ -81,11 +180,11 @@ const LibraryPage: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-4">
+          {loading ? (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
               {Array.from({ length: 8 }).map((_, index) => (
                 <div key={index} className="animate-pulse">
-                  <div className="aspect-video bg-gray-200 rounded-md mb-3"></div>
+                  <div className="h-40 bg-gray-200 rounded-md mb-3"></div>
                   <div className="h-4 bg-gray-200 rounded mb-2"></div>
                   <div className="h-3 bg-gray-200 rounded w-16"></div>
                 </div>
@@ -93,15 +192,16 @@ const LibraryPage: React.FC = () => {
             </div>
           ) : error ? (
             <div className="text-center py-8 text-red-600">
-              Error loading exercises: {error.message}
+              Error loading exercises: {error}
             </div>
           ) : exercises.length > 0 ? (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-4">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
               {exercises.map((exercise) => (
                 <ExerciseCard
                   key={exercise.id}
                   exercise={exercise}
                   onClick={handleExerciseClick}
+                  viewMode="grid"
                 />
               ))}
             </div>
@@ -115,13 +215,6 @@ const LibraryPage: React.FC = () => {
           )}
         </CardContent>
       </Card>
-
-      {/* Exercise Modal */}
-      <ExerciseModal
-        exercise={selectedExercise}
-        isOpen={isModalOpen}
-        onClose={closeModal}
-      />
     </div>
   );
 };
