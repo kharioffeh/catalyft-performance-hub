@@ -1,13 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine } from 'recharts';
-import { chartTheme, makeLine, makeYAxis, makeXAxis, referenceLines, formatWithUnit } from '@/lib/chartTheme';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { useInView } from '@/hooks/useInView';
-import { useReducedMotion } from '@/hooks/useReducedMotion';
-import { useShareUI } from '@/context/ShareUIContext';
-import { ShareButton } from '@/components/ShareButton';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { GlassCard } from '@/components/ui';
+import { ReadinessGauge } from '@/components/Dashboard/ReadinessGauge';
+import { Button } from '@/components/ui/button';
+import { Activity } from 'lucide-react';
 
 interface ReadinessData {
   date: string;
@@ -20,172 +17,142 @@ interface ReadinessChartProps {
   onConnectWearable?: () => void;
 }
 
-const chartConfig = {
-  score: {
-    label: "Readiness Score",
-    color: '#10B981', // readiness color
-  },
-};
-
 export const ReadinessChart: React.FC<ReadinessChartProps> = ({ 
   data, 
   variant = 'default',
   onConnectWearable 
 }) => {
-  const chartRef = useRef<HTMLDivElement>(null);
-  const [inViewRef, isInView] = useInView<HTMLDivElement>({ threshold: 0.2, triggerOnce: true });
-  const [animationComplete, setAnimationComplete] = useState(false);
-  const prefersReducedMotion = useReducedMotion();
-  const { openSheet } = useShareUI();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (isInView && !prefersReducedMotion) {
-      const timer = setTimeout(() => setAnimationComplete(true), 300);
-      return () => clearTimeout(timer);
-    } else if (prefersReducedMotion) {
-      setAnimationComplete(true);
-    }
-  }, [isInView, prefersReducedMotion]);
+  if (!data || data.length === 0) {
+    return (
+      <GlassCard className="p-6 h-[400px] flex flex-col items-center justify-center text-center">
+        <Activity className="w-12 h-12 text-white/40 mb-4" />
+        <h3 className="text-lg font-semibold text-white mb-2">No Readiness Data</h3>
+        <p className="text-white/60 text-sm mb-4">
+          Connect your wearable to see readiness analysis
+        </p>
+        {onConnectWearable && (
+          <Button onClick={onConnectWearable} variant="outline" size="sm">
+            Connect Wearable
+          </Button>
+        )}
+      </GlassCard>
+    );
+  }
 
-  const handleShare = () => {
-    if (!chartRef.current || !data.length) return;
-    
-    openSheet({
-      chartRef: chartRef,
-      metrics: data,
-      title: 'Readiness Trend',
-      filename: 'catalyft-readiness'
-    });
+  const currentScore = data[data.length - 1]?.score || 0;
+  const previousScore = data[data.length - 2]?.score || 0;
+  const trend = currentScore > previousScore ? 'increasing' : currentScore < previousScore ? 'decreasing' : 'stable';
+
+  const getReadinessLevel = (score: number) => {
+    if (score >= 85) return 'High';
+    if (score >= 70) return 'Moderate';
+    return 'Low';
   };
 
-  const yAxisProps = makeYAxis([0, 100], 'Score (%)');
-  const xAxisProps = makeXAxis({
-    tickFormatter: (value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  });
-  const lineProps = makeLine('#10B981'); // readiness color
-
-  const chartHeight = variant === 'carousel' ? 'h-[200px] md:h-[260px]' : 'h-[200px]';
-
-  // Show empty state if no data
-  if (!data || data.length === 0) {
-    const emptyStateContent = (
-      <EmptyState
-        type="readiness"
-        metric="readiness"
-        onAction={onConnectWearable}
-        className="h-[200px] md:h-[260px]"
-      />
-    );
-
-    if (variant === 'carousel') {
-      return (
-        <div>
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-white">Readiness Trend</h3>
-              <p className="text-sm text-white/70">7-day readiness score trend with performance zones</p>
-            </div>
-            <ShareButton onClick={handleShare} disabled />
-          </div>
-          {emptyStateContent}
-        </div>
-      );
-    }
-
-    return (
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>Readiness Trend</CardTitle>
-            <CardDescription>7-day readiness score trend with performance zones</CardDescription>
-          </div>
-          <ShareButton onClick={handleShare} disabled />
-        </CardHeader>
-        <CardContent>
-          {emptyStateContent}
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const chartContent = (
-    <div 
-      ref={(node) => {
-        chartRef.current = node;
-        inViewRef.current = node;
-      }}
-    >
-      <ChartContainer config={chartConfig} className={chartHeight}>
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data}>
-            <XAxis 
-              dataKey="date" 
-              {...xAxisProps}
-            />
-            <YAxis 
-              {...yAxisProps}
-            />
-            
-            {/* Reference lines for readiness zones */}
-            {referenceLines.readiness.map((line, index) => (
-              <ReferenceLine 
-                key={index}
-                y={line.value}
-                stroke={line.color}
-                strokeDasharray={line.strokeDasharray}
-                strokeOpacity={0.7}
-              />
-            ))}
-            
-            <ChartTooltip 
-              content={<ChartTooltipContent 
-                formatter={(value, name) => [formatWithUnit(Number(value), '%'), name]}
-              />} 
-            />
-            <Line 
-              type="monotone" 
-              dataKey="score" 
-              {...lineProps}
-              strokeDasharray={!animationComplete && !prefersReducedMotion ? "5 5" : "0"}
-              strokeDashoffset={!animationComplete && !prefersReducedMotion ? "1000" : "0"}
-              style={{
-                strokeDashoffset: !animationComplete && !prefersReducedMotion ? "1000" : "0",
-                transition: "stroke-dashoffset 1.5s ease-in-out"
-              }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </ChartContainer>
-    </div>
-  );
-
-  if (variant === 'carousel') {
-    return (
-      <div>
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-white">Readiness Trend</h3>
-            <p className="text-sm text-white/70">7-day readiness score trend with performance zones</p>
-          </div>
-          <ShareButton onClick={handleShare} />
-        </div>
-        {chartContent}
-      </div>
-    );
-  }
+  const handleViewDetails = () => {
+    navigate('/analytics/readiness');
+  };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+    <GlassCard className={`p-6 ${variant === 'carousel' ? 'h-[400px]' : ''}`}>
+      <div className="flex items-center justify-between mb-4">
         <div>
-          <CardTitle>Readiness Trend</CardTitle>
-          <CardDescription>7-day readiness score trend with performance zones</CardDescription>
+          <h3 className="text-lg font-semibold text-white">Readiness Score</h3>
+          <p className="text-white/60 text-sm">Current readiness and recovery status</p>
         </div>
-        <ShareButton onClick={handleShare} />
-      </CardHeader>
-      <CardContent>
-        {chartContent}
-      </CardContent>
-    </Card>
+        {variant === 'carousel' && (
+          <Button 
+            onClick={handleViewDetails}
+            variant="ghost" 
+            size="sm"
+            className="text-white/70 hover:text-white"
+          >
+            View Details →
+          </Button>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Current Readiness Gauge */}
+        <div className="flex flex-col items-center justify-center">
+          <ReadinessGauge value={currentScore} size="regular" />
+          <div className="text-center mt-3">
+            <div className="text-white/60 text-sm">Current Score</div>
+            <div className={`font-medium ${
+              currentScore >= 85 ? 'text-green-400' :
+              currentScore >= 70 ? 'text-yellow-400' : 'text-red-400'
+            }`}>
+              {getReadinessLevel(currentScore)}
+            </div>
+          </div>
+        </div>
+
+        {/* Readiness Trend Chart */}
+        <div className="lg:col-span-2 h-48">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+              <XAxis 
+                dataKey="date" 
+                stroke="rgba(255,255,255,0.6)"
+                fontSize={10}
+                tick={{ fontSize: 10 }}
+              />
+              <YAxis 
+                stroke="rgba(255,255,255,0.6)"
+                fontSize={10}
+                domain={[0, 100]}
+                tick={{ fontSize: 10 }}
+              />
+              <Tooltip 
+                contentStyle={{
+                  backgroundColor: 'rgba(0,0,0,0.8)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '8px',
+                  color: 'white'
+                }}
+                formatter={(value: any) => [`${value}`, 'Readiness Score']}
+                labelFormatter={(label) => `Date: ${label}`}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="score" 
+                stroke="#10b981"
+                strokeWidth={2}
+                dot={{ fill: '#10b981', strokeWidth: 2, r: 3 }}
+                activeDot={{ r: 5 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-white/10">
+        <div className="text-center">
+          <div className="text-lg font-bold text-white">{currentScore}</div>
+          <div className="text-white/60 text-xs">Current Score</div>
+        </div>
+        <div className="text-center">
+          <div className={`text-lg font-bold ${
+            trend === 'increasing' ? 'text-green-400' : 
+            trend === 'decreasing' ? 'text-red-400' : 'text-white'
+          }`}>
+            {trend === 'increasing' ? '↑' : 
+             trend === 'decreasing' ? '↓' : '→'}
+          </div>
+          <div className="text-white/60 text-xs">Trend</div>
+        </div>
+        <div className="text-center">
+          <div className="text-lg font-bold text-white">
+            {Math.round(data.reduce((sum, item) => sum + item.score, 0) / data.length)}
+          </div>
+          <div className="text-white/60 text-xs">7-Day Average</div>
+        </div>
+      </div>
+    </GlassCard>
   );
+
 };

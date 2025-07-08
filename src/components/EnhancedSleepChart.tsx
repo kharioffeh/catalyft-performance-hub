@@ -1,12 +1,12 @@
 
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LightweightLineChart } from '@/components/charts';
-import { format } from 'date-fns';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { useInView } from '@/hooks/useInView';
-import { useReducedMotion } from '@/hooks/useReducedMotion';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { GlassCard } from '@/components/ui';
+import { SleepGauge } from '@/components/Dashboard/SleepGauge';
+import { Button } from '@/components/ui/button';
+import { Moon } from 'lucide-react';
+import { format } from 'date-fns';
 
 interface SleepData {
   athlete_uuid: string;
@@ -28,132 +28,136 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
   variant = 'default',
   onConnectWearable 
 }) => {
-  const [chartRef, isInView] = useInView<HTMLDivElement>({ threshold: 0.2, triggerOnce: true });
-  const [animationComplete, setAnimationComplete] = useState(false);
-  const prefersReducedMotion = useReducedMotion();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (isInView && !prefersReducedMotion) {
-      const timer = setTimeout(() => setAnimationComplete(true), 500);
-      return () => clearTimeout(timer);
-    } else if (prefersReducedMotion) {
-      setAnimationComplete(true);
-    }
-  }, [isInView, prefersReducedMotion]);
-
-  const chartHeight = variant === 'carousel' ? 'h-[200px] md:h-[260px]' : 'h-[300px]';
-
-  // Show empty state if no data
   if (!data || data.length === 0) {
-    const emptyStateContent = (
-      <EmptyState
-        type="sleep"
-        metric="sleep"
-        onAction={onConnectWearable}
-        className="h-[200px] md:h-[260px]"
-      />
-    );
-
-    if (variant === 'carousel') {
-      return (
-        <div>
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-white">Sleep & Recovery</h3>
-            <p className="text-sm text-white/70">Sleep efficiency, duration, and HRV trends</p>
-          </div>
-          {emptyStateContent}
-        </div>
-      );
-    }
-
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Sleep & Recovery Metrics</CardTitle>
-          <CardDescription>Sleep efficiency, duration, and HRV trends with optimal zones</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {emptyStateContent}
-        </CardContent>
-      </Card>
+      <GlassCard className="p-6 h-[400px] flex flex-col items-center justify-center text-center">
+        <Moon className="w-12 h-12 text-white/40 mb-4" />
+        <h3 className="text-lg font-semibold text-white mb-2">No Sleep Data</h3>
+        <p className="text-white/60 text-sm mb-4">
+          Connect your wearable to see sleep analysis
+        </p>
+        {onConnectWearable && (
+          <Button onClick={onConnectWearable} variant="outline" size="sm">
+            Connect Wearable
+          </Button>
+        )}
+      </GlassCard>
     );
   }
 
+  const latestData = data[data.length - 1];
+  const currentEfficiency = latestData?.sleep_efficiency || 0;
+  const currentDuration = latestData?.total_sleep_hours || 0;
+  const currentHRV = latestData?.hrv_rmssd || 0;
+
+  const getSleepQuality = (efficiency: number) => {
+    if (efficiency >= 85) return 'Excellent';
+    if (efficiency >= 70) return 'Good';
+    return 'Poor';
+  };
+
+  const handleViewDetails = () => {
+    navigate('/sleep');
+  };
+
   const formattedData = data.map(item => ({
-    x: format(new Date(item.day), 'MMM dd'),
-    y: item.sleep_efficiency || 0,
+    date: format(new Date(item.day), 'MMM dd'),
     efficiency: item.sleep_efficiency || 0,
     duration: item.total_sleep_hours || 0,
     hrv: item.hrv_rmssd || 0
   }));
 
-  const chartContent = (
-    <div 
-      ref={chartRef} 
-      className={`${chartHeight} cursor-pointer group hover:bg-white/5 rounded-lg transition-colors p-2`}
-      onClick={() => navigate('/sleep')}
-    >
-      <LightweightLineChart
-        data={formattedData}
-        width={400}
-        height={variant === 'carousel' ? 200 : 300}
-        color="#6366F1"
-        showDots={true}
-        className="w-full h-full"
-      />
-      <div className="text-center text-xs text-white/60 group-hover:text-white/80 mt-2">
-        Click to view detailed sleep analysis
-      </div>
-    </div>
-  );
-
-  const statsContent = (
-    <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
-      <div className="text-center">
-        <div className="font-medium">Sleep Efficiency</div>
-        <div className="text-lg font-bold text-sleep">
-          {formattedData[formattedData.length - 1]?.efficiency?.toFixed(1) || 0}%
-        </div>
-      </div>
-      <div className="text-center">
-        <div className="font-medium">Duration</div>
-        <div className="text-lg font-bold text-sleep">
-          {formattedData[formattedData.length - 1]?.duration?.toFixed(1) || 0}h
-        </div>
-      </div>
-      <div className="text-center">
-        <div className="font-medium">HRV</div>
-        <div className="text-lg font-bold text-sleep">
-          {formattedData[formattedData.length - 1]?.hrv?.toFixed(1) || 0}ms
-        </div>
-      </div>
-    </div>
-  );
-
-  if (variant === 'carousel') {
-    return (
-      <div>
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-white">Sleep & Recovery</h3>
-          <p className="text-sm text-white/70">Sleep efficiency, duration, and HRV trends</p>
-        </div>
-        {chartContent}
-        {statsContent}
-      </div>
-    );
-  }
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Sleep & Recovery Metrics</CardTitle>
-        <CardDescription>Sleep efficiency, duration, and HRV trends with optimal zones</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {chartContent}
-        {statsContent}
-      </CardContent>
-    </Card>
+    <GlassCard className={`p-6 ${variant === 'carousel' ? 'h-[400px]' : ''}`}>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="text-lg font-semibold text-white">Sleep & Recovery</h3>
+          <p className="text-white/60 text-sm">Sleep efficiency, duration, and HRV analysis</p>
+        </div>
+        {variant === 'carousel' && (
+          <Button 
+            onClick={handleViewDetails}
+            variant="ghost" 
+            size="sm"
+            className="text-white/70 hover:text-white"
+          >
+            View Details →
+          </Button>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Current Sleep Gauge */}
+        <div className="flex flex-col items-center justify-center">
+          <SleepGauge value={currentEfficiency} size="regular" />
+          <div className="text-center mt-3">
+            <div className="text-white/60 text-sm">Sleep Quality</div>
+            <div className={`font-medium ${
+              currentEfficiency >= 85 ? 'text-green-400' :
+              currentEfficiency >= 70 ? 'text-yellow-400' : 'text-red-400'
+            }`}>
+              {getSleepQuality(currentEfficiency)}
+            </div>
+          </div>
+        </div>
+
+        {/* Sleep Trend Chart */}
+        <div className="lg:col-span-2 h-48">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={formattedData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+              <XAxis 
+                dataKey="date" 
+                stroke="rgba(255,255,255,0.6)"
+                fontSize={10}
+                tick={{ fontSize: 10 }}
+              />
+              <YAxis 
+                stroke="rgba(255,255,255,0.6)"
+                fontSize={10}
+                domain={[0, 100]}
+                tick={{ fontSize: 10 }}
+              />
+              <Tooltip 
+                contentStyle={{
+                  backgroundColor: 'rgba(0,0,0,0.8)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '8px',
+                  color: 'white'
+                }}
+                formatter={(value: any) => [`${value}%`, 'Sleep Efficiency']}
+                labelFormatter={(label) => `Date: ${label}`}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="efficiency" 
+                stroke="#6366f1"
+                strokeWidth={2}
+                dot={{ fill: '#6366f1', strokeWidth: 2, r: 3 }}
+                activeDot={{ r: 5 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-white/10">
+        <div className="text-center">
+          <div className="text-lg font-bold text-white">{currentEfficiency.toFixed(1)}%</div>
+          <div className="text-white/60 text-xs">Sleep Efficiency</div>
+        </div>
+        <div className="text-center">
+          <div className="text-lg font-bold text-white">{currentDuration.toFixed(1)}h</div>
+          <div className="text-white/60 text-xs">Duration</div>
+        </div>
+        <div className="text-center">
+          <div className="text-lg font-bold text-white">{currentHRV.toFixed(1)}ms</div>
+          <div className="text-white/60 text-xs">HRV</div>
+        </div>
+      </div>
+    </GlassCard>
   );
 };
