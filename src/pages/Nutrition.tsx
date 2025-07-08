@@ -6,9 +6,14 @@ import { Badge } from '@/components/ui/badge';
 import { GlassCard } from '@/components/ui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Apple, Plus, TrendingUp, Target, Utensils } from 'lucide-react';
+import { useNutrition } from '@/hooks/useNutrition';
+import { AddMealDialog } from '@/components/nutrition/AddMealDialog';
+import { MealLogList } from '@/components/nutrition/MealLogList';
+import { FloatingAddButton } from '@/components/nutrition/FloatingAddButton';
 
 const Nutrition: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('overview');
+  const { meals, addMeal, removeMeal, getTodaysMeals } = useNutrition();
+  const [activeTab, setActiveTab] = useState('meals');
 
   const mockMacros = {
     calories: { current: 1850, target: 2200, unit: 'kcal' },
@@ -129,7 +134,7 @@ const Nutrition: React.FC = () => {
               </Card>
               <Card className="bg-white/5 border-white/10">
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-400 mb-1">3</div>
+                  <div className="text-2xl font-bold text-blue-400 mb-1">{getTodaysMeals().length}</div>
                   <div className="text-sm text-white/70">Meals Logged</div>
                 </CardContent>
               </Card>
@@ -139,36 +144,21 @@ const Nutrition: React.FC = () => {
           <TabsContent value="meals" className="mt-0 space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-white">Today's Meals</h3>
-              <Button className="bg-white/10 hover:bg-white/20 text-white border-white/20">
-                <Plus className="w-4 h-4 mr-2" />
-                Log Meal
-              </Button>
+              <AddMealDialog 
+                onAddMeal={addMeal}
+                trigger={
+                  <Button className="bg-white/10 hover:bg-white/20 text-white border-white/20">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Log Meal
+                  </Button>
+                }
+              />
             </div>
 
-            <div className="space-y-4">
-              {mockMeals.map((meal) => (
-                <Card key={meal.id} className="bg-white/5 border-white/10">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <h4 className="font-semibold text-white">{meal.name}</h4>
-                        <p className="text-sm text-white/70">{meal.time}</p>
-                      </div>
-                      <Badge className="bg-blue-500/20 text-blue-300">
-                        {meal.calories} kcal
-                      </Badge>
-                    </div>
-                    <div className="space-y-1">
-                      {meal.items.map((item, index) => (
-                        <div key={index} className="text-sm text-white/80">
-                          • {item}
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <MealLogList 
+              meals={getTodaysMeals()} 
+              onDeleteMeal={removeMeal}
+            />
           </TabsContent>
 
           <TabsContent value="goals" className="mt-0">
@@ -189,6 +179,9 @@ const Nutrition: React.FC = () => {
           </TabsContent>
         </Tabs>
       </GlassCard>
+
+      {/* Floating Add Button for Mobile */}
+      <FloatingAddButton onAddMeal={addMeal} />
     </div>
   );
 };
