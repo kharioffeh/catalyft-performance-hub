@@ -63,10 +63,7 @@ export const useExerciseSearch = ({
 
         // Apply search term filter using full-text search
         if (searchParams.search) {
-          query = query.or(`
-            name.ilike.%${searchParams.search}%,
-            description.ilike.%${searchParams.search}%
-          `);
+          query = query.or(`name.ilike.%${searchParams.search}%,description.ilike.%${searchParams.search}%`);
         }
 
         // Apply muscle filter
