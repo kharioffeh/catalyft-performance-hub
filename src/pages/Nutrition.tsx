@@ -10,41 +10,36 @@ import { useNutrition } from '@/hooks/useNutrition';
 import { AddMealDialog } from '@/components/nutrition/AddMealDialog';
 import { MealLogList } from '@/components/nutrition/MealLogList';
 import { FloatingAddButton } from '@/components/nutrition/FloatingAddButton';
+import { MacroRings } from '@/components/nutrition/MacroRings';
+import { NutritionScoreCard } from '@/components/nutrition/NutritionScoreCard';
 
 const Nutrition: React.FC = () => {
-  const { meals, addMeal, removeMeal, getTodaysMeals } = useNutrition();
-  const [activeTab, setActiveTab] = useState('meals');
+  const { meals, addMeal, removeMeal, getTodaysMeals, getTodaysMacros, getMacroTargets, getNutritionScore } = useNutrition();
+  const [activeTab, setActiveTab] = useState('overview');
 
-  const mockMacros = {
-    calories: { current: 1850, target: 2200, unit: 'kcal' },
-    protein: { current: 98, target: 120, unit: 'g' },
-    carbs: { current: 180, target: 250, unit: 'g' },
-    fat: { current: 65, target: 80, unit: 'g' }
-  };
+  const todaysMacros = getTodaysMacros();
+  const macroTargets = getMacroTargets();
+  const nutritionScore = getNutritionScore();
+  const todaysMeals = getTodaysMeals();
 
-  const mockMeals = [
-    {
-      id: '1',
-      name: 'Breakfast',
-      time: '08:00',
-      calories: 450,
-      items: ['Oatmeal with berries', 'Greek yogurt', 'Almonds']
+  // Prepare macro data for rings
+  const macroData = {
+    protein: { 
+      current: todaysMacros.protein, 
+      target: macroTargets.protein, 
+      color: '#3B82F6' // blue
     },
-    {
-      id: '2',
-      name: 'Lunch',
-      time: '13:00',
-      calories: 680,
-      items: ['Grilled chicken breast', 'Brown rice', 'Mixed vegetables']
+    carbs: { 
+      current: todaysMacros.carbs, 
+      target: macroTargets.carbs, 
+      color: '#10B981' // green
     },
-    {
-      id: '3',
-      name: 'Dinner',
-      time: '19:00',
-      calories: 720,
-      items: ['Salmon fillet', 'Quinoa', 'Steamed broccoli']
+    fat: { 
+      current: todaysMacros.fat, 
+      target: macroTargets.fat, 
+      color: '#F59E0B' // yellow
     }
-  ];
+  };
 
   const getProgressColor = (current: number, target: number) => {
     const percentage = (current / target) * 100;
@@ -93,29 +88,97 @@ const Nutrition: React.FC = () => {
           </TabsList>
 
           <TabsContent value="overview" className="mt-0 space-y-6">
-            {/* Daily Macro Progress */}
+            {/* Macro Rings and Nutrition Score */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <MacroRings macros={macroData} />
+              <NutritionScoreCard 
+                score={nutritionScore}
+                mealsLogged={todaysMeals.length}
+                targetMeals={3}
+              />
+            </div>
+
+            {/* Daily Macro Progress Bars */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {Object.entries(mockMacros).map(([macro, data]) => (
-                <Card key={macro} className="bg-white/5 border-white/10">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-medium text-white capitalize">{macro}</h3>
-                      <span className={`text-sm font-semibold ${getProgressColor(data.current, data.target)}`}>
-                        {data.current}/{data.target} {data.unit}
-                      </span>
-                    </div>
-                    <div className="w-full bg-white/10 rounded-full h-2">
-                      <div
-                        className="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${getProgressWidth(data.current, data.target)}%` }}
-                      />
-                    </div>
-                    <div className="mt-2 text-xs text-white/70">
-                      {Math.round((data.current / data.target) * 100)}% of daily target
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              <Card className="bg-white/5 border-white/10">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-medium text-white">Calories</h3>
+                    <span className={`text-sm font-semibold ${getProgressColor(todaysMacros.calories, macroTargets.calories)}`}>
+                      {todaysMacros.calories}/{macroTargets.calories} kcal
+                    </span>
+                  </div>
+                  <div className="w-full bg-white/10 rounded-full h-2">
+                    <div
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${getProgressWidth(todaysMacros.calories, macroTargets.calories)}%` }}
+                    />
+                  </div>
+                  <div className="mt-2 text-xs text-white/70">
+                    {Math.round((todaysMacros.calories / macroTargets.calories) * 100)}% of daily target
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/5 border-white/10">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-medium text-white">Protein</h3>
+                    <span className={`text-sm font-semibold ${getProgressColor(todaysMacros.protein, macroTargets.protein)}`}>
+                      {todaysMacros.protein}/{macroTargets.protein} g
+                    </span>
+                  </div>
+                  <div className="w-full bg-white/10 rounded-full h-2">
+                    <div
+                      className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${getProgressWidth(todaysMacros.protein, macroTargets.protein)}%` }}
+                    />
+                  </div>
+                  <div className="mt-2 text-xs text-white/70">
+                    {Math.round((todaysMacros.protein / macroTargets.protein) * 100)}% of daily target
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/5 border-white/10">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-medium text-white">Carbs</h3>
+                    <span className={`text-sm font-semibold ${getProgressColor(todaysMacros.carbs, macroTargets.carbs)}`}>
+                      {todaysMacros.carbs}/{macroTargets.carbs} g
+                    </span>
+                  </div>
+                  <div className="w-full bg-white/10 rounded-full h-2">
+                    <div
+                      className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${getProgressWidth(todaysMacros.carbs, macroTargets.carbs)}%` }}
+                    />
+                  </div>
+                  <div className="mt-2 text-xs text-white/70">
+                    {Math.round((todaysMacros.carbs / macroTargets.carbs) * 100)}% of daily target
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/5 border-white/10">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-medium text-white">Fat</h3>
+                    <span className={`text-sm font-semibold ${getProgressColor(todaysMacros.fat, macroTargets.fat)}`}>
+                      {todaysMacros.fat}/{macroTargets.fat} g
+                    </span>
+                  </div>
+                  <div className="w-full bg-white/10 rounded-full h-2">
+                    <div
+                      className="bg-gradient-to-r from-yellow-500 to-orange-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${getProgressWidth(todaysMacros.fat, macroTargets.fat)}%` }}
+                    />
+                  </div>
+                  <div className="mt-2 text-xs text-white/70">
+                    {Math.round((todaysMacros.fat / macroTargets.fat) * 100)}% of daily target
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Quick Stats */}
@@ -128,13 +191,13 @@ const Nutrition: React.FC = () => {
               </Card>
               <Card className="bg-white/5 border-white/10">
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-green-400 mb-1">94%</div>
-                  <div className="text-sm text-white/70">Weekly Average</div>
+                  <div className="text-2xl font-bold text-green-400 mb-1">{nutritionScore}%</div>
+                  <div className="text-sm text-white/70">Nutrition Score</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/5 border-white/10">
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-400 mb-1">{getTodaysMeals().length}</div>
+                  <div className="text-2xl font-bold text-blue-400 mb-1">{todaysMeals.length}</div>
                   <div className="text-sm text-white/70">Meals Logged</div>
                 </CardContent>
               </Card>
@@ -156,7 +219,7 @@ const Nutrition: React.FC = () => {
             </div>
 
             <MealLogList 
-              meals={getTodaysMeals()} 
+              meals={todaysMeals} 
               onDeleteMeal={removeMeal}
             />
           </TabsContent>

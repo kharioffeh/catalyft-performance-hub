@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
 export interface MealEntry {
@@ -8,7 +8,24 @@ export interface MealEntry {
   name: string;
   description: string;
   calories?: number;
+  protein?: number;
+  carbs?: number;
+  fat?: number;
   createdAt: Date;
+}
+
+interface MacroTargets {
+  protein: number;
+  carbs: number;
+  fat: number;
+  calories: number;
+}
+
+interface MacroTotals {
+  protein: number;
+  carbs: number;
+  fat: number;
+  calories: number;
 }
 
 interface UseNutritionReturn {
@@ -19,6 +36,9 @@ interface UseNutritionReturn {
   updateMeal: (id: string, updates: Partial<MealEntry>) => void;
   getTodaysMeals: () => MealEntry[];
   getMealsForDate: (date: string) => MealEntry[];
+  getTodaysMacros: () => MacroTotals;
+  getMacroTargets: () => MacroTargets;
+  getNutritionScore: () => number;
 }
 
 export const useNutrition = (): UseNutritionReturn => {
@@ -55,6 +75,52 @@ export const useNutrition = (): UseNutritionReturn => {
     return meals.filter(meal => meal.date === date);
   }, [meals]);
 
+  const getTodaysMacros = useCallback((): MacroTotals => {
+    const todaysMeals = getTodaysMeals();
+    return todaysMeals.reduce((totals, meal) => ({
+      protein: totals.protein + (meal.protein || 0),
+      carbs: totals.carbs + (meal.carbs || 0),
+      fat: totals.fat + (meal.fat || 0),
+      calories: totals.calories + (meal.calories || 0),
+    }), { protein: 0, carbs: 0, fat: 0, calories: 0 });
+  }, [getTodaysMeals]);
+
+  const getMacroTargets = useCallback((): MacroTargets => {
+    // Default targets - could be user-customizable later
+    return {
+      protein: 120,
+      carbs: 250,
+      fat: 80,
+      calories: 2200,
+    };
+  }, []);
+
+  const getNutritionScore = useCallback((): number => {
+    const todaysMeals = getTodaysMeals();
+    const macros = getTodaysMacros();
+    const targets = getMacroTargets();
+    
+    if (todaysMeals.length === 0) return 0;
+    
+    // Calculate macro ratios (0-100 each)
+    const proteinRatio = Math.min((macros.protein / targets.protein) * 100, 100);
+    const carbsRatio = Math.min((macros.carbs / targets.carbs) * 100, 100);
+    const fatRatio = Math.min((macros.fat / targets.fat) * 100, 100);
+    
+    // Meal frequency score (target: 3-4 meals per day)
+    const mealFrequencyScore = Math.min((todaysMeals.length / 3) * 100, 100);
+    
+    // Weighted average
+    const score = (
+      proteinRatio * 0.3 +
+      carbsRatio * 0.25 +
+      fatRatio * 0.25 +
+      mealFrequencyScore * 0.2
+    );
+    
+    return Math.round(score);
+  }, [getTodaysMeals, getTodaysMacros, getMacroTargets]);
+
   return {
     meals,
     isLoading,
@@ -63,5 +129,8 @@ export const useNutrition = (): UseNutritionReturn => {
     updateMeal,
     getTodaysMeals,
     getMealsForDate,
+    getTodaysMacros,
+    getMacroTargets,
+    getNutritionScore,
   };
 };
