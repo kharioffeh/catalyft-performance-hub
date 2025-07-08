@@ -33,6 +33,7 @@ const TemplateDetailPage = React.lazy(() => import('@/pages/TemplateDetailPage')
 const TrainingPlan = React.lazy(() => import('@/pages/TrainingPlan'));
 const TrainingPage = React.lazy(() => import('../pages/Training'));
 const NutritionPage = React.lazy(() => import('../pages/Nutrition'));
+const LiveSessionPage = React.lazy(() => import('../pages/LiveSession'));
 const ProfilePage = React.lazy(() => import('../pages/Profile'));
 
 // Loading fallback component
@@ -82,6 +83,7 @@ const AppRouter = () => {
             </ProtectedRoute>
           } />
           <Route path="training" element={<TrainingPage />} />
+          <Route path="training/live" element={<LiveSessionPage />} />
           <Route path="nutrition" element={<NutritionPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="analytics/readiness" element={<ReadinessDetailPage />} />

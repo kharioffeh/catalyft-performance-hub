@@ -4,16 +4,19 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ExerciseCard } from '@/components/ExerciseCard';
 import { useExerciseSearch } from '@/hooks/useExerciseSearch';
-import { Search, Library } from 'lucide-react';
+import { StartWorkoutButton } from '@/components/training/StartWorkoutButton';
+import { Search, Library, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { Exercise } from '@/types/exercise';
 
 const LibraryPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMuscles, setSelectedMuscles] = useState<string[]>([]);
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
   const [selectedDifficulty, setSelectedDifficulty] = useState<string[]>([]);
+  const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
 
   const { exercises, loading, error } = useExerciseSearch({
     searchTerm: searchQuery,
@@ -22,8 +25,19 @@ const LibraryPage: React.FC = () => {
     difficulty: selectedDifficulty,
   });
 
-  const handleExerciseClick = (exercise: any) => {
-    console.log('Exercise clicked:', exercise);
+  const handleExerciseClick = (exercise: Exercise) => {
+    setSelectedExercises(prev => {
+      const isSelected = prev.some(ex => ex.id === exercise.id);
+      if (isSelected) {
+        return prev.filter(ex => ex.id !== exercise.id);
+      } else {
+        return [...prev, exercise];
+      }
+    });
+  };
+
+  const clearSelectedExercises = () => {
+    setSelectedExercises([]);
   };
 
   const muscleOptions = [
@@ -71,11 +85,27 @@ const LibraryPage: React.FC = () => {
   const activeFilterCount = selectedMuscles.length + selectedEquipment.length + selectedDifficulty.length;
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-6 pb-24">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <Library className="w-8 h-8 text-blue-600" />
-        <h1 className="text-3xl font-bold text-gray-900">Exercise Library</h1>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Library className="w-8 h-8 text-primary" />
+          <h1 className="text-3xl font-bold text-foreground">Exercise Library</h1>
+        </div>
+        {selectedExercises.length > 0 && (
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-sm">
+              {selectedExercises.length} selected
+            </Badge>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearSelectedExercises}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Search and Filter Bar */}
@@ -201,6 +231,7 @@ const LibraryPage: React.FC = () => {
                   key={exercise.id}
                   exercise={exercise}
                   onClick={handleExerciseClick}
+                  isSelected={selectedExercises.some(ex => ex.id === exercise.id)}
                   viewMode="grid"
                 />
               ))}
@@ -215,6 +246,18 @@ const LibraryPage: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Floating Action Button */}
+      {selectedExercises.length > 0 && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <StartWorkoutButton
+            exercises={selectedExercises}
+            workoutName={`Library Workout (${selectedExercises.length} exercises)`}
+            size="lg"
+            className="shadow-lg"
+          />
+        </div>
+      )}
     </div>
   );
 };
