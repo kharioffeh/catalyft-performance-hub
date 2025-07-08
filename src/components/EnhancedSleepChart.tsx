@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useInView } from '@/hooks/useInView';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useNavigate } from 'react-router-dom';
 
 interface SleepData {
   athlete_uuid: string;
@@ -30,6 +31,7 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
   const [chartRef, isInView] = useInView<HTMLDivElement>({ threshold: 0.2, triggerOnce: true });
   const [animationComplete, setAnimationComplete] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isInView && !prefersReducedMotion) {
@@ -87,7 +89,11 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
   }));
 
   const chartContent = (
-    <div ref={chartRef} className={chartHeight}>
+    <div 
+      ref={chartRef} 
+      className={`${chartHeight} cursor-pointer group hover:bg-white/5 rounded-lg transition-colors p-2`}
+      onClick={() => navigate('/sleep')}
+    >
       <LightweightLineChart
         data={formattedData}
         width={400}
@@ -96,6 +102,9 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
         showDots={true}
         className="w-full h-full"
       />
+      <div className="text-center text-xs text-white/60 group-hover:text-white/80 mt-2">
+        Click to view detailed sleep analysis
+      </div>
     </div>
   );
 

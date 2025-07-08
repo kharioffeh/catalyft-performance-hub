@@ -38,7 +38,7 @@ export const NAV_ROUTES: NavItem[] = [
     children: [
       { label: "Overview", path: "/analytics", icon: BarChart3 },
       { label: "Readiness", path: "/analytics/readiness", icon: BarChart3 },
-      { label: "Sleep", path: "/analytics/sleep", icon: BarChart3 },
+      { label: "Sleep", path: "/sleep", icon: BarChart3 },
       { label: "Load", path: "/analytics/load", icon: BarChart3 }
     ]
   },

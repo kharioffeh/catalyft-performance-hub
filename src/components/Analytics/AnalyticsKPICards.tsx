@@ -45,7 +45,7 @@ export const AnalyticsKPICards: React.FC<AnalyticsKPICardsProps> = ({
           value: formatDelta(sleepData.delta7d),
           positive: sleepData.delta7d >= 0
         } : undefined}
-        onClick={() => navigate('/analytics/sleep')}
+        onClick={() => navigate('/sleep')}
         isLoading={!sleepData}
       />
       <KpiCard

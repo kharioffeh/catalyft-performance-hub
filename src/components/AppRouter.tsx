@@ -11,7 +11,7 @@ import { useSupabaseHash } from '../hooks/useSupabaseHash';
 const DashboardPage = React.lazy(() => import('../pages/Dashboard'));
 const AnalyticsPage = React.lazy(() => import('../pages/Analytics'));
 const ReadinessDetailPage = React.lazy(() => import('../pages/ReadinessDetailPage'));
-const SleepDetailPage = React.lazy(() => import('../pages/SleepDetailPage'));
+
 const LoadDetailPage = React.lazy(() => import('../pages/LoadDetailPage'));
 const AthletesPage = React.lazy(() => import('../pages/Athletes'));
 const TrainingPrograms = React.lazy(() => import('../pages/TrainingPrograms'));
@@ -89,7 +89,7 @@ const AppRouter = () => {
           <Route path="sleep" element={<SleepPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="analytics/readiness" element={<ReadinessDetailPage />} />
-          <Route path="analytics/sleep" element={<SleepDetailPage />} />
+          <Route path="analytics/sleep" element={<Navigate to="/sleep" replace />} />
           <Route path="analytics/load" element={<LoadDetailPage />} />
           <Route path="athletes" element={
             <ProtectedRoute roles={['coach']}>

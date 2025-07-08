@@ -2,8 +2,16 @@ import React from 'react';
 import { useSleep } from '@/hooks/useSleep';
 import { SleepScoreCard } from '@/components/sleep/SleepScoreCard';
 import { Hypnogram } from '@/components/sleep/Hypnogram';
+import { PeriodProvider } from '@/lib/hooks/usePeriod';
+import { InsightStrip } from '@/components/Analytics/InsightStrip';
+import { useEnhancedMetricsWithAthlete } from '@/hooks/useEnhancedMetricsWithAthlete';
+import { useAuth } from '@/contexts/AuthContext';
+import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-export default function Sleep() {
+const SleepContent: React.FC = () => {
+  const { profile } = useAuth();
+  const navigate = useNavigate();
   const { 
     getLastNightSleep, 
     getSleepScore, 
@@ -15,6 +23,15 @@ export default function Sleep() {
   const sleepScore = getSleepScore();
   const avgSleepHours = getAverageSleepHours();
 
+  // Get enhanced metrics for InsightStrip
+  const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetricsWithAthlete(profile?.id);
+
+  // Extract values for InsightStrip
+  const latestReadiness = readinessRolling[readinessRolling.length - 1]?.readiness_score ?? null;
+  const latestSleepHours = sleepDaily[sleepDaily.length - 1]?.total_sleep_hours ?? null;
+  const latestACWR = loadACWR[loadACWR.length - 1]?.acwr_7_28 ?? null;
+  const latestStrainValue = latestStrain?.value ?? null;
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
@@ -25,8 +42,26 @@ export default function Sleep() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Sticky Insight Strip */}
+      <InsightStrip
+        readiness={latestReadiness}
+        sleepHours={latestSleepHours}
+        acwr={latestACWR}
+        strain={latestStrainValue}
+      />
+      
       <div className="p-6 max-w-7xl mx-auto space-y-6">
-        {/* Page Header */}
+        {/* Page Header with Back Navigation */}
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={() => navigate('/analytics')}
+            className="flex items-center space-x-2 text-white/70 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>Back to Analytics</span>
+          </button>
+        </div>
+        
         <div className="space-y-2">
           <h1 className="text-3xl font-bold text-white">Sleep Analysis</h1>
           <p className="text-white/70">
@@ -121,5 +156,13 @@ export default function Sleep() {
         )}
       </div>
     </div>
+  );
+};
+
+export default function Sleep() {
+  return (
+    <PeriodProvider>
+      <SleepContent />
+    </PeriodProvider>
   );
 }
