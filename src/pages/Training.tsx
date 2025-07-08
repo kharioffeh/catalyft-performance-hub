@@ -7,11 +7,13 @@ import { TrainingProgramsPager } from '@/components/TrainingPrograms/TrainingPro
 import { TrainingSessionsList } from '@/components/training/TrainingSessionsList';
 import { TrainingPlanner } from '@/components/training/TrainingPlanner';
 import { GoalIntakeWizard } from '@/components/training/GoalIntakeWizard';
+import { ProgramCalendarPager } from '@/components/training/ProgramCalendarPager';
 import { GlassCard } from '@/components/ui';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProgramTemplates } from '@/hooks/useProgramTemplates';
 import { useWorkoutTemplates } from '@/hooks/useWorkoutTemplates';
 import { useSessions } from '@/hooks/useSessions';
+import { useProgramPatch } from '@/hooks/useProgramPatch';
 import { useQueryClient } from '@tanstack/react-query';
 import { Calendar, Dumbbell, Clock, Target, Plus } from 'lucide-react';
 
@@ -24,6 +26,7 @@ const Training: React.FC = () => {
   const { data: programs = [] } = useProgramTemplates();
   const { data: workoutTemplates = [] } = useWorkoutTemplates();
   const { data: sessions = [], isLoading: sessionsLoading } = useSessions();
+  const { programs: programPatches } = useProgramPatch(programs);
 
   const isCoach = profile?.role === 'coach';
 
@@ -86,17 +89,8 @@ const Training: React.FC = () => {
       label: 'Programs',
       icon: Dumbbell,
       component: (
-        <TrainingProgramsPager
-          templates={programs}
-          workoutTemplates={workoutTemplates}
-          isCoach={isCoach}
-          onView={handleViewProgram}
-          onEdit={handleEditProgram}
-          onDelete={handleDeleteProgram}
-          onAssignTemplate={handleAssignProgram}
-          onCreateTemplate={handleCreateProgram}
-          onCreateProgram={handleCreateProgram}
-          deleteLoading={false}
+        <ProgramCalendarPager
+          programs={programPatches}
         />
       )
     },
