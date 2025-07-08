@@ -68,7 +68,7 @@ export const InsightCard: React.FC<InsightCardProps> = ({ insight, index }) => {
         ease: [0.4, 0, 0.2, 1] 
       }}
       className={cn(
-        'relative flex-shrink-0 w-72 p-4 rounded-xl backdrop-blur-md border shadow-lg cursor-pointer',
+        'relative flex-shrink-0 w-full max-w-xs sm:w-72 p-3 sm:p-4 rounded-xl backdrop-blur-md border shadow-lg cursor-pointer',
         'bg-white/5 border-white/10 hover:border-white/20 transition-all duration-300',
         'hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]',
         getSeverityColors(insight.severity)

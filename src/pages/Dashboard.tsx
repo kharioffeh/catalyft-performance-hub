@@ -50,7 +50,7 @@ const AthleteTypeLoader: React.FC = () => {
   // Coach Dashboard - New glass morphism layout with animations
   return (
     <>
-      <div className="mx-auto w-full max-w-7xl p-4 md:p-8 grid gap-4 md:gap-6 lg:grid-cols-[340px_1fr]">
+      <div className="mx-auto w-full max-w-sm sm:max-w-md lg:max-w-7xl px-3 sm:px-4 md:px-8 py-4 md:py-8 grid gap-4 md:gap-6 grid-cols-1 lg:grid-cols-[340px_1fr]">
         {/* Left Column */}
         <div className="space-y-6">
           {/* Vertical Metric Cards */}
@@ -126,17 +126,17 @@ const Dashboard: React.FC = () => {
     <PeriodProvider>
       <SuspenseWrapper 
         fallback={
-          <div className="mx-auto w-full max-w-7xl p-4 md:p-8 space-y-6">
-            <SkeletonBox width={300} height={40} className="mb-8" />
-            <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
-              <div className="space-y-6">
-                <SkeletonCard className="h-80" />
-                <SkeletonCard className="h-48" />
+          <div className="mx-auto w-full max-w-sm sm:max-w-md lg:max-w-7xl px-3 sm:px-4 md:px-8 py-4 md:py-8 space-y-4 sm:space-y-6">
+            <SkeletonBox width={200} height={32} className="mb-4 sm:mb-8" />
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-[340px_1fr]">
+              <div className="space-y-4 sm:space-y-6">
+                <SkeletonCard className="h-60 sm:h-80" />
+                <SkeletonCard className="h-32 sm:h-48" />
               </div>
-              <div className="space-y-6">
-                <SkeletonCard className="h-64" />
-                <SkeletonCard className="h-64" />
-                <SkeletonCard className="h-64" />
+              <div className="space-y-4 sm:space-y-6">
+                <SkeletonCard className="h-48 sm:h-64" />
+                <SkeletonCard className="h-48 sm:h-64" />
+                <SkeletonCard className="h-48 sm:h-64" />
               </div>
             </div>
           </div>

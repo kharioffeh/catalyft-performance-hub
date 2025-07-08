@@ -51,9 +51,9 @@ export const InsightCarousel: React.FC = () => {
         }}
         className="w-full"
       >
-        <CarouselContent className="-ml-4">
+        <CarouselContent className="-ml-2 sm:-ml-4">
           {insights.map((insight, index) => (
-            <CarouselItem key={insight.id} className="pl-4 basis-auto">
+            <CarouselItem key={insight.id} className="pl-2 sm:pl-4 basis-auto">
               <InsightCard insight={insight} index={index} />
             </CarouselItem>
           ))}

@@ -46,7 +46,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ variant }) => {
               <TopBar />
             </ErrorBoundary>
           )}
-          <main className="flex-1 p-4 md:p-6 overflow-auto">
+          <main className="flex-1 px-2 py-3 sm:px-4 sm:py-4 md:px-6 md:py-6 overflow-auto">
             <ErrorBoundary FallbackComponent={ErrorFallback}>
               <Outlet />
             </ErrorBoundary>

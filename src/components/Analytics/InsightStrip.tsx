@@ -55,10 +55,10 @@ export const InsightStrip: React.FC<InsightStripProps> = ({
   return (
     <>
       <div className={`insight-strip sticky top-16 z-30 backdrop-blur-lg bg-slate-900/60 border-b border-white/10 ${className}`}>
-        <div className="max-w-7xl mx-auto px-6 py-3">
-          <div className="flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory md:grid md:grid-cols-4 md:overflow-visible">
+        <div className="max-w-sm sm:max-w-md lg:max-w-7xl mx-auto px-3 sm:px-6 py-3">
+          <div className="flex gap-2 sm:gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide md:grid md:grid-cols-4 md:overflow-visible">
             {/* Readiness Pill */}
-            <div className="flex-shrink-0 min-w-[140px] snap-start">
+            <div className="flex-shrink-0 min-w-[120px] sm:min-w-[140px] snap-start">
               <KpiCard
                 title="Readiness"
                 value={formatValue(readiness, '%')}
@@ -66,7 +66,7 @@ export const InsightStrip: React.FC<InsightStripProps> = ({
                 delta={getTrendDelta(readiness, readiness ? readiness - 2 : null)}
                 layout="horizontal"
                 onClick={readinessModal.open}
-                className="h-16 border-l-2 hover:bg-white/10 transition-colors cursor-pointer"
+                className="h-14 sm:h-16 border-l-2 hover:bg-white/10 transition-colors cursor-pointer"
                 style={{ 
                   borderLeftColor: safeGetMetricColor('readiness', 'primary'),
                   backgroundColor: safeGetMetricColor('readiness', 'bg')
@@ -75,7 +75,7 @@ export const InsightStrip: React.FC<InsightStripProps> = ({
             </div>
 
             {/* Sleep Pill */}
-            <div className="flex-shrink-0 min-w-[140px] snap-start">
+            <div className="flex-shrink-0 min-w-[120px] sm:min-w-[140px] snap-start">
               <KpiCard
                 title="Sleep"
                 value={formatValue(sleepHours, 'h', 1)}
@@ -83,7 +83,7 @@ export const InsightStrip: React.FC<InsightStripProps> = ({
                 delta={getTrendDelta(sleepHours, sleepHours ? sleepHours - 0.1 : null)}
                 layout="horizontal"
                 onClick={sleepModal.open}
-                className="h-16 border-l-2 hover:bg-white/10 transition-colors cursor-pointer"
+                className="h-14 sm:h-16 border-l-2 hover:bg-white/10 transition-colors cursor-pointer"
                 style={{ 
                   borderLeftColor: safeGetMetricColor('sleep', 'primary'),
                   backgroundColor: safeGetMetricColor('sleep', 'bg')
@@ -92,7 +92,7 @@ export const InsightStrip: React.FC<InsightStripProps> = ({
             </div>
 
             {/* Stress Pill */}
-            <div className="flex-shrink-0 min-w-[140px] snap-start">
+            <div className="flex-shrink-0 min-w-[120px] sm:min-w-[140px] snap-start">
               <KpiCard
                 title="Stress"
                 value={formatValue(stress, '', 0)}
@@ -100,7 +100,7 @@ export const InsightStrip: React.FC<InsightStripProps> = ({
                 delta={getTrendDelta(stress, stress ? stress - 5 : null)}
                 layout="horizontal"
                 onClick={loadModal.open}
-                className="h-16 border-l-2 hover:bg-white/10 transition-colors cursor-pointer"
+                className="h-14 sm:h-16 border-l-2 hover:bg-white/10 transition-colors cursor-pointer"
                 style={{ 
                   borderLeftColor: safeGetMetricColor('stress', 'primary'),
                   backgroundColor: safeGetMetricColor('stress', 'bg')
@@ -109,7 +109,7 @@ export const InsightStrip: React.FC<InsightStripProps> = ({
             </div>
 
             {/* Strain Pill */}
-            <div className="flex-shrink-0 min-w-[140px] snap-start">
+            <div className="flex-shrink-0 min-w-[120px] sm:min-w-[140px] snap-start">
               <KpiCard
                 title="Strain"
                 value={formatValue(strain, '', 1)}
@@ -117,7 +117,7 @@ export const InsightStrip: React.FC<InsightStripProps> = ({
                 delta={getTrendDelta(strain, strain ? strain + 1.2 : null)}
                 layout="horizontal"
                 onClick={strainModal.open}
-                className="h-16 border-l-2 hover:bg-white/10 transition-colors cursor-pointer"
+                className="h-14 sm:h-16 border-l-2 hover:bg-white/10 transition-colors cursor-pointer"
                 style={{ 
                   borderLeftColor: safeGetMetricColor('strain', 'primary'),
                   backgroundColor: safeGetMetricColor('strain', 'bg')

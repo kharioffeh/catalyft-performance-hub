@@ -31,7 +31,7 @@ export const MobileKpiGrid: React.FC<MobileKpiGridProps> = ({
       {/* Vertical scroll container */}
       <div className="overflow-y-auto scrollbar-hide">
         {/* Two-column grid with consistent spacing */}
-        <div className="grid grid-cols-2 gap-4 px-4 pt-4 pb-6">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 px-3 sm:px-4 pt-3 sm:pt-4 pb-4 sm:pb-6">
           {data.map((item) => (
             <KpiTile
               key={item.id}

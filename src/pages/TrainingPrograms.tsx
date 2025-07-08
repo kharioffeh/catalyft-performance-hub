@@ -75,7 +75,7 @@ const TrainingPrograms = () => {
   const totalExercises = exercises.length;
 
   return (
-    <div className="space-y-6 p-4 md:p-8">
+    <div className="space-y-4 sm:space-y-6 px-3 py-4 sm:px-4 sm:py-4 md:px-8 md:py-8">
       {/* Header Card */}
       <GlassCard className="p-6">
         <TrainingProgramsHeader 

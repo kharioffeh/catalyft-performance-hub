@@ -59,26 +59,36 @@ export const MasonryGrid: React.FC<MasonryGridProps> = ({
       <style>{`
         .masonry-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-          gap: 1rem;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 0.75rem;
           grid-auto-rows: auto;
         }
         
-        @media (min-width: 640px) {
+        @media (max-width: 640px) {
           .masonry-grid {
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
           }
         }
         
-        @media (min-width: 768px) {
+        @media (min-width: 640px) and (max-width: 768px) {
           .masonry-grid {
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 0.75rem;
+          }
+        }
+        
+        @media (min-width: 768px) and (max-width: 1024px) {
+          .masonry-grid {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
           }
         }
         
         @media (min-width: 1024px) {
           .masonry-grid {
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1rem;
           }
         }
       `}</style>

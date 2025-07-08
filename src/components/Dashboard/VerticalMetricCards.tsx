@@ -100,7 +100,7 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
 
   // Use mobile grid only on phones (≤414px)
   if (isPhone) {
-    return <MobileKpiGrid data={mobileKpiData} />;
+    return <MobileKpiGrid data={mobileKpiData} className="w-full" />;
   }
 
   // Desktop vertical layout

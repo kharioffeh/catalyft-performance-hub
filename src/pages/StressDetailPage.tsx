@@ -106,7 +106,7 @@ export default function StressDetailPage() {
         strain={latestStrainValue}
       />
 
-      <div className="p-6 max-w-5xl mx-auto space-y-6">
+      <div className="px-3 py-4 sm:px-6 sm:py-6 max-w-sm sm:max-w-md lg:max-w-5xl mx-auto space-y-4 sm:space-y-6">
         {/* Hero Section */}
         <AnalyticsHeroSection
           icon={Brain}
