@@ -1,22 +1,25 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { TrainingCalendar } from '@/components/TrainingCalendar';
 import { TrainingProgramsPager } from '@/components/TrainingPrograms/TrainingProgramsPager';
 import { TrainingSessionsList } from '@/components/training/TrainingSessionsList';
 import { TrainingPlanner } from '@/components/training/TrainingPlanner';
+import { GoalIntakeWizard } from '@/components/training/GoalIntakeWizard';
 import { GlassCard } from '@/components/ui';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProgramTemplates } from '@/hooks/useProgramTemplates';
 import { useWorkoutTemplates } from '@/hooks/useWorkoutTemplates';
 import { useSessions } from '@/hooks/useSessions';
 import { useQueryClient } from '@tanstack/react-query';
-import { Calendar, Dumbbell, Clock, Target } from 'lucide-react';
+import { Calendar, Dumbbell, Clock, Target, Plus } from 'lucide-react';
 
 const Training: React.FC = () => {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('calendar');
+  const [goalWizardOpen, setGoalWizardOpen] = useState(false);
 
   const { data: programs = [] } = useProgramTemplates();
   const { data: workoutTemplates = [] } = useWorkoutTemplates();
@@ -127,10 +130,21 @@ const Training: React.FC = () => {
   return (
     <div className="space-y-6 p-4 md:p-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white mb-2">Training</h1>
-        <p className="text-white/70">
-          Manage your training programs, schedule sessions, and track progress with ARIA insights
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white mb-2">Training</h1>
+            <p className="text-white/70">
+              Manage your training programs, schedule sessions, and track progress with ARIA insights
+            </p>
+          </div>
+          <Button
+            onClick={() => setGoalWizardOpen(true)}
+            className="flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Set Goal
+          </Button>
+        </div>
       </div>
 
       <GlassCard className="p-6">
@@ -162,6 +176,11 @@ const Training: React.FC = () => {
           ))}
         </Tabs>
       </GlassCard>
+
+      <GoalIntakeWizard
+        open={goalWizardOpen}
+        onOpenChange={setGoalWizardOpen}
+      />
     </div>
   );
 };
