@@ -3,8 +3,10 @@ import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { InsightStrip } from '@/components/Analytics/InsightStrip';
 import { SegmentedControl } from '@/components/Analytics/SegmentedControl';
+import { AnalyticsHeroSection } from '@/components/Analytics/AnalyticsHeroSection';
 import { useStress } from '@/hooks/useStress';
 import { useEnhancedMetricsWithAthlete } from '@/hooks/useEnhancedMetricsWithAthlete';
+import { Brain } from 'lucide-react';
 
 // Lazy load segment components for stress analysis
 const StressTrendView = React.lazy(() => import('@/components/Analytics/Stress/TrendView').then(module => ({ default: module.TrendView })));
@@ -45,6 +47,30 @@ export default function StressDetailPage() {
     setSearchParams({ period: String(p), segment: activeSegment });
   };
 
+  // Get current stress score and color
+  const currentScore = stressData?.current || null;
+  const getScoreColor = (score: number | null) => {
+    if (!score) return '#6b7280';
+    if (score <= 30) return '#10b981'; // Green - Low stress
+    if (score <= 60) return '#f59e0b'; // Yellow - Moderate stress
+    return '#ef4444'; // Red - High stress
+  };
+
+  // Generate 7-day sparkline data (mock for now - replace with actual data)
+  const sparklineData = Array.from({ length: 7 }, (_, i) => ({ 
+    value: Math.random() * 100 
+  }));
+
+  // Calculate trend (mock for now)
+  const getTrend = () => {
+    if (sparklineData.length < 2) return 'stable';
+    const first = sparklineData[0].value;
+    const last = sparklineData[sparklineData.length - 1].value;
+    if (last > first) return 'up';
+    if (last < first) return 'down';
+    return 'stable';
+  };
+
   // Handler to change segment
   const changeSegment = (segment: string) => {
     setActiveSegment(segment);
@@ -81,28 +107,18 @@ export default function StressDetailPage() {
       />
 
       <div className="p-6 max-w-5xl mx-auto space-y-6">
-        {/* Page Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-50">Stress Analysis</h1>
-            <p className="text-slate-50">Monitor daily stress patterns and recovery insights</p>
-          </div>
-          
-          {/* Period selector */}
-          <div className="flex space-x-2">
-            {[7, 30, 90].map((d) => (
-              <button
-                key={d}
-                className={`px-3 py-1 rounded ${
-                  period === d ? "bg-blue-600 text-white" : "bg-gray-200 hover:bg-gray-300"
-                }`}
-                onClick={() => changePeriod(d as 7 | 30 | 90)}
-              >
-                {d}d
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* Hero Section */}
+        <AnalyticsHeroSection
+          icon={Brain}
+          title="Stress Analysis" 
+          description="Monitor daily stress patterns and recovery insights"
+          currentScore={currentScore}
+          scoreColor={getScoreColor(currentScore)}
+          sparklineData={sparklineData}
+          trend={getTrend()}
+          period={period}
+          onPeriodChange={changePeriod}
+        />
 
         {/* Segmented Control */}
         <SegmentedControl

@@ -4,8 +4,10 @@ import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { InsightStrip } from '@/components/Analytics/InsightStrip';
 import { SegmentedControl } from '@/components/Analytics/SegmentedControl';
+import { AnalyticsHeroSection } from '@/components/Analytics/AnalyticsHeroSection';
 import { useMetricData } from '@/hooks/useMetricData';
 import { useEnhancedMetricsWithAthlete } from '@/hooks/useEnhancedMetricsWithAthlete';
+import { Dumbbell } from 'lucide-react';
 
 // Lazy load segment components
 const TrendView = React.lazy(() => import('@/components/Analytics/Load/TrendView').then(module => ({ default: module.TrendView })));
@@ -46,6 +48,30 @@ export default function LoadDetailPage() {
     setSearchParams({ period: String(p), segment: activeSegment });
   };
 
+  // Get current load and ACWR score
+  const currentLoad = loadACWR[loadACWR.length - 1]?.acwr_7_28 || null;
+  const getScoreColor = (acwr: number | null) => {
+    if (!acwr) return '#6b7280';
+    if (acwr >= 0.8 && acwr <= 1.3) return '#10b981'; // Green - Optimal
+    if (acwr <= 1.5) return '#f59e0b'; // Yellow - Caution
+    return '#ef4444'; // Red - High risk
+  };
+
+  // Generate 7-day sparkline data for ACWR
+  const sparklineData = loadACWR.slice(-7).map(item => ({ 
+    value: item.acwr_7_28 || 0 
+  }));
+
+  // Calculate trend
+  const getTrend = () => {
+    if (sparklineData.length < 2) return 'stable';
+    const first = sparklineData[0].value;
+    const last = sparklineData[sparklineData.length - 1].value;
+    if (last > first) return 'up';
+    if (last < first) return 'down';
+    return 'stable';
+  };
+
   // Handler to change segment
   const changeSegment = (segment: string) => {
     setActiveSegment(segment);
@@ -82,28 +108,19 @@ export default function LoadDetailPage() {
       />
 
       <div className="p-6 max-w-5xl mx-auto space-y-6">
-        {/* Page Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Training Load Analysis</h1>
-            <p className="text-gray-600">Detailed training load trends and ACWR monitoring</p>
-          </div>
-          
-          {/* Period selector */}
-          <div className="flex space-x-2">
-            {[7, 30, 90].map((d) => (
-              <button
-                key={d}
-                className={`px-3 py-1 rounded ${
-                  period === d ? "bg-blue-600 text-white" : "bg-gray-200 hover:bg-gray-300"
-                }`}
-                onClick={() => changePeriod(d as 7 | 30 | 90)}
-              >
-                {d}d
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* Hero Section */}
+        <AnalyticsHeroSection
+          icon={Dumbbell}
+          title="Training Load Analysis"
+          description="Detailed training load trends and ACWR monitoring"
+          currentScore={currentLoad}
+          scoreUnit=""
+          scoreColor={getScoreColor(currentLoad)}
+          sparklineData={sparklineData}
+          trend={getTrend()}
+          period={period}
+          onPeriodChange={changePeriod}
+        />
 
         {/* Segmented Control */}
         <SegmentedControl

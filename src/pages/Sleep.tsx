@@ -1,17 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSleep } from '@/hooks/useSleep';
 import { SleepScoreCard } from '@/components/sleep/SleepScoreCard';
 import { Hypnogram } from '@/components/sleep/Hypnogram';
 import { PeriodProvider } from '@/lib/hooks/usePeriod';
 import { InsightStrip } from '@/components/Analytics/InsightStrip';
+import { AnalyticsHeroSection } from '@/components/Analytics/AnalyticsHeroSection';
+import { SegmentedControl } from '@/components/Analytics/SegmentedControl';
 import { useEnhancedMetricsWithAthlete } from '@/hooks/useEnhancedMetricsWithAthlete';
 import { useAuth } from '@/contexts/AuthContext';
-import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Moon } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const SleepContent: React.FC = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const periodParam = Number(searchParams.get("period")) || 30;
+  const segmentParam = searchParams.get("segment") || "overview";
+  const [period, setPeriod] = useState<7 | 30 | 90>(
+    periodParam === 7 ? 7 : periodParam === 90 ? 90 : 30
+  );
+  const [activeSegment, setActiveSegment] = useState(segmentParam);
+
   const { 
     getLastNightSleep, 
     getSleepScore, 
@@ -31,6 +41,42 @@ const SleepContent: React.FC = () => {
   const latestSleepHours = sleepDaily[sleepDaily.length - 1]?.total_sleep_hours ?? null;
   const latestStress = 45; // Mock stress value for now
   const latestStrainValue = latestStrain?.value ?? null;
+
+  // Handler to change period and update URL
+  const changePeriod = (p: 7 | 30 | 90) => {
+    setPeriod(p);
+    setSearchParams({ period: String(p), segment: activeSegment });
+  };
+
+  // Handler to change segment
+  const changeSegment = (segment: string) => {
+    setActiveSegment(segment);
+    setSearchParams({ period: String(period), segment });
+  };
+
+  // Get current sleep efficiency score
+  const currentScore = lastNightSleep?.sleepEfficiency || sleepScore;
+  const getScoreColor = (score: number | null) => {
+    if (!score) return '#6b7280';
+    if (score >= 85) return '#10b981'; // Green - Excellent
+    if (score >= 70) return '#f59e0b'; // Yellow - Good
+    return '#ef4444'; // Red - Poor
+  };
+
+  // Generate 7-day sparkline data from sleep daily data
+  const sparklineData = sleepDaily.slice(-7).map(item => ({ 
+    value: item.sleep_efficiency || 0 
+  }));
+
+  // Calculate trend
+  const getTrend = () => {
+    if (sparklineData.length < 2) return 'stable';
+    const first = sparklineData[0].value;
+    const last = sparklineData[sparklineData.length - 1].value;
+    if (last > first) return 'up';
+    if (last < first) return 'down';
+    return 'stable';
+  };
 
   if (isLoading) {
     return (
@@ -62,12 +108,26 @@ const SleepContent: React.FC = () => {
           </button>
         </div>
         
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-white">Sleep Analysis</h1>
-          <p className="text-white/70">
-            Track your sleep quality and understand your nightly patterns
-          </p>
-        </div>
+        {/* Hero Section */}
+        <AnalyticsHeroSection
+          icon={Moon}
+          title="Sleep Analysis"
+          description="Track your sleep quality and understand your nightly patterns"
+          currentScore={currentScore}
+          scoreUnit="%"
+          scoreColor={getScoreColor(currentScore)}
+          sparklineData={sparklineData}
+          trend={getTrend()}
+          period={period}
+          onPeriodChange={changePeriod}
+        />
+
+        {/* Segmented Control */}
+        <SegmentedControl
+          segments={['Overview', 'Trends', 'Analysis']}
+          activeSegment={activeSegment}
+          onSegmentChange={changeSegment}
+        />
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

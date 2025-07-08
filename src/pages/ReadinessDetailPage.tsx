@@ -4,8 +4,10 @@ import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { InsightStrip } from '@/components/Analytics/InsightStrip';
 import { SegmentedControl } from '@/components/Analytics/SegmentedControl';
+import { AnalyticsHeroSection } from '@/components/Analytics/AnalyticsHeroSection';
 import { useMetricData } from '@/hooks/useMetricData';
 import { useEnhancedMetricsWithAthlete } from '@/hooks/useEnhancedMetricsWithAthlete';
+import { Activity } from 'lucide-react';
 
 // Lazy load segment components
 const TrendView = React.lazy(() => import('@/components/Analytics/Readiness/TrendView').then(module => ({ default: module.TrendView })));
@@ -46,6 +48,30 @@ export default function ReadinessDetailPage() {
     setSearchParams({ period: String(p), segment: activeSegment });
   };
 
+  // Get current score and trend data
+  const currentScore = latestReadiness;
+  const getScoreColor = (score: number | null) => {
+    if (!score) return '#6b7280';
+    if (score >= 85) return '#10b981'; // Green
+    if (score >= 70) return '#f59e0b'; // Yellow  
+    return '#ef4444'; // Red
+  };
+
+  // Generate 7-day sparkline data (mock for now - replace with actual data)
+  const sparklineData = readinessRolling.slice(-7).map(item => ({ 
+    value: item.readiness_score || 0 
+  }));
+
+  // Calculate trend
+  const getTrend = () => {
+    if (sparklineData.length < 2) return 'stable';
+    const first = sparklineData[0].value;
+    const last = sparklineData[sparklineData.length - 1].value;
+    if (last > first) return 'up';
+    if (last < first) return 'down';
+    return 'stable';
+  };
+
   // Handler to change segment
   const changeSegment = (segment: string) => {
     setActiveSegment(segment);
@@ -82,28 +108,18 @@ export default function ReadinessDetailPage() {
       />
 
       <div className="p-6 max-w-5xl mx-auto space-y-6">
-        {/* Page Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-50">Readiness Analysis</h1>
-            <p className="text-slate-50">Detailed readiness trends and contributing factors</p>
-          </div>
-          
-          {/* Period selector */}
-          <div className="flex space-x-2">
-            {[7, 30, 90].map((d) => (
-              <button
-                key={d}
-                className={`px-3 py-1 rounded ${
-                  period === d ? "bg-blue-600 text-white" : "bg-gray-200 hover:bg-gray-300"
-                }`}
-                onClick={() => changePeriod(d as 7 | 30 | 90)}
-              >
-                {d}d
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* Hero Section */}
+        <AnalyticsHeroSection
+          icon={Activity}
+          title="Readiness Analysis"
+          description="Detailed readiness trends and contributing factors"
+          currentScore={currentScore}
+          scoreColor={getScoreColor(currentScore)}
+          sparklineData={sparklineData}
+          trend={getTrend()}
+          period={period}
+          onPeriodChange={changePeriod}
+        />
 
         {/* Segmented Control */}
         <SegmentedControl
