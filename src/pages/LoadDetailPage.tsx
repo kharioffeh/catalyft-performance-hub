@@ -58,7 +58,7 @@ export default function LoadDetailPage() {
         <InsightStrip
           readiness={latestReadiness}
           sleepHours={latestSleepHours}
-          acwr={latestACWR}
+          stress={45}
           strain={latestStrainValue}
         />
         <div className="p-6 max-w-5xl mx-auto">
@@ -77,7 +77,7 @@ export default function LoadDetailPage() {
       <InsightStrip
         readiness={latestReadiness}
         sleepHours={latestSleepHours}
-        acwr={latestACWR}
+        stress={45}
         strain={latestStrainValue}
       />
 

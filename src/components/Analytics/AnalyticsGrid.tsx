@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { HeatMapBody } from '@/components/Analytics/Glass/HeatMapBody';
-import { ACWRDial } from '@/components/Analytics/Glass/ACWRDial';
+import { StressGauge } from '@/components/Dashboard/StressGauge';
 import { InsightPanel } from '@/components/aria/InsightPanel';
 import { usePeriod } from '@/lib/hooks/usePeriod';
 
@@ -33,11 +33,11 @@ export const AnalyticsGrid: React.FC<AnalyticsGridProps> = ({
         </div>
       </div>
       
-      {/* ACWR Dial - 42% width on desktop, full width on mobile */}
+      {/* Stress Gauge - 42% width on desktop, full width on mobile */}
       <div className="col-span-12 lg:col-span-5">
         <div className="aspect-video md:aspect-auto flex items-center justify-center">
           <div className="w-full max-w-[280px]">
-            <ACWRDial large period={period} />
+            <StressGauge value={45} size="large" />
           </div>
         </div>
       </div>

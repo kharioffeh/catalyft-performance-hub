@@ -5,7 +5,7 @@ import { KpiCard } from '@/components/ui/KpiCard';
 import { MobileKpiGrid } from './MobileKpiGrid';
 import { useIsPhone } from '@/hooks/useBreakpoint';
 import { useMetrics } from '@/hooks/useMetrics';
-import { useAcwr } from '@/hooks/useAcwr';
+import { useStress } from '@/hooks/useStress';
 
 interface VerticalMetricCardsProps {
   currentReadiness: any;
@@ -22,7 +22,7 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
 }) => {
   const isPhone = useIsPhone();
   const { data: metricsData, isLoading: metricsLoading } = useMetrics();
-  const { data: acwrValue, isLoading: acwrLoading } = useAcwr();
+  const { data: stressData, isLoading: stressLoading } = useStress();
 
   const getRecoveryValue = () => {
     if (metricsData?.recovery) return `${Math.round(metricsData.recovery)}%`;
@@ -35,9 +35,9 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
     return '--';
   };
 
-  const getACWRValue = () => {
-    if (acwrValue) return acwrValue.toFixed(1);
-    return '1.2'; // Mock fallback
+  const getStressValue = () => {
+    if (stressData?.current) return stressData.current.toString();
+    return '45'; // Mock fallback
   };
 
   const getRiskLevel = (probabilities: any) => {
@@ -74,12 +74,12 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
       isLoading: metricsLoading || !metricsData
     },
     {
-      id: 'acwr',
-      title: 'ACWR',
-      value: getACWRValue(),
+      id: 'stress',
+      title: 'Stress',
+      value: getStressValue(),
       icon: Target,
-      color: 'text-orange-600',
-      isLoading: acwrLoading
+      color: 'text-blue-600',
+      isLoading: stressLoading
     },
     {
       id: 'sessions',
@@ -124,12 +124,12 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
         layout="vertical"
       />
 
-      {/* ACWR Card */}
+      {/* Stress Card */}
       <KpiCard
-        title="ACWR"
-        value={getACWRValue()}
+        title="Stress"
+        value={getStressValue()}
         icon={Target}
-        isLoading={acwrLoading}
+        isLoading={stressLoading}
         layout="vertical"
       />
 

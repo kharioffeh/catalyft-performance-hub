@@ -152,7 +152,7 @@ const AnalyticsPageContent: React.FC = () => {
       <InsightStrip
         readiness={latestReadiness}
         sleepHours={latestSleepHours}
-        acwr={latestACWR}
+        stress={45}
         strain={latestStrainValue}
       />
 

@@ -9,7 +9,7 @@ import { KpiDrillModal } from '../analytics/KpiDrillModal';
 interface InsightStripProps {
   readiness: number | null;
   sleepHours: number | null;
-  acwr: number | null;
+  stress: number | null;
   strain: number | null;
   className?: string;
 }
@@ -17,7 +17,7 @@ interface InsightStripProps {
 export const InsightStrip: React.FC<InsightStripProps> = ({
   readiness,
   sleepHours,
-  acwr,
+  stress,
   strain,
   className = ""
 }) => {
@@ -26,7 +26,7 @@ export const InsightStrip: React.FC<InsightStripProps> = ({
   const loadModal = useDisclosure();
   const strainModal = useDisclosure();
 
-  console.log('InsightStrip values:', { readiness, sleepHours, acwr, strain });
+  console.log('InsightStrip values:', { readiness, sleepHours, stress, strain });
 
   const formatValue = (value: number | null, unit: string = '', decimals: number = 0) => {
     if (value === null || value === undefined) return '--';
@@ -91,19 +91,19 @@ export const InsightStrip: React.FC<InsightStripProps> = ({
               />
             </div>
 
-            {/* ACWR Pill */}
+            {/* Stress Pill */}
             <div className="flex-shrink-0 min-w-[140px] snap-start">
               <KpiCard
-                title="ACWR"
-                value={formatValue(acwr, '', 1)}
+                title="Stress"
+                value={formatValue(stress, '', 0)}
                 icon={Target}
-                delta={getTrendDelta(acwr, acwr ? acwr + 0.1 : null)}
+                delta={getTrendDelta(stress, stress ? stress - 5 : null)}
                 layout="horizontal"
                 onClick={loadModal.open}
                 className="h-16 border-l-2 hover:bg-white/10 transition-colors cursor-pointer"
                 style={{ 
-                  borderLeftColor: safeGetMetricColor('load', 'primary'),
-                  backgroundColor: safeGetMetricColor('load', 'bg')
+                  borderLeftColor: safeGetMetricColor('stress', 'primary'),
+                  backgroundColor: safeGetMetricColor('stress', 'bg')
                 }}
               />
             </div>

@@ -29,7 +29,7 @@ const SleepContent: React.FC = () => {
   // Extract values for InsightStrip
   const latestReadiness = readinessRolling[readinessRolling.length - 1]?.readiness_score ?? null;
   const latestSleepHours = sleepDaily[sleepDaily.length - 1]?.total_sleep_hours ?? null;
-  const latestACWR = loadACWR[loadACWR.length - 1]?.acwr_7_28 ?? null;
+  const latestStress = 45; // Mock stress value for now
   const latestStrainValue = latestStrain?.value ?? null;
 
   if (isLoading) {
@@ -46,7 +46,7 @@ const SleepContent: React.FC = () => {
       <InsightStrip
         readiness={latestReadiness}
         sleepHours={latestSleepHours}
-        acwr={latestACWR}
+        stress={latestStress}
         strain={latestStrainValue}
       />
       

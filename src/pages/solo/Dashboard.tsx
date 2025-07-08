@@ -8,7 +8,7 @@ import { ConnectWearableModal } from '@/components/ConnectWearableModal';
 import { MobileKpiGrid } from '@/components/Dashboard/MobileKpiGrid';
 import { RecoveryCard } from '@/components/Dashboard/RecoveryCard';
 import { StrainCard } from '@/components/Dashboard/StrainCard';
-import { ACWRLoadCard } from '@/components/Dashboard/ACWRLoadCard';
+import { StressCard } from '@/components/Dashboard/StressCard';
 import { InsightToastContainer } from '@/components/ui/InsightToastContainer';
 import { useMetrics } from '@/hooks/useMetrics';
 import { useAriaInsights } from '@/hooks/useAriaInsights';
@@ -61,11 +61,11 @@ const SoloDashboard: React.FC = () => {
       isLoading: metricsLoading
     },
     {
-      id: 'acwr',
-      title: 'ACWR',
-      value: '1.2', // Mock value - this would come from useAcwr hook
+      id: 'stress',
+      title: 'Stress',
+      value: '45', // Mock value - this would come from useStress hook
       icon: Target,
-      color: 'text-orange-400',
+      color: 'text-blue-400',
       isLoading: false
     }
   ];
@@ -146,10 +146,10 @@ const SoloDashboard: React.FC = () => {
               </SuspenseWrapper>
             </AnimatedCard>
 
-            {/* ACWR Load Card - Enhanced with gauge and chart */}
+            {/* Stress Card - Enhanced with gauge */}
             <AnimatedCard delay={0.4}>
-              <SuspenseWrapper fallback={<SkeletonChart className="bg-orange-500/10 border-orange-400/30 h-80" showAxes={false} />}>
-                <ACWRLoadCard />
+              <SuspenseWrapper fallback={<SkeletonChart className="bg-blue-500/10 border-blue-400/30 h-80" showAxes={false} />}>
+                <StressCard />
               </SuspenseWrapper>
             </AnimatedCard>
           </div>

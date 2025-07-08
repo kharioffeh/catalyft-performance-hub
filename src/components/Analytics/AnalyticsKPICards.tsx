@@ -7,14 +7,14 @@ import { Activity, Moon, Target, Zap } from 'lucide-react';
 interface AnalyticsKPICardsProps {
   readinessData: any;
   sleepData: any;
-  loadData: any;
+  stressData: any;
   latestStrain: any;
 }
 
 export const AnalyticsKPICards: React.FC<AnalyticsKPICardsProps> = ({
   readinessData,
   sleepData,
-  loadData,
+  stressData,
   latestStrain
 }) => {
   const navigate = useNavigate();
@@ -49,15 +49,15 @@ export const AnalyticsKPICards: React.FC<AnalyticsKPICardsProps> = ({
         isLoading={!sleepData}
       />
       <KpiCard
-        title="ACWR Ratio"
-        value={loadData?.latestAcwr ? loadData.latestAcwr.toFixed(1) : '--'}
+        title="Stress Level"
+        value={stressData?.current ? stressData.current.toString() : '--'}
         icon={Target}
-        delta={loadData?.delta7d ? {
-          value: formatDelta(loadData.delta7d),
-          positive: loadData.delta7d >= 0
+        delta={stressData?.trend ? {
+          value: stressData.trend === 'increasing' ? '+High' : stressData.trend === 'decreasing' ? '-Low' : 'Stable',
+          positive: stressData.trend === 'decreasing'
         } : undefined}
-        onClick={() => navigate('/analytics/load')}
-        isLoading={!loadData}
+        onClick={() => navigate('/stress')}
+        isLoading={!stressData}
       />
       <KpiCard
         title="Latest Strain"

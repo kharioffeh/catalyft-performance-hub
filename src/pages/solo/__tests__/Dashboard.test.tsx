@@ -6,7 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 import SoloDashboard from '../Dashboard';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLastSessionLoad } from '@/hooks/useLastSessionLoad';
-import { useAcwr } from '@/hooks/useAcwr';
+import { useStress } from '@/hooks/useStress';
 import { useAriaInsights } from '@/hooks/useAriaInsights';
 import { useDashboardData } from '@/hooks/useDashboardData';
 
@@ -16,13 +16,13 @@ import '@testing-library/jest-dom';
 // Mock the hooks
 jest.mock('@/contexts/AuthContext');
 jest.mock('@/hooks/useLastSessionLoad');
-jest.mock('@/hooks/useAcwr');
+jest.mock('@/hooks/useStress');
 jest.mock('@/hooks/useAriaInsights');
 jest.mock('@/hooks/useDashboardData');
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 const mockUseLastSessionLoad = useLastSessionLoad as jest.MockedFunction<typeof useLastSessionLoad>;
-const mockUseAcwr = useAcwr as jest.MockedFunction<typeof useAcwr>;
+const mockUseStress = useStress as jest.MockedFunction<typeof useStress>;
 const mockUseAriaInsights = useAriaInsights as jest.MockedFunction<typeof useAriaInsights>;
 const mockUseDashboardData = useDashboardData as jest.MockedFunction<typeof useDashboardData>;
 
@@ -75,8 +75,8 @@ describe('SoloDashboard', () => {
       error: null
     } as any);
 
-    mockUseAcwr.mockReturnValue({
-      data: 1.2,
+    mockUseStress.mockReturnValue({
+      data: { current: 45, average7d: 42, trend: 'stable', level: 'moderate', dailyReadings: [] },
       isLoading: false,
       error: null
     } as any);
@@ -96,9 +96,9 @@ describe('SoloDashboard', () => {
     const { getByText } = renderWithProviders(<SoloDashboard />);
 
     // Check for all five main cards
-    expect(getByText('Readiness')).toBeInTheDocument();
-    expect(getByText('Last Load')).toBeInTheDocument();
-    expect(getByText('ACWR')).toBeInTheDocument();
+    expect(getByText('Recovery')).toBeInTheDocument();
+    expect(getByText('Strain')).toBeInTheDocument();
+    expect(getByText('Daily Stress')).toBeInTheDocument();
     expect(getByText('ARIA Insights')).toBeInTheDocument();
     expect(getByText('Muscle Load')).toBeInTheDocument();
   });

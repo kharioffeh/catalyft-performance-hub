@@ -1,7 +1,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useMetrics } from './useMetrics';
-import { useAcwr } from './useAcwr';
+import { useStress } from './useStress';
 import { InsightToastData } from '@/components/ui/InsightToast';
 
 interface InsightToastManager {
@@ -20,7 +20,7 @@ export const useInsightToasts = (): InsightToastManager => {
   const shownInsights = useRef<Set<string>>(new Set());
   
   const { data: metricsData } = useMetrics();
-  const { data: acwrValue } = useAcwr();
+  const { data: stressData } = useStress();
 
   const generateInsightMessage = (type: string, value: number | null, severity: 'green' | 'amber' | 'red'): string => {
     switch (type) {
@@ -124,25 +124,22 @@ export const useInsightToasts = (): InsightToastManager => {
     }
   }, [metricsData, showInsight]);
 
-  // ACWR insights
+  // Stress insights
   useEffect(() => {
-    if (acwrValue !== null && acwrValue !== undefined) {
+    if (stressData && stressData.current !== null && stressData.current !== undefined) {
       let severity: 'green' | 'amber' | 'red' = 'green';
       
-      if (acwrValue > 1.3 || acwrValue < 0.8) {
-        severity = acwrValue > 2.0 ? 'red' : 'amber';
+      if (stressData.current > 70) {
+        severity = stressData.current > 85 ? 'red' : 'amber';
         
-        const message = generateInsightMessage('acwr', acwrValue, severity);
-        if (message) {
-          showInsight({
-            message,
-            type: 'acwr',
-            severity
-          });
-        }
+        showInsight({
+          message: `Stress level ${stressData.current} — consider relaxation techniques`,
+          type: 'general',
+          severity
+        });
       }
     }
-  }, [acwrValue, showInsight]);
+  }, [stressData, showInsight]);
 
   return {
     insights,
