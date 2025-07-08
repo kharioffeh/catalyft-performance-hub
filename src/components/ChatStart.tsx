@@ -24,7 +24,7 @@ function useVantaBackground(ref: React.RefObject<HTMLDivElement>) {
   }, [ref]);
 }
 
-export function ChatStart() {
+export const ChatStart = React.memo(() => {
   const navigate = useNavigate();
   const bgRef = useRef<HTMLDivElement>(null);
   useVantaBackground(bgRef);
@@ -223,4 +223,4 @@ export function ChatStart() {
       </main>
     </div>
   );
-}
+});

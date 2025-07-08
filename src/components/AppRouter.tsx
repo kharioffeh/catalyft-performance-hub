@@ -24,7 +24,7 @@ const ForgotPasswordPage = React.lazy(() => import('../pages/Auth'));
 const ResetPasswordPage = React.lazy(() => import('../pages/Auth'));
 const FinishSignupPage = React.lazy(() => import('../pages/FinishSignup'));
 const CalendarPage = React.lazy(() => import('../pages/Calendar'));
-const ChatPage = React.lazy(() => import('../pages/Chat'));
+const ChatPage = React.lazy(() => import('../pages/Chat').then(module => ({ default: module.Chat })));
 const HomePage = React.lazy(() => import('../pages/Home'));
 const OAuthCallback = React.lazy(() => import('../pages/OAuthCallback'));
 const SoloProgramPage = React.lazy(() => import('../pages/solo/ProgramPage'));

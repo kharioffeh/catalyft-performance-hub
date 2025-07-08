@@ -18,7 +18,7 @@ const SUGGESTED_PROMPTS = [
   "Analyze my performance trends"
 ];
 
-export function ChatThread() {
+export const ChatThread = React.memo(() => {
   const {
     messages,
     draft,
@@ -101,4 +101,4 @@ export function ChatThread() {
       </div>
     </div>
   );
-}
+});
