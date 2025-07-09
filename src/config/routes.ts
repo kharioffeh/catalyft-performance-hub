@@ -34,19 +34,7 @@ export const NAV_ROUTES: NavItem[] = [
     label: "Analytics",
     path: "/analytics",
     icon: BarChart3,
-    roles: ["coach", "athlete"],
-    children: [
-      { label: "Overview", path: "/analytics", icon: BarChart3 },
-      { label: "Readiness", path: "/analytics/readiness", icon: BarChart3 },
-      { label: "Sleep", path: "/sleep", icon: BarChart3 },
-      { label: "Load", path: "/analytics/load", icon: BarChart3 },
-      { label: "Stress", path: "/stress", icon: Target }
-    ]
-  },
-  { 
-    label: "Stress", 
-    path: "/stress", 
-    icon: Target 
+    roles: ["coach", "athlete"]
   },
   { 
     label: "Calendar", 
@@ -67,7 +55,7 @@ export const NAV_ROUTES: NavItem[] = [
     roles: ["coach"] 
   },
   { 
-    label: "Training Programs", 
+    label: "Training", 
     path: "/training-programs", 
     icon: BookOpen, 
     roles: ["coach"] 

@@ -87,12 +87,12 @@ const AppRouter = () => {
           <Route path="training" element={<Navigate to="/training-programs" replace />} />
           <Route path="training/live" element={<LiveSessionPage />} />
           <Route path="nutrition" element={<NutritionPage />} />
-          <Route path="sleep" element={<SleepPage />} />
-          <Route path="stress" element={<StressDetailPage />} />
+          <Route path="sleep" element={<Navigate to="/analytics" replace />} />
+          <Route path="stress" element={<Navigate to="/analytics" replace />} />
           <Route path="analytics" element={<AnalyticsPage />} />
-          <Route path="analytics/readiness" element={<ReadinessDetailPage />} />
-          <Route path="analytics/sleep" element={<Navigate to="/sleep" replace />} />
-          <Route path="analytics/load" element={<LoadDetailPage />} />
+          <Route path="analytics/readiness" element={<Navigate to="/analytics" replace />} />
+          <Route path="analytics/sleep" element={<Navigate to="/analytics" replace />} />
+          <Route path="analytics/load" element={<Navigate to="/analytics" replace />} />
           <Route path="athletes" element={
             <ProtectedRoute roles={['coach']}>
               <AthletesPage />
