@@ -5,7 +5,8 @@ import {
   Minus,
   Edit3,
   Check,
-  X
+  X,
+  Settings
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,12 +29,14 @@ export interface FoodItem {
 interface FoodListEditorProps {
   foods: FoodItem[];
   onChange: (foods: FoodItem[]) => void;
+  onSwapFood?: (foodId: string) => void;
   className?: string;
 }
 
 export const FoodListEditor: React.FC<FoodListEditorProps> = ({
   foods,
   onChange,
+  onSwapFood,
   className
 }) => {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -186,11 +189,23 @@ export const FoodListEditor: React.FC<FoodListEditorProps> = ({
                     </div>
                     
                     <div className="flex items-center gap-2">
+                      {onSwapFood && (
+                        <Button
+                          onClick={() => onSwapFood(food.id)}
+                          size="icon"
+                          variant="ghost"
+                          className="text-orange-400 hover:bg-orange-400/20 w-8 h-8"
+                          title="Swap food"
+                        >
+                          <Settings className="w-3 h-3" />
+                        </Button>
+                      )}
                       <Button
                         onClick={() => startEditing(food)}
                         size="icon"
                         variant="ghost"
                         className="text-white/70 hover:bg-white/20 w-8 h-8"
+                        title="Edit food"
                       >
                         <Edit3 className="w-3 h-3" />
                       </Button>
@@ -199,6 +214,7 @@ export const FoodListEditor: React.FC<FoodListEditorProps> = ({
                         size="icon"
                         variant="ghost"
                         className="text-red-400 hover:bg-red-400/20 w-8 h-8"
+                        title="Remove food"
                       >
                         <Trash2 className="w-3 h-3" />
                       </Button>

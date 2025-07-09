@@ -145,6 +145,12 @@ export const MealParseScreen: React.FC = () => {
     navigate(-1); // Go back to camera
   };
 
+  const handleSwapFood = (foodId: string) => {
+    // TODO: Open food search/selection modal
+    console.log('Swap food:', foodId);
+    // This could open a modal to search and replace the food item
+  };
+
   const getModeIcon = () => {
     switch (mode) {
       case 'photo':
@@ -299,6 +305,7 @@ export const MealParseScreen: React.FC = () => {
           <FoodListEditor
             foods={foods}
             onChange={setFoods}
+            onSwapFood={handleSwapFood}
           />
 
           {/* Action Buttons */}
