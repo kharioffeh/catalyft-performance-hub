@@ -5,17 +5,19 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { GlassCard } from '@/components/ui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Apple, Plus, TrendingUp, Target, Utensils } from 'lucide-react';
+import { Apple, Plus, TrendingUp, Target, Utensils, Scan } from 'lucide-react';
 import { useNutrition } from '@/hooks/useNutrition';
 import { AddMealDialog } from '@/components/nutrition/AddMealDialog';
 import { MealLogList } from '@/components/nutrition/MealLogList';
 import { FloatingAddButton } from '@/components/nutrition/FloatingAddButton';
 import { MacroRings } from '@/components/nutrition/MacroRings';
 import { NutritionScoreCard } from '@/components/nutrition/NutritionScoreCard';
+import { MealScannerCamera } from '@/components/nutrition/MealScannerCamera';
 
 const Nutrition: React.FC = () => {
   const { meals, addMeal, removeMeal, getTodaysMeals, getTodaysMacros, getMacroTargets, getNutritionScore } = useNutrition();
   const [activeTab, setActiveTab] = useState('overview');
+  const [showScanner, setShowScanner] = useState(false);
 
   const todaysMacros = getTodaysMacros();
   const macroTargets = getMacroTargets();
@@ -207,15 +209,24 @@ const Nutrition: React.FC = () => {
           <TabsContent value="meals" className="mt-0 space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-white">Today's Meals</h3>
-              <AddMealDialog 
-                onAddMeal={addMeal}
-                trigger={
-                  <Button className="bg-white/10 hover:bg-white/20 text-white border-white/20">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Log Meal
-                  </Button>
-                }
-              />
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => setShowScanner(true)}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <Scan className="w-4 h-4 mr-2" />
+                  Scan Meal
+                </Button>
+                <AddMealDialog 
+                  onAddMeal={addMeal}
+                  trigger={
+                    <Button className="bg-white/10 hover:bg-white/20 text-white border-white/20">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Log Meal
+                    </Button>
+                  }
+                />
+              </div>
             </div>
 
             <MealLogList 
@@ -245,6 +256,11 @@ const Nutrition: React.FC = () => {
 
       {/* Floating Add Button for Mobile */}
       <FloatingAddButton onAddMeal={addMeal} />
+
+      {/* Meal Scanner Camera */}
+      {showScanner && (
+        <MealScannerCamera onClose={() => setShowScanner(false)} />
+      )}
     </div>
   );
 };

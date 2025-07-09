@@ -33,6 +33,7 @@ const TemplateDetailPage = React.lazy(() => import('@/pages/TemplateDetailPage')
 const TrainingPlan = React.lazy(() => import('@/pages/TrainingPlan'));
 
 const NutritionPage = React.lazy(() => import('../pages/Nutrition'));
+const MealParseScreen = React.lazy(() => import('../components/nutrition/MealParseScreen'));
 const SleepPage = React.lazy(() => import('../pages/Sleep'));
 const StressDetailPage = React.lazy(() => import('../pages/StressDetailPage'));
 const LiveSessionPage = React.lazy(() => import('../pages/LiveSession'));
@@ -87,6 +88,7 @@ const AppRouter = () => {
           <Route path="training" element={<Navigate to="/training-programs" replace />} />
           <Route path="training/live" element={<LiveSessionPage />} />
           <Route path="nutrition" element={<NutritionPage />} />
+          <Route path="nutrition/parse" element={<MealParseScreen />} />
           <Route path="sleep" element={<Navigate to="/analytics" replace />} />
           <Route path="stress" element={<Navigate to="/analytics" replace />} />
           <Route path="analytics" element={<AnalyticsPage />} />
