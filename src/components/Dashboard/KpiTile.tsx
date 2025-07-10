@@ -4,10 +4,13 @@ import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ArrowUp, ArrowDown } from 'lucide-react';
 import { AnimatedKpiValue } from '@/components/animations/AnimatedKpiValue';
+import { useWindowDimensions } from '@/hooks/useWindowDimensions';
+import { motion, Transition } from 'framer-motion';
 
 interface KpiTileProps {
   title: string;
   value: number | string;
+  target?: number; // Target value for pulse animation
   icon?: LucideIcon;
   trend?: {
     value: string;
@@ -21,13 +24,24 @@ interface KpiTileProps {
 export const KpiTile: React.FC<KpiTileProps> = ({
   title,
   value,
+  target,
   icon: Icon,
   trend,
   color = 'text-gray-600',
   onClick,
   isLoading = false
 }) => {
+  const { width } = useWindowDimensions();
   const isClickable = !!onClick;
+  
+  // Check if value meets or exceeds target for pulse animation
+  const numericValue = typeof value === 'number' ? value : parseFloat(value.toString()) || 0;
+  const meetsTarget = target !== undefined && numericValue >= target;
+  
+  // Responsive font sizes based on screen width
+  const isSmallScreen = width < 360;
+  const valueTextClass = isSmallScreen ? 'text-xl' : 'text-2xl';
+  const titleTextClass = isSmallScreen ? 'text-[10px]' : 'text-xs';
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (onClick && (e.key === 'Enter' || e.key === ' ')) {
@@ -42,13 +56,11 @@ export const KpiTile: React.FC<KpiTileProps> = ({
       return <div className="h-8 w-16 bg-gray-200 rounded animate-pulse" />;
     }
 
-    const numericValue = typeof value === 'number' ? value : parseFloat(value.toString());
-    
     if (!isNaN(numericValue)) {
       return (
         <AnimatedKpiValue
           value={numericValue}
-          className="text-2xl font-bold text-gray-900 leading-none"
+          className={cn(valueTextClass, "font-bold text-gray-900 leading-none")}
           duration={0.8}
           delay={0.1}
         />
@@ -56,7 +68,7 @@ export const KpiTile: React.FC<KpiTileProps> = ({
     }
 
     return (
-      <div className="text-2xl font-bold text-gray-900 leading-none">
+      <div className={cn(valueTextClass, "font-bold text-gray-900 leading-none")}>
         {value}
       </div>
     );
@@ -66,7 +78,7 @@ export const KpiTile: React.FC<KpiTileProps> = ({
     <>
       {/* Header with title and icon */}
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs font-medium text-muted-foreground truncate flex-1">
+        <h3 className={cn(titleTextClass, "font-medium text-muted-foreground truncate flex-1")}>
           {title}
         </h3>
         {Icon && (
@@ -83,7 +95,8 @@ export const KpiTile: React.FC<KpiTileProps> = ({
         {/* Trend indicator */}
         {trend && !isLoading && (
           <div className={cn(
-            "flex items-center gap-1 text-xs mt-1",
+            "flex items-center gap-1 mt-1",
+            isSmallScreen ? "text-[10px]" : "text-xs",
             trend.positive ? "text-green-600" : "text-red-600"
           )}>
             {trend.positive ? (
@@ -114,24 +127,50 @@ export const KpiTile: React.FC<KpiTileProps> = ({
     ]
   );
 
+  // Pulse animation when target is met
+  const pulseAnimation = meetsTarget ? {
+    boxShadow: [
+      "0 0 0 0 rgba(16, 185, 129, 0.2)",
+      "0 0 0 10px rgba(16, 185, 129, 0)",
+      "0 0 0 0 rgba(16, 185, 129, 0)"
+    ],
+    borderColor: [
+      "rgba(229, 231, 235, 1)", // border-gray-100
+      "rgba(16, 185, 129, 0.5)", // #10B981 at 50% opacity
+      "rgba(229, 231, 235, 1)"
+    ]
+  } : {};
+
+  const pulseTransition: Transition = meetsTarget ? {
+    duration: 2,
+    repeat: Infinity,
+    ease: [0.4, 0, 0.6, 1] // easeInOut cubic-bezier
+  } : {};
+
   if (isClickable) {
     return (
-      <div
+      <motion.div
         role="button"
         tabIndex={0}
         onClick={onClick}
         onKeyDown={handleKeyDown}
         className={baseClasses}
         aria-label={`${title}: ${value}`}
+        animate={pulseAnimation}
+        transition={pulseTransition}
       >
         {tileContent}
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className={baseClasses}>
+    <motion.div 
+      className={baseClasses}
+      animate={pulseAnimation}
+      transition={pulseTransition}
+    >
       {tileContent}
-    </div>
+    </motion.div>
   );
 };
