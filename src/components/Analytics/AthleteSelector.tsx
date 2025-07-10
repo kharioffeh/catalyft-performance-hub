@@ -16,6 +16,15 @@ export const AthleteSelector: React.FC<AthleteSelectorProps> = ({
   const { profile } = useAuth();
   const { athletes, isLoading } = useAthletes();
 
+  // Debug athlete loading
+  console.log('AthleteSelector Debug:', {
+    profile: profile?.role,
+    athletesCount: athletes.length,
+    athletes: athletes.map(a => ({ id: a.id, name: a.name })),
+    isLoading,
+    selectedAthleteId
+  });
+
   // Don't show selector for non-coaches
   if (profile?.role !== 'coach') {
     return null;
