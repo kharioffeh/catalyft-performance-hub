@@ -1,36 +1,46 @@
 
-import React from 'react';
-import { TrainingProgramsProgramsTab } from '@/components/TrainingPrograms/TrainingProgramsProgramsTab';
-import { useWorkoutTemplates } from '@/hooks/useWorkoutTemplates';
+import React, { useState } from 'react';
+import { TemplateGrid } from './TemplateGrid';
 import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
+import { EnhancedProgramBuilder } from '@/components/program-builder/EnhancedProgramBuilder';
 
 export const ProgramsTab: React.FC = () => {
   const { profile } = useAuth();
-  const { data: workoutTemplates = [], isLoading } = useWorkoutTemplates();
-
+  const [builderOpen, setBuilderOpen] = useState(false);
   const isCoach = profile?.role === 'coach';
 
-  const handleAssignTemplate = (template: any) => {
-    console.log('Assign template:', template);
+  const handleCreateProgram = () => {
+    setBuilderOpen(true);
   };
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-48 bg-white/5 border border-white/10 rounded-2xl animate-pulse" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <TrainingProgramsProgramsTab
-      workoutTemplates={workoutTemplates}
-      isCoach={isCoach}
-      onAssignTemplate={handleAssignTemplate}
-    />
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-white">Training Programs</h2>
+          <p className="text-white/70">Create and manage training programs</p>
+        </div>
+        {isCoach && (
+          <Button 
+            onClick={handleCreateProgram}
+            className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Create Program
+          </Button>
+        )}
+      </div>
+
+      {/* Program Grid */}
+      <TemplateGrid />
+      
+      <EnhancedProgramBuilder
+        open={builderOpen}
+        onOpenChange={setBuilderOpen}
+      />
+    </div>
   );
 };
