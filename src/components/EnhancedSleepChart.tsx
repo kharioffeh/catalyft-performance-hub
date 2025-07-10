@@ -130,7 +130,7 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
                 axisLine={false}
                 tickLine={false}
                 width={20}
-                domain={[0, 12]}
+                domain={[0, 10]}
               />
               <Tooltip 
                 contentStyle={{

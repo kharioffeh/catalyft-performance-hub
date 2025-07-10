@@ -107,7 +107,7 @@ export const StressChart: React.FC<StressChartProps> = ({
               <YAxis 
                 stroke="rgba(255,255,255,0.6)"
                 fontSize={8}
-                domain={[0, 3.0]}
+                domain={[0, 3.5]}
                 tick={{ fontSize: 8, dx: -2 }}
                 axisLine={false}
                 tickLine={false}
