@@ -12,7 +12,7 @@ export const ChartView: React.FC<ChartViewProps> = ({
 }) => {
   return (
     <div className={cn(
-      "w-full h-[240px] rounded-2xl overflow-hidden mb-6",
+      "w-full h-[400px] rounded-2xl overflow-hidden mb-6",
       className
     )}>
       {children}

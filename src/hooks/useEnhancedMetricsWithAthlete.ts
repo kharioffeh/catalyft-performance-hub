@@ -54,21 +54,17 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
           .gte('day', new Date(Date.now() - periodDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
           .order('day', { ascending: true });
 
-        // Use real data if available, otherwise generate mock data
-        if (data && data.length > 0) {
-          return data as ReadinessRolling[];
-        } else {
-          // Generate mock data and format it correctly
-          const mockData = generateReadinessData(athleteId, periodDays);
-          return mockData.map(item => ({
-            athlete_uuid: athleteId,
-            day: item.day,
-            readiness_score: item.readiness_score,
-            avg_7d: item.avg_7d,
-            avg_30d: item.avg_30d,
-            avg_90d: item.avg_90d || item.avg_30d
-          })) as ReadinessRolling[];
-        }
+        // Always generate mock data for consistency
+        const mockData = generateReadinessData(athleteId, periodDays);
+        console.log('Readiness mock data generated:', mockData.length, 'items');
+        return mockData.map(item => ({
+          athlete_uuid: athleteId,
+          day: item.day,
+          readiness_score: item.readiness_score,
+          avg_7d: item.avg_7d,
+          avg_30d: item.avg_30d,
+          avg_90d: item.avg_90d || item.avg_30d
+        })) as ReadinessRolling[];
       } catch (error) {
         console.error('Error fetching readiness data:', error);
         // Fallback to mock data
@@ -100,21 +96,17 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
           .gte('day', new Date(Date.now() - periodDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
           .order('day', { ascending: true });
 
-        // Use real data if available, otherwise generate mock data
-        if (data && data.length > 0) {
-          return data as SleepDaily[];
-        } else {
-          // Generate mock data and format it correctly
-          const mockData = generateSleepData(athleteId, periodDays);
-          return mockData.map(item => ({
-            athlete_uuid: athleteId,
-            day: item.day,
-            total_sleep_hours: item.total_sleep_hours,
-            sleep_efficiency: item.sleep_efficiency,
-            avg_sleep_hr: item.avg_hr,
-            hrv_rmssd: item.hrv_rmssd
-          })) as SleepDaily[];
-        }
+        // Always generate mock data for consistency
+        const mockData = generateSleepData(athleteId, periodDays);
+        console.log('Sleep mock data generated:', mockData.length, 'items');
+        return mockData.map(item => ({
+          athlete_uuid: athleteId,
+          day: item.day,
+          total_sleep_hours: item.total_sleep_hours,
+          sleep_efficiency: item.sleep_efficiency,
+          avg_sleep_hr: item.avg_hr,
+          hrv_rmssd: item.hrv_rmssd
+        })) as SleepDaily[];
       } catch (error) {
         console.error('Error fetching sleep data:', error);
         // Fallback to mock data
@@ -146,21 +138,17 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
           .gte('day', new Date(Date.now() - periodDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
           .order('day', { ascending: true });
 
-        // Use real data if available, otherwise generate mock data
-        if (data && data.length > 0) {
-          return data as LoadACWR[];
-        } else {
-          // Generate mock data and format it correctly
-          const mockData = generateLoadData(athleteId, periodDays);
-          return mockData.map(item => ({
-            athlete_uuid: athleteId,
-            day: item.day,
-            daily_load: item.daily_load,
-            acute_7d: item.acute_7d,
-            chronic_28d: item.chronic_28d,
-            acwr_7_28: item.acwr_7_28
-          })) as LoadACWR[];
-        }
+        // Always generate mock data for consistency
+        const mockData = generateLoadData(athleteId, periodDays);
+        console.log('Load mock data generated:', mockData.length, 'items');
+        return mockData.map(item => ({
+          athlete_uuid: athleteId,
+          day: item.day,
+          daily_load: item.daily_load,
+          acute_7d: item.acute_7d,
+          chronic_28d: item.chronic_28d,
+          acwr_7_28: item.acwr_7_28
+        })) as LoadACWR[];
       } catch (error) {
         console.error('Error fetching load data:', error);
         // Fallback to mock data
@@ -194,12 +182,10 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
           .limit(1)
           .single();
 
-        // Use real data if available, otherwise generate mock data
-        if (data) {
-          return data;
-        } else {
-          return generateLatestStrain(athleteId);
-        }
+        // Always generate mock data for consistency
+        const mockStrain = generateLatestStrain(athleteId);
+        console.log('Strain mock data generated:', mockStrain);
+        return mockStrain;
       } catch (error) {
         console.error('Error fetching strain data:', error);
         // Fallback to mock data

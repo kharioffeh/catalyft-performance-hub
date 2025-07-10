@@ -35,16 +35,26 @@ const SAMPLE_INSIGHTS = [
 ];
 
 const AnalyticsPageContent: React.FC = () => {
-  const [selectedAthleteId, setSelectedAthleteId] = useState<string>('default-athlete');
+  const demoAthleteId = 'demo-athlete-12345';
+  const [selectedAthleteId, setSelectedAthleteId] = useState<string>(demoAthleteId);
   const [ariaInput, setAriaInput] = useState('');
   const [showConnectModal, setShowConnectModal] = useState(false);
   const { period } = usePeriod();
+
+  console.log('Analytics: selectedAthleteId =', selectedAthleteId);
 
   // Convert period to days for existing hooks
   const periodDays = periodToDays(period);
 
   // Get enhanced metrics for the selected athlete
   const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetricsWithAthlete(selectedAthleteId);
+  
+  console.log('Analytics: Data loaded -', { 
+    readinessCount: readinessRolling.length, 
+    sleepCount: sleepDaily.length, 
+    loadCount: loadACWR.length,
+    hasStrain: !!latestStrain 
+  });
 
   // Extract values for InsightStrip
   const latestReadiness = readinessRolling[readinessRolling.length - 1]?.readiness_score ?? null;
