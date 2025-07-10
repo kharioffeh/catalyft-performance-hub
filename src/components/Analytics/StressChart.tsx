@@ -79,9 +79,9 @@ export const StressChart: React.FC<StressChartProps> = ({
         </div>
 
         {/* Intraday Stress Chart - Whoop Style */}
-        <div className="h-80 px-1 pb-2">
+        <div className="h-80 px-0 pb-1">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={stressData.intradayReadings} margin={{ top: 15, right: 25, left: 40, bottom: 35 }}>
+            <AreaChart data={stressData.intradayReadings} margin={{ top: 10, right: 10, left: 15, bottom: 15 }}>
               <defs>
                 <linearGradient id="stressWhoopGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="hsl(48, 96%, 53%)" stopOpacity={0.8}/>
@@ -97,21 +97,21 @@ export const StressChart: React.FC<StressChartProps> = ({
               <XAxis 
                 dataKey="time" 
                 stroke="rgba(255,255,255,0.6)"
-                fontSize={9}
-                tick={{ fontSize: 9, dy: 6 }}
+                fontSize={8}
+                tick={{ fontSize: 8, dy: 3 }}
                 axisLine={false}
                 tickLine={false}
                 interval={3} // Show every 4th hour (6AM, 12PM, 6PM, etc.)
-                height={25}
+                height={15}
               />
               <YAxis 
                 stroke="rgba(255,255,255,0.6)"
-                fontSize={9}
+                fontSize={8}
                 domain={[0, 3.0]}
-                tick={{ fontSize: 9, dx: -6 }}
+                tick={{ fontSize: 8, dx: -2 }}
                 axisLine={false}
                 tickLine={false}
-                width={40}
+                width={20}
                 tickFormatter={(value) => value.toFixed(1)}
               />
               <Tooltip 
