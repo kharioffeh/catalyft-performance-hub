@@ -15,7 +15,7 @@ const ReadinessDetailPage = React.lazy(() => import('../pages/ReadinessDetailPag
 const LoadDetailPage = React.lazy(() => import('../pages/LoadDetailPage'));
 const AthletesPage = React.lazy(() => import('../pages/Athletes'));
 const TrainingPrograms = React.lazy(() => import('../pages/TrainingPrograms'));
-const SettingsPage = React.lazy(() => import('../pages/Settings'));
+const SettingsPage = React.lazy(() => import('../pages/SettingsRevamped'));
 const SubscriptionsPage = React.lazy(() => import('../pages/Subscriptions'));
 const BillingEnhancedPage = React.lazy(() => import('../pages/BillingEnhanced'));
 const LoginPage = React.lazy(() => import('../pages/Login'));
