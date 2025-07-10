@@ -207,22 +207,24 @@ const Nutrition: React.FC = () => {
           </TabsContent>
 
           <TabsContent value="meals" className="mt-0 space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <h3 className="text-lg font-semibold text-white">Today's Meals</h3>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <Button 
                   onClick={() => setShowScanner(true)}
-                  className="bg-green-600 hover:bg-green-700 text-white"
+                  className="bg-green-600 hover:bg-green-700 text-white flex-1 sm:flex-none"
                 >
                   <Scan className="w-4 h-4 mr-2" />
-                  Scan Meal
+                  <span className="hidden sm:inline">Scan Meal</span>
+                  <span className="sm:hidden">Scan</span>
                 </Button>
                 <AddMealDialog 
                   onAddMeal={addMeal}
                   trigger={
-                    <Button className="bg-white/10 hover:bg-white/20 text-white border-white/20">
+                    <Button className="bg-white/10 hover:bg-white/20 text-white border-white/20 flex-1 sm:flex-none">
                       <Plus className="w-4 h-4 mr-2" />
-                      Log Meal
+                      <span className="hidden sm:inline">Log Meal</span>
+                      <span className="sm:hidden">Log</span>
                     </Button>
                   }
                 />
