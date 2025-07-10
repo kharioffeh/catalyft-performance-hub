@@ -103,11 +103,12 @@ export const StressChart: React.FC<StressChartProps> = ({
                 tickLine={false}
                 interval={3} // Show every 4th hour (6AM, 12PM, 6PM, etc.)
                 height={15}
+                domain={[0, 'dataMax']}
               />
               <YAxis 
                 stroke="rgba(255,255,255,0.6)"
                 fontSize={8}
-                domain={[0, 3.0]}
+                domain={[0, 'dataMax']}
                 tick={{ fontSize: 8, dx: -2 }}
                 axisLine={false}
                 tickLine={false}
