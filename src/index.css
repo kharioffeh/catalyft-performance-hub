@@ -134,6 +134,16 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Global scrollbar hiding */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
 /* Safe area utilities */
 .safe-area-pb {
   padding-bottom: env(safe-area-inset-bottom);

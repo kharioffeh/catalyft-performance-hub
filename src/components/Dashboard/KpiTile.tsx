@@ -99,8 +99,8 @@ export const KpiTile: React.FC<KpiTileProps> = ({
   );
 
   const baseClasses = cn(
-    // Fixed dimensions (165px ≈ 165dp at standard DPI)
-    "w-[165px] h-[165px]",
+    // Responsive dimensions with max width constraint
+    "w-full max-w-[180px] h-[165px]",
     // Styling
     "bg-white rounded-2xl shadow-sm border border-gray-100",
     "p-4 flex flex-col",

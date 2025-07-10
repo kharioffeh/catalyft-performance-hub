@@ -9,6 +9,7 @@ import { GlassLayout } from '@/components/Glass/GlassLayout';
 import { useIsMobile } from '@/hooks/useBreakpoint';
 import { cn } from '@/lib/utils';
 import { ErrorFallback } from './ErrorFallback';
+import { SafeAreaView } from '@/components/ui/SafeAreaView';
 
 interface MainLayoutProps {
   variant: 'default' | 'dashboard' | 'analytics' | 'settings' | 'chat';
@@ -46,10 +47,12 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ variant }) => {
               <TopBar />
             </ErrorBoundary>
           )}
-          <main className="flex-1 px-2 py-3 sm:px-4 sm:py-4 md:px-6 md:py-6 overflow-auto">
-            <ErrorBoundary FallbackComponent={ErrorFallback}>
-              <Outlet />
-            </ErrorBoundary>
+          <main className="flex-1 overflow-auto scrollbar-hide">
+            <SafeAreaView>
+              <ErrorBoundary FallbackComponent={ErrorFallback}>
+                <Outlet />
+              </ErrorBoundary>
+            </SafeAreaView>
           </main>
         </div>
       </div>
