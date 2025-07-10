@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { EnhancedProgramBuilder } from '@/components/program-builder/EnhancedProgramBuilder';
 import { Plus } from 'lucide-react';
+import { Fab } from '@/components/ui/Fab';
 
 export const TemplateGrid: React.FC = () => {
   const { data: programs = [], isLoading } = useProgramTemplates();
@@ -76,13 +77,10 @@ export const TemplateGrid: React.FC = () => {
         </div>
 
         {/* FAB for empty state */}
-        <button
-          onClick={() => setBuilderOpen(true)}
-          className="fixed bottom-6 right-6 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full p-4 shadow-lg transition-colors z-50"
+        <Fab 
+          onPress={() => setBuilderOpen(true)}
           aria-label="Create new program"
-        >
-          <Plus className="h-6 w-6" />
-        </button>
+        />
 
         <EnhancedProgramBuilder
           open={builderOpen}
@@ -118,13 +116,10 @@ export const TemplateGrid: React.FC = () => {
       </ul>
 
       {/* FAB */}
-      <button
-        onClick={() => setBuilderOpen(true)}
-        className="fixed bottom-6 right-6 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full p-4 shadow-lg transition-colors z-50"
+      <Fab 
+        onPress={() => setBuilderOpen(true)}
         aria-label="Create new program"
-      >
-        <Plus className="h-6 w-6" />
-      </button>
+      />
 
       <EnhancedProgramBuilder
         open={builderOpen}

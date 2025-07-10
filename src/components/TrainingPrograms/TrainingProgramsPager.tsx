@@ -4,6 +4,7 @@ import SwipeableViews from 'react-swipeable-views';
 import { Button } from '@/components/ui/button';
 import { MasonryGrid } from './MasonryGrid';
 import { motion } from 'framer-motion';
+import { Fab } from '@/components/ui/Fab';
 
 interface TrainingProgramsPagerProps {
   templates: any[];
@@ -138,14 +139,11 @@ export const TrainingProgramsPager: React.FC<TrainingProgramsPagerProps> = ({
 
       {/* Mobile Create Button */}
       {isCoach && (
-        <div className="md:hidden fixed bottom-6 right-6 z-50">
-          <Button
-            onClick={tabs[activeIndex].onCreate}
-            className="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 shadow-lg"
-          >
-            +
-          </Button>
-        </div>
+        <Fab 
+          onPress={tabs[activeIndex].onCreate}
+          aria-label="Create new training program"
+          className="md:hidden"
+        />
       )}
     </div>
   );
