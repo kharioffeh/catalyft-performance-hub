@@ -1,37 +1,28 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Play, Star, Zap, Target, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Exercise } from '@/types/exercise';
 
 interface ExerciseCardProps {
-  exercise: {
-    id: string;
-    name: string;
-    muscle: string[];
-    equipment: string[];
-    difficulty: string;
-    intensity_zone: string;
-    description: string;
-    thumbnail_url?: string;
-    video_url?: string;
-  };
-  onClick?: (exercise: any) => void;
+  exercise: Exercise;
+  onClick?: (exercise: Exercise) => void;
   isSelected?: boolean;
   viewMode?: 'grid' | 'list';
   showDescription?: boolean;
 }
 
-export const ExerciseCard: React.FC<ExerciseCardProps> = ({
+export const ExerciseCard: React.FC<ExerciseCardProps> = memo(({
   exercise,
   onClick,
   isSelected = false,
   viewMode = 'grid',
   showDescription = true
 }) => {
-  const getDifficultyColor = (difficulty: string) => {
+  const getDifficultyColor = (difficulty?: string) => {
     switch (difficulty) {
       case 'beginner': return 'bg-green-500/20 text-green-400 border-green-500/30';
       case 'intermediate': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
@@ -40,7 +31,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
     }
   };
 
-  const getIntensityIcon = (zone: string) => {
+  const getIntensityIcon = (zone?: string) => {
     switch (zone) {
       case 'power': return <Zap className="w-3 h-3" />;
       case 'hypertrophy': return <TrendingUp className="w-3 h-3" />;
@@ -127,7 +118,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
 
               {/* Muscle Groups */}
               <div className="flex flex-wrap gap-1 mb-2">
-                {exercise.muscle.slice(0, 3).map((muscle, index) => (
+                {(exercise.muscle || []).slice(0, 3).map((muscle, index) => (
                   <Badge 
                     key={index}
                     className={cn("text-xs border-0", getMuscleColor(muscle))}
@@ -135,9 +126,9 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                     {muscle}
                   </Badge>
                 ))}
-                {exercise.muscle.length > 3 && (
+                {(exercise.muscle || []).length > 3 && (
                   <Badge className="text-xs bg-gray-500/20 text-gray-400">
-                    +{exercise.muscle.length - 3} more
+                    +{(exercise.muscle || []).length - 3} more
                   </Badge>
                 )}
               </div>
@@ -145,7 +136,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
               {/* Equipment & Intensity */}
               <div className="flex items-center gap-2 text-sm text-white/60">
                 <span className="capitalize">
-                  {exercise.equipment[0]?.replace('_', ' ')}
+                  {(exercise.equipment || [])[0]?.replace('_', ' ')}
                 </span>
                 {exercise.intensity_zone && (
                   <>
@@ -209,7 +200,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
 
           {/* Muscle Groups */}
           <div className="flex flex-wrap gap-1 mb-3">
-            {exercise.muscle.slice(0, 2).map((muscle, index) => (
+            {(exercise.muscle || []).slice(0, 2).map((muscle, index) => (
               <Badge 
                 key={index}
                 className={cn("text-xs border-0", getMuscleColor(muscle))}
@@ -217,9 +208,9 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                 {muscle}
               </Badge>
             ))}
-            {exercise.muscle.length > 2 && (
+            {(exercise.muscle || []).length > 2 && (
               <Badge className="text-xs bg-gray-500/20 text-gray-400">
-                +{exercise.muscle.length - 2}
+                +{(exercise.muscle || []).length - 2}
               </Badge>
             )}
           </div>
@@ -227,7 +218,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
           {/* Equipment & Intensity */}
           <div className="flex items-center gap-2 text-sm text-white/60 mb-3">
             <span className="capitalize">
-              {exercise.equipment[0]?.replace('_', ' ')}
+              {(exercise.equipment || [])[0]?.replace('_', ' ')}
             </span>
             {exercise.intensity_zone && (
               <>
@@ -250,4 +241,4 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
       </CardContent>
     </Card>
   );
-};
+});
