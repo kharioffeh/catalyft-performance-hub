@@ -8,6 +8,7 @@ import { AnalyticsHeroSection } from '@/components/Analytics/AnalyticsHeroSectio
 import { useMetricData } from '@/hooks/useMetricData';
 import { useEnhancedMetricsWithAthlete } from '@/hooks/useEnhancedMetricsWithAthlete';
 import { Dumbbell } from 'lucide-react';
+import { MuscleAnatomyView } from '@/components/Analytics/MuscleAnatomyView';
 
 // Lazy load segment components
 const TrendView = React.lazy(() => import('@/components/Analytics/Load/TrendView').then(module => ({ default: module.TrendView })));
@@ -72,6 +73,18 @@ export default function LoadDetailPage() {
     return 'stable';
   };
 
+  // Sample muscle load data (in real app, this would come from your data source)
+  const muscleLoadMap = {
+    shoulders: 75,
+    chest: 85,
+    biceps: 60,
+    triceps: 70,
+    core: 90,
+    quads: 95,
+    hamstrings: 80,
+    calves: 50
+  };
+
   // Handler to change segment
   const changeSegment = (segment: string) => {
     setActiveSegment(segment);
@@ -124,7 +137,7 @@ export default function LoadDetailPage() {
 
         {/* Segmented Control */}
         <SegmentedControl
-          segments={['Trend', 'Factors', 'Table']}
+          segments={['Trend', 'Factors', 'Anatomy', 'Table']}
           activeSegment={activeSegment}
           onSegmentChange={changeSegment}
         />
@@ -136,6 +149,12 @@ export default function LoadDetailPage() {
           )}
           {activeSegment === 'factors' && (
             <FactorsView data={data} period={period} isLoading={isLoading} />
+          )}
+          {activeSegment === 'anatomy' && (
+            <div className="bg-card border border-border rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">Muscle Load Distribution</h3>
+              <MuscleAnatomyView loadMap={muscleLoadMap} />
+            </div>
           )}
           {activeSegment === 'table' && (
             <TableView data={data} period={period} isLoading={isLoading} />
