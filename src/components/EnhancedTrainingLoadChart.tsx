@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { GlassCard } from '@/components/ui';
 import { LoadGauge } from '@/components/Dashboard/LoadGauge';
 import { Button } from '@/components/ui/button';
@@ -67,11 +67,21 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
     navigate('/analytics/load');
   };
 
-  const formattedData = data.map(item => ({
-    date: format(new Date(item.day), 'MMM dd'),
-    load: item.daily_load,
-    acwr: item.acwr_7_28 || 0
-  }));
+  // Generate upper/lower body split data from daily load
+  const formattedData = data.map(item => {
+    const totalLoad = item.daily_load || 0;
+    // Estimate upper/lower split (could be enhanced with actual session data)
+    const upperBody = totalLoad * 0.6; // 60% upper body (assumption)
+    const lowerBody = totalLoad * 0.4; // 40% lower body (assumption)
+    
+    return {
+      date: format(new Date(item.day), 'MMM dd'),
+      upperBody,
+      lowerBody,
+      total: totalLoad,
+      acwr: item.acwr_7_28 || 0
+    };
+  });
 
   return (
     <GlassCard className={`p-6 ${variant === 'carousel' ? 'h-full' : ''}`}>
@@ -82,9 +92,9 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="flex flex-col space-y-6">
         {/* Training Load and ACWR Gauges */}
-        <div className="flex flex-col space-y-4">
+        <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col items-center">
             <LoadGauge value={currentLoad} size="regular" metric="load" />
             <div className="text-center mt-2">
@@ -112,10 +122,10 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
           </div>
         </div>
 
-        {/* Training Load Trend Chart */}
-        <div className="lg:col-span-2 h-48">
+        {/* Upper/Lower Body Load Chart */}
+        <div className="h-48">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={formattedData}>
+            <BarChart data={formattedData}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
               <XAxis 
                 dataKey="date" 
@@ -127,6 +137,7 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
                 stroke="rgba(255,255,255,0.6)"
                 fontSize={10}
                 tick={{ fontSize: 10 }}
+                label={{ value: 'Load', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'rgba(255,255,255,0.6)' } }}
               />
               <Tooltip 
                 contentStyle={{
@@ -135,18 +146,12 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
                   borderRadius: '8px',
                   color: 'white'
                 }}
-                formatter={(value: any) => [`${value}`, 'Training Load']}
+                formatter={(value: any, name: string) => [`${value.toFixed(0)}`, name]}
                 labelFormatter={(label) => `Date: ${label}`}
               />
-              <Line 
-                type="monotone" 
-                dataKey="load" 
-                stroke="#f59e0b"
-                strokeWidth={2}
-                dot={{ fill: '#f59e0b', strokeWidth: 2, r: 3 }}
-                activeDot={{ r: 5 }}
-              />
-            </LineChart>
+              <Bar dataKey="upperBody" fill="hsl(217, 91%, 60%)" name="Upper Body" />
+              <Bar dataKey="lowerBody" fill="hsl(142, 76%, 36%)" name="Lower Body" />
+            </BarChart>
           </ResponsiveContainer>
         </div>
       </div>

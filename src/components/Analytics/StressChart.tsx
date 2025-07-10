@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { GlassCard } from '@/components/ui';
 import { StressGauge } from '@/components/Dashboard/StressGauge';
 import { useStress } from '@/hooks/useStress';
@@ -63,7 +63,7 @@ export const StressChart: React.FC<StressChartProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="flex flex-col space-y-6">
         {/* Current Stress Gauge */}
         <div className="flex flex-col items-center justify-center">
           <StressGauge value={stressData.current} size="regular" />
@@ -78,42 +78,58 @@ export const StressChart: React.FC<StressChartProps> = ({
           </div>
         </div>
 
-        {/* Stress Trend Chart */}
-        <div className="lg:col-span-2 h-48">
+        {/* Stress Area Chart - Whoop Style */}
+        <div className="h-48">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={stressData.dailyReadings}>
+            <AreaChart data={stressData.dailyReadings}>
+              <defs>
+                <linearGradient id="stressGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(0, 84%, 60%)" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="hsl(0, 84%, 60%)" stopOpacity={0.1}/>
+                </linearGradient>
+              </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+              
+              {/* Stress zone reference lines */}
+              <ReferenceLine y={30} stroke="hsl(142, 76%, 36%)" strokeDasharray="2 2" strokeOpacity={0.6} />
+              <ReferenceLine y={60} stroke="hsl(48, 96%, 53%)" strokeDasharray="2 2" strokeOpacity={0.6} />
+              
               <XAxis 
                 dataKey="date" 
                 stroke="rgba(255,255,255,0.6)"
                 fontSize={10}
                 tick={{ fontSize: 10 }}
+                axisLine={false}
               />
               <YAxis 
                 stroke="rgba(255,255,255,0.6)"
                 fontSize={10}
                 domain={[0, 100]}
                 tick={{ fontSize: 10 }}
+                axisLine={false}
+                label={{ value: 'Stress', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'rgba(255,255,255,0.6)' } }}
               />
               <Tooltip 
                 contentStyle={{
-                  backgroundColor: 'rgba(0,0,0,0.8)',
+                  backgroundColor: 'rgba(0,0,0,0.9)',
                   border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '8px',
-                  color: 'white'
+                  borderRadius: '12px',
+                  color: 'white',
+                  fontSize: '12px'
                 }}
                 formatter={(value: any) => [`${value}`, 'Stress Level']}
-                labelFormatter={(label) => `Date: ${label}`}
+                labelFormatter={(label) => `${label}`}
               />
-              <Line 
+              <Area 
                 type="monotone" 
                 dataKey="value" 
-                stroke="#3b82f6"
+                stroke="hsl(0, 84%, 60%)"
                 strokeWidth={2}
-                dot={{ fill: '#3b82f6', strokeWidth: 2, r: 3 }}
-                activeDot={{ r: 5 }}
+                fill="url(#stressGradient)"
+                dot={false}
+                activeDot={{ r: 4, stroke: 'hsl(0, 84%, 60%)', strokeWidth: 2, fill: 'white' }}
               />
-            </LineChart>
+            </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>

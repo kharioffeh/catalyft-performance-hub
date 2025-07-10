@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { GlassCard } from '@/components/ui';
 import { SleepGauge } from '@/components/Dashboard/SleepGauge';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,10 @@ interface SleepData {
   sleep_efficiency: number;
   avg_sleep_hr: number;
   hrv_rmssd: number;
+  light_sleep_hours?: number;
+  deep_sleep_hours?: number;
+  rem_sleep_hours?: number;
+  awake_hours?: number;
 }
 
 interface EnhancedSleepChartProps {
@@ -62,12 +66,24 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
     navigate('/analytics');
   };
 
-  const formattedData = data.map(item => ({
-    date: format(new Date(item.day), 'MMM dd'),
-    efficiency: item.sleep_efficiency || 0,
-    duration: item.total_sleep_hours || 0,
-    hrv: item.hrv_rmssd || 0
-  }));
+  // Generate sleep phase data from total sleep hours
+  const formattedData = data.map(item => {
+    const totalHours = item.total_sleep_hours || 0;
+    // Estimate sleep phases if not provided
+    const awake = item.awake_hours || totalHours * 0.05; // 5% awake
+    const light = item.light_sleep_hours || totalHours * 0.50; // 50% light
+    const deep = item.deep_sleep_hours || totalHours * 0.25; // 25% deep
+    const rem = item.rem_sleep_hours || totalHours * 0.20; // 20% REM
+    
+    return {
+      date: format(new Date(item.day), 'MMM dd'),
+      awake,
+      light,
+      deep,
+      rem,
+      total: totalHours
+    };
+  });
 
   return (
     <GlassCard className={`p-6 ${variant === 'carousel' ? 'h-full' : ''}`}>
@@ -78,7 +94,7 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="flex flex-col space-y-6">
         {/* Current Sleep Gauge */}
         <div className="flex flex-col items-center justify-center">
           <SleepGauge value={currentEfficiency} size="regular" />
@@ -93,10 +109,10 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
           </div>
         </div>
 
-        {/* Sleep Trend Chart */}
-        <div className="lg:col-span-2 h-48">
+        {/* Sleep Phases Bar Chart */}
+        <div className="h-48">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={formattedData}>
+            <BarChart data={formattedData}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
               <XAxis 
                 dataKey="date" 
@@ -107,8 +123,8 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
               <YAxis 
                 stroke="rgba(255,255,255,0.6)"
                 fontSize={10}
-                domain={[0, 100]}
                 tick={{ fontSize: 10 }}
+                label={{ value: 'Hours', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'rgba(255,255,255,0.6)' } }}
               />
               <Tooltip 
                 contentStyle={{
@@ -117,18 +133,14 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
                   borderRadius: '8px',
                   color: 'white'
                 }}
-                formatter={(value: any) => [`${value}%`, 'Sleep Efficiency']}
+                formatter={(value: any, name: string) => [`${value.toFixed(1)}h`, name]}
                 labelFormatter={(label) => `Date: ${label}`}
               />
-              <Line 
-                type="monotone" 
-                dataKey="efficiency" 
-                stroke="#6366f1"
-                strokeWidth={2}
-                dot={{ fill: '#6366f1', strokeWidth: 2, r: 3 }}
-                activeDot={{ r: 5 }}
-              />
-            </LineChart>
+              <Bar dataKey="rem" stackId="sleep" fill="hsl(142, 76%, 36%)" name="REM" />
+              <Bar dataKey="deep" stackId="sleep" fill="hsl(258, 90%, 66%)" name="Deep (SWS)" />
+              <Bar dataKey="light" stackId="sleep" fill="hsl(213, 93%, 68%)" name="Light" />
+              <Bar dataKey="awake" stackId="sleep" fill="hsl(0, 84%, 60%)" name="Awake" />
+            </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
