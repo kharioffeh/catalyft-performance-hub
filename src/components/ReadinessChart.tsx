@@ -80,28 +80,34 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
         </div>
 
         {/* Readiness Trend Chart */}
-        <div className="lg:col-span-2 h-48">
+        <div className="lg:col-span-2 h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
+            <LineChart data={data} margin={{ top: 5, right: 15, left: 15, bottom: 25 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
               <XAxis 
                 dataKey="date" 
                 stroke="rgba(255,255,255,0.6)"
-                fontSize={10}
-                tick={{ fontSize: 10 }}
+                fontSize={9}
+                tick={{ fontSize: 9 }}
+                axisLine={false}
+                tickLine={false}
               />
               <YAxis 
                 stroke="rgba(255,255,255,0.6)"
-                fontSize={10}
+                fontSize={9}
                 domain={[0, 100]}
-                tick={{ fontSize: 10 }}
+                tick={{ fontSize: 9 }}
+                axisLine={false}
+                tickLine={false}
+                width={25}
               />
               <Tooltip 
                 contentStyle={{
-                  backgroundColor: 'rgba(0,0,0,0.8)',
+                  backgroundColor: 'rgba(0,0,0,0.9)',
                   border: '1px solid rgba(255,255,255,0.2)',
                   borderRadius: '8px',
-                  color: 'white'
+                  color: 'white',
+                  fontSize: '11px'
                 }}
                 formatter={(value: any) => [`${value}`, 'Readiness Score']}
                 labelFormatter={(label) => `Date: ${label}`}
@@ -109,10 +115,10 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
               <Line 
                 type="monotone" 
                 dataKey="score" 
-                stroke="#10b981"
+                stroke="hsl(142, 76%, 36%)"
                 strokeWidth={2}
-                dot={{ fill: '#10b981', strokeWidth: 2, r: 3 }}
-                activeDot={{ r: 5 }}
+                dot={{ fill: 'hsl(142, 76%, 36%)', strokeWidth: 2, r: 3 }}
+                activeDot={{ r: 5, stroke: 'hsl(142, 76%, 36%)', fill: 'white' }}
               />
             </LineChart>
           </ResponsiveContainer>

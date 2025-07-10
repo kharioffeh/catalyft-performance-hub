@@ -11,6 +11,17 @@ export interface StressData {
   average7d: number;
   trend: 'increasing' | 'decreasing' | 'stable';
   dailyReadings: StressReading[];
+  intradayReadings: Array<{
+    time: string;
+    hour: number;
+    value: number;
+  }>;
+  stressZones: {
+    low: number;
+    moderate: number;
+    high: number;
+    dominant: 'low' | 'moderate' | 'high';
+  };
 }
 
 export const useStress = () => {
@@ -57,6 +68,42 @@ export const useStress = () => {
         return 'stable';
       };
       
+      // Generate intraday readings for today (24 hours)
+      const intradayReadings = Array.from({ length: 24 }, (_, hour) => {
+        // Simulate realistic stress patterns throughout the day
+        let baseStress = 1.0;
+        
+        // Higher stress during work hours (9-17)
+        if (hour >= 9 && hour <= 17) {
+          baseStress = 1.5 + Math.random() * 1.0; // 1.5-2.5
+        }
+        // Moderate stress in evening (18-22)
+        else if (hour >= 18 && hour <= 22) {
+          baseStress = 1.0 + Math.random() * 0.8; // 1.0-1.8
+        }
+        // Low stress at night/early morning (23-8)
+        else {
+          baseStress = 0.2 + Math.random() * 0.6; // 0.2-0.8
+        }
+        
+        // Add some natural variation
+        baseStress += (Math.random() - 0.5) * 0.3;
+        
+        return {
+          time: `${hour.toString().padStart(2, '0')}:00`,
+          hour,
+          value: Math.max(0.1, Math.min(3.0, baseStress)), // Clamp between 0.1-3.0
+        };
+      });
+
+      // Calculate stress zones for today
+      const lowZone = intradayReadings.filter(r => r.value <= 1.0).length;
+      const moderateZone = intradayReadings.filter(r => r.value > 1.0 && r.value <= 2.0).length;
+      const highZone = intradayReadings.filter(r => r.value > 2.0).length;
+      
+      const dominantZone = lowZone > moderateZone && lowZone > highZone ? 'low' :
+                          moderateZone > highZone ? 'moderate' : 'high';
+
       console.log('Stress data generated:', { current, level: getLevel(current), average7d });
       
       return {
@@ -64,7 +111,14 @@ export const useStress = () => {
         level: getLevel(current),
         average7d,
         trend: getTrend(),
-        dailyReadings
+        dailyReadings,
+        intradayReadings,
+        stressZones: {
+          low: lowZone,
+          moderate: moderateZone, 
+          high: highZone,
+          dominant: dominantZone
+        }
       };
     }
   });

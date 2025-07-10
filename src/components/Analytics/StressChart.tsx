@@ -78,59 +78,84 @@ export const StressChart: React.FC<StressChartProps> = ({
           </div>
         </div>
 
-        {/* Stress Area Chart - Whoop Style */}
-        <div className="h-48">
+        {/* Intraday Stress Chart - Whoop Style */}
+        <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={stressData.dailyReadings}>
+            <AreaChart data={stressData.intradayReadings} margin={{ top: 5, right: 10, left: 10, bottom: 25 }}>
               <defs>
-                <linearGradient id="stressGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(0, 84%, 60%)" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="hsl(0, 84%, 60%)" stopOpacity={0.1}/>
+                <linearGradient id="stressWhoopGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="hsl(48, 96%, 53%)" stopOpacity={0.8}/>
+                  <stop offset="50%" stopColor="hsl(142, 76%, 36%)" stopOpacity={0.6}/>
+                  <stop offset="100%" stopColor="hsl(217, 91%, 60%)" stopOpacity={0.3}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
               
               {/* Stress zone reference lines */}
-              <ReferenceLine y={30} stroke="hsl(142, 76%, 36%)" strokeDasharray="2 2" strokeOpacity={0.6} />
-              <ReferenceLine y={60} stroke="hsl(48, 96%, 53%)" strokeDasharray="2 2" strokeOpacity={0.6} />
+              <ReferenceLine y={1.0} stroke="hsl(142, 76%, 36%)" strokeDasharray="2 2" strokeOpacity={0.5} />
+              <ReferenceLine y={2.0} stroke="hsl(48, 96%, 53%)" strokeDasharray="2 2" strokeOpacity={0.5} />
               
               <XAxis 
-                dataKey="date" 
+                dataKey="time" 
                 stroke="rgba(255,255,255,0.6)"
-                fontSize={10}
-                tick={{ fontSize: 10 }}
+                fontSize={9}
+                tick={{ fontSize: 9 }}
                 axisLine={false}
+                tickLine={false}
+                interval={3} // Show every 4th hour (6AM, 12PM, 6PM, etc.)
               />
               <YAxis 
                 stroke="rgba(255,255,255,0.6)"
-                fontSize={10}
-                domain={[0, 100]}
-                tick={{ fontSize: 10 }}
+                fontSize={9}
+                domain={[0, 3.0]}
+                tick={{ fontSize: 9 }}
                 axisLine={false}
-                label={{ value: 'Stress', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'rgba(255,255,255,0.6)' } }}
+                tickLine={false}
+                width={30}
+                tickFormatter={(value) => value.toFixed(1)}
               />
               <Tooltip 
                 contentStyle={{
                   backgroundColor: 'rgba(0,0,0,0.9)',
                   border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '12px',
+                  borderRadius: '8px',
                   color: 'white',
-                  fontSize: '12px'
+                  fontSize: '11px',
+                  padding: '8px'
                 }}
-                formatter={(value: any) => [`${value}`, 'Stress Level']}
-                labelFormatter={(label) => `${label}`}
+                formatter={(value: any) => [`${value.toFixed(1)}`, 'Stress Level']}
+                labelFormatter={(label) => `Time: ${label}`}
               />
               <Area 
                 type="monotone" 
                 dataKey="value" 
-                stroke="hsl(0, 84%, 60%)"
-                strokeWidth={2}
-                fill="url(#stressGradient)"
+                stroke="hsl(217, 91%, 60%)"
+                strokeWidth={1.5}
+                fill="url(#stressWhoopGradient)"
                 dot={false}
-                activeDot={{ r: 4, stroke: 'hsl(0, 84%, 60%)', strokeWidth: 2, fill: 'white' }}
+                activeDot={{ r: 3, stroke: 'hsl(217, 91%, 60%)', strokeWidth: 2, fill: 'white' }}
               />
             </AreaChart>
           </ResponsiveContainer>
+          
+          {/* Stress Zone Labels */}
+          <div className="flex justify-between text-xs text-white/60 mt-2 px-2">
+            <span>Low (0.0-1.0)</span>
+            <span>Moderate (1.0-2.0)</span>
+            <span>High (2.0+)</span>
+          </div>
+        </div>
+        
+        {/* Stress Insights */}
+        <div className="bg-white/5 rounded-lg p-3 mt-4">
+          <h4 className="text-sm font-medium text-white mb-2">Today's Stress Summary</h4>
+          <div className="text-xs text-white/70 space-y-1">
+            <div>• {stressData.stressZones.low}h in low stress (0.0-1.0)</div>
+            <div>• {stressData.stressZones.moderate}h in moderate stress (1.0-2.0)</div>
+            <div>• {stressData.stressZones.high}h in high stress (2.0+)</div>
+            <div className="pt-1 border-t border-white/10 mt-2">
+              <span className="capitalize font-medium">{stressData.stressZones.dominant}</span> stress was dominant today
+            </div>
+          </div>
         </div>
       </div>
 

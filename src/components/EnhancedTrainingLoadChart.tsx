@@ -123,28 +123,33 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
         </div>
 
         {/* Upper/Lower Body Load Chart */}
-        <div className="h-48">
+        <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={formattedData}>
+            <BarChart data={formattedData} margin={{ top: 5, right: 15, left: 15, bottom: 25 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
               <XAxis 
                 dataKey="date" 
                 stroke="rgba(255,255,255,0.6)"
-                fontSize={10}
-                tick={{ fontSize: 10 }}
+                fontSize={9}
+                tick={{ fontSize: 9 }}
+                axisLine={false}
+                tickLine={false}
               />
               <YAxis 
                 stroke="rgba(255,255,255,0.6)"
-                fontSize={10}
-                tick={{ fontSize: 10 }}
-                label={{ value: 'Load', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'rgba(255,255,255,0.6)' } }}
+                fontSize={9}
+                tick={{ fontSize: 9 }}
+                axisLine={false}
+                tickLine={false}
+                width={25}
               />
               <Tooltip 
                 contentStyle={{
-                  backgroundColor: 'rgba(0,0,0,0.8)',
+                  backgroundColor: 'rgba(0,0,0,0.9)',
                   border: '1px solid rgba(255,255,255,0.2)',
                   borderRadius: '8px',
-                  color: 'white'
+                  color: 'white',
+                  fontSize: '11px'
                 }}
                 formatter={(value: any, name: string) => [`${value.toFixed(0)}`, name]}
                 labelFormatter={(label) => `Date: ${label}`}
