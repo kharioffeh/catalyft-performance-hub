@@ -48,6 +48,8 @@ export const BottomTabBar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  console.log('BottomTabBar: Current location:', location.pathname);
+
   const isTabActive = (tabPath: string) => {
     if (tabPath === '/dashboard') {
       return location.pathname === '/' || location.pathname === '/dashboard';
@@ -56,6 +58,7 @@ export const BottomTabBar: React.FC = () => {
   };
 
   const handleTabPress = (path: string) => {
+    console.log('BottomTabBar: Navigating to:', path);
     navigate(path);
   };
 
@@ -65,8 +68,8 @@ export const BottomTabBar: React.FC = () => {
       "bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg",
       "border-t border-gray-200 dark:border-gray-800",
       "safe-area-pb"
-    )}>
-      <div className="flex justify-around items-center px-2 pt-2 pb-1">
+    )} style={{ pointerEvents: 'auto' }}>
+      <div className="flex justify-around items-center px-2 pt-2 pb-1" style={{ pointerEvents: 'auto' }}>
         {TAB_ITEMS.map((tab) => {
           const Icon = tab.icon;
           const isActive = isTabActive(tab.path);
