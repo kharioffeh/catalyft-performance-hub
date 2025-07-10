@@ -35,7 +35,7 @@ const SAMPLE_INSIGHTS = [
 ];
 
 const AnalyticsPageContent: React.FC = () => {
-  const [selectedAthleteId, setSelectedAthleteId] = useState<string>('');
+  const [selectedAthleteId, setSelectedAthleteId] = useState<string>('default-athlete');
   const [ariaInput, setAriaInput] = useState('');
   const [showConnectModal, setShowConnectModal] = useState(false);
   const { period } = usePeriod();
@@ -43,21 +43,8 @@ const AnalyticsPageContent: React.FC = () => {
   // Convert period to days for existing hooks
   const periodDays = periodToDays(period);
 
-  // Always use a demo athlete ID to ensure graphs show
-  const demoAthleteId = selectedAthleteId || 'demo-athlete-001';
-
   // Get enhanced metrics for the selected athlete
-  const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetricsWithAthlete(demoAthleteId);
-
-  // Debug data loading
-  console.log('Analytics Debug:', {
-    selectedAthleteId,
-    demoAthleteId,
-    readinessDataLength: readinessRolling.length,
-    sleepDataLength: sleepDaily.length,
-    loadDataLength: loadACWR.length,
-    latestStrain
-  });
+  const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetricsWithAthlete(selectedAthleteId);
 
   // Extract values for InsightStrip
   const latestReadiness = readinessRolling[readinessRolling.length - 1]?.readiness_score ?? null;
@@ -105,7 +92,7 @@ const AnalyticsPageContent: React.FC = () => {
 
   const sleepData = sleepDaily.length > 0 ? sleepDaily : [
     {
-      athlete_uuid: demoAthleteId,
+      athlete_uuid: selectedAthleteId,
       day: '2024-01-01',
       total_sleep_hours: 7.5,
       sleep_efficiency: 85,
@@ -113,7 +100,7 @@ const AnalyticsPageContent: React.FC = () => {
       hrv_rmssd: 42
     },
     {
-      athlete_uuid: demoAthleteId,
+      athlete_uuid: selectedAthleteId,
       day: '2024-01-02',
       total_sleep_hours: 8.2,
       sleep_efficiency: 92,
@@ -121,7 +108,7 @@ const AnalyticsPageContent: React.FC = () => {
       hrv_rmssd: 45
     },
     {
-      athlete_uuid: demoAthleteId,
+      athlete_uuid: selectedAthleteId,
       day: '2024-01-03',
       total_sleep_hours: 6.8,
       sleep_efficiency: 78,
@@ -132,7 +119,7 @@ const AnalyticsPageContent: React.FC = () => {
 
   const loadData = loadACWR.length > 0 ? loadACWR : [
     {
-      athlete_uuid: demoAthleteId,
+      athlete_uuid: selectedAthleteId,
       day: '2024-01-01',
       daily_load: 450,
       acute_7d: 420,
@@ -140,7 +127,7 @@ const AnalyticsPageContent: React.FC = () => {
       acwr_7_28: 1.1
     },
     {
-      athlete_uuid: demoAthleteId,
+      athlete_uuid: selectedAthleteId,
       day: '2024-01-02',
       daily_load: 520,
       acute_7d: 435,
@@ -148,7 +135,7 @@ const AnalyticsPageContent: React.FC = () => {
       acwr_7_28: 1.13
     },
     {
-      athlete_uuid: demoAthleteId,
+      athlete_uuid: selectedAthleteId,
       day: '2024-01-03',
       daily_load: 380,
       acute_7d: 425,
@@ -164,9 +151,6 @@ const AnalyticsPageContent: React.FC = () => {
         selectedAthleteId={selectedAthleteId}
         onAthleteChange={setSelectedAthleteId}
       />
-
-      {/* Muscle Anatomy Panel with Training Load & ACWR Gauges */}
-      <MuscleAnatomyPanel selectedAthleteId={demoAthleteId} />
 
       {/* Sticky Insight Strip */}
       <InsightStrip
@@ -206,8 +190,8 @@ const AnalyticsPageContent: React.FC = () => {
         {/* ARIA Spotlight - Contextual coaching overlay */}
         <AriaSpotlight />
 
-        {/* ARIA Spotlight - Contextual coaching overlay */}
-        <AriaSpotlight />
+        {/* Muscle Anatomy Panel with Training Load & ACWR Gauges */}
+        <MuscleAnatomyPanel selectedAthleteId={selectedAthleteId} />
 
         {/* ARIA Input Section - Full width */}
         <ARIAInputSection
