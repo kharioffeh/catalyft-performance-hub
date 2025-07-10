@@ -1,6 +1,7 @@
 import React from 'react';
 import { Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useFabPosition } from '@/hooks/useFabPosition';
 
 interface FabProps {
   onPress: () => void;
@@ -17,13 +18,15 @@ export const Fab: React.FC<FabProps> = ({
   'aria-label': ariaLabel = 'Add new item',
   icon
 }) => {
+  const { fabClasses } = useFabPosition();
+
   return (
     <button
       onClick={onPress}
       disabled={disabled}
       className={cn(
-        // Fixed positioning
-        "fixed bottom-6 right-6 z-50",
+        // Smart positioning based on screen size and layout
+        fabClasses,
         // Size: 64px (w-16 h-16)
         "w-16 h-16",
         // Background and styling

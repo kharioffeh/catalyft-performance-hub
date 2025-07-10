@@ -13,11 +13,14 @@ import { FloatingAddButton } from '@/components/nutrition/FloatingAddButton';
 import { MacroRings } from '@/components/nutrition/MacroRings';
 import { NutritionScoreCard } from '@/components/nutrition/NutritionScoreCard';
 import { MealScannerCamera } from '@/components/nutrition/MealScannerCamera';
+import { useFabPosition } from '@/hooks/useFabPosition';
+import { cn } from '@/lib/utils';
 
 const Nutrition: React.FC = () => {
   const { meals, addMeal, removeMeal, getTodaysMeals, getTodaysMacros, getMacroTargets, getNutritionScore } = useNutrition();
   const [activeTab, setActiveTab] = useState('overview');
   const [showScanner, setShowScanner] = useState(false);
+  const { contentPadding } = useFabPosition();
 
   const todaysMacros = getTodaysMacros();
   const macroTargets = getMacroTargets();
@@ -55,7 +58,7 @@ const Nutrition: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 p-4 md:p-8">
+    <div className={cn("space-y-6 p-4 md:p-8", contentPadding)}>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-white mb-2">Nutrition</h1>
         <p className="text-white/70">
