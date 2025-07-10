@@ -143,7 +143,7 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
                 axisLine={false}
                 tickLine={false}
                 width={20}
-                domain={[0, 800]}
+                domain={[0, 50]}
               />
               <Tooltip 
                 contentStyle={{
