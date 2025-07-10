@@ -76,16 +76,6 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
           <h3 className="text-lg font-semibold text-white">Sleep & Recovery</h3>
           <p className="text-white/60 text-sm">Sleep efficiency, duration, and HRV analysis</p>
         </div>
-        {variant === 'carousel' && (
-          <Button 
-            onClick={handleViewDetails}
-            variant="ghost" 
-            size="sm"
-            className="text-white/70 hover:text-white"
-          >
-            View Details →
-          </Button>
-        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

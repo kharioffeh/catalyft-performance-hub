@@ -61,16 +61,6 @@ export const StressChart: React.FC<StressChartProps> = ({
           <h3 className="text-lg font-semibold text-white">Daily Stress</h3>
           <p className="text-white/60 text-sm">Current stress level and trends</p>
         </div>
-        {variant === 'carousel' && (
-          <Button 
-            onClick={handleViewDetails}
-            variant="ghost" 
-            size="sm"
-            className="text-white/70 hover:text-white"
-          >
-            View Details →
-          </Button>
-        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
