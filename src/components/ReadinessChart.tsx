@@ -80,26 +80,27 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
         </div>
 
         {/* Readiness Trend Chart */}
-        <div className="lg:col-span-2 h-64">
+        <div className="lg:col-span-2 h-64 px-2 pb-4">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 5, right: 15, left: 15, bottom: 25 }}>
+            <LineChart data={data} margin={{ top: 10, right: 20, left: 35, bottom: 30 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
               <XAxis 
                 dataKey="date" 
                 stroke="rgba(255,255,255,0.6)"
-                fontSize={9}
-                tick={{ fontSize: 9 }}
+                fontSize={8}
+                tick={{ fontSize: 8, dy: 5 }}
                 axisLine={false}
                 tickLine={false}
+                height={20}
               />
               <YAxis 
                 stroke="rgba(255,255,255,0.6)"
-                fontSize={9}
+                fontSize={8}
                 domain={[0, 100]}
-                tick={{ fontSize: 9 }}
+                tick={{ fontSize: 8, dx: -5 }}
                 axisLine={false}
                 tickLine={false}
-                width={25}
+                width={35}
               />
               <Tooltip 
                 contentStyle={{
