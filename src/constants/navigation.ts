@@ -51,7 +51,7 @@ export const navigationItems = [
   },
   {
     title: 'Training',
-    href: '/training-programs',
+    href: '/training-plan',
     icon: BookOpen,
     roles: ['coach'],
   },
@@ -98,7 +98,7 @@ export const coachNavigation = [
   },
   {
     label: 'Training',
-    path: '/training-programs',
+    path: '/training-plan',
     icon: BookOpen,
   },
   {

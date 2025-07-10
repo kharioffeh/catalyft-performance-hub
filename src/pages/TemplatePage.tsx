@@ -26,7 +26,7 @@ export default function TemplatePage() {
   return (
     <div className="p-6">
       <nav className="text-sm mb-2">
-        <a href="/templates" className="text-blue-600">Templates</a> &nbsp;›&nbsp; {tpl.name}
+        <a href="/training-plan" className="text-blue-600">Training Plan</a> &nbsp;›&nbsp; {tpl.name}
       </nav>
       <h1 className="text-2xl font-bold mb-4">{tpl.name}</h1>
       <WeekSlider blockJson={tpl.block_json} />

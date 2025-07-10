@@ -56,8 +56,8 @@ export const CoachedDashboard: React.FC<CoachedDashboardProps> = ({
               <MessageSquare className="w-4 h-4" />
               Message Coach
             </Button>
-            <Button variant="outline" onClick={() => navigate('/workouts')}>
-              View Assigned Workouts
+            <Button variant="outline" onClick={() => navigate('/training-plan')}>
+              View Training Plan
             </Button>
           </div>
         </CardContent>

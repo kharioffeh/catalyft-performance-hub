@@ -22,7 +22,7 @@ const TAB_ITEMS: TabItem[] = [
     id: 'training',
     label: 'Training',
     icon: Dumbbell,
-    path: '/training-programs',
+    path: '/training-plan',
   },
   {
     id: 'analytics',

@@ -39,7 +39,7 @@ export const GenerateProgramModal: React.FC<Props> = ({ open, onClose }) => {
         weeks: values.weeks
       });
       onClose();
-      navigate(`/templates/${templateId}`);
+      navigate(`/template/${templateId}`);
     } catch (e) {
       alert("Generation failed. See console.");
     } finally {

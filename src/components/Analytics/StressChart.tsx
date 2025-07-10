@@ -51,7 +51,7 @@ export const StressChart: React.FC<StressChartProps> = ({
   };
 
   const handleViewDetails = () => {
-    navigate('/stress');
+    navigate('/analytics');
   };
 
   return (

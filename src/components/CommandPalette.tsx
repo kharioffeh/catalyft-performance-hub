@@ -172,7 +172,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ children }) => {
           keywords: 'training programs templates workouts',
           section: 'Navigation',
           icon: <BookOpen className="w-4 h-4" />,
-          perform: () => navigate('/training-programs'),
+          perform: () => navigate('/training-plan'),
         },
         {
           id: 'calendar',

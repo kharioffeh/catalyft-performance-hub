@@ -34,7 +34,7 @@ export const AnalyticsKPICards: React.FC<AnalyticsKPICardsProps> = ({
           value: formatDelta(readinessData.delta7d),
           positive: readinessData.delta7d >= 0
         } : undefined}
-        onClick={() => navigate('/analytics/readiness')}
+        onClick={() => navigate('/analytics')}
         isLoading={!readinessData}
       />
       <KpiCard
@@ -45,7 +45,7 @@ export const AnalyticsKPICards: React.FC<AnalyticsKPICardsProps> = ({
           value: formatDelta(sleepData.delta7d),
           positive: sleepData.delta7d >= 0
         } : undefined}
-        onClick={() => navigate('/sleep')}
+        onClick={() => navigate('/analytics')}
         isLoading={!sleepData}
       />
       <KpiCard
@@ -56,7 +56,7 @@ export const AnalyticsKPICards: React.FC<AnalyticsKPICardsProps> = ({
           value: stressData.trend === 'increasing' ? '+High' : stressData.trend === 'decreasing' ? '-Low' : 'Stable',
           positive: stressData.trend === 'decreasing'
         } : undefined}
-        onClick={() => navigate('/stress')}
+        onClick={() => navigate('/analytics')}
         isLoading={!stressData}
       />
       <KpiCard
@@ -67,7 +67,7 @@ export const AnalyticsKPICards: React.FC<AnalyticsKPICardsProps> = ({
           value: formatDelta(-2.1),
           positive: false
         }}
-        onClick={() => navigate('/analytics/load')}
+        onClick={() => navigate('/analytics')}
         isLoading={!latestStrain}
       />
     </div>

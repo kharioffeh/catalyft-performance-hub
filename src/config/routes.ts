@@ -56,7 +56,7 @@ export const NAV_ROUTES: NavItem[] = [
   },
   { 
     label: "Training", 
-    path: "/training-programs", 
+    path: "/training-plan", 
     icon: BookOpen, 
     roles: ["coach"] 
   },

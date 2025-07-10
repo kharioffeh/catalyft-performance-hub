@@ -55,9 +55,9 @@ export const SoloDashboard: React.FC<SoloDashboardProps> = ({
               <Brain className="w-4 h-4" />
               Chat with ARIA
             </Button>
-            <Button variant="outline" onClick={() => navigate('/templates')} className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => navigate('/training-plan')} className="flex items-center gap-2">
               <Target className="w-4 h-4" />
-              Training Templates
+              Training Plan
             </Button>
           </div>
         </CardContent>

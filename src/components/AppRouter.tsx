@@ -85,7 +85,7 @@ const AppRouter = () => {
               <SoloProgramPage />
             </ProtectedRoute>
           } />
-          <Route path="training" element={<Navigate to="/training-programs" replace />} />
+          <Route path="training" element={<Navigate to="/training-plan" replace />} />
           <Route path="training/live" element={<LiveSessionPage />} />
           <Route path="nutrition" element={<NutritionPage />} />
           <Route path="nutrition/parse" element={<MealParseScreen />} />
@@ -108,16 +108,12 @@ const AppRouter = () => {
               <RiskBoardPage />
             </ProtectedRoute>
           } />
-          <Route path="training-programs" element={
-            <ProtectedRoute roles={['coach']}>
-              <TrainingPrograms />
-            </ProtectedRoute>
-          } />
+          <Route path="training-programs" element={<Navigate to="/training-plan" replace />} />
           <Route path="training-plan/*" element={<TrainingPlan />} />
           {/* Redirect old routes to new unified page */}
-          <Route path="workouts" element={<Navigate to="/training-programs" replace />} />
-          <Route path="workout" element={<Navigate to="/training-programs" replace />} />
-          <Route path="training-objects" element={<Navigate to="/training-programs" replace />} />
+          <Route path="workouts" element={<Navigate to="/training-plan" replace />} />
+          <Route path="workout" element={<Navigate to="/training-plan" replace />} />
+          <Route path="training-objects" element={<Navigate to="/training-plan" replace />} />
           <Route path="kai" element={<Navigate to="/chat" replace />} />
           <Route path="template/:id" element={<TemplateDetailPage />} />
           <Route path="settings" element={<SettingsPage />} />

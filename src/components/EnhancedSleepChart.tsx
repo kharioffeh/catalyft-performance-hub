@@ -59,7 +59,7 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
   };
 
   const handleViewDetails = () => {
-    navigate('/sleep');
+    navigate('/analytics');
   };
 
   const formattedData = data.map(item => ({
