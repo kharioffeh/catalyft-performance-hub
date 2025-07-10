@@ -35,7 +35,7 @@ const SAMPLE_INSIGHTS = [
 ];
 
 const AnalyticsPageContent: React.FC = () => {
-  const [selectedAthleteId, setSelectedAthleteId] = useState<string>('');
+  const [selectedAthleteId, setSelectedAthleteId] = useState<string>('default-athlete');
   const [ariaInput, setAriaInput] = useState('');
   const [showConnectModal, setShowConnectModal] = useState(false);
   const { period } = usePeriod();
@@ -77,20 +77,22 @@ const AnalyticsPageContent: React.FC = () => {
     console.log('Log workout clicked');
   };
 
-  // Mock data for charts - in real app, these would come from hooks
-  const mockReadinessData = [
-    { date: '2024-01-01', score: 85 },
-    { date: '2024-01-02', score: 78 },
-    { date: '2024-01-03', score: 92 },
-    { date: '2024-01-04', score: 88 },
-    { date: '2024-01-05', score: 76 },
-    { date: '2024-01-06', score: 84 },
-    { date: '2024-01-07', score: 89 },
-  ];
+  // Use real data with fallback to mock data
+  const readinessData = readinessRolling.length > 0 ? 
+    readinessRolling.map(item => ({ date: item.day, score: item.readiness_score })) :
+    [
+      { date: '2024-01-01', score: 85 },
+      { date: '2024-01-02', score: 78 },
+      { date: '2024-01-03', score: 92 },
+      { date: '2024-01-04', score: 88 },
+      { date: '2024-01-05', score: 76 },
+      { date: '2024-01-06', score: 84 },
+      { date: '2024-01-07', score: 89 },
+    ];
 
-  const mockSleepData = [
+  const sleepData = sleepDaily.length > 0 ? sleepDaily : [
     {
-      athlete_uuid: '1',
+      athlete_uuid: selectedAthleteId,
       day: '2024-01-01',
       total_sleep_hours: 7.5,
       sleep_efficiency: 85,
@@ -98,7 +100,7 @@ const AnalyticsPageContent: React.FC = () => {
       hrv_rmssd: 42
     },
     {
-      athlete_uuid: '1',
+      athlete_uuid: selectedAthleteId,
       day: '2024-01-02',
       total_sleep_hours: 8.2,
       sleep_efficiency: 92,
@@ -106,7 +108,7 @@ const AnalyticsPageContent: React.FC = () => {
       hrv_rmssd: 45
     },
     {
-      athlete_uuid: '1',
+      athlete_uuid: selectedAthleteId,
       day: '2024-01-03',
       total_sleep_hours: 6.8,
       sleep_efficiency: 78,
@@ -115,9 +117,9 @@ const AnalyticsPageContent: React.FC = () => {
     },
   ];
 
-  const mockLoadData = [
+  const loadData = loadACWR.length > 0 ? loadACWR : [
     {
-      athlete_uuid: '1',
+      athlete_uuid: selectedAthleteId,
       day: '2024-01-01',
       daily_load: 450,
       acute_7d: 420,
@@ -125,7 +127,7 @@ const AnalyticsPageContent: React.FC = () => {
       acwr_7_28: 1.1
     },
     {
-      athlete_uuid: '1',
+      athlete_uuid: selectedAthleteId,
       day: '2024-01-02',
       daily_load: 520,
       acute_7d: 435,
@@ -133,7 +135,7 @@ const AnalyticsPageContent: React.FC = () => {
       acwr_7_28: 1.13
     },
     {
-      athlete_uuid: '1',
+      athlete_uuid: selectedAthleteId,
       day: '2024-01-03',
       daily_load: 380,
       acute_7d: 425,
@@ -164,17 +166,17 @@ const AnalyticsPageContent: React.FC = () => {
         <div className="mt-6">
           <MetricCarousel labels={['Readiness', 'Sleep', 'Load', 'Stress']}>
             <ReadinessChart 
-              data={mockReadinessData} 
+              data={readinessData} 
               variant="carousel"
               onConnectWearable={handleConnectWearable}
             />
             <EnhancedSleepChart 
-              data={mockSleepData} 
+              data={sleepData} 
               variant="carousel"
               onConnectWearable={handleConnectWearable}
             />
             <EnhancedTrainingLoadChart 
-              data={mockLoadData} 
+              data={loadData} 
               variant="carousel"
               onLogWorkout={handleLogWorkout}
             />

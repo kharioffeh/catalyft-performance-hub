@@ -56,7 +56,7 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
   };
 
   return (
-    <GlassCard className={`p-6 ${variant === 'carousel' ? 'h-[400px]' : ''}`}>
+    <GlassCard className={`p-6 ${variant === 'carousel' ? 'h-full' : ''}`}>
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="text-lg font-semibold text-white">Readiness Score</h3>

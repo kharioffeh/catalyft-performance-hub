@@ -29,6 +29,13 @@ export const metricTokens = {
     bg: 'rgba(244, 63, 94, 0.1)',
     border: 'rgba(251, 113, 133, 0.2)', // using ring color
   },
+  stress: {
+    primary: '#3B82F6', // blue-500
+    light: '#60A5FA',   // blue-400
+    dark: '#2563EB',    // blue-600
+    bg: 'rgba(59, 130, 246, 0.1)',
+    border: 'rgba(96, 165, 250, 0.2)', // using ring color
+  },
 } as const;
 
 export type MetricType = keyof typeof metricTokens;
