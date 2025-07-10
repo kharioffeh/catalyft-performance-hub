@@ -35,18 +35,8 @@ const SettingsErrorFallback = ({ error, resetErrorBoundary }: any) => (
 );
 
 const Settings: React.FC = () => {
+  // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
   const isMobile = useIsMobile();
-  
-  // Use mobile layout on mobile devices with error boundary
-  if (isMobile) {
-    return (
-      <ErrorBoundary FallbackComponent={SettingsErrorFallback}>
-        <MobileSettingsLayout />
-      </ErrorBoundary>
-    );
-  }
-
-  // Keep existing desktop layout for larger screens
   const { user, profile } = useAuth();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const { preferences: notificationPreferences, updatePreferences } = useNotificationPreferences();
@@ -59,6 +49,15 @@ const Settings: React.FC = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  
+  // Use mobile layout on mobile devices with error boundary
+  if (isMobile) {
+    return (
+      <ErrorBoundary FallbackComponent={SettingsErrorFallback}>
+        <MobileSettingsLayout />
+      </ErrorBoundary>
+    );
+  }
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
