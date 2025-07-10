@@ -2,14 +2,15 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useLogout } from '@/hooks/useLogout';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { SettingsCard } from './SettingsCard';
 import { SettingsSection } from './SettingsSection';
 import { SettingsSwitch } from './SettingsSwitch';
-import { NotificationSettingsWithWeeklySummary } from '@/components/NotificationSettingsWithWeeklySummary';
+import { useNotificationPreferences } from '@/hooks/useNotificationPreferences';
+import { WeeklySummarySettings } from '@/components/WeeklySummarySettings';
 import { 
   User, 
   Mail, 
@@ -37,13 +38,12 @@ export const MobileSettingsLayout: React.FC = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showAppearance, setShowAppearance] = useState(false);
   
-  // Notification preferences state
-  const [notifications, setNotifications] = useState({
-    email_notifications: true,
-    training_reminders: true,
-    weekly_reports: true,
-    abnormal_readiness: false
-  });
+  // Use proper notification preferences hook
+  const { 
+    preferences: notificationPreferences, 
+    isLoading: preferencesLoading,
+    updatePreferences 
+  } = useNotificationPreferences();
 
   // Profile editing modal state
   const [showProfileEdit, setShowProfileEdit] = useState(false);
@@ -220,8 +220,14 @@ export const MobileSettingsLayout: React.FC = () => {
           <h1 className="text-lg font-semibold mt-1">Notifications</h1>
         </div>
         
-        <div className="p-4">
-          <NotificationSettingsWithWeeklySummary>
+        <div className="p-4 space-y-6">
+          {preferencesLoading ? (
+            <div className="space-y-4">
+              <div className="h-16 bg-gray-200 rounded-xl animate-pulse" />
+              <div className="h-16 bg-gray-200 rounded-xl animate-pulse" />
+              <div className="h-16 bg-gray-200 rounded-xl animate-pulse" />
+            </div>
+          ) : (
             <div className="space-y-4">
               <SettingsCard
                 icon={BarChart3}
@@ -229,38 +235,34 @@ export const MobileSettingsLayout: React.FC = () => {
                 subtitle="Morning briefing with readiness and activity"
                 rightElement={
                   <SettingsSwitch
-                    checked={notifications.email_notifications}
-                    onCheckedChange={(checked) => 
-                      setNotifications(prev => ({ ...prev, email_notifications: checked }))
-                    }
+                    checked={notificationPreferences?.daily_summary ?? true}
+                    onCheckedChange={(checked) => {
+                      if (notificationPreferences) {
+                        updatePreferences({
+                          ...notificationPreferences,
+                          daily_summary: checked
+                        });
+                      }
+                    }}
                   />
                 }
               />
               
               <SettingsCard
                 icon={Clock}
-                title="Training Reminders"
-                subtitle="Alerts for upcoming training sessions"
+                title="Missed Workout Alerts"
+                subtitle="Alerts for missed training sessions"
                 rightElement={
                   <SettingsSwitch
-                    checked={notifications.training_reminders}
-                    onCheckedChange={(checked) => 
-                      setNotifications(prev => ({ ...prev, training_reminders: checked }))
-                    }
-                  />
-                }
-              />
-              
-              <SettingsCard
-                icon={BarChart3}
-                title="Weekly Reports"
-                subtitle="Performance summaries every week"
-                rightElement={
-                  <SettingsSwitch
-                    checked={notifications.weekly_reports}
-                    onCheckedChange={(checked) => 
-                      setNotifications(prev => ({ ...prev, weekly_reports: checked }))
-                    }
+                    checked={notificationPreferences?.missed_workout ?? true}
+                    onCheckedChange={(checked) => {
+                      if (notificationPreferences) {
+                        updatePreferences({
+                          ...notificationPreferences,
+                          missed_workout: checked
+                        });
+                      }
+                    }}
                   />
                 }
               />
@@ -271,15 +273,23 @@ export const MobileSettingsLayout: React.FC = () => {
                 subtitle="Warnings when readiness drops significantly"
                 rightElement={
                   <SettingsSwitch
-                    checked={notifications.abnormal_readiness}
-                    onCheckedChange={(checked) => 
-                      setNotifications(prev => ({ ...prev, abnormal_readiness: checked }))
-                    }
+                    checked={notificationPreferences?.abnormal_readiness ?? true}
+                    onCheckedChange={(checked) => {
+                      if (notificationPreferences) {
+                        updatePreferences({
+                          ...notificationPreferences,
+                          abnormal_readiness: checked
+                        });
+                      }
+                    }}
                   />
                 }
               />
             </div>
-          </NotificationSettingsWithWeeklySummary>
+          )}
+          
+          {/* Weekly Summary Settings */}
+          <WeeklySummarySettings />
         </div>
       </div>
     );

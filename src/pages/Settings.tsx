@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import { useIsMobile } from '@/hooks/useBreakpoint';
 import { MobileSettingsLayout } from '@/components/Settings/MobileSettingsLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,29 +17,44 @@ import { toast } from '@/hooks/use-toast';
 import { User, Settings as SettingsIcon, Shield, Bell, Trash2, Palette, Sun, Moon, Monitor } from 'lucide-react';
 import { useLogout } from '@/hooks/useLogout';
 import { cn } from '@/lib/utils';
+import { useNotificationPreferences } from '@/hooks/useNotificationPreferences';
+
+const SettingsErrorFallback = ({ error, resetErrorBoundary }: any) => (
+  <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="text-center space-y-4">
+      <h2 className="text-xl font-semibold text-red-600">Settings Error</h2>
+      <p className="text-gray-600">Something went wrong loading the settings page.</p>
+      <button 
+        onClick={resetErrorBoundary}
+        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
+        Try Again
+      </button>
+    </div>
+  </div>
+);
 
 const Settings: React.FC = () => {
   const isMobile = useIsMobile();
   
-  // Use mobile layout on mobile devices
+  // Use mobile layout on mobile devices with error boundary
   if (isMobile) {
-    return <MobileSettingsLayout />;
+    return (
+      <ErrorBoundary FallbackComponent={SettingsErrorFallback}>
+        <MobileSettingsLayout />
+      </ErrorBoundary>
+    );
   }
 
   // Keep existing desktop layout for larger screens
   const { user, profile } = useAuth();
   const { theme, setTheme, resolvedTheme } = useTheme();
+  const { preferences: notificationPreferences, updatePreferences } = useNotificationPreferences();
   const logout = useLogout();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     full_name: profile?.full_name || '',
     email: user?.email || ''
-  });
-  const [notifications, setNotifications] = useState({
-    email_notifications: true,
-    push_notifications: false,
-    training_reminders: true,
-    weekly_reports: true
   });
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -184,12 +200,13 @@ const Settings: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-      </div>
+    <ErrorBoundary FallbackComponent={SettingsErrorFallback}>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
+        </div>
 
-      <Tabs defaultValue="profile" className="w-full">
+        <Tabs defaultValue="profile" className="w-full">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
@@ -400,44 +417,56 @@ const Settings: React.FC = () => {
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Email Notifications</Label>
-                  <p className="text-sm text-gray-500">Receive notifications via email</p>
+                  <Label>Daily Summary</Label>
+                  <p className="text-sm text-gray-500">Morning briefing with readiness and activity</p>
                 </div>
                 <Switch
-                  checked={notifications.email_notifications}
-                  onCheckedChange={(checked) => 
-                    setNotifications(prev => ({ ...prev, email_notifications: checked }))
-                  }
+                  checked={notificationPreferences?.daily_summary ?? true}
+                  onCheckedChange={(checked) => {
+                    if (notificationPreferences) {
+                      updatePreferences({
+                        ...notificationPreferences,
+                        daily_summary: checked
+                      });
+                    }
+                  }}
                 />
               </div>
               <Separator />
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Training Reminders</Label>
-                  <p className="text-sm text-gray-500">Get reminded about upcoming training sessions</p>
+                  <Label>Missed Workout Alerts</Label>
+                  <p className="text-sm text-gray-500">Alerts for missed training sessions</p>
                 </div>
                 <Switch
-                  checked={notifications.training_reminders}
-                  onCheckedChange={(checked) => 
-                    setNotifications(prev => ({ ...prev, training_reminders: checked }))
-                  }
+                  checked={notificationPreferences?.missed_workout ?? true}
+                  onCheckedChange={(checked) => {
+                    if (notificationPreferences) {
+                      updatePreferences({
+                        ...notificationPreferences,
+                        missed_workout: checked
+                      });
+                    }
+                  }}
                 />
               </div>
               <Separator />
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Weekly Reports</Label>
-                  <p className="text-sm text-gray-500">Receive weekly performance summaries</p>
+                  <Label>Abnormal Readiness Alerts</Label>
+                  <p className="text-sm text-gray-500">Warnings when readiness drops significantly</p>
                 </div>
                 <Switch
-                  checked={notifications.weekly_reports}
-                  onCheckedChange={(checked) => 
-                    setNotifications(prev => ({ ...prev, weekly_reports: checked }))
-                  }
+                  checked={notificationPreferences?.abnormal_readiness ?? true}
+                  onCheckedChange={(checked) => {
+                    if (notificationPreferences) {
+                      updatePreferences({
+                        ...notificationPreferences,
+                        abnormal_readiness: checked
+                      });
+                    }
+                  }}
                 />
-              </div>
-              <div className="pt-4">
-                <Button>Save Notification Preferences</Button>
               </div>
             </CardContent>
           </Card>
@@ -478,7 +507,8 @@ const Settings: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 };
 
