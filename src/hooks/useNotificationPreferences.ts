@@ -3,6 +3,7 @@ import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { useCallback } from 'react';
 
 export interface NotificationPreferences {
   daily_summary: boolean;
@@ -137,12 +138,21 @@ export const useNotificationPreferences = () => {
     }
   });
 
+  // Stable function references to prevent React error #300
+  const handleUpdatePreferences = useCallback((newPreferences: NotificationPreferences) => {
+    updatePreferences.mutate(newPreferences);
+  }, [updatePreferences.mutate]);
+
+  const handleUpdateThresholds = useCallback((newThresholds: NotificationThresholds) => {
+    updateThresholds.mutate(newThresholds);
+  }, [updateThresholds.mutate]);
+
   return {
     preferences,
     thresholds,
     isLoading: preferencesLoading || thresholdsLoading,
-    updatePreferences: updatePreferences.mutate,
-    updateThresholds: updateThresholds.mutate,
+    updatePreferences: handleUpdatePreferences,
+    updateThresholds: handleUpdateThresholds,
     isUpdating: updatePreferences.isPending || updateThresholds.isPending
   };
 };
