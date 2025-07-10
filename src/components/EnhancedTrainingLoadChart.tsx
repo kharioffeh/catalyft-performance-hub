@@ -135,7 +135,6 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
                 axisLine={false}
                 tickLine={false}
                 height={15}
-                domain={[0, 'dataMax']}
               />
               <YAxis 
                 stroke="rgba(255,255,255,0.6)"
@@ -144,7 +143,7 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
                 axisLine={false}
                 tickLine={false}
                 width={20}
-                domain={[0, 'dataMax']}
+                domain={[0, 1000]}
               />
               <Tooltip 
                 contentStyle={{

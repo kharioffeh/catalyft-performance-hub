@@ -92,12 +92,11 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
                 axisLine={false}
                 tickLine={false}
                 height={15}
-                domain={[0, 'dataMax']}
               />
               <YAxis 
                 stroke="rgba(255,255,255,0.6)"
                 fontSize={8}
-                domain={[0, 'dataMax']}
+                domain={[0, 100]}
                 tick={{ fontSize: 8, dx: -2 }}
                 axisLine={false}
                 tickLine={false}
