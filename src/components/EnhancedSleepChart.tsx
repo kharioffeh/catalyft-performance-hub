@@ -112,14 +112,14 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
         {/* Sleep Phases Bar Chart */}
         <div className="h-80 px-0 pb-1">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={formattedData} margin={{ top: 10, right: 10, left: 15, bottom: 15 }}>
+            <BarChart data={formattedData} margin={{ top: 10, right: 10, left: 15, bottom: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
               <XAxis 
                 dataKey="date" 
                 stroke="rgba(255,255,255,0.6)"
                 fontSize={8}
                 tick={{ fontSize: 8, dy: 3 }}
-                axisLine={false}
+                axisLine={{ stroke: "rgba(255,255,255,0.3)" }}
                 tickLine={false}
                 height={15}
               />
@@ -127,7 +127,7 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
                 stroke="rgba(255,255,255,0.6)"
                 fontSize={8}
                 tick={{ fontSize: 8, dx: -2 }}
-                axisLine={false}
+                axisLine={{ stroke: "rgba(255,255,255,0.3)" }}
                 tickLine={false}
                 width={20}
                 domain={[0, 10]}

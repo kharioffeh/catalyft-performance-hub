@@ -81,7 +81,7 @@ export const StressChart: React.FC<StressChartProps> = ({
         {/* Intraday Stress Chart - Whoop Style */}
         <div className="h-80 px-0 pb-1">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={stressData.intradayReadings} margin={{ top: 10, right: 10, left: 15, bottom: 15 }}>
+            <AreaChart data={stressData.intradayReadings} margin={{ top: 10, right: 10, left: 15, bottom: 20 }}>
               <defs>
                 <linearGradient id="stressWhoopGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="hsl(48, 96%, 53%)" stopOpacity={0.8}/>
@@ -99,7 +99,7 @@ export const StressChart: React.FC<StressChartProps> = ({
                 stroke="rgba(255,255,255,0.6)"
                 fontSize={8}
                 tick={{ fontSize: 8, dy: 3 }}
-                axisLine={false}
+                axisLine={{ stroke: "rgba(255,255,255,0.3)" }}
                 tickLine={false}
                 interval={3} // Show every 4th hour (6AM, 12PM, 6PM, etc.)
                 height={15}
@@ -109,7 +109,7 @@ export const StressChart: React.FC<StressChartProps> = ({
                 fontSize={8}
                 domain={[0, 3.5]}
                 tick={{ fontSize: 8, dx: -2 }}
-                axisLine={false}
+                axisLine={{ stroke: "rgba(255,255,255,0.3)" }}
                 tickLine={false}
                 width={20}
                 tickFormatter={(value) => value.toFixed(1)}
