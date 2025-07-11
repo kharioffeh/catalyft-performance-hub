@@ -22,7 +22,7 @@ export const TrainingPlanTabs: React.FC = () => {
             value="programs" 
             className="text-white/70 data-[state=active]:bg-indigo-500/20 data-[state=active]:text-indigo-200 data-[state=active]:rounded-xl transition-all duration-200"
           >
-            Programs
+            Templates
           </TabsTrigger>
           <TabsTrigger 
             value="instances" 
