@@ -1,6 +1,10 @@
 
 import { createClient } from '@supabase/supabase-js';
 import fetch from 'node-fetch';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
 
 // Check environment variables
 function checkEnvVars() {
@@ -9,7 +13,7 @@ function checkEnvVars() {
   const requiredVars = [
     'VITE_SUPABASE_URL',
     'VITE_SUPABASE_ANON_KEY',
-    'OPENAI_KAI_KEY',
+    'OPENAI_API_KEY',
     'OPENAI_ARIA_KEY',
     'ABLY_API_KEY'
   ];
@@ -17,13 +21,14 @@ function checkEnvVars() {
   const missing = [];
   
   for (const varName of requiredVars) {
-    if (!process.env[varName]) {
+    if (!process.env[varName] || process.env[varName] === 'your-openai-api-key-here' || process.env[varName] === 'your-openai-aria-key-here' || process.env[varName] === 'your-ably-api-key-here') {
       missing.push(varName);
     }
   }
   
   if (missing.length > 0) {
     console.error('❌ Missing environment variables:', missing.join(', '));
+    console.log('💡 Please update your .env file with actual API keys. See SETUP.md for details.');
     return false;
   }
   
@@ -36,10 +41,10 @@ async function testEdgeFunctions() {
   console.log('🔍 Testing edge functions...');
   
   const functions = [
-    'kai_generate_program',
-    'kai_adjust_set', 
-    'aria_generate_insights',
-    'velocity_aggregate'
+    'aria-generate-insights',
+    'aria-generate-program',
+    'aria-chat-proxy',
+    'ai-sports-chat'
   ];
   
   const supabaseUrl = process.env.VITE_SUPABASE_URL;
