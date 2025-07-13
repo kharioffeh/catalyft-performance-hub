@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import SwipeableViews from 'react-swipeable-views';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import InlineTable from '@/components/InlineTable';
@@ -73,18 +73,25 @@ export default function EditableWeekTable({ blockJson, editable, onChange }: Edi
         </Button>
       </div>
       
-      <SwipeableViews index={idx} onChangeIndex={setIdx} enableMouseEvents>
-        {weeks.map((week: any, weekIndex: number) => (
-          <div key={weekIndex} className="px-1">
+      <div className="relative overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2 }}
+            className="px-1"
+          >
             <InlineTable 
-              week={week} 
-              weekIdx={weekIndex} 
+              week={weeks[idx]} 
+              weekIdx={idx} 
               editable={editable} 
               onEdit={updateCell}
             />
-          </div>
-        ))}
-      </SwipeableViews>
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </>
   );
 }
