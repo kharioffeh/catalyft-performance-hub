@@ -22,7 +22,7 @@ jobs:
         node-version: 20
         cache: npm
       # failure propagation handled by runner
-    - run: npm ci
+    - run: npm ci --legacy-peer-deps
       
     - name: Run health check
       env:
@@ -42,7 +42,7 @@ jobs:
       env:
         SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       run: |
-        npm install -g supabase
+        npm install -g supabase --legacy-peer-deps
         supabase functions deploy --verify-jwt=false --project-ref=xeugyryfvilanoiethum
       continue-on-error: true
       
