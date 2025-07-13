@@ -39,7 +39,7 @@ const Home: React.FC = () => {
         <ul className="hidden md:flex space-x-10 text-sm text-gray-300">
           <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
           <li><a href="#testimonials" className="hover:text-white transition-colors">Testimonials</a></li>
-          <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
+          <li><Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy</Link></li>
         </ul>
 
         <Link to="/login">

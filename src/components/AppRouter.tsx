@@ -26,6 +26,7 @@ const FinishSignupPage = React.lazy(() => import('../pages/FinishSignup'));
 const CalendarPage = React.lazy(() => import('../pages/Calendar'));
 const ChatPage = React.lazy(() => import('../pages/Chat').then(module => ({ default: module.Chat })));
 const HomePage = React.lazy(() => import('../pages/Home'));
+const PrivacyPolicyPage = React.lazy(() => import('../pages/PrivacyPolicy'));
 const OAuthCallback = React.lazy(() => import('../pages/OAuthCallback'));
 const SoloProgramPage = React.lazy(() => import('../pages/solo/ProgramPage'));
 const RiskBoardPage = React.lazy(() => import('../pages/CoachRiskBoard'));
@@ -59,6 +60,7 @@ const AppRouter = () => {
       <Routes>
         {/* Public routes */}
         <Route path="/home" element={<HomePage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
