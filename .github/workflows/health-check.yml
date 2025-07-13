@@ -24,6 +24,13 @@ jobs:
       # failure propagation handled by runner
     - run: npm ci --legacy-peer-deps
       
+    - name: Debug health check script
+      run: |
+        echo "First 5 lines of health-check.js:"
+        head -5 scripts/health-check.js
+        echo "Hex dump of first 50 bytes:"
+        hexdump -C scripts/health-check.js | head -3
+        
     - name: Run health check
       env:
         VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
