@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import SwipeableViews from 'react-swipeable-views';
+import { motion, AnimatePresence } from 'framer-motion';
 import WeekTable from '@/components/WeekTable';
 
 interface WeekSliderProps {
@@ -44,11 +44,19 @@ export default function WeekSlider({ blockJson }: WeekSliderProps) {
           ›
         </button>
       </div>
-      <SwipeableViews index={idx} onChangeIndex={setIdx}>
-        {weeks.map((week: any, i: number) => (
-          <WeekTable key={i} week={week} />
-        ))}
-      </SwipeableViews>
+      <div className="relative overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2 }}
+          >
+            <WeekTable week={weeks[idx]} />
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </>
   );
 }

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import SwipeableViews from 'react-swipeable-views';
+
 import { Button } from '@/components/ui/button';
 import { MasonryGrid } from './MasonryGrid';
 import { motion } from 'framer-motion';
@@ -93,28 +93,24 @@ export const TrainingProgramsPager: React.FC<TrainingProgramsPagerProps> = ({
         )}
       </div>
 
-      {/* Swipeable Content */}
+      {/* Mobile Content */}
       <div className="md:hidden">
-        <SwipeableViews
-          index={activeIndex}
-          onChangeIndex={setActiveIndex}
-          containerStyle={{ height: 'auto' }}
-          slideStyle={{ padding: '0' }}
+        <motion.div
+          key={activeIndex}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.2 }}
         >
-          {tabs.map((tab, index) => (
-            <div key={tab.key}>
-              <MasonryGrid
-                data={tab.data}
-                type={tab.key}
-                onView={onView}
-                onEdit={onEdit}
-                onDelete={onDelete}
-                onAssign={onAssignTemplate}
-                deleteLoading={deleteLoading}
-              />
-            </div>
-          ))}
-        </SwipeableViews>
+          <MasonryGrid
+            data={tabs[activeIndex].data}
+            type={tabs[activeIndex].key}
+            onView={onView}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onAssign={onAssignTemplate}
+            deleteLoading={deleteLoading}
+          />
+        </motion.div>
       </div>
 
       {/* Desktop Content */}

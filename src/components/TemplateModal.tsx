@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, Users } from 'lucide-react';
-import SwipeableViews from 'react-swipeable-views';
+
 import WeekTable from '@/components/WeekTable';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -130,17 +130,20 @@ export const TemplateModal: React.FC<TemplateModalProps> = ({
           </div>
 
           <div className="overflow-auto max-h-[60vh]">
-            <SwipeableViews
-              index={weekIdx}
-              onChangeIndex={setWeekIdx}
-              enableMouseEvents
-            >
-              {weeks.map((week, index) => (
-                <div key={index} className="px-1">
-                  <WeekTable week={week} />
-                </div>
-              ))}
-            </SwipeableViews>
+            <div className="relative overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={weekIdx}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.2 }}
+                  className="px-1"
+                >
+                  <WeekTable week={weeks[weekIdx]} />
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </div>
         </motion.div>
       </DialogContent>
