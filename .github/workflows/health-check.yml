@@ -46,14 +46,4 @@ jobs:
         supabase functions deploy --verify-jwt=false --project-ref=xeugyryfvilanoiethum
       continue-on-error: true
       
-    - name: Notify on failure
-      if: failure() && (github.event.issue != null || github.event.pull_request != null)
-      uses: actions/github-script@v7
-      with:
-        script: |
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: '🚨 Health check failed! Please check the logs for more details.'
-          })
+
