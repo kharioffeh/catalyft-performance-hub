@@ -19,6 +19,11 @@ module.exports = {
   // Setup files
   setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
   
+  // Test environment variables
+  testEnvironmentOptions: {
+    NODE_ENV: 'test'
+  },
+  
   // Collect coverage
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',

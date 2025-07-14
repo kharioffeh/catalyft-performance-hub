@@ -1,8 +1,13 @@
 // Jest setup file for global test configuration
 
-// Mock environment variables for testing
-process.env.SUPABASE_URL = 'http://localhost:54321';
-process.env.SUPABASE_SERVICE_ROLE_KEY = 'mock-service-role-key';
+// Load environment variables from .env.test file for testing, fallback to .env
+require('dotenv').config({ path: '.env.test', silent: true });
+require('dotenv').config({ path: '.env', silent: true });
+
+// Mock environment variables for testing (fallbacks if .env doesn't exist)
+process.env.SUPABASE_URL = process.env.SUPABASE_URL || 'http://localhost:54321';
+process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'mock-service-role-key';
+process.env.SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'mock-anon-key';
 
 // Global test utilities
 global.console = {
