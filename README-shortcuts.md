@@ -57,3 +57,21 @@ Response:
   "status": "ok"
 }
 ```
+
+### Pull Whoop Recovery Data
+```bash
+curl -X POST https://your-project.supabase.co/functions/v1/pull-whoop-recovery \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+Response:
+```json
+{
+  "message": "Processed 5 athletes for 2025-01-14",
+  "pulled": 4,
+  "errors": 1,
+  "date": "2025-01-14"
+}
+```
+
+**Scheduled**: Runs automatically daily at 06:00 UTC via cron job.
