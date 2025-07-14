@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useChatState } from "./ChatThread/hooks/useChatState";
+import { useChatStream } from "@/hooks/useChatStream";
 import { ChatBackground } from "./ChatThread/components/ChatBackground";
 import { ChatMessage } from "./ChatThread/components/ChatMessage";
 import { LoadingIndicator } from "./ChatThread/components/LoadingIndicator";
@@ -8,6 +9,8 @@ import { MobileChatLayout } from "./ChatThread/components/MobileChatLayout";
 import { MobileMessageList } from "./ChatThread/components/MobileMessageList";
 import { MobileChatInput } from "./ChatThread/components/MobileChatInput";
 import { SuggestedPrompts } from "./ChatThread/components/SuggestedPrompts";
+import { PatchPrompt } from "@/features/chat/PatchPrompt";
+import { ProgramPatch } from "@/types/programPatch";
 import { useIsMobile } from "@/hooks/useBreakpoint";
 
 const SUGGESTED_PROMPTS = [
@@ -27,8 +30,24 @@ export const ChatThread = React.memo(() => {
     actualThreadId,
     sendMessage
   } = useChatState();
-
+  
+  const { onAriaMessage } = useChatStream();
+  const [activePatch, setActivePatch] = useState<{ id: string; patch: ProgramPatch } | null>(null);
   const isMobile = useIsMobile();
+
+  // Listen for ARIA program patch events
+  useEffect(() => {
+    const unsubscribe = onAriaMessage((event) => {
+      if (event.type === 'aria' && event.data.kind === 'programPatch' && event.data.payload && event.data.id) {
+        setActivePatch({
+          id: event.data.id,
+          patch: event.data.payload
+        });
+      }
+    });
+
+    return unsubscribe;
+  }, [onAriaMessage]);
 
   // Mobile layout
   if (isMobile) {
@@ -99,6 +118,16 @@ export const ChatThread = React.memo(() => {
           </div>
         </main>
       </div>
+
+      {/* Program Patch Prompt */}
+      {activePatch && (
+        <PatchPrompt
+          patch={activePatch.patch}
+          isVisible={!!activePatch}
+          onAccept={() => setActivePatch(null)}
+          onDecline={() => setActivePatch(null)}
+        />
+      )}
     </div>
   );
 });
