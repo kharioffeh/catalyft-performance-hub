@@ -1,11 +1,11 @@
 
--- Schedule ARIA program adjustment function to run daily at 3 AM
--- This enables proactive session adjustments based on athlete readiness and strain
+-- Schedule ARIA program adjustment function to run daily at 5 AM
+-- This enables proactive session adjustments based on athlete readiness and ACWR
 
--- Schedule the function to run daily at 3 AM
+-- Schedule the function to run daily at 5 AM
 SELECT cron.schedule(
   'aria-adjust-program',
-  '0 3 * * *', -- Every day at 3 AM
+  '0 5 * * *', -- Every day at 5 AM
   $$
   SELECT
     net.http_post(

@@ -10,15 +10,18 @@ interface AthleteMetrics {
   id: string;
   timezone: string | null;
   last_readiness: number | null;
-  last_strain: number | null;
+  acwr_7_28: number | null;
 }
 
-interface SessionPayload {
-  volume?: number;
-  load?: number;
-  target_rpe?: number;
-  intensity?: number;
-  [key: string]: any;
+interface SessionAdjustment {
+  session_id: string;
+  athlete_uuid: string;
+  reason: string;
+  old_load: number | null;
+  new_load: number | null;
+  adjustment_factor: number;
+  old_status: string;
+  new_status: string;
 }
 
 Deno.serve(async (req) => {
@@ -33,20 +36,17 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    console.log('Starting adaptive program adjustment process...');
+    console.log('Starting ACWR-based program adjustment process...');
 
-    // First, update the athlete metrics cache
-    const { error: cacheError } = await supabase.rpc('update_athlete_metrics_cache');
-    if (cacheError) {
-      console.error('Error updating metrics cache:', cacheError);
-    }
-
-    // Get all athletes with their latest metrics
+    // Get all athletes with their latest readiness and ACWR data
     const { data: athletes, error: athletesError } = await supabase
       .from('profiles')
-      .select('id, timezone, last_readiness, last_strain')
-      .not('last_readiness', 'is', null)
-      .not('last_strain', 'is', null);
+      .select(`
+        id,
+        timezone,
+        last_readiness
+      `)
+      .not('last_readiness', 'is', null);
 
     if (athletesError) {
       throw new Error(`Failed to fetch athletes: ${athletesError.message}`);
@@ -58,7 +58,25 @@ Deno.serve(async (req) => {
 
     for (const athlete of athletes || []) {
       try {
-        const adjustments = await processAthleteAdjustments(supabase, athlete);
+        // Get latest ACWR for this athlete
+        const { data: acwrData, error: acwrError } = await supabase
+          .from('vw_load_acwr')
+          .select('acwr_7_28')
+          .eq('athlete_uuid', athlete.id)
+          .order('day', { ascending: false })
+          .limit(1);
+
+        if (acwrError) {
+          console.error(`Error fetching ACWR for athlete ${athlete.id}:`, acwrError);
+          continue;
+        }
+
+        const athleteWithAcwr = {
+          ...athlete,
+          acwr_7_28: acwrData?.[0]?.acwr_7_28 || null
+        };
+
+        const adjustments = await processAthleteAdjustments(supabase, athleteWithAcwr);
         totalAdjustments += adjustments;
         console.log(`Processed athlete ${athlete.id}: ${adjustments} adjustments`);
       } catch (error) {
@@ -66,7 +84,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    console.log(`Adaptive program adjustment completed. Total adjustments: ${totalAdjustments}`);
+    console.log(`ACWR-based program adjustment completed. Total adjustments: ${totalAdjustments}`);
 
     return new Response(
       JSON.stringify({ 
@@ -93,155 +111,127 @@ Deno.serve(async (req) => {
 });
 
 async function processAthleteAdjustments(supabase: any, athlete: AthleteMetrics): Promise<number> {
-  const timezone = athlete.timezone || 'UTC';
   const readiness = athlete.last_readiness || 0;
-  const strain = athlete.last_strain || 0;
+  const acwr = athlete.acwr_7_28 || 0;
 
-  // Calculate tomorrow's date in the athlete's timezone
+  // Calculate today's date in the athlete's timezone
   const now = new Date();
-  const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-  const tomorrowDateStr = tomorrow.toISOString().split('T')[0];
+  const todayDateStr = now.toISOString().split('T')[0];
 
-  console.log(`Processing athlete ${athlete.id}: readiness=${readiness}, strain=${strain}, date=${tomorrowDateStr}`);
+  console.log(`Processing athlete ${athlete.id}: readiness=${readiness}, acwr=${acwr}, date=${todayDateStr}`);
 
-  // Get tomorrow's planned sessions
+  // Check if adjustment is needed based on requirements
+  const shouldAdjust = readiness < 60 || acwr > 1.5;
+  
+  if (!shouldAdjust) {
+    console.log(`No adjustment needed for athlete ${athlete.id}: readiness=${readiness}, acwr=${acwr}`);
+    return 0;
+  }
+
+  // Get today's active program sessions
   const { data: sessions, error: sessionsError } = await supabase
-    .from('sessions')
+    .from('program_sessions')
     .select('*')
     .eq('athlete_uuid', athlete.id)
-    .gte('start_ts', `${tomorrowDateStr}T00:00:00`)
-    .lt('start_ts', `${tomorrowDateStr}T23:59:59`)
-    .eq('status', 'planned');
+    .gte('scheduled_date', `${todayDateStr}T00:00:00`)
+    .lt('scheduled_date', `${todayDateStr}T23:59:59`)
+    .neq('status', 'deload') // Don't re-adjust already deloaded sessions
+    .in('status', ['scheduled', 'active', 'planned']); // Only adjust active sessions
 
   if (sessionsError) {
-    console.error(`Error fetching sessions for athlete ${athlete.id}:`, sessionsError);
+    console.error(`Error fetching program sessions for athlete ${athlete.id}:`, sessionsError);
     return 0;
   }
 
   if (!sessions || sessions.length === 0) {
-    console.log(`No planned sessions found for athlete ${athlete.id} on ${tomorrowDateStr}`);
+    console.log(`No active program sessions found for athlete ${athlete.id} on ${todayDateStr}`);
     return 0;
   }
 
-  const adjustmentRows: any[] = [];
+  const adjustmentRows: SessionAdjustment[] = [];
   let adjustmentsMade = 0;
 
   for (const session of sessions) {
-    const adjustment = calculateAdjustment(readiness, strain);
-    
-    if (adjustment.factor !== 1.0) {
-      const oldPayload = session.payload || {};
-      const newPayload = applyAdjustment(oldPayload, adjustment.factor);
+    const reason = readiness < 60 ? 'low_readiness' : 'high_acwr';
+    const oldLoad = session.planned_load || session.volume || null;
+    const newLoad = oldLoad ? Math.round(oldLoad * 0.7 * 100) / 100 : null; // 30% reduction for deload
 
-      // Update the session with new payload
-      const { error: updateError } = await supabase
-        .from('sessions')
-        .update({ payload: newPayload })
-        .eq('id', session.id);
+    // Update session status to 'deload'
+    const { error: updateError } = await supabase
+      .from('program_sessions')
+      .update({ 
+        status: 'deload',
+        deload_reason: reason,
+        deloaded_at: new Date().toISOString()
+      })
+      .eq('id', session.id);
 
-      if (updateError) {
-        console.error(`Error updating session ${session.id}:`, updateError);
-        continue;
-      }
-
-      // Log the adjustment
-      adjustmentRows.push({
-        session_id: session.id,
-        athlete_uuid: athlete.id,
-        reason: adjustment.reason,
-        old_payload: oldPayload,
-        new_payload: newPayload,
-        adjustment_factor: adjustment.factor
-      });
-
-      adjustmentsMade++;
-
-      // Send notification
-      await sendAdjustmentNotification(supabase, athlete.id, session, adjustment);
+    if (updateError) {
+      console.error(`Error updating session ${session.id}:`, updateError);
+      continue;
     }
+
+    // Prepare adjustment log
+    adjustmentRows.push({
+      session_id: session.id,
+      athlete_uuid: athlete.id,
+      reason,
+      old_load: oldLoad,
+      new_load: newLoad,
+      adjustment_factor: 0.7,
+      old_status: session.status,
+      new_status: 'deload'
+    });
+
+    adjustmentsMade++;
+
+    // Send realtime broadcast
+    await sendSessionAdjustedBroadcast(supabase, athlete.id, session, reason);
   }
 
-  // Insert adjustment logs
+  // Insert adjustment logs into session_adjustments table
   if (adjustmentRows.length > 0) {
     const { error: insertError } = await supabase
-      .from('program_adjustments')
+      .from('session_adjustments')
       .insert(adjustmentRows);
 
     if (insertError) {
-      console.error(`Error inserting adjustment logs:`, insertError);
+      console.error(`Error inserting session adjustment logs:`, insertError);
+      // Don't fail the process if logging fails
     }
   }
 
   return adjustmentsMade;
 }
 
-function calculateAdjustment(readiness: number, strain: number): { factor: number; reason: string } {
-  // Low readiness or high strain - reduce intensity
-  if (readiness < 50 || strain > 18) {
-    return {
-      factor: 0.85, // 15% reduction
-      reason: readiness < 50 ? 'low_readiness' : 'over_strain'
+async function sendSessionAdjustedBroadcast(supabase: any, athleteId: string, session: any, reason: string) {
+  try {
+    const payload = {
+      event: 'session_adjusted',
+      athlete_id: athleteId,
+      session_id: session.id,
+      reason,
+      timestamp: new Date().toISOString(),
+      message: reason === 'low_readiness' 
+        ? 'Session deloaded due to low readiness score'
+        : 'Session deloaded due to high ACWR (injury risk)'
     };
-  }
-  
-  // High readiness and low strain - increase intensity
-  if (readiness > 80 && strain < 8) {
-    return {
-      factor: 1.10, // 10% increase
-      reason: 'high_readiness'
-    };
-  }
 
-  // No adjustment needed
-  return { factor: 1.0, reason: '' };
-}
+    // Send realtime broadcast to the specific athlete
+    const { error } = await supabase
+      .channel(`athlete:${athleteId}`)
+      .send({
+        type: 'broadcast',
+        event: 'session_adjusted',
+        payload
+      });
 
-function applyAdjustment(payload: SessionPayload, factor: number): SessionPayload {
-  const newPayload = { ...payload };
-  
-  // Apply factor to adjustable fields
-  const adjustableFields = ['volume', 'load', 'target_rpe', 'intensity'];
-  
-  adjustableFields.forEach(field => {
-    if (newPayload[field] && typeof newPayload[field] === 'number') {
-      newPayload[field] = Math.round(newPayload[field] * factor * 100) / 100;
+    if (error) {
+      console.error(`Error sending realtime broadcast for athlete ${athleteId}:`, error);
+    } else {
+      console.log(`Sent session_adjusted broadcast for athlete ${athleteId}, session ${session.id}`);
     }
-  });
-
-  // Add adjustment metadata
-  newPayload.aria_adjusted = true;
-  newPayload.adjustment_factor = factor;
-  newPayload.adjusted_at = new Date().toISOString();
-
-  return newPayload;
-}
-
-async function sendAdjustmentNotification(supabase: any, athleteId: string, session: any, adjustment: any) {
-  const reasonText = {
-    'low_readiness': 'low readiness detected',
-    'high_readiness': 'high readiness detected', 
-    'over_strain': 'high strain detected',
-    'under_strain': 'low strain detected'
-  };
-
-  const adjustmentText = adjustment.factor < 1 ? 'reduced' : 'increased';
-  const percentage = Math.abs((adjustment.factor - 1) * 100);
-
-  const title = 'Session Auto-Adjusted';
-  const body = `Your ${session.type} session has been ${adjustmentText} by ${percentage}% due to ${reasonText[adjustment.reason]}.`;
-
-  // Insert notification
-  await supabase
-    .from('notifications')
-    .insert({
-      user_id: athleteId,
-      type: 'system',
-      title,
-      body,
-      meta: {
-        session_id: session.id,
-        adjustment_reason: adjustment.reason,
-        adjustment_factor: adjustment.factor
-      }
-    });
+  } catch (error) {
+    console.error(`Error in sendSessionAdjustedBroadcast:`, error);
+  }
 }
