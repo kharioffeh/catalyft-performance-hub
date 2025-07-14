@@ -107,10 +107,10 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={() => !isSaving && onClose(false)}>
-      <DialogContent className="max-w-5xl w-full h-[90vh] p-0 overflow-hidden">
-        <div className="flex flex-col h-full">
+      <DialogContent className="max-w-5xl w-full max-h-screen overflow-y-auto p-0">
+        <div className="flex flex-col min-h-0">
           {/* Header - Fixed at top */}
-          <div className="flex-shrink-0 px-8 pt-8 pb-4 border-b bg-background">
+          <div className="flex-shrink-0 px-4 sm:px-8 pt-4 sm:pt-8 pb-4 border-b bg-background sticky top-0 z-10">
             <BuilderHeader 
               name={name}
               setName={setName}
@@ -119,12 +119,11 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
           </div>
           
           {/* Scrollable content */}
-          <div className="flex-1 min-h-0">
-            <ScrollArea className="h-full">
-              <div className="px-8 py-6 space-y-4">
-                {weeks.map((week, idx) => (
+          <div className="flex-1 px-4 sm:px-8 py-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {weeks.map((week, idx) => (
+                <div key={idx} className="sm:col-span-1">
                   <WeekAccordion 
-                    key={idx} 
                     week={week} 
                     weekIdx={idx} 
                     onChange={(newWeek) => {
@@ -136,19 +135,19 @@ export default function ProgramBuilder({ isOpen, onClose }: ProgramBuilderProps)
                     }}
                     disabled={isSaving}
                   />
-                ))}
-                
-                {weeks.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    Click "Add Week" to start building your program
-                  </div>
-                )}
+                </div>
+              ))}
+            </div>
+            
+            {weeks.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                Click "Add Week" to start building your program
               </div>
-            </ScrollArea>
+            )}
           </div>
 
-          {/* Footer - Fixed at bottom */}
-          <div className="flex-shrink-0 px-8 pb-8 pt-4 border-t bg-background">
+          {/* Footer - Sticky at bottom */}
+          <div className="flex-shrink-0 px-4 sm:px-8 pb-4 sm:pb-8 pt-4 border-t bg-background sticky bottom-0 z-10">
             <BuilderFooter 
               weeks={weeks}
               addWeek={addWeek}
