@@ -1,12 +1,15 @@
 
-import React from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { ErrorBoundary } from 'react-error-boundary';
 import Sidebar from '@/components/layout/Sidebar';
 import { TopBar } from '@/components/TopBar';
 import { BottomTabBar } from '@/components/layout/BottomTabBar';
+import { MobileDrawer } from '@/components/layout/MobileDrawer';
 import { GlassLayout } from '@/components/Glass/GlassLayout';
 import { useIsMobile } from '@/hooks/useBreakpoint';
+import { useAuth } from '@/contexts/AuthContext';
+import { getNavigationForRole } from '@/config/routes';
 import { cn } from '@/lib/utils';
 import { ErrorFallback } from './ErrorFallback';
 import { SafeAreaView } from '@/components/ui/SafeAreaView';
@@ -17,6 +20,12 @@ interface MainLayoutProps {
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ variant }) => {
   const isMobile = useIsMobile();
+  const { profile } = useAuth();
+  const navigate = useNavigate();
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+
+  // Get navigation items based on user role
+  const navigationItems = getNavigationForRole(profile?.role);
 
   return (
     <GlassLayout variant={variant}>
@@ -36,9 +45,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ variant }) => {
         )}
         
         <div className={cn(
-          "flex-1 flex flex-col min-w-0",
-          // Add bottom padding on mobile for tab bar
-          isMobile ? "pb-16" : ""
+          "flex-1 flex flex-col min-w-0"
         )}>
           {!isMobile && (
             <ErrorBoundary FallbackComponent={({ error }) => (
@@ -47,7 +54,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ variant }) => {
               <TopBar />
             </ErrorBoundary>
           )}
-          <main className="flex-1 overflow-auto scrollbar-hide">
+          <main className={cn(
+            "flex-1 overflow-auto scrollbar-hide",
+            // Add top padding on mobile for drawer header
+            isMobile ? "pt-14" : ""
+          )}>
             <SafeAreaView>
               <ErrorBoundary FallbackComponent={ErrorFallback}>
                 <Outlet />
@@ -57,14 +68,20 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ variant }) => {
         </div>
       </div>
       
-      {/* Bottom tab bar - only on mobile */}
+      {/* Mobile drawer - only on mobile */}
       {isMobile && (
         <ErrorBoundary FallbackComponent={({ error }) => (
           <div className="fixed bottom-0 left-0 right-0 p-4 bg-red-100 text-red-600 text-sm">
-            Tab bar error: {error.message}
+            Mobile drawer error: {error.message}
           </div>
         )}>
-          <BottomTabBar />
+          <MobileDrawer
+            navigationItems={navigationItems}
+            profile={profile}
+            navigate={navigate}
+            isOpen={isMobileDrawerOpen}
+            onToggle={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}
+          />
         </ErrorBoundary>
       )}
     </GlassLayout>
