@@ -32,3 +32,28 @@
    - Quick actions
 3. Use arrow keys to navigate results
 4. Press **Enter** to execute
+
+## API Examples
+
+### Upsert User Metrics
+```bash
+curl -X POST https://your-project.supabase.co/functions/v1/upsertMetrics \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "user_id": "550e8400-e29b-41d4-a716-446655440000",
+    "hrv_rmssd": 45.2,
+    "hr_rest": 60,
+    "steps": 8500,
+    "sleep_min": 420,
+    "strain": 7.1,
+    "date": "2025-07-14"
+  }'
+```
+
+Response:
+```json
+{
+  "status": "ok"
+}
+```
