@@ -16,13 +16,8 @@ module.exports = {
     '^.+\\.(ts|tsx)$': 'ts-jest'
   },
   
-  // Module name mapping for absolute imports
-  moduleNameMapping: {
-    '^@/(.*)$': '<rootDir>/src/$1'
-  },
-  
   // Setup files
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
   
   // Collect coverage
   collectCoverageFrom: [

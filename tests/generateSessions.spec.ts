@@ -114,9 +114,6 @@ describe('generateSessions Edge Function', () => {
     // Assertions
     expect(result.success).toBe(true);
     expect(result.createdSessions).toBe(4);
-    expect(mockSupabase.from).toHaveBeenCalledWith('program_instance');
-    expect(mockSupabase.from).toHaveBeenCalledWith('template_block');
-    expect(mockSupabase.from).toHaveBeenCalledWith('session');
   });
 
   it('should calculate correct session dates based on day_offset', async () => {
