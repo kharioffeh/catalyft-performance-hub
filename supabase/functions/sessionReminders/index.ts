@@ -18,50 +18,83 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
-    // Calculate the time window for 1 hour from now
-    const oneHourFromNow = new Date();
-    oneHourFromNow.setHours(oneHourFromNow.getHours() + 1);
-    
-    // Create a 5-minute window around the target time to account for cron timing
-    const startTime = new Date(oneHourFromNow.getTime() - 2.5 * 60 * 1000); // 2.5 minutes before
-    const endTime = new Date(oneHourFromNow.getTime() + 2.5 * 60 * 1000);   // 2.5 minutes after
+    // Get all unique reminder frequencies from enabled users
+    const { data: reminderFreqs, error: freqError } = await supabase
+      .from('profiles')
+      .select('reminder_frequency_minutes')
+      .eq('reminder_enabled', true)
+      .not('device_token', 'is', null);
 
-    console.log('Looking for sessions between:', startTime.toISOString(), 'and', endTime.toISOString());
-
-    // Find sessions that are scheduled to start in ~1 hour
-    const { data: upcomingSessions, error: sessionsError } = await supabase
-      .from('sessions')
-      .select(`
-        id,
-        date_time,
-        status,
-        program:program_id (
-          id,
-          title,
-          athlete_uuid,
-          coach_uuid,
-          athlete:athlete_uuid (
-            id,
-            device_token,
-            name,
-            email
-          )
-        )
-      `)
-      .eq('status', 'scheduled')
-      .gte('date_time', startTime.toISOString())
-      .lte('date_time', endTime.toISOString());
-
-    if (sessionsError) {
-      console.error('Error fetching upcoming sessions:', sessionsError);
+    if (freqError) {
+      console.error('Error fetching reminder frequencies:', freqError);
       return new Response(
-        JSON.stringify({ error: 'Failed to fetch upcoming sessions' }),
+        JSON.stringify({ error: 'Failed to fetch reminder preferences' }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       );
     }
+
+    const uniqueFreqs = [...new Set(reminderFreqs?.map(r => r.reminder_frequency_minutes) || [60])];
+    console.log('Checking reminder frequencies (minutes):', uniqueFreqs);
+
+    let allUpcomingSessions = [];
+
+    // Check for sessions at each frequency interval
+    for (const freqMinutes of uniqueFreqs) {
+      const targetTime = new Date();
+      targetTime.setMinutes(targetTime.getMinutes() + freqMinutes);
+      
+      // Create a 5-minute window around the target time to account for cron timing
+      const startTime = new Date(targetTime.getTime() - 2.5 * 60 * 1000);
+      const endTime = new Date(targetTime.getTime() + 2.5 * 60 * 1000);
+
+      console.log(`Looking for sessions in ${freqMinutes} minutes (${startTime.toISOString()} to ${endTime.toISOString()})`);
+
+      // Find sessions for this frequency
+      const { data: frequencySessions, error: sessionsError } = await supabase
+        .from('sessions')
+        .select(`
+          id,
+          date_time,
+          status,
+          program:program_id (
+            id,
+            title,
+            athlete_uuid,
+            coach_uuid,
+            athlete:athlete_uuid (
+              id,
+              device_token,
+              name,
+              email,
+              reminder_enabled,
+              reminder_frequency_minutes
+            )
+          )
+        `)
+        .eq('status', 'scheduled')
+        .gte('date_time', startTime.toISOString())
+        .lte('date_time', endTime.toISOString());
+
+      if (sessionsError) {
+        console.error(`Error fetching sessions for ${freqMinutes}min frequency:`, sessionsError);
+        continue;
+      }
+
+      // Filter for athletes with matching reminder frequency and enabled reminders
+      const filteredSessions = frequencySessions?.filter(session => {
+        const athlete = session.program?.athlete;
+        return athlete?.reminder_enabled && 
+               athlete?.reminder_frequency_minutes === freqMinutes &&
+               athlete?.device_token;
+      }) || [];
+
+      allUpcomingSessions.push(...filteredSessions);
+    }
+
+    const upcomingSessions = allUpcomingSessions;
 
     console.log(`Found ${upcomingSessions?.length || 0} upcoming sessions`);
 
@@ -85,8 +118,8 @@ serve(async (req) => {
     for (const session of upcomingSessions) {
       const athlete = session.program?.athlete;
       
-      if (!athlete?.device_token) {
-        console.log(`Skipping session ${session.id} - no device token for athlete`);
+      if (!athlete?.device_token || !athlete?.reminder_enabled) {
+        console.log(`Skipping session ${session.id} - no device token or reminders disabled`);
         continue;
       }
 
@@ -97,15 +130,33 @@ serve(async (req) => {
         hour12: true 
       });
 
+      // Format reminder time dynamically
+      const reminderMinutes = athlete.reminder_frequency_minutes || 60;
+      let timeUntilText;
+      if (reminderMinutes < 60) {
+        timeUntilText = `${reminderMinutes} minute${reminderMinutes !== 1 ? 's' : ''}`;
+      } else if (reminderMinutes === 60) {
+        timeUntilText = '1 hour';
+      } else {
+        const hours = Math.floor(reminderMinutes / 60);
+        const mins = reminderMinutes % 60;
+        if (mins === 0) {
+          timeUntilText = `${hours} hour${hours !== 1 ? 's' : ''}`;
+        } else {
+          timeUntilText = `${hours}h ${mins}m`;
+        }
+      }
+
       pushMessages.push({
         to: athlete.device_token,
         title: '🏋️ Workout Reminder',
-        body: `Your workout is starting in 1 hour at ${timeStr}`,
+        body: `Your workout is starting in ${timeUntilText} at ${timeStr}`,
         data: {
           type: 'session_reminder',
           sessionId: session.id,
           sessionTime: session.date_time,
-          programTitle: session.program?.title
+          programTitle: session.program?.title,
+          reminderFrequency: reminderMinutes
         },
         channelId: 'workout-reminders',
         priority: 'high',

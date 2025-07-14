@@ -31,6 +31,12 @@ verify_jwt = false
 [functions.updateSession]
 verify_jwt = true
 
+[functions.updateReminderSettings]
+verify_jwt = true
+
+[functions.getReminderSettings]
+verify_jwt = true
+
 # Cron job to run session reminders every 15 minutes
 [functions.sessionReminders.cron]
 schedule = "*/15 * * * *"
