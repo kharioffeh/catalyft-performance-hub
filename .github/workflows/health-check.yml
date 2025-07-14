@@ -31,6 +31,7 @@ jobs:
     - run: npm ci --legacy-peer-deps
       
     - name: Run health check
+      id: health_check
       env:
         VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
         VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
@@ -53,17 +54,51 @@ jobs:
         supabase functions deploy --verify-jwt=false --project-ref=xeugyryfvilanoiethum
       continue-on-error: true
       
-    # Add the notification step for pull request failures
-    - name: Notify on failure
+    # Use a more reliable notification approach that works around permission issues
+    - name: Notify on failure via pull request review
       if: failure() && github.event_name == 'pull_request'
       uses: actions/github-script@v7
       with:
         script: |
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: '🚨 Health check failed! Please check the logs for more details.'
-          })
+          try {
+            // Try to create a pull request review comment first
+            await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              body: '🚨 **Health check failed!** Please check the [workflow logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details.',
+              event: 'COMMENT'
+            });
+          } catch (reviewError) {
+            console.log('Failed to create PR review:', reviewError.message);
+            try {
+              // Fallback to issue comment if review fails
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: '🚨 **Health check failed!** Please check the [workflow logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details.'
+              });
+            } catch (commentError) {
+              console.log('Failed to create issue comment:', commentError.message);
+              // Final fallback - just log the failure
+              console.log('🚨 Health check failed! Check the workflow logs for details.');
+              core.setFailed('Health check failed - see logs for details');
+            }
+          }
+      
+    # Alternative notification using workflow summary (always works)
+    - name: Create workflow summary
+      if: failure()
+      run: |
+        echo "## 🚨 Health Check Failed" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "The health check workflow has failed. Please review the logs above for specific error details." >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Common Issues:" >> $GITHUB_STEP_SUMMARY
+        echo "- Environment variables not properly configured" >> $GITHUB_STEP_SUMMARY
+        echo "- Supabase edge functions not deployed" >> $GITHUB_STEP_SUMMARY
+        echo "- Network connectivity issues" >> $GITHUB_STEP_SUMMARY
+        echo "- API key permissions" >> $GITHUB_STEP_SUMMARY
       
 
