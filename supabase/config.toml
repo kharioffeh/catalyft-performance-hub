@@ -21,3 +21,6 @@ verify_jwt = false
 
 [functions.ask_aria]
 verify_jwt = true
+
+[functions.generateSessions]
+verify_jwt = true
