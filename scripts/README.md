@@ -1,43 +1,60 @@
 
-# Test Scripts
+# Scripts
 
-## Invite Function Test
+This directory contains utility scripts for the application.
 
-This script tests the invite-athlete edge function directly.
+## Available Scripts
 
-### Usage
+### health-check.js
+Performs comprehensive health checks on various system components:
+- Environment variables
+- Supabase connectivity  
+- Edge functions
+- Realtime connectivity
 
-1. **Get a valid coach access token:**
-   - Login as a coach in your browser
-   - Open Developer Tools → Network tab
-   - Make any authenticated request
-   - Copy the Bearer token from the Authorization header
+Usage: `node scripts/health-check.js`
 
-2. **Update the script:**
-   - Open `scripts/test-invite.js`
-   - Replace `<PASTE_A_VALID_COACH_ACCESS_TOKEN_HERE>` with your actual token
+### injuryRisk.js
+Automated injury risk assessment script that calculates risk scores based on:
+- Training load (z-score)
+- Sleep deficit (z-score) 
+- Stress levels (z-score derived from readiness)
 
-3. **Run the test:**
+**Formula:** `risk = z(load) + z(sleep_deficit) + z(stress)`
 
-   For local testing:
-   ```bash
-   node scripts/test-invite.js
-   ```
+When risk score ≥ 75, automatically inserts alerts into the notifications table.
 
-   For production testing:
-   ```bash
-   INVITE_URL=https://YOUR_PROJECT_REF.functions.supabase.co/invite-athlete node scripts/test-invite.js
-   ```
+**Usage:**
+```bash
+# Run manually
+node scripts/injuryRisk.js
 
-### Expected Output
+# Run via npm script
+npm run injury-risk
 
-- You should see the request details logged
-- Status should be 200 for success
-- Response body should contain success message or error details
-- Check your Supabase Edge Function logs for the console.log statements added to the function
+# Set up daily cron job (runs at 6:00 AM every day)
+crontab -e
+# Add this line:
+0 6 * * * cd /path/to/workspace && node scripts/injuryRisk.js >> logs/injury-risk.log 2>&1
+```
 
-### Troubleshooting
+**Environment Variables Required:**
+- `VITE_SUPABASE_URL` - Supabase project URL
+- `SUPABASE_SERVICE_ROLE_KEY` - Service role key for backend operations
 
-- Make sure your access token is valid and from a coach account
-- Verify the function URL is correct
-- Check Supabase logs for detailed error messages
+**Data Sources:**
+- `muscle_load_daily` - Training load scores per muscle per athlete
+- `aria_digest_metrics_v` - Sleep hours and readiness scores
+- `notifications` - Target table for alerts
+
+### Other Scripts
+- `bundle-check.js` - Bundle size analysis
+- `test-invite.js` - Tests invitation functionality  
+- `validate-contrast.js` - WCAG contrast validation
+
+## Setup
+
+1. Ensure all environment variables are properly configured
+2. Install dependencies: `npm install`
+3. Make scripts executable: `chmod +x scripts/*.js`
+4. Test individual scripts before setting up automation
