@@ -87,6 +87,7 @@
     "react-error-boundary": "^6.0.0",
     "react-hook-form": "^7.53.0",
     "react-native": "^0.80.1",
+    "react-native-deck-swiper": "^2.0.18",
     "react-native-draggable-flatlist": "^4.0.3",
     "react-native-modal": "^14.0.0-rc.1",
     "react-native-web": "^0.20.0",
