@@ -7,17 +7,19 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useSpring, animated } from '@react-spring/web';
-import { colorScale, prettyName, normalizeId } from "../bodyHeatMapUtils";
+import { colorScale, getLoadColor, prettyName, normalizeId } from "../bodyHeatMapUtils";
 import { MuscleHeatmapTooltip } from "../MuscleHeatmapTooltip";
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { PulseWrapper } from '@/components/animations/PulseWrapper';
 
+// Updated type to support both data structures
 type MuscleHeatmapEntry = {
   muscle: string;
-  acute: number;
-  chronic: number;
-  acwr: number;
-  zone: "Low" | "Normal" | "High";
+  load?: number; // New load-based structure (0-100)
+  acute?: number; // Existing ACWR structure
+  chronic?: number;
+  acwr?: number;
+  zone?: "Low" | "Normal" | "High";
 };
 
 interface BodyHeatMapSVGProps {
@@ -36,11 +38,21 @@ export const BodyHeatMapSVG: React.FC<BodyHeatMapSVGProps> = ({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
 
-  // Get pulse intensity based on ACWR value
-  const getPulseIntensity = (acwr: number): 'low' | 'medium' | 'high' | null => {
-    if (acwr > 1.5) return 'high';
-    if (acwr > 1.3) return 'medium';
-    if (acwr > 1.1) return 'low';
+  // Get pulse intensity based on load or ACWR value
+  const getPulseIntensity = (muscleData: MuscleHeatmapEntry): 'low' | 'medium' | 'high' | null => {
+    if (typeof muscleData.load === 'number') {
+      // Load-based structure
+      if (muscleData.load > 80) return 'high';
+      if (muscleData.load > 60) return 'medium';
+      if (muscleData.load > 40) return 'low';
+      return null;
+    } else if (typeof muscleData.acwr === 'number') {
+      // ACWR-based structure (existing)
+      if (muscleData.acwr > 1.5) return 'high';
+      if (muscleData.acwr > 1.3) return 'medium';
+      if (muscleData.acwr > 1.1) return 'low';
+      return null;
+    }
     return null;
   };
 
@@ -65,7 +77,7 @@ export const BodyHeatMapSVG: React.FC<BodyHeatMapSVGProps> = ({
         // Enhanced pulse animation based on risk level
         const muscleData = muscleMap[normalizeId(muscleId)];
         if (muscleData && !prefersReducedMotion) {
-          const pulseIntensity = getPulseIntensity(muscleData.acwr);
+          const pulseIntensity = getPulseIntensity(muscleData);
           if (pulseIntensity) {
             el.style.transformOrigin = 'center';
             
@@ -98,7 +110,7 @@ export const BodyHeatMapSVG: React.FC<BodyHeatMapSVGProps> = ({
     };
   }, [svg, muscleMap, setHoveredMuscle, prefersReducedMotion]);
 
-  // Colorize SVG via string-replace with enhanced colors for high-risk muscles
+  // Colorize SVG via string-replace with HSL colors for load or enhanced colors for ACWR
   let svgWithColors = svg;
   if (svg) {
     svgWithColors = svg.replace(
@@ -106,13 +118,23 @@ export const BodyHeatMapSVG: React.FC<BodyHeatMapSVGProps> = ({
       (full, id: string) => {
         const normId = normalizeId(id);
         const row = muscleMap[normId];
-        let color = row ? colorScale(row.acwr) : "#d1d5db";
+        let color = "#d1d5db"; // Default gray
         
-        // Enhanced color for high-risk muscles with better contrast
-        if (row && row.acwr > 1.5) {
-          color = "#DC2626"; // Stronger red for high risk
-        } else if (row && row.acwr > 1.3) {
-          color = "#EA580C"; // Orange for medium risk
+        if (row) {
+          if (typeof row.load === 'number') {
+            // Use new load-based coloring with HSL
+            color = getLoadColor(row.load);
+          } else if (typeof row.acwr === 'number') {
+            // Use existing ACWR-based coloring
+            color = colorScale(row.acwr);
+            
+            // Enhanced color for high-risk muscles with better contrast
+            if (row.acwr > 1.5) {
+              color = "#DC2626"; // Stronger red for high risk
+            } else if (row.acwr > 1.3) {
+              color = "#EA580C"; // Orange for medium risk
+            }
+          }
         }
         
         return `id="${id}" style="fill:${color};transition:fill 300ms ease-out;"`;
