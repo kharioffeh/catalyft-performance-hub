@@ -9,23 +9,32 @@ export const useSVGLoader = () => {
     setSvgError(null);
     setSvg(null);
     
-    fetch("/heatmap/body.svg")
+    fetch("/assets/muscles.svg")
       .then(async (r) => {
         if (!r.ok) throw new Error(await r.text());
         return r.text();
       })
       .then(setSvg)
       .catch(() => {
-        fetch("/heatmap/body_front.svg")
+        // Fallback to original heatmap files
+        fetch("/heatmap/body.svg")
           .then(async (r) => {
             if (!r.ok) throw new Error(await r.text());
             return r.text();
           })
           .then(setSvg)
-          .catch((err) => {
-            setSvgError("Could not load SVG anatomy diagram from /heatmap/body.svg or /heatmap/body_front.svg. " +
-              "Make sure the file exists in the public/heatmap folder and your server is running.");
-            setSvg(null);
+          .catch(() => {
+            fetch("/heatmap/body_front.svg")
+              .then(async (r) => {
+                if (!r.ok) throw new Error(await r.text());
+                return r.text();
+              })
+              .then(setSvg)
+              .catch((err) => {
+                setSvgError("Could not load SVG anatomy diagram from /assets/muscles.svg, /heatmap/body.svg or /heatmap/body_front.svg. " +
+                  "Make sure the file exists and your server is running.");
+                setSvg(null);
+              });
           });
       });
   }, []);

@@ -8,35 +8,43 @@ import { BodyHeatMapOverlays } from "./BodyHeatMap/BodyHeatMapOverlays";
 import { BodyHeatMapSVG } from "./BodyHeatMap/BodyHeatMapSVG";
 import { useSVGLoader } from "./BodyHeatMap/useSVGLoader";
 
+// Updated type to support both data structures
 type MuscleHeatmapEntry = {
   muscle: string;
-  acute: number;
-  chronic: number;
-  acwr: number;
-  zone: "Low" | "Normal" | "High";
+  load?: number; // New load-based structure (0-100)
+  acute?: number; // Existing ACWR structure
+  chronic?: number;
+  acwr?: number;
+  zone?: "Low" | "Normal" | "High";
 };
 
 interface BodyHeatMapProps {
   athleteId: string;
   window_days?: number;
+  // Optional prop to override data for testing/storybook
+  mockData?: MuscleHeatmapEntry[];
 }
 
 export const BodyHeatMap: React.FC<BodyHeatMapProps> = ({
   athleteId,
   window_days = 7,
+  mockData,
 }) => {
   const { svg, svgError } = useSVGLoader();
   const { data, isLoading, isError, error } = useMuscleHeatmap(athleteId, window_days);
   const [hoveredMuscle, setHoveredMuscle] = useState<string | null>(null);
   const [debugOpen, setDebugOpen] = useState(false);
 
+  // Use mock data if provided, otherwise use fetched data
+  const muscleData = mockData || data;
+
   // Build lookup: SVG id -> muscle data
   const muscleMap: Record<string, MuscleHeatmapEntry> = useMemo(() => 
-    (data || []).reduce((acc, m) => {
+    (muscleData || []).reduce((acc, m) => {
       acc[normalizeId(m.muscle)] = m;
       return acc;
     }, {} as Record<string, MuscleHeatmapEntry>)
-  , [data]);
+  , [muscleData]);
 
   // Memoize unreconcilable muscle IDs
   const unreconcilableIds = useMemo(() => {
@@ -60,7 +68,7 @@ export const BodyHeatMap: React.FC<BodyHeatMapProps> = ({
         isLoading={isLoading}
         isError={isError}
         error={error}
-        data={data}
+        data={muscleData}
         unreconcilableIds={unreconcilableIds}
       />
 
@@ -78,7 +86,7 @@ export const BodyHeatMap: React.FC<BodyHeatMapProps> = ({
         isError={isError}
         error={error}
         athleteId={athleteId}
-        data={data}
+        data={muscleData}
       />
     </div>
   );

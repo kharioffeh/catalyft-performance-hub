@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .muscle { fill: #e2e8f0; stroke: #475569; stroke-width: 1; cursor: pointer; }
+      .muscle:hover { fill: #cbd5e1; }
+      .front-view { transform: translateX(0); }
+      .back-view { transform: translateX(400px); }
+    </style>
+  </defs>
+  
+  <!-- Front View -->
+  <g class="front-view">
+    <text x="100" y="30" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold">Front View</text>
+    
+    <!-- Head -->
+    <ellipse id="frontalis" class="muscle" cx="100" cy="60" rx="25" ry="20"/>
+    
+    <!-- Neck -->
+    <rect id="sternocleidomastoid" class="muscle" x="85" y="80" width="30" height="25" rx="5"/>
+    
+    <!-- Shoulders -->
+    <ellipse id="anterior_deltoid" class="muscle" cx="60" cy="120" rx="20" ry="15"/>
+    <ellipse id="anterior_deltoid_right" class="muscle" cx="140" cy="120" rx="20" ry="15"/>
+    
+    <!-- Chest -->
+    <ellipse id="pectoralis_major" class="muscle" cx="100" cy="140" rx="35" ry="25"/>
+    
+    <!-- Arms -->
+    <ellipse id="biceps_brachii" class="muscle" cx="40" cy="160" rx="12" ry="25"/>
+    <ellipse id="biceps_brachii_right" class="muscle" cx="160" cy="160" rx="12" ry="25"/>
+    <ellipse id="brachialis" class="muscle" cx="35" cy="190" rx="10" ry="15"/>
+    <ellipse id="brachialis_right" class="muscle" cx="165" cy="190" rx="10" ry="15"/>
+    
+    <!-- Forearms -->
+    <ellipse id="brachioradialis" class="muscle" cx="30" cy="220" rx="8" ry="20"/>
+    <ellipse id="brachioradialis_right" class="muscle" cx="170" cy="220" rx="8" ry="20"/>
+    <ellipse id="flexor_carpi_radialis" class="muscle" cx="25" cy="245" rx="6" ry="15"/>
+    <ellipse id="flexor_carpi_radialis_right" class="muscle" cx="175" cy="245" rx="6" ry="15"/>
+    
+    <!-- Abs -->
+    <rect id="rectus_abdominis" class="muscle" x="85" y="170" width="30" height="60" rx="5"/>
+    <ellipse id="external_oblique" class="muscle" cx="70" cy="200" rx="12" ry="20"/>
+    <ellipse id="external_oblique_right" class="muscle" cx="130" cy="200" rx="12" ry="20"/>
+    
+    <!-- Hip -->
+    <ellipse id="iliacus" class="muscle" cx="85" cy="240" rx="15" ry="10"/>
+    <ellipse id="iliacus_right" class="muscle" cx="115" cy="240" rx="15" ry="10"/>
+    
+    <!-- Thighs -->
+    <ellipse id="quadriceps_femoris" class="muscle" cx="80" cy="290" rx="18" ry="35"/>
+    <ellipse id="quadriceps_femoris_right" class="muscle" cx="120" cy="290" rx="18" ry="35"/>
+    <ellipse id="rectus_femoris" class="muscle" cx="75" cy="280" rx="12" ry="30"/>
+    <ellipse id="rectus_femoris_right" class="muscle" cx="125" cy="280" rx="12" ry="30"/>
+    <ellipse id="vastus_lateralis" class="muscle" cx="65" cy="300" rx="10" ry="25"/>
+    <ellipse id="vastus_lateralis_right" class="muscle" cx="135" cy="300" rx="10" ry="25"/>
+    <ellipse id="vastus_medialis" class="muscle" cx="90" cy="310" rx="8" ry="20"/>
+    <ellipse id="vastus_medialis_right" class="muscle" cx="110" cy="310" rx="8" ry="20"/>
+    
+    <!-- Calves -->
+    <ellipse id="tibialis_anterior" class="muscle" cx="75" cy="370" rx="8" ry="25"/>
+    <ellipse id="tibialis_anterior_right" class="muscle" cx="125" cy="370" rx="8" ry="25"/>
+    <ellipse id="extensor_digitorum_longus" class="muscle" cx="85" cy="380" rx="6" ry="20"/>
+    <ellipse id="extensor_digitorum_longus_right" class="muscle" cx="115" cy="380" rx="6" ry="20"/>
+  </g>
+  
+  <!-- Back View -->
+  <g class="back-view">
+    <text x="100" y="30" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold">Back View</text>
+    
+    <!-- Head -->
+    <ellipse id="occipitalis" class="muscle" cx="100" cy="60" rx="25" ry="20"/>
+    
+    <!-- Neck -->
+    <rect id="trapezius_neck" class="muscle" x="85" y="80" width="30" height="25" rx="5"/>
+    
+    <!-- Upper Back -->
+    <polygon id="trapezius" class="muscle" points="70,100 130,100 140,130 120,140 80,140 60,130"/>
+    <ellipse id="rhomboid_major" class="muscle" cx="100" cy="135" rx="20" ry="15"/>
+    <ellipse id="latissimus_dorsi" class="muscle" cx="80" cy="160" rx="25" ry="30"/>
+    <ellipse id="latissimus_dorsi_right" class="muscle" cx="120" cy="160" rx="25" ry="30"/>
+    
+    <!-- Shoulders -->
+    <ellipse id="posterior_deltoid" class="muscle" cx="60" cy="120" rx="20" ry="15"/>
+    <ellipse id="posterior_deltoid_right" class="muscle" cx="140" cy="120" rx="20" ry="15"/>
+    
+    <!-- Arms -->
+    <ellipse id="triceps_brachii" class="muscle" cx="40" cy="160" rx="12" ry="25"/>
+    <ellipse id="triceps_brachii_right" class="muscle" cx="160" cy="160" rx="12" ry="25"/>
+    
+    <!-- Forearms -->
+    <ellipse id="extensor_carpi_radialis" class="muscle" cx="30" cy="220" rx="8" ry="20"/>
+    <ellipse id="extensor_carpi_radialis_right" class="muscle" cx="170" cy="220" rx="8" ry="20"/>
+    <ellipse id="extensor_digitorum" class="muscle" cx="25" cy="245" rx="6" ry="15"/>
+    <ellipse id="extensor_digitorum_right" class="muscle" cx="175" cy="245" rx="6" ry="15"/>
+    
+    <!-- Lower Back -->
+    <rect id="erector_spinae" class="muscle" x="85" y="180" width="30" height="50" rx="5"/>
+    
+    <!-- Glutes -->
+    <ellipse id="gluteus_maximus" class="muscle" cx="85" cy="250" rx="20" ry="18"/>
+    <ellipse id="gluteus_maximus_right" class="muscle" cx="115" cy="250" rx="20" ry="18"/>
+    <ellipse id="gluteus_medius" class="muscle" cx="75" cy="240" rx="12" ry="12"/>
+    <ellipse id="gluteus_medius_right" class="muscle" cx="125" cy="240" rx="12" ry="12"/>
+    
+    <!-- Hamstrings -->
+    <ellipse id="biceps_femoris" class="muscle" cx="75" cy="300" rx="15" ry="30"/>
+    <ellipse id="biceps_femoris_right" class="muscle" cx="125" cy="300" rx="15" ry="30"/>
+    <ellipse id="semitendinosus" class="muscle" cx="85" cy="295" rx="12" ry="28"/>
+    <ellipse id="semitendinosus_right" class="muscle" cx="115" cy="295" rx="12" ry="28"/>
+    <ellipse id="semimembranosus" class="muscle" cx="90" cy="305" rx="10" ry="25"/>
+    <ellipse id="semimembranosus_right" class="muscle" cx="110" cy="305" rx="10" ry="25"/>
+    
+    <!-- Calves -->
+    <ellipse id="gastrocnemius" class="muscle" cx="80" cy="370" rx="15" ry="25"/>
+    <ellipse id="gastrocnemius_right" class="muscle" cx="120" cy="370" rx="15" ry="25"/>
+    <ellipse id="soleus" class="muscle" cx="75" cy="390" rx="12" ry="20"/>
+    <ellipse id="soleus_right" class="muscle" cx="125" cy="390" rx="12" ry="20"/>
+  </g>
+</svg>
