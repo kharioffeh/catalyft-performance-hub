@@ -197,7 +197,31 @@ serve(async (req) => {
 
     console.log('Program created successfully:', programId)
 
-    // 7. Return success response
+    // 7. Call generateSessions edge function to populate sessions table
+    try {
+      const generateSessionsResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/generateSessions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': req.headers.get('Authorization')!,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ programId })
+      })
+
+      if (!generateSessionsResponse.ok) {
+        const error = await generateSessionsResponse.text()
+        console.error('Failed to generate sessions:', error)
+        // Don't fail the entire program creation, just log the error
+      } else {
+        const result = await generateSessionsResponse.json()
+        console.log('Sessions generated successfully:', result)
+      }
+    } catch (sessionError) {
+      console.error('Error calling generateSessions:', sessionError)
+      // Don't fail the entire program creation, just log the error
+    }
+
+    // 8. Return success response
     return new Response(
       JSON.stringify({ programId }),
       { 
