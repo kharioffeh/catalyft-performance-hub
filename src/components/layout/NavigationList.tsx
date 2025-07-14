@@ -6,12 +6,14 @@ interface NavigationListProps {
   navigationItems: any[];
   activeBg: string;
   inactiveText: string;
+  isCollapsed?: boolean;
 }
 
 export const NavigationList: React.FC<NavigationListProps> = ({
   navigationItems,
   activeBg,
   inactiveText,
+  isCollapsed = false,
 }) => {
   return (
     <ul className="flex flex-col gap-1 px-2 py-4">
@@ -21,6 +23,7 @@ export const NavigationList: React.FC<NavigationListProps> = ({
             item={item}
             activeBg={activeBg}
             inactiveText={inactiveText}
+            isCollapsed={isCollapsed}
           />
         </li>
       ))}

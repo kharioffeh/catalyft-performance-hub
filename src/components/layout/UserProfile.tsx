@@ -18,6 +18,7 @@ interface UserProfileProps {
   inactiveText: string;
   profile: any;
   navigate: (path: string) => void;
+  isCollapsed?: boolean;
 }
 
 export const UserProfile: React.FC<UserProfileProps> = ({
@@ -25,17 +26,22 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   inactiveText,
   profile,
   navigate,
+  isCollapsed = false,
 }) => {
   return (
     <div className={cn("mt-auto px-3 py-3 border-t", borderColor)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className={cn(
-            "w-full justify-start px-2 h-auto py-2",
+            "w-full h-auto py-2 transition-all duration-300",
+            isCollapsed ? "justify-center px-2" : "justify-start px-2",
             inactiveText,
             "hover:text-gray-900 dark:hover:text-white"
           )}>
-            <Avatar className="mr-3 w-8 h-8 flex-shrink-0">
+            <Avatar className={cn(
+              "w-8 h-8 flex-shrink-0",
+              isCollapsed ? "" : "mr-3"
+            )}>
               <AvatarImage src="" />
               <AvatarFallback className={cn(
                 "bg-glass-card-light/60 dark:bg-glass-card-dark/80",
@@ -45,10 +51,12 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 {profile?.full_name?.substring(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div className="flex flex-col text-left truncate min-w-0">
-              <span className="text-sm font-medium truncate">{profile?.full_name}</span>
-              <span className="text-xs text-gray-500 dark:text-white/60 truncate">{profile?.email}</span>
-            </div>
+            {!isCollapsed && (
+              <div className="flex flex-col text-left truncate min-w-0">
+                <span className="text-sm font-medium truncate">{profile?.full_name}</span>
+                <span className="text-xs text-gray-500 dark:text-white/60 truncate">{profile?.email}</span>
+              </div>
+            )}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent 

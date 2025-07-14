@@ -8,22 +8,31 @@ interface NavigationGroupProps {
   item: NavItem;
   activeBg: string;
   inactiveText: string;
+  isCollapsed?: boolean;
 }
 
 export const NavigationGroup: React.FC<NavigationGroupProps> = ({
   item,
   activeBg,
   inactiveText,
+  isCollapsed = false,
 }) => {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(() => {
-    // Keep group open if any child route is active
-    return item.children?.some(child => 
+    // Keep group open if any child route is active and not collapsed
+    return !isCollapsed && (item.children?.some(child => 
       location.pathname === child.path || location.pathname.startsWith(child.path + '/')
-    ) || false;
+    ) || false);
   });
 
   const Icon = item.icon;
+
+  // Close dropdown when collapsed
+  React.useEffect(() => {
+    if (isCollapsed) {
+      setIsOpen(false);
+    }
+  }, [isCollapsed]);
 
   if (!item.children || item.children.length === 0) {
     return (
@@ -31,13 +40,33 @@ export const NavigationGroup: React.FC<NavigationGroupProps> = ({
         to={item.path}
         className={({ isActive }) =>
           clsx(
-            "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200",
+            "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-all duration-200",
+            isCollapsed ? "justify-center" : "gap-3",
             isActive ? activeBg : inactiveText
           )
         }
+        title={isCollapsed ? item.label : undefined}
       >
         <Icon className="h-5 w-5 shrink-0" />
-        <span className="truncate">{item.label}</span>
+        {!isCollapsed && <span className="truncate">{item.label}</span>}
+      </NavLink>
+    );
+  }
+
+  // For items with children, when collapsed, just link to the main item
+  if (isCollapsed) {
+    return (
+      <NavLink
+        to={item.path}
+        className={({ isActive }) =>
+          clsx(
+            "flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-all duration-200",
+            isActive ? activeBg : inactiveText
+          )
+        }
+        title={item.label}
+      >
+        <Icon className="h-5 w-5 shrink-0" />
       </NavLink>
     );
   }
