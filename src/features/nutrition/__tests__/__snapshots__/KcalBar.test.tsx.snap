@@ -1,0 +1,242 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`KcalBar Snapshots renders correctly at 0% progress 1`] = `
+{
+  "container": <div>
+    <div
+      style="padding: 16px; background-color: hsl(var(--card)); border-radius: 12px; border-width: 1px; border-color: hsl(var(--border));"
+    >
+      <div
+        style="flex-direction: row; justify-content: space-between; align-items: center; margin-bottom: 12px;"
+      >
+        <div
+          style="font-size: 16px; font-weight: 600; color: hsl(var(--foreground));"
+        >
+          Calories
+        </div>
+        <div
+          style="font-size: 14px; color: hsl(var(--muted-foreground));"
+        >
+          0 / 2200 kcal
+        </div>
+      </div>
+      <div
+        style="margin-bottom: 8px;"
+      >
+        <div
+          style="height: 8px; background-color: hsl(var(--muted)); border-radius: 4px; overflow: hidden; position: relative;"
+        >
+          <div
+            style="height: 100%; border-radius: 4px; position: absolute; left: 0px; top: 0px; width: 0%;"
+          />
+        </div>
+      </div>
+      <div
+        style="flex-direction: row; justify-content: space-between; align-items: center;"
+      >
+        <div
+          style="font-size: 14px; font-weight: 500; color: hsl(var(--foreground));"
+        >
+          0.0%
+        </div>
+      </div>
+    </div>
+  </div>,
+}
+`;
+
+exports[`KcalBar Snapshots renders correctly at 100% progress 1`] = `
+{
+  "container": <div>
+    <div
+      style="padding: 16px; background-color: hsl(var(--card)); border-radius: 12px; border-width: 1px; border-color: hsl(var(--border));"
+    >
+      <div
+        style="flex-direction: row; justify-content: space-between; align-items: center; margin-bottom: 12px;"
+      >
+        <div
+          style="font-size: 16px; font-weight: 600; color: hsl(var(--foreground));"
+        >
+          Calories
+        </div>
+        <div
+          style="font-size: 14px; color: hsl(var(--muted-foreground));"
+        >
+          2200 / 2200 kcal
+        </div>
+      </div>
+      <div
+        style="margin-bottom: 8px;"
+      >
+        <div
+          style="height: 8px; background-color: hsl(var(--muted)); border-radius: 4px; overflow: hidden; position: relative;"
+        >
+          <div
+            style="height: 100%; border-radius: 4px; position: absolute; left: 0px; top: 0px; width: 100%;"
+          />
+        </div>
+      </div>
+      <div
+        style="flex-direction: row; justify-content: space-between; align-items: center;"
+      >
+        <div
+          style="font-size: 14px; font-weight: 500; color: hsl(var(--foreground));"
+        >
+          100.0%
+        </div>
+      </div>
+    </div>
+  </div>,
+}
+`;
+
+exports[`KcalBar Snapshots renders correctly at 150% progress (over target) 1`] = `
+{
+  "container": <div>
+    <div
+      style="padding: 16px; background-color: hsl(var(--card)); border-radius: 12px; border-width: 1px; border-color: hsl(var(--border));"
+    >
+      <div
+        style="flex-direction: row; justify-content: space-between; align-items: center; margin-bottom: 12px;"
+      >
+        <div
+          style="font-size: 16px; font-weight: 600; color: hsl(var(--foreground));"
+        >
+          Calories
+        </div>
+        <div
+          style="font-size: 14px; color: hsl(var(--muted-foreground));"
+        >
+          3300 / 2200 kcal
+        </div>
+      </div>
+      <div
+        style="margin-bottom: 8px;"
+      >
+        <div
+          style="height: 8px; background-color: hsl(var(--muted)); border-radius: 4px; overflow: hidden; position: relative;"
+        >
+          <div
+            style="height: 100%; border-radius: 4px; position: absolute; left: 0px; top: 0px; width: 100%;"
+          />
+          <div
+            style="height: 100%; border-radius: 4px; position: absolute; left: 100%; top: 0px; width: 50%; background-color: rgb(249, 115, 22); opacity: 1;"
+          />
+        </div>
+      </div>
+      <div
+        style="flex-direction: row; justify-content: space-between; align-items: center;"
+      >
+        <div
+          style="font-size: 14px; font-weight: 500; color: rgb(249, 115, 22);"
+        >
+          150.0%
+        </div>
+        <div
+          style="font-size: 12px; color: rgb(249, 115, 22); font-weight: 500;"
+        >
+          Over target
+        </div>
+      </div>
+    </div>
+  </div>,
+}
+`;
+
+exports[`KcalBar Snapshots renders correctly at 50% progress 1`] = `
+{
+  "container": <div>
+    <div
+      style="padding: 16px; background-color: hsl(var(--card)); border-radius: 12px; border-width: 1px; border-color: hsl(var(--border));"
+    >
+      <div
+        style="flex-direction: row; justify-content: space-between; align-items: center; margin-bottom: 12px;"
+      >
+        <div
+          style="font-size: 16px; font-weight: 600; color: hsl(var(--foreground));"
+        >
+          Calories
+        </div>
+        <div
+          style="font-size: 14px; color: hsl(var(--muted-foreground));"
+        >
+          1100 / 2200 kcal
+        </div>
+      </div>
+      <div
+        style="margin-bottom: 8px;"
+      >
+        <div
+          style="height: 8px; background-color: hsl(var(--muted)); border-radius: 4px; overflow: hidden; position: relative;"
+        >
+          <div
+            style="height: 100%; border-radius: 4px; position: absolute; left: 0px; top: 0px; width: 50%;"
+          />
+        </div>
+      </div>
+      <div
+        style="flex-direction: row; justify-content: space-between; align-items: center;"
+      >
+        <div
+          style="font-size: 14px; font-weight: 500; color: hsl(var(--foreground));"
+        >
+          50.0%
+        </div>
+      </div>
+    </div>
+  </div>,
+}
+`;
+
+exports[`KcalBar Snapshots renders correctly at 120% progress (slightly over) 1`] = `
+{
+  "container": <div>
+    <div
+      style="padding: 16px; background-color: hsl(var(--card)); border-radius: 12px; border-width: 1px; border-color: hsl(var(--border));"
+    >
+      <div
+        style="flex-direction: row; justify-content: space-between; align-items: center; margin-bottom: 12px;"
+      >
+        <div
+          style="font-size: 16px; font-weight: 600; color: hsl(var(--foreground));"
+        >
+          Calories
+        </div>
+        <div
+          style="font-size: 14px; color: hsl(var(--muted-foreground));"
+        >
+          2640 / 2200 kcal
+        </div>
+      </div>
+      <div
+        style="margin-bottom: 8px;"
+      >
+        <div
+          style="height: 8px; background-color: hsl(var(--muted)); border-radius: 4px; overflow: hidden; position: relative;"
+        >
+          <div
+            style="height: 100%; border-radius: 4px; position: absolute; left: 0px; top: 0px; width: 100%;"
+          />
+          <div
+            style="height: 100%; border-radius: 4px; position: absolute; left: 100%; top: 0px; width: 20%; background-color: rgb(249, 115, 22); opacity: 1;"
+          />
+        </div>
+      </div>
+      <div
+        style="flex-direction: row; justify-content: space-between; align-items: center;"
+      >
+        <div
+          style="font-size: 14px; font-weight: 500; color: rgb(249, 115, 22);"
+        >
+          120.0%
+        </div>
+        <div
+          style="font-size: 12px; color: rgb(249, 115, 22); font-weight: 500;"
+        >
+          Over target
+        </div>
+      </div>
+    </div>
+  </div>,
+}
+`;
