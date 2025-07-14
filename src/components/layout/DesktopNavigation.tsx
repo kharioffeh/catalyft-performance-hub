@@ -3,6 +3,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { NavigationList } from './NavigationList';
 import { UserProfile } from './UserProfile';
+import { useSidebarCollapse } from '@/hooks/useSidebarCollapse';
 
 interface DesktopNavigationProps {
   navigationItems: any[];
@@ -15,6 +16,8 @@ export const DesktopNavigation: React.FC<DesktopNavigationProps> = ({
   profile,
   navigate,
 }) => {
+  const { isCollapsed } = useSidebarCollapse();
+
   const desktopBg = cn(
     "bg-gradient-to-b from-surface-light/90 to-surface-light/80",
     "dark:from-surface-dark/90 dark:to-surface-dark/80",
@@ -36,23 +39,29 @@ export const DesktopNavigation: React.FC<DesktopNavigationProps> = ({
 
   return (
     <aside className={cn(
-      "hidden lg:flex lg:h-screen lg:w-60 lg:flex-col shadow-glass-md",
+      "hidden lg:flex lg:h-screen lg:flex-col shadow-glass-md transition-all duration-300",
       desktopBg,
-      "border-r"
+      "border-r",
+      isCollapsed ? "lg:w-16" : "lg:w-60"
     )}>
-      <div className="flex items-center justify-center py-6 text-xl font-semibold text-gray-800 dark:text-white">
-        Catalyft
+      <div className={cn(
+        "flex items-center justify-center py-6 text-xl font-semibold text-gray-800 dark:text-white transition-all duration-300",
+        isCollapsed ? "px-2" : "px-6"
+      )}>
+        {isCollapsed ? "C" : "Catalyft"}
       </div>
       <NavigationList 
         navigationItems={navigationItems} 
         activeBg={activeBg} 
         inactiveText={inactiveText}
+        isCollapsed={isCollapsed}
       />
       <UserProfile 
         borderColor={borderColor} 
         inactiveText={inactiveText}
         profile={profile}
         navigate={navigate}
+        isCollapsed={isCollapsed}
       />
     </aside>
   );

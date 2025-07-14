@@ -8,11 +8,14 @@ import { useIsMobile } from '@/hooks/useBreakpoint';
 import { NotificationBell } from '@/components/NotificationBell';
 import { useTimezoneDetection } from '@/hooks/useTimezoneDetection';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { useSidebarCollapse } from '@/hooks/useSidebarCollapse';
+import { Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const TopBar: React.FC = () => {
   const { profile } = useAuth();
   const isMobile = useIsMobile();
+  const { toggle } = useSidebarCollapse();
   
   // Initialize timezone detection
   useTimezoneDetection();
@@ -25,6 +28,21 @@ export const TopBar: React.FC = () => {
       "shadow-glass-sm"
     )}>
       <div className="flex items-center space-x-4">
+        {/* Hamburger menu button - only on desktop */}
+        {!isMobile && (
+          <button
+            onClick={toggle}
+            className={cn(
+              "p-2 rounded-md transition-all duration-200",
+              "hover:bg-white/20 dark:hover:bg-white/10",
+              "text-gray-600 dark:text-white/80 hover:text-gray-800 dark:hover:text-white"
+            )}
+            aria-label="Toggle sidebar"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        )}
+        
         <h1 className="text-lg md:text-xl font-semibold text-gray-800 dark:text-white">
           Catalyft AI
         </h1>
