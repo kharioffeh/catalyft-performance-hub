@@ -1,0 +1,23 @@
+name: Minimal Test
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Simple test
+      run: |
+        echo "Testing minimal workflow"
+        echo "No API calls or complex operations"
+        
+    - name: Test completion
+      run: echo "Minimal test completed successfully"
