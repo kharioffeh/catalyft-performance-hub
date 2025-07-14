@@ -8,6 +8,12 @@ on:
   # Add manual trigger in case we want to debug from the Actions tab
   workflow_dispatch: {}
 
+# Add permissions for the GITHUB_TOKEN
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   health-check:
     runs-on: ubuntu-latest
@@ -46,5 +52,18 @@ jobs:
         npm install -g supabase --legacy-peer-deps
         supabase functions deploy --verify-jwt=false --project-ref=xeugyryfvilanoiethum
       continue-on-error: true
+      
+    # Add the notification step for pull request failures
+    - name: Notify on failure
+      if: failure() && github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '🚨 Health check failed! Please check the logs for more details.'
+          })
       
 
