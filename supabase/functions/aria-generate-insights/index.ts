@@ -29,9 +29,9 @@ serve(async (req) => {
       );
     }
 
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    // Initialize Supabase client (Edge Functions have these automatically)
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get current date
@@ -143,9 +143,10 @@ serve(async (req) => {
 });
 
 async function generateInsights(contextData: any): Promise<string[]> {
-  const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+  // Use OPENAI_ARIA_KEY to be consistent with other ARIA functions
+  const openAIApiKey = Deno.env.get('OPENAI_ARIA_KEY') || Deno.env.get('OPENAI_API_KEY');
   if (!openAIApiKey) {
-    throw new Error('OPENAI_API_KEY environment variable is not set');
+    throw new Error('OPENAI_ARIA_KEY environment variable is not set');
   }
 
   const systemPrompt = `You are ARIA, an elite performance coach. Based on the athlete's readiness and muscle load data, provide 2-3 plain-text coaching insights. Each insight should be a single sentence that's actionable and specific. Focus on practical recommendations for training, recovery, or performance optimization.
