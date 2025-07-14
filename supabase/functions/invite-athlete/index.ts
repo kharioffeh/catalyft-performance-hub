@@ -153,7 +153,7 @@ serve(async (req) => {
       );
     }
 
-    const { email, resend: shouldResend = false } = requestData;
+    const { email, name, startDate, resend: shouldResend = false } = requestData;
     console.log("invite_athlete: Extracted email:", email, "Resend:", shouldResend);
     
     if (!email) {
@@ -211,7 +211,9 @@ serve(async (req) => {
       data: { 
         provisional: true, 
         coach_id: coachData.id,
-        invited_by: profile.full_name 
+        invited_by: profile.full_name,
+        athlete_name: name,
+        start_date: startDate
       },
       redirectTo: `${appUrl}/finish-signup`,
     });
@@ -248,6 +250,9 @@ serve(async (req) => {
     const resend = new Resend(resendApiKey);
 
     try {
+      const greeting = name ? `Hi ${name},` : 'Hi there,';
+      const startDateText = startDate ? `<p><strong>Training Start Date:</strong> ${new Date(startDate).toLocaleDateString()}</p>` : '';
+      
       const emailResult = await resend.emails.send({
         from: fromEmail,
         to: email,
@@ -255,8 +260,9 @@ serve(async (req) => {
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h1 style="color: #2563eb;">Welcome to Catalyft AI</h1>
-            <p>Hi there,</p>
+            <p>${greeting}</p>
             <p><strong>${profile.full_name}</strong> has invited you to join Catalyft AI, a comprehensive platform for athletic performance tracking and coaching.</p>
+            ${startDateText}
             <div style="margin: 30px 0;">
               <a href="${inviteData.properties?.action_link}" 
                  style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">

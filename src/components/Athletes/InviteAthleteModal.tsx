@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabase';
+import { inviteAthlete, type InviteAthleteData } from '@/lib/api/invite';
 
 interface InviteAthleteModalProps {
   isOpen: boolean;
@@ -13,20 +13,37 @@ interface InviteAthleteModalProps {
   onSuccess?: () => void;
 }
 
+interface FormData {
+  email: string;
+  name: string;
+  startDate: string;
+}
+
 export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
   isOpen,
   onClose,
   onSuccess
 }) => {
-  const [email, setEmail] = useState('');
+  const [formData, setFormData] = useState<FormData>({
+    email: '',
+    name: '',
+    startDate: ''
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [pendingInvite, setPendingInvite] = useState<{hasPendingInvite: boolean, inviteId?: string} | null>(null);
   const { toast } = useToast();
 
+  const handleInputChange = (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: e.target.value
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent, resend = false) => {
     e.preventDefault();
     
-    if (!email.trim()) {
+    if (!formData.email.trim()) {
       toast({
         title: "Error",
         description: "Please enter an email address",
@@ -37,7 +54,7 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(formData.email)) {
       toast({
         title: "Error",
         description: "Please enter a valid email address",
@@ -49,102 +66,74 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
     setIsLoading(true);
 
     try {
-      console.log('InviteAthleteModal: Starting invite process for email:', email);
+      console.log('InviteAthleteModal: Starting invite process for:', formData);
       
-      const { data: session } = await supabase.auth.getSession();
+      const inviteData: InviteAthleteData = {
+        email: formData.email,
+        name: formData.name || undefined,
+        startDate: formData.startDate || undefined,
+        resend: resend
+      };
+
+      const response = await inviteAthlete(inviteData);
+
+      console.log('InviteAthleteModal: Invite response:', response);
+
+      // Check if this is a pending invite scenario
+      if (response.success === false && response.hasPendingInvite) {
+        console.log('InviteAthleteModal: Pending invite found:', response);
+        setPendingInvite({ 
+          hasPendingInvite: response.hasPendingInvite, 
+          inviteId: response.inviteId 
+        });
+        toast({
+          title: "Pending Invite Found",
+          description: response.error + " You can resend the invite if needed.",
+          variant: "default"
+        });
+        return;
+      }
       
-      if (!session.session) {
-        console.error('InviteAthleteModal: No session found');
+      // Check for other error responses
+      if (response.success === false) {
+        console.log('InviteAthleteModal: Function returned error:', response);
         toast({
           title: "Error",
-          description: "You must be logged in to invite athletes",
+          description: response.error || "Failed to send invite",
           variant: "destructive"
         });
         return;
       }
 
-      console.log('InviteAthleteModal: Session found, calling invite-athlete function');
-
-      const { data, error } = await supabase.functions.invoke('invite-athlete', {
-        body: { 
-          email: email.trim().toLowerCase(),
-          resend: resend
-        },
-        headers: {
-          Authorization: `Bearer ${session.session.access_token}`
-        }
-      });
-
-      console.log('InviteAthleteModal: Function response:', { data, error });
-
-      if (error) {
-        console.error('InviteAthleteModal: Function error:', error);
+      // Success case
+      if (response.success === true || response.message) {
+        console.log('InviteAthleteModal: Invite sent successfully');
         toast({
-          title: "Error",
-          description: "Failed to send invite. Please try again.",
-          variant: "destructive"
+          title: "Success",
+          description: response.message || `Invite ${resend ? 'resent' : 'sent'} to ${formData.email}`,
+          variant: "default"
         });
+
+        setFormData({ email: '', name: '', startDate: '' });
+        setPendingInvite(null);
+        onClose();
+        onSuccess?.();
         return;
-      }
-
-      // Check if we have data and if it indicates success or failure
-      if (data) {
-        // Check if this is a pending invite scenario
-        if (data.success === false && data.hasPendingInvite) {
-          console.log('InviteAthleteModal: Pending invite found:', data);
-          setPendingInvite({ 
-            hasPendingInvite: data.hasPendingInvite, 
-            inviteId: data.inviteId 
-          });
-          toast({
-            title: "Pending Invite Found",
-            description: data.error + " You can resend the invite if needed.",
-            variant: "default"
-          });
-          return;
-        }
-        
-        // Check for other error responses
-        if (data.success === false) {
-          console.log('InviteAthleteModal: Function returned error:', data);
-          toast({
-            title: "Error",
-            description: data.error || "Failed to send invite",
-            variant: "destructive"
-          });
-          return;
-        }
-
-        // Success case
-        if (data.success === true || data.message) {
-          console.log('InviteAthleteModal: Invite sent successfully');
-          toast({
-            title: "Success",
-            description: data.message || `Invite ${resend ? 'resent' : 'sent'} to ${email}`,
-            variant: "default"
-          });
-
-          setEmail('');
-          setPendingInvite(null);
-          onClose();
-          onSuccess?.();
-          return;
-        }
       }
 
       // Fallback for unexpected response structure
-      console.log('InviteAthleteModal: Unexpected response structure:', data);
+      console.log('InviteAthleteModal: Unexpected response structure:', response);
       toast({
         title: "Error",
         description: "Unexpected response from server",
         variant: "destructive"
       });
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('InviteAthleteModal: Unexpected error:', error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred. Please try again.",
+        description: error.message || "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -158,10 +147,13 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
   };
 
   const handleClose = () => {
-    setEmail('');
+    setFormData({ email: '', name: '', startDate: '' });
     setPendingInvite(null);
     onClose();
   };
+
+  // Get today's date in YYYY-MM-DD format for min date
+  const today = new Date().toISOString().split('T')[0];
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -171,15 +163,39 @@ export const InviteAthleteModal: React.FC<InviteAthleteModalProps> = ({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="email">Athlete Email</Label>
+            <Label htmlFor="email">Athlete Email *</Label>
             <Input
               id="email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={formData.email}
+              onChange={handleInputChange('email')}
               placeholder="athlete@example.com"
               disabled={isLoading}
               required
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="name">Athlete Name</Label>
+            <Input
+              id="name"
+              type="text"
+              value={formData.name}
+              onChange={handleInputChange('name')}
+              placeholder="John Doe"
+              disabled={isLoading}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="startDate">Training Start Date</Label>
+            <Input
+              id="startDate"
+              type="date"
+              value={formData.startDate}
+              onChange={handleInputChange('startDate')}
+              min={today}
+              disabled={isLoading}
             />
           </div>
           
