@@ -57,7 +57,7 @@ export const LiveWorkoutSession: React.FC = () => {
 
   // Rest timer effect
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval> | undefined;
     
     if (isRestActive && restTimer > 0) {
       interval = setInterval(() => {

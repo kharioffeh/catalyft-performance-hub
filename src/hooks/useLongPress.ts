@@ -21,7 +21,7 @@ export const useLongPress = ({
   return useCallback(() => {
     if (!enabled) return {};
     
-    let timeout: NodeJS.Timeout;
+    let timeout: ReturnType<typeof setTimeout>;
     let isLongPress = false;
 
     const handleStart = () => {

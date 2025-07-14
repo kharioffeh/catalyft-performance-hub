@@ -1314,6 +1314,53 @@ export type Database = {
           },
         ]
       }
+      session_adjustments: {
+        Row: {
+          adjustment_factor: number
+          athlete_uuid: string
+          created_at: string | null
+          id: string
+          new_load: number | null
+          new_status: string
+          old_load: number | null
+          old_status: string
+          reason: string
+          session_id: string
+        }
+        Insert: {
+          adjustment_factor?: number
+          athlete_uuid: string
+          created_at?: string | null
+          id?: string
+          new_load?: number | null
+          new_status: string
+          old_load?: number | null
+          old_status: string
+          reason: string
+          session_id: string
+        }
+        Update: {
+          adjustment_factor?: number
+          athlete_uuid?: string
+          created_at?: string | null
+          id?: string
+          new_load?: number | null
+          new_status?: string
+          old_load?: number | null
+          old_status?: string
+          reason?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_adjustments_athlete_uuid_fkey"
+            columns: ["athlete_uuid"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sessions: {
         Row: {
           athlete_uuid: string
