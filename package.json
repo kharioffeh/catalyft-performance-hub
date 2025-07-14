@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "android": "expo run:android",
-    "ios": "expo run:ios"
+    "ios": "expo run:ios",
+    "injury-risk": "node scripts/injuryRisk.js"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
