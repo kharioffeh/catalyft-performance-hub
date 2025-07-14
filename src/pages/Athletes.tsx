@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useAthletesRealtime } from '@/hooks/useAthletesRealtime';
 import { AthletesList } from '@/components/Athletes/AthletesList';
 import { AthleteDialogs } from '@/components/Athletes/AthleteDialogs';
 import { FloatingInviteButton } from '@/components/Athletes/FloatingInviteButton';
+import { InviteAthleteModal } from '@/components/Athletes/InviteAthleteModal';
 
 const Athletes: React.FC = () => {
   const {
@@ -20,8 +21,16 @@ const Athletes: React.FC = () => {
     handleDelete,
     resetForm,
     addAthleteMutation,
-    updateAthleteMutation
+    updateAthleteMutation,
+    refetch
   } = useAthletesRealtime();
+
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+
+  const handleInviteSuccess = () => {
+    // Optimistically refetch the athletes list to show any updates
+    refetch();
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900">
@@ -36,7 +45,14 @@ const Athletes: React.FC = () => {
 
         {/* Floating Invite Button */}
         <FloatingInviteButton
-          onClick={() => setIsAddDialogOpen(true)}
+          onClick={() => setIsInviteModalOpen(true)}
+        />
+
+        {/* Invite Modal */}
+        <InviteAthleteModal
+          isOpen={isInviteModalOpen}
+          onClose={() => setIsInviteModalOpen(false)}
+          onSuccess={handleInviteSuccess}
         />
 
         {/* Dialogs */}
