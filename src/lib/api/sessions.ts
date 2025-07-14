@@ -32,6 +32,30 @@ export async function createSession(
 }
 
 /**
+ * Updates a session's status and timestamps.
+ */
+export async function updateSessionStatus(
+  sessionId: string, 
+  status: 'planned' | 'active' | 'completed',
+  timestamp?: string
+) {
+  const updateData: any = { status };
+  
+  if (status === 'active' && timestamp) {
+    updateData.start_ts = timestamp;
+  } else if (status === 'completed' && timestamp) {
+    updateData.end_ts = timestamp;
+  }
+
+  const { error } = await supabase
+    .from("sessions")
+    .update(updateData)
+    .eq("id", sessionId);
+
+  if (error) throw error;
+}
+
+/**
  * Reschedules a session to a new date.
  */
 export async function rescheduleSession(sessionId: string, newDate: Date) {

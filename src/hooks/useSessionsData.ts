@@ -11,6 +11,7 @@ interface Session {
   type: string;
   start_ts: string;
   end_ts: string;
+  status: 'planned' | 'active' | 'completed';
   notes?: string;
   athletes?: {
     name: string;
