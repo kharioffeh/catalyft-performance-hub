@@ -132,6 +132,7 @@ serve(async (req) => {
         sessionsToInsert.push({
           program_id: programId,
           planned_at: sessionDateStr,
+          title: block.session_title || 'Training Session',
           // athlete_id: program.athlete_uuid, // Add if sessions table requires it
           // status: 'scheduled' // Will use database default
         })

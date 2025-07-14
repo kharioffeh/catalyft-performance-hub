@@ -54,6 +54,9 @@ export interface Session {
   program_id: string;
   planned_at: string;
   completed_at?: string;
+  title?: string;
+  status?: 'scheduled' | 'in-progress' | 'completed';
+  notes?: string;
   rpe?: number;
   strain?: number;
   acwr_snapshot?: number;
