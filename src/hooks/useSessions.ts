@@ -7,7 +7,7 @@ export const useSessions = (programId?: string) => {
     queryKey: ['sessions', programId],
     queryFn: async () => {
       let query = supabase
-        .from('session')
+        .from('sessions')
         .select(`
           *,
           program:program_id (
@@ -44,7 +44,7 @@ export const useSession = (id: string) => {
     queryKey: ['session', id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('session')
+        .from('sessions')
         .select(`
           *,
           program:program_id (
@@ -78,7 +78,7 @@ export const useCreateSession = () => {
   return useMutation({
     mutationFn: async (sessionData: Omit<Session, 'id' | 'created_at'>) => {
       const { data, error } = await supabase
-        .from('session')
+        .from('sessions')
         .insert({
           ...sessionData,
           exercises: sessionData.exercises as unknown as any
@@ -111,7 +111,7 @@ export const useUpdateSession = () => {
         : cleanUpdates;
         
       const { data, error } = await supabase
-        .from('session')
+        .from('sessions')
         .update(updateData)
         .eq('id', id)
         .select()
