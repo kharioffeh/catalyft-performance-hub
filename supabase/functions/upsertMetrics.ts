@@ -4,11 +4,11 @@ import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 
 const MetricsSchema = z.object({
-  userId: z.string().uuid(),
-  hrvRmssd: z.number().min(0).optional(),
-  hrRest: z.number().min(0).max(200).optional(),
+  user_id: z.string().uuid(),
+  hrv_rmssd: z.number().min(0).optional(),
+  hr_rest: z.number().min(0).max(200).optional(),
   steps: z.number().min(0).optional(),
-  sleepMin: z.number().min(0).optional(),
+  sleep_min: z.number().min(0).optional(),
   strain: z.number().min(0).max(21).optional(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) // YYYY-MM-DD format
 })
@@ -35,37 +35,29 @@ serve(async (req) => {
     const body = await req.json()
     const validatedData = MetricsSchema.parse(body)
 
-    // Initialize Supabase client
+    // Initialize Supabase client with service role
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! }
-        }
-      }
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
     // Upsert metrics data
-    const { data, error } = await supabaseClient
+    const { error } = await supabaseClient
       .from('metrics')
       .upsert(
         {
-          user_id: validatedData.userId,
-          hrv_rmssd: validatedData.hrvRmssd,
-          hr_rest: validatedData.hrRest,
+          user_id: validatedData.user_id,
+          hrv_rmssd: validatedData.hrv_rmssd,
+          hr_rest: validatedData.hr_rest,
           steps: validatedData.steps,
-          sleep_min: validatedData.sleepMin,
+          sleep_min: validatedData.sleep_min,
           strain: validatedData.strain,
           date: validatedData.date
         },
         { 
-          onConflict: 'user_id,date',
-          returning: 'minimal'
+          onConflict: 'user_id,date'
         }
       )
-      .select()
-      .single()
 
     if (error) {
       console.error('Database error:', error)
@@ -80,10 +72,7 @@ serve(async (req) => {
 
     // Return success response
     return new Response(
-      JSON.stringify({ 
-        message: 'Metrics upserted successfully',
-        data: data
-      }),
+      JSON.stringify({ status: 'ok' }),
       { 
         status: 200, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
