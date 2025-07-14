@@ -94,6 +94,15 @@ export default defineConfig(({ mode }) => ({
     minify: 'terser',
     sourcemap: false,
     rollupOptions: {
+      external: [
+        'react-native',
+        'react-native-web',
+        'react-native-stopwatch-timer',
+        'react-native-reanimated',
+        'react-native-modal',
+        'react-native-deck-swiper',
+        'react-native-draggable-flatlist'
+      ],
       output: {
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
