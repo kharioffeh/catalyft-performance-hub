@@ -128,23 +128,23 @@ async function processAthleteAdjustments(supabase: any, athlete: AthleteMetrics)
     return 0;
   }
 
-  // Get today's active program sessions
+  // Get today's active sessions (using correct table and column names)
   const { data: sessions, error: sessionsError } = await supabase
-    .from('program_sessions')
+    .from('sessions')
     .select('*')
     .eq('athlete_uuid', athlete.id)
-    .gte('scheduled_date', `${todayDateStr}T00:00:00`)
-    .lt('scheduled_date', `${todayDateStr}T23:59:59`)
+    .gte('start_ts', `${todayDateStr}T00:00:00`)
+    .lt('start_ts', `${todayDateStr}T23:59:59`)
     .neq('status', 'deload') // Don't re-adjust already deloaded sessions
     .in('status', ['scheduled', 'active', 'planned']); // Only adjust active sessions
 
   if (sessionsError) {
-    console.error(`Error fetching program sessions for athlete ${athlete.id}:`, sessionsError);
+    console.error(`Error fetching sessions for athlete ${athlete.id}:`, sessionsError);
     return 0;
   }
 
   if (!sessions || sessions.length === 0) {
-    console.log(`No active program sessions found for athlete ${athlete.id} on ${todayDateStr}`);
+    console.log(`No active sessions found for athlete ${athlete.id} on ${todayDateStr}`);
     return 0;
   }
 
@@ -153,16 +153,20 @@ async function processAthleteAdjustments(supabase: any, athlete: AthleteMetrics)
 
   for (const session of sessions) {
     const reason = readiness < 60 ? 'low_readiness' : 'high_acwr';
-    const oldLoad = session.planned_load || session.volume || null;
+    const oldLoad = session.payload?.load || session.payload?.volume || null;
     const newLoad = oldLoad ? Math.round(oldLoad * 0.7 * 100) / 100 : null; // 30% reduction for deload
 
     // Update session status to 'deload'
     const { error: updateError } = await supabase
-      .from('program_sessions')
+      .from('sessions')
       .update({ 
         status: 'deload',
-        deload_reason: reason,
-        deloaded_at: new Date().toISOString()
+        payload: {
+          ...session.payload,
+          deload_reason: reason,
+          deloaded_at: new Date().toISOString(),
+          original_load: oldLoad
+        }
       })
       .eq('id', session.id);
 
