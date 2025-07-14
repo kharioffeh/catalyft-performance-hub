@@ -1374,7 +1374,7 @@ export type Database = {
           planned_start: string | null
           rpe: number | null
           start_ts: string
-          status: string | null
+          status: string
           type: string
           updated_at: string
         }
@@ -1390,7 +1390,7 @@ export type Database = {
           planned_start?: string | null
           rpe?: number | null
           start_ts: string
-          status?: string | null
+          status?: string
           type: string
           updated_at?: string
         }
@@ -1406,7 +1406,7 @@ export type Database = {
           planned_start?: string | null
           rpe?: number | null
           start_ts?: string
-          status?: string | null
+          status?: string
           type?: string
           updated_at?: string
         }
