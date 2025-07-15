@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
 import Calendar from '@/pages/Calendar';
@@ -11,18 +12,32 @@ jest.mock('@/hooks/useSessions', () => ({
     data: [
       {
         id: '1',
+        athlete_uuid: 'athlete1',
+        coach_uuid: 'coach1',
+        start_ts: '2024-01-15T10:00:00Z',
+        end_ts: '2024-01-15T11:00:00Z',
+        type: 'strength',
+        status: 'planned',
+        created_at: '2024-01-15T09:00:00Z',
+        updated_at: '2024-01-15T09:00:00Z',
         program_id: 'prog1',
         planned_at: '2024-01-15',
         title: 'Upper Body Strength',
-        status: 'scheduled',
         exercises: []
       } as Session,
       {
         id: '2', 
+        athlete_uuid: 'athlete1',
+        coach_uuid: 'coach1',
+        start_ts: '2024-01-16T10:00:00Z',
+        end_ts: '2024-01-16T11:00:00Z',
+        type: 'power',
+        status: 'active',
+        created_at: '2024-01-16T09:00:00Z',
+        updated_at: '2024-01-16T09:00:00Z',
         program_id: 'prog1',
         planned_at: '2024-01-16',
         title: 'Lower Body Power',
-        status: 'in-progress',
         exercises: []
       } as Session
     ],
@@ -114,7 +129,7 @@ describe('Calendar Component', () => {
     await waitFor(() => {
       expect(screen.getByTestId('session-drawer')).toBeInTheDocument();
       expect(screen.getByText('Upper Body Strength')).toBeInTheDocument();
-      expect(screen.getByText('scheduled')).toBeInTheDocument();
+      expect(screen.getByText('planned')).toBeInTheDocument();
     });
   });
 

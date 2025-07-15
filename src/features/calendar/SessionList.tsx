@@ -83,7 +83,7 @@ const SessionList: React.FC = () => {
         data={sessionList}
         onDragEnd={handleDragEnd}
         keyExtractor={(item) => item.id}
-        renderItem={DraggableSessionCard}
+        renderItem={(props) => <DraggableSessionCard {...props} />}
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
       />

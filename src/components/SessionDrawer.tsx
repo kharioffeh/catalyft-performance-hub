@@ -28,7 +28,7 @@ export const SessionDrawer: React.FC<SessionDrawerProps> = ({
     try {
       await updateSession.mutateAsync({
         id: session.id,
-        status: 'in-progress'
+        status: 'active'
       });
       
       toast.success('Session Started', 'Your training session is now in progress');
@@ -67,9 +67,9 @@ export const SessionDrawer: React.FC<SessionDrawerProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-600">Status</span>
             <Badge className={getStatusColor(session.status)}>
-              {session.status === 'in-progress' ? 'In Progress' : 
+              {session.status === 'active' ? 'Active' : 
                session.status === 'completed' ? 'Completed' :
-               'Scheduled'}
+               'Planned'}
             </Badge>
           </div>
 
@@ -139,7 +139,7 @@ export const SessionDrawer: React.FC<SessionDrawerProps> = ({
           )}
 
           {/* Start Button */}
-          {session.status !== 'completed' && session.status !== 'in-progress' && (
+          {session.status !== 'completed' && session.status !== 'active' && (
             <Button
               onClick={handleStartSession}
               disabled={updateSession.isPending}

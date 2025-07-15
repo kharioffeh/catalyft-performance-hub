@@ -2,38 +2,31 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, SetLog, SessionExercise } from '@/types/training';
 
-export const useSessions = (programId?: string) => {
+export const useSessions = (athleteUuid?: string) => {
   return useQuery({
-    queryKey: ['sessions', programId],
+    queryKey: ['sessions', athleteUuid],
     queryFn: async () => {
       let query = supabase
         .from('sessions')
-        .select(`
-          *,
-          program:program_id (
-            id,
-            athlete_uuid,
-            coach_uuid,
-            template:template_id (
-              title,
-              goal
-            )
-          )
-        `)
-        .order('planned_at', { ascending: true });
+        .select('*')
+        .order('start_ts', { ascending: true });
 
-      if (programId) {
-        query = query.eq('program_id', programId);
+      if (athleteUuid) {
+        query = query.eq('athlete_uuid', athleteUuid);
       }
 
       const { data, error } = await query;
 
       if (error) throw error;
       
-      // Convert Json exercises to SessionExercise[]
+      // Map database fields to frontend interface
       return data.map(session => ({
         ...session,
-        exercises: (session.exercises as unknown as SessionExercise[]) || []
+        // Add compatibility mappings
+        program_id: session.id, // Use session id as program_id for now
+        planned_at: session.start_ts,
+        title: `${session.type} Session`,
+        exercises: Array.isArray(session.payload) ? [] : (session.payload as any)?.exercises || []
       })) as Session[];
     },
   });
@@ -45,27 +38,19 @@ export const useSession = (id: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('sessions')
-        .select(`
-          *,
-          program:program_id (
-            id,
-            athlete_uuid,
-            coach_uuid,
-            template:template_id (
-              title,
-              goal
-            )
-          )
-        `)
+        .select('*')
         .eq('id', id)
         .single();
 
       if (error) throw error;
       
-      // Convert Json exercises to SessionExercise[]
+      // Map database fields to frontend interface
       return {
         ...data,
-        exercises: (data.exercises as unknown as SessionExercise[]) || []
+        program_id: data.id,
+        planned_at: data.start_ts,
+        title: `${data.type} Session`,
+        exercises: Array.isArray(data.payload) ? [] : (data.payload as any)?.exercises || []
       } as Session;
     },
     enabled: !!id,
@@ -76,12 +61,20 @@ export const useCreateSession = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (sessionData: Omit<Session, 'id' | 'created_at'>) => {
+    mutationFn: async (sessionData: Omit<Session, 'id' | 'created_at' | 'updated_at'>) => {
       const { data, error } = await supabase
         .from('sessions')
         .insert({
-          ...sessionData,
-          exercises: sessionData.exercises as unknown as any
+          athlete_uuid: sessionData.athlete_uuid,
+          coach_uuid: sessionData.coach_uuid,
+          start_ts: sessionData.start_ts,
+          end_ts: sessionData.end_ts,
+          type: sessionData.type,
+          status: sessionData.status || 'planned',
+          notes: sessionData.notes,
+          rpe: sessionData.rpe,
+          load: sessionData.load,
+          payload: sessionData.exercises ? JSON.parse(JSON.stringify({ exercises: sessionData.exercises })) : {}
         })
         .select()
         .single();
@@ -90,7 +83,10 @@ export const useCreateSession = () => {
       
       return {
         ...data,
-        exercises: (data.exercises as unknown as SessionExercise[]) || []
+        program_id: data.id,
+        planned_at: data.start_ts,
+        title: `${data.type} Session`,
+        exercises: Array.isArray(data.payload) ? [] : (data.payload as any)?.exercises || []
       } as Session;
     },
     onSuccess: () => {
@@ -104,11 +100,15 @@ export const useUpdateSession = () => {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Session> & { id: string }) => {
-      // Remove program property if it exists and handle exercises casting
-      const { program, ...cleanUpdates } = updates as any;
-      const updateData = cleanUpdates.exercises 
-        ? { ...cleanUpdates, exercises: cleanUpdates.exercises as unknown as any }
-        : cleanUpdates;
+      const updateData: any = {};
+      
+      if (updates.status) updateData.status = updates.status;
+      if (updates.notes) updateData.notes = updates.notes;
+      if (updates.rpe) updateData.rpe = updates.rpe;
+      if (updates.load) updateData.load = updates.load;
+      if (updates.start_ts) updateData.start_ts = updates.start_ts;
+      if (updates.end_ts) updateData.end_ts = updates.end_ts;
+      if (updates.exercises) updateData.payload = JSON.parse(JSON.stringify({ exercises: updates.exercises }));
         
       const { data, error } = await supabase
         .from('sessions')
@@ -121,7 +121,10 @@ export const useUpdateSession = () => {
       
       return {
         ...data,
-        exercises: (data.exercises as unknown as SessionExercise[]) || []
+        program_id: data.id,
+        planned_at: data.start_ts,
+        title: `${data.type} Session`,
+        exercises: Array.isArray(data.payload) ? [] : (data.payload as any)?.exercises || []
       } as Session;
     },
     onSuccess: (data) => {

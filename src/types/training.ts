@@ -51,17 +51,27 @@ export interface ProgramInstance {
 
 export interface Session {
   id: string;
-  program_id: string;
-  planned_at: string;
-  completed_at?: string;
-  title?: string;
-  status?: 'scheduled' | 'in-progress' | 'completed';
+  athlete_uuid: string;
+  coach_uuid: string;
+  start_ts: string;
+  end_ts: string;
+  planned_start?: string;
+  type: string;
+  status: 'planned' | 'active' | 'completed';
   notes?: string;
   rpe?: number;
+  load?: number;
   strain?: number;
-  acwr_snapshot?: number;
-  exercises: SessionExercise[];
+  payload?: any;
+  exercises?: SessionExercise[];
   created_at: string;
+  updated_at: string;
+  // Computed properties for compatibility
+  program_id?: string;
+  planned_at?: string;
+  title?: string;
+  acwr_snapshot?: number;
+  completed_at?: string;
   program?: ProgramInstance;
 }
 

@@ -15,7 +15,7 @@ import { useIsMobile } from '@/hooks/useBreakpoint';
 
 const Calendar: React.FC = () => {
   const { profile } = useAuth();
-  const { data: sessions = [], isLoading, mutate } = useSessions();
+  const { data: sessions = [], isLoading, refetch } = useSessions();
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const updateSession = useUpdateSession();
@@ -35,11 +35,11 @@ const Calendar: React.FC = () => {
 
   const getEventColor = (status?: string) => {
     switch (status) {
-      case 'in-progress':
+      case 'active':
         return '#3B82F6'; // blue
       case 'completed':
         return '#10B981'; // green
-      case 'scheduled':
+      case 'planned':
       default:
         return '#6B7280'; // gray
     }
@@ -111,9 +111,9 @@ const Calendar: React.FC = () => {
                 {eventInfo.event.title}
               </div>
               <div className="text-xs text-white/80 truncate">
-                {eventInfo.event.extendedProps.session.status === 'in-progress' ? 'In Progress' :
+                {eventInfo.event.extendedProps.session.status === 'active' ? 'Active' :
                  eventInfo.event.extendedProps.session.status === 'completed' ? 'Completed' :
-                 'Scheduled'}
+                 'Planned'}
               </div>
             </div>
           )}
