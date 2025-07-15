@@ -12,7 +12,7 @@ export const ChartView: React.FC<ChartViewProps> = ({
 }) => {
   return (
     <div className={cn(
-      "w-full h-[480px] rounded-2xl overflow-hidden mb-6",
+      "w-full h-[600px] rounded-3xl overflow-hidden shadow-lg border border-border/50 bg-card/50 backdrop-blur-sm",
       className
     )}>
       {children}
