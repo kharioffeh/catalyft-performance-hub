@@ -56,8 +56,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ variant }) => {
           )}
           <main className={cn(
             "flex-1 overflow-auto scrollbar-hide",
-            // Add top padding on mobile for drawer header
-            isMobile ? "pt-14" : ""
+            // Add top padding on mobile for drawer header and bottom padding for tab bar
+            isMobile ? "pt-14 pb-20" : ""
           )}>
             <SafeAreaView>
               <ErrorBoundary FallbackComponent={ErrorFallback}>
@@ -82,6 +82,17 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ variant }) => {
             isOpen={isMobileDrawerOpen}
             onToggle={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}
           />
+        </ErrorBoundary>
+      )}
+      
+      {/* Bottom tab bar - only on mobile */}
+      {isMobile && (
+        <ErrorBoundary FallbackComponent={({ error }) => (
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-red-100 text-red-600 text-sm">
+            Bottom tab error: {error.message}
+          </div>
+        )}>
+          <BottomTabBar />
         </ErrorBoundary>
       )}
     </GlassLayout>

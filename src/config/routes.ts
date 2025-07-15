@@ -28,7 +28,12 @@ export const NAV_ROUTES: NavItem[] = [
     label: "Training Plan",
     path: "/training-plan",
     icon: Calendar,
-    roles: ["solo", "athlete"]
+    roles: ["solo", "athlete"],
+    children: [
+      { label: "Programs", path: "/training-plan/programs", icon: Target },
+      { label: "Instances", path: "/training-plan/instances", icon: Activity },
+      { label: "Library", path: "/training-plan/library", icon: BookOpen }
+    ]
   },
   {
     label: "Analytics",
@@ -57,8 +62,13 @@ export const NAV_ROUTES: NavItem[] = [
   { 
     label: "Training", 
     path: "/training-plan", 
-    icon: BookOpen, 
-    roles: ["coach"] 
+    icon: Target, 
+    roles: ["coach"],
+    children: [
+      { label: "Programs", path: "/training-plan/programs", icon: Target },
+      { label: "Instances", path: "/training-plan/instances", icon: Activity },
+      { label: "Library", path: "/training-plan/library", icon: BookOpen }
+    ]
   },
   { 
     label: "Chat", 

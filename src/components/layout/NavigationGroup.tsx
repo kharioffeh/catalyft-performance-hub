@@ -31,8 +31,13 @@ export const NavigationGroup: React.FC<NavigationGroupProps> = ({
   React.useEffect(() => {
     if (isCollapsed) {
       setIsOpen(false);
+    } else {
+      // Keep group open if any child route is active
+      setIsOpen(item.children?.some(child => 
+        location.pathname === child.path || location.pathname.startsWith(child.path + '/')
+      ) || false);
     }
-  }, [isCollapsed]);
+  }, [isCollapsed, location.pathname, item.children]);
 
   if (!item.children || item.children.length === 0) {
     return (
@@ -97,7 +102,7 @@ export const NavigationGroup: React.FC<NavigationGroupProps> = ({
               <NavLink
                 key={child.path}
                 to={child.path}
-                end={child.path === item.path}
+                end={child.path !== '/training-plan'}
                 className={({ isActive }) =>
                   clsx(
                     "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200",

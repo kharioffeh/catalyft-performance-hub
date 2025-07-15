@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { BarChart3, Dumbbell, Settings, Home, Apple } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { getNavigationForRole } from '@/config/routes';
 import { cn } from '@/lib/utils';
 
 interface TabItem {
@@ -11,42 +12,19 @@ interface TabItem {
   path: string;
 }
 
-const TAB_ITEMS: TabItem[] = [
-  {
-    id: 'dashboard',
-    label: 'Dashboard',
-    icon: Home,
-    path: '/dashboard',
-  },
-  {
-    id: 'training',
-    label: 'Training',
-    icon: Dumbbell,
-    path: '/training-plan',
-  },
-  {
-    id: 'analytics',
-    label: 'Analytics',
-    icon: BarChart3,
-    path: '/analytics',
-  },
-  {
-    id: 'nutrition',
-    label: 'Nutrition',
-    icon: Apple,
-    path: '/nutrition',
-  },
-  {
-    id: 'settings',
-    label: 'Settings',
-    icon: Settings,
-    path: '/settings',
-  },
-];
-
 export const BottomTabBar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { profile } = useAuth();
+
+  // Get navigation items based on user role and take first 5 for bottom bar
+  const navigationItems = getNavigationForRole(profile?.role);
+  const tabItems: TabItem[] = navigationItems.slice(0, 5).map((item, index) => ({
+    id: item.path.replace('/', '') || `tab-${index}`,
+    label: item.label,
+    icon: item.icon,
+    path: item.path
+  }));
 
   console.log('BottomTabBar: Current location:', location.pathname);
 
@@ -70,7 +48,7 @@ export const BottomTabBar: React.FC = () => {
       "safe-area-pb"
     )} style={{ pointerEvents: 'auto' }}>
       <div className="flex justify-around items-center px-2 pt-2 pb-1" style={{ pointerEvents: 'auto' }}>
-        {TAB_ITEMS.map((tab) => {
+        {tabItems.map((tab) => {
           const Icon = tab.icon;
           const isActive = isTabActive(tab.path);
           
