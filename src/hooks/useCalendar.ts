@@ -1,19 +1,6 @@
 import { useSessionsData } from './useSessionsData';
 import { useAuth } from '@/contexts/AuthContext';
-
-interface Session {
-  id: string;
-  athlete_uuid: string;
-  coach_uuid: string;
-  type: string;
-  start_ts: string;
-  end_ts: string;
-  status: 'planned' | 'active' | 'completed';
-  notes?: string;
-  athletes?: {
-    name: string;
-  };
-}
+import { Session } from '@/types/training';
 
 export const useCalendar = () => {
   const { profile } = useAuth();
@@ -26,4 +13,3 @@ export const useCalendar = () => {
   };
 };
 
-export type { Session };
