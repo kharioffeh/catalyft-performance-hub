@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { ErrorBoundary } from 'react-error-boundary';
-import Sidebar from '@/components/layout/Sidebar';
 import { TopBar } from '@/components/TopBar';
 import { BottomTabBar } from '@/components/layout/BottomTabBar';
 import { MobileDrawer } from '@/components/layout/MobileDrawer';
 import { GlassLayout } from '@/components/Glass/GlassLayout';
+import { ResponsiveNavigation } from '@/components/navigation/ResponsiveNavigation';
 import { useIsMobile } from '@/hooks/useBreakpoint';
 import { useAuth } from '@/contexts/AuthContext';
 import { getNavigationForRole } from '@/config/routes';
@@ -30,22 +30,22 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ variant }) => {
   return (
     <GlassLayout variant={variant}>
       <div className="min-h-screen flex w-full">
-        {/* Desktop sidebar - hidden on mobile */}
-        {!isMobile && (
-          <ErrorBoundary FallbackComponent={({ error, resetErrorBoundary }) => (
-            <div className="p-4 text-red-400 text-sm">
-              Sidebar error: {error.message}
-              <button onClick={resetErrorBoundary} className="block mt-2 text-indigo-400">
-                Retry
-              </button>
-            </div>
-          )}>
-            <Sidebar />
-          </ErrorBoundary>
-        )}
+        {/* Responsive Navigation */}
+        <ErrorBoundary FallbackComponent={({ error, resetErrorBoundary }) => (
+          <div className="p-4 text-red-400 text-sm">
+            Navigation error: {error.message}
+            <button onClick={resetErrorBoundary} className="block mt-2 text-indigo-400">
+              Retry
+            </button>
+          </div>
+        )}>
+          <ResponsiveNavigation />
+        </ErrorBoundary>
         
         <div className={cn(
-          "flex-1 flex flex-col min-w-0"
+          "flex-1 flex flex-col min-w-0",
+          // Add left margin on desktop to account for sidebar
+          !isMobile ? "lg:ml-60" : ""
         )}>
           {!isMobile && (
             <ErrorBoundary FallbackComponent={({ error }) => (
@@ -56,8 +56,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ variant }) => {
           )}
           <main className={cn(
             "flex-1 overflow-auto scrollbar-hide",
-            // Add top padding on mobile for drawer header and bottom padding for tab bar
-            isMobile ? "pt-14 pb-20" : ""
+            // Add top padding on mobile for navigation trigger
+            isMobile ? "pt-16 pb-20" : "pt-4"
           )}>
             <SafeAreaView>
               <ErrorBoundary FallbackComponent={ErrorFallback}>
@@ -67,23 +67,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ variant }) => {
           </main>
         </div>
       </div>
-      
-      {/* Mobile drawer - only on mobile */}
-      {isMobile && (
-        <ErrorBoundary FallbackComponent={({ error }) => (
-          <div className="fixed bottom-0 left-0 right-0 p-4 bg-red-100 text-red-600 text-sm">
-            Mobile drawer error: {error.message}
-          </div>
-        )}>
-          <MobileDrawer
-            navigationItems={navigationItems}
-            profile={profile}
-            navigate={navigate}
-            isOpen={isMobileDrawerOpen}
-            onToggle={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}
-          />
-        </ErrorBoundary>
-      )}
       
       {/* Bottom tab bar - only on mobile */}
       {isMobile && (
