@@ -1,11 +1,12 @@
-
-import React from 'react';
+import React, { useState } from 'react';
+import { useSwipeable } from 'react-swipeable';
 import { Activity, Calendar, BarChart3, AlertTriangle, Zap, Target } from 'lucide-react';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { MobileKpiGrid } from './MobileKpiGrid';
-import { useIsPhone } from '@/hooks/useBreakpoint';
+import { useIsPhone, useIsMobile } from '@/hooks/useBreakpoint';
 import { useMetrics } from '@/hooks/useMetrics';
 import { useStress } from '@/hooks/useStress';
+import { cn } from '@/lib/utils';
 
 interface VerticalMetricCardsProps {
   currentReadiness: any;
@@ -21,6 +22,8 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
   injuryRisk
 }) => {
   const isPhone = useIsPhone();
+  const isMobile = useIsMobile();
+  const [currentSlide, setCurrentSlide] = useState(0);
   const { data: metricsData, isLoading: metricsLoading } = useMetrics();
   const { data: stressData, isLoading: stressLoading } = useStress();
 
@@ -98,57 +101,112 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
     }
   ];
 
+  // Create desktop cards data
+  const desktopCards = [
+    {
+      title: "Recovery",
+      value: getRecoveryValue(),
+      icon: Activity,
+      isLoading: metricsLoading || !metricsData,
+    },
+    {
+      title: "Strain",
+      value: getStrainValue(),
+      icon: Zap,
+      isLoading: metricsLoading || !metricsData,
+    },
+    {
+      title: "Stress",
+      value: getStressValue(),
+      icon: Target,
+      isLoading: stressLoading,
+    },
+    {
+      title: "Today's Sessions",
+      value: getSessionsValue(),
+      icon: Calendar,
+    },
+    {
+      title: "Injury Risk",
+      value: injuryRisk ? getRiskLevel(injuryRisk.probabilities) : '--',
+      icon: AlertTriangle,
+      isLoading: !injuryRisk,
+    }
+  ];
+
+  // Swipe handlers for mobile carousel
+  const handlers = useSwipeable({
+    onSwipedLeft: () => setCurrentSlide(Math.min(currentSlide + 1, desktopCards.length - 1)),
+    onSwipedRight: () => setCurrentSlide(Math.max(currentSlide - 1, 0)),
+    trackMouse: true,
+    preventScrollOnSwipe: true,
+  });
+
   // Use mobile grid only on phones (≤414px)
   if (isPhone) {
     return <MobileKpiGrid data={mobileKpiData} className="w-full" />;
   }
 
-  // Desktop vertical layout
+  // Mobile carousel layout (between phone and desktop)
+  if (isMobile) {
+    return (
+      <div className="w-full">
+        {/* Carousel container */}
+        <div 
+          {...handlers}
+          className="overflow-hidden"
+        >
+          <div 
+            className="flex transition-transform duration-300 ease-out"
+            style={{ transform: `translateX(-${currentSlide * 85}vw)` }}
+          >
+            {desktopCards.map((card, index) => (
+              <div key={index} className="flex-shrink-0 w-[85vw] pr-4">
+                <KpiCard
+                  title={card.title}
+                  value={card.value}
+                  icon={card.icon}
+                  isLoading={card.isLoading}
+                  layout="vertical"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Swipe dots indicator */}
+        <div className="flex justify-center mt-4 gap-2">
+          {desktopCards.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={cn(
+                "w-2 h-2 rounded-full transition-all duration-200",
+                index === currentSlide 
+                  ? "bg-primary w-6" 
+                  : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+              )}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop vertical layout (lg+)
   return (
     <div className="space-y-4">
-      {/* Recovery Card */}
-      <KpiCard
-        title="Recovery"
-        value={getRecoveryValue()}
-        icon={Activity}
-        isLoading={metricsLoading || !metricsData}
-        layout="vertical"
-      />
-
-      {/* Strain Card */}
-      <KpiCard
-        title="Strain"
-        value={getStrainValue()}
-        icon={Zap}
-        isLoading={metricsLoading || !metricsData}
-        layout="vertical"
-      />
-
-      {/* Stress Card */}
-      <KpiCard
-        title="Stress"
-        value={getStressValue()}
-        icon={Target}
-        isLoading={stressLoading}
-        layout="vertical"
-      />
-
-      {/* Today's Sessions Card */}
-      <KpiCard
-        title="Today's Sessions"
-        value={getSessionsValue()}
-        icon={Calendar}
-        layout="vertical"
-      />
-
-      {/* Injury Risk Card */}
-      <KpiCard
-        title="Injury Risk"
-        value={injuryRisk ? getRiskLevel(injuryRisk.probabilities) : '--'}
-        icon={AlertTriangle}
-        isLoading={!injuryRisk}
-        layout="vertical"
-      />
+      {desktopCards.map((card, index) => (
+        <KpiCard
+          key={index}
+          title={card.title}
+          value={card.value}
+          icon={card.icon}
+          isLoading={card.isLoading}
+          layout="vertical"
+        />
+      ))}
     </div>
   );
 };
