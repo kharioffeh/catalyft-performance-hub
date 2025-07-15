@@ -21,18 +21,6 @@ const Calendar: React.FC = () => {
   const updateSession = useUpdateSession();
   const isMobile = useIsMobile();
 
-  const calendarEvents = sessions.map((session) => ({
-    id: session.id,
-    title: session.title || 'Training Session',
-    start: session.planned_at,
-    allDay: true, // Since we only have date, not specific time
-    backgroundColor: getEventColor(session.status),
-    borderColor: getEventColor(session.status),
-    extendedProps: {
-      session: session,
-    },
-  }));
-
   const getEventColor = (status?: string) => {
     switch (status) {
       case 'active':
@@ -44,6 +32,18 @@ const Calendar: React.FC = () => {
         return '#6B7280'; // gray
     }
   };
+
+  const calendarEvents = sessions.map((session) => ({
+    id: session.id,
+    title: session.title || 'Training Session',
+    start: session.planned_at,
+    allDay: true, // Since we only have date, not specific time
+    backgroundColor: getEventColor(session.status),
+    borderColor: getEventColor(session.status),
+    extendedProps: {
+      session: session,
+    },
+  }));
 
   const handleEventClick = (info: any) => {
     const session = info.event.extendedProps.session;
