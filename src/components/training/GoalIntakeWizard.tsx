@@ -300,68 +300,74 @@ export const GoalIntakeWizard: React.FC<GoalIntakeWizardProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-hidden">
-        <DialogHeader>
+        <DialogHeader className="sticky top-0 z-10 bg-background pb-4">
           <DialogTitle className="flex items-center gap-2">
             <Target className="w-5 h-5 text-primary" />
             Set Your Training Goal
           </DialogTitle>
         </DialogHeader>
 
-        {/* Progress indicator */}
-        <div className="flex items-center gap-2 mb-6">
-          {[1, 2, 3].map((step) => (
-            <div
-              key={step}
-              className={cn(
-                "flex-1 h-2 rounded-full transition-colors",
-                step <= currentStep ? "bg-primary" : "bg-muted"
-              )}
-            />
-          ))}
+        {/* Progress indicator - Sticky */}
+        <div className="sticky top-0 z-10 bg-background">
+          <div className="flex items-center gap-2 mb-6">
+            {[1, 2, 3].map((step) => (
+              <div
+                key={step}
+                className={cn(
+                  "flex-1 h-2 rounded-full transition-colors",
+                  step <= currentStep ? "bg-primary" : "bg-muted"
+                )}
+              />
+            ))}
+          </div>
         </div>
 
-        {/* Step content */}
-        <div className="min-h-[400px] overflow-y-auto">
-          {currentStep === 1 && renderStep1()}
-          {currentStep === 2 && renderStep2()}
-          {currentStep === 3 && renderStep3()}
+        {/* Step content - Scrollable with max height */}
+        <div className="overflow-y-auto max-h-[70vh] px-6">
+          <div className="min-h-[400px]">
+            {currentStep === 1 && renderStep1()}
+            {currentStep === 2 && renderStep2()}
+            {currentStep === 3 && renderStep3()}
+          </div>
         </div>
 
-        {/* Navigation */}
-        <div className="flex items-center justify-between pt-4 border-t">
-          <Button
-            variant="outline"
-            onClick={handleBack}
-            disabled={currentStep === 1}
-            className="flex items-center gap-2"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Back
-          </Button>
-
-          <span className="text-sm text-muted-foreground">
-            Step {currentStep} of 3
-          </span>
-
-          {currentStep < 3 ? (
+        {/* Navigation - Sticky */}
+        <div className="sticky bottom-0 z-10 bg-background">
+          <div className="flex items-center justify-between pt-4 border-t">
             <Button
-              onClick={handleNext}
-              disabled={!isStepValid()}
+              variant="outline"
+              onClick={handleBack}
+              disabled={currentStep === 1}
               className="flex items-center gap-2"
             >
-              Next
-              <ChevronRight className="w-4 h-4" />
+              <ChevronLeft className="w-4 h-4" />
+              Back
             </Button>
-          ) : (
-            <Button
-              onClick={handleSubmit}
-              disabled={!isStepValid() || isSubmitting}
-              className="flex items-center gap-2"
-            >
-              {isSubmitting ? 'Creating...' : 'Create Program'}
-              <Target className="w-4 h-4" />
-            </Button>
-          )}
+
+            <span className="text-sm text-muted-foreground">
+              Step {currentStep} of 3
+            </span>
+
+            {currentStep < 3 ? (
+              <Button
+                onClick={handleNext}
+                disabled={!isStepValid()}
+                className="flex items-center gap-2"
+              >
+                Next
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            ) : (
+              <Button
+                onClick={handleSubmit}
+                disabled={!isStepValid() || isSubmitting}
+                className="flex items-center gap-2"
+              >
+                {isSubmitting ? 'Creating...' : 'Create Program'}
+                <Target className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

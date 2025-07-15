@@ -94,8 +94,8 @@ export const EnhancedProgramBuilder: React.FC<EnhancedProgramBuilderProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl h-[90vh] p-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="flex-shrink-0 px-8 pt-8 pb-6 border-b border-white/10">
+          {/* Header - Sticky */}
+          <div className="sticky top-0 z-10 flex-shrink-0 px-8 pt-8 pb-6 border-b border-white/10 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
             <div className="text-center mb-6">
               <h1 className="text-3xl font-bold text-white mb-2">Program Builder</h1>
               <p className="text-white/70">Create your training program in 3 simple steps</p>
@@ -107,9 +107,9 @@ export const EnhancedProgramBuilder: React.FC<EnhancedProgramBuilderProps> = ({
             </Stepper>
           </div>
 
-          {/* Content - Now properly scrollable */}
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            <div className="p-8">
+          {/* Content - Scrollable with max height */}
+          <div className="overflow-y-auto max-h-[70vh] px-6">
+            <div className="py-8">
               {steps[builder.currentStep].component}
             </div>
           </div>
