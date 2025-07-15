@@ -2,7 +2,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useCoachQuery } from './useCoachQuery';
 import { useAthletesQuery } from './useAthletesQuery';
-import { useAthletesRealtime } from './useAthletesRealtime';
+import { useAthletesRealtimeSubscription } from './useAthletesRealtime';
 
 export const useAthleteQueriesRealtime = () => {
   const { profile } = useAuth();
@@ -16,7 +16,7 @@ export const useAthleteQueriesRealtime = () => {
   });
 
   // Set up realtime subscription
-  useAthletesRealtime({
+  useAthletesRealtimeSubscription({
     coachId: coachData?.id,
     refetch
   });

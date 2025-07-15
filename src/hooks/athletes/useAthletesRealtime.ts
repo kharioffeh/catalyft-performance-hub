@@ -1,13 +1,13 @@
 
 import { useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 interface UseAthletesRealtimeProps {
   coachId?: string;
   refetch: () => void;
 }
 
-export const useAthletesRealtime = ({ coachId, refetch }: UseAthletesRealtimeProps) => {
+export const useAthletesRealtimeSubscription = ({ coachId, refetch }: UseAthletesRealtimeProps) => {
   useEffect(() => {
     if (!coachId) return;
 
