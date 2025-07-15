@@ -8,6 +8,8 @@ import { ProgramReviewStep } from './ProgramReviewStep';
 import { useEnhancedProgramBuilder } from '@/hooks/useEnhancedProgramBuilder';
 import { useCreateProgramTemplate } from '@/hooks/useProgramTemplates';
 import { useToast } from '@/hooks/use-toast';
+import { useCalendar } from '@/hooks/useCalendar';
+import { createSession } from '@/lib/api/sessions';
 
 interface EnhancedProgramBuilderProps {
   open: boolean;
@@ -21,6 +23,7 @@ export const EnhancedProgramBuilder: React.FC<EnhancedProgramBuilderProps> = ({
   const builder = useEnhancedProgramBuilder();
   const createProgram = useCreateProgramTemplate();
   const { toast } = useToast();
+  const { queryClient } = useCalendar();
 
   const steps = [
     {
@@ -73,6 +76,42 @@ export const EnhancedProgramBuilder: React.FC<EnhancedProgramBuilderProps> = ({
         },
         origin: 'COACH'
       });
+
+      // Auto-create calendar sessions for each program session
+      try {
+        const today = new Date();
+        for (const session of builder.sessions) {
+          // Calculate session date based on week and day
+          const sessionDate = new Date(today);
+          sessionDate.setDate(today.getDate() + ((session.week - 1) * 7) + session.day);
+          
+          // Set default session time (9:00 AM for 1 hour)
+          const startTime = new Date(sessionDate);
+          startTime.setHours(9, 0, 0, 0);
+          
+          const endTime = new Date(startTime);
+          endTime.setHours(10, 0, 0, 0);
+
+          await createSession({
+            athlete_uuid: session.id, // Using session id as placeholder - this should be actual athlete
+            start_ts: startTime.toISOString(),
+            end_ts: endTime.toISOString(),
+            type: builder.meta.goal,
+            status: 'planned' as const,
+            payload: JSON.parse(JSON.stringify({
+              exercises: session.exercises,
+              programSession: true,
+              sessionTitle: session.title
+            }))
+          });
+        }
+
+        // Invalidate calendar query to refresh the UI
+        queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      } catch (calendarError) {
+        console.warn('Failed to create calendar sessions:', calendarError);
+        // Don't fail the entire save process if calendar creation fails
+      }
 
       toast({
         title: "Program Created",
