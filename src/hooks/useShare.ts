@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { capturePng, makePdf, toCsv } from '@/utils/exportMetrics';
 import { saveAs } from 'file-saver';
 import { useAuth } from '@/contexts/AuthContext';

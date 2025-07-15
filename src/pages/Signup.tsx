@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/integrations/supabase/client'
 import { toast } from '@/hooks/use-toast'
 import * as THREE from "three"
 import NET from "vanta/dist/vanta.net.min"
