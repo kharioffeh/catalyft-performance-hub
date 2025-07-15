@@ -92,7 +92,7 @@ export const EnhancedProgramBuilder: React.FC<EnhancedProgramBuilderProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl h-[90vh] p-0 overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <DialogContent className="max-w-6xl h-[90vh] p-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex-shrink-0 px-8 pt-8 pb-6 border-b border-white/10">
@@ -107,9 +107,11 @@ export const EnhancedProgramBuilder: React.FC<EnhancedProgramBuilderProps> = ({
             </Stepper>
           </div>
 
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto p-8">
-            {steps[builder.currentStep].component}
+          {/* Content - Now properly scrollable */}
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <div className="p-8">
+              {steps[builder.currentStep].component}
+            </div>
           </div>
         </div>
       </DialogContent>
