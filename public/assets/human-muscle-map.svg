@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <!-- Human body outline -->
+  <g id="body-outline" stroke="#333" stroke-width="2" fill="none">
+    <!-- Head -->
+    <circle cx="200" cy="60" r="35" />
+    
+    <!-- Torso -->
+    <path d="M175 95 Q175 95 175 150 L175 300 Q175 320 190 320 L210 320 Q225 320 225 300 L225 150 Q225 95 225 95" />
+  </g>
+  
+  <!-- Muscle groups with specific IDs -->
+  
+  <!-- Head and Neck -->
+  <g id="neck-muscles">
+    <ellipse id="sternocleidomastoid" cx="200" cy="100" rx="8" ry="20" fill="#ddd" opacity="0.8" />
+    <ellipse id="trapezius-upper" cx="200" cy="110" rx="25" ry="10" fill="#ddd" opacity="0.8" />
+  </g>
+  
+  <!-- Chest -->
+  <g id="chest-muscles">
+    <ellipse id="pectoralis-major" cx="200" cy="140" rx="30" ry="25" fill="#ddd" opacity="0.8" />
+    <ellipse id="pectoralis-minor" cx="200" cy="135" rx="20" ry="15" fill="#ddd" opacity="0.8" />
+  </g>
+  
+  <!-- Shoulders -->
+  <g id="shoulder-muscles">
+    <ellipse id="anterior-deltoid" cx="170" cy="125" rx="15" ry="20" fill="#ddd" opacity="0.8" />
+    <ellipse id="medial-deltoid" cx="155" cy="130" rx="12" ry="18" fill="#ddd" opacity="0.8" />
+    <ellipse id="posterior-deltoid" cx="140" cy="135" rx="15" ry="20" fill="#ddd" opacity="0.8" />
+    <ellipse id="anterior-deltoid-right" cx="230" cy="125" rx="15" ry="20" fill="#ddd" opacity="0.8" />
+    <ellipse id="medial-deltoid-right" cx="245" cy="130" rx="12" ry="18" fill="#ddd" opacity="0.8" />
+    <ellipse id="posterior-deltoid-right" cx="260" cy="135" rx="15" ry="20" fill="#ddd" opacity="0.8" />
+  </g>
+  
+  <!-- Arms -->
+  <g id="arm-muscles">
+    <!-- Left arm -->
+    <ellipse id="biceps-left" cx="140" cy="180" rx="12" ry="25" fill="#ddd" opacity="0.8" />
+    <ellipse id="triceps-left" cx="125" cy="185" rx="10" ry="20" fill="#ddd" opacity="0.8" />
+    <ellipse id="brachialis-left" cx="145" cy="200" rx="8" ry="15" fill="#ddd" opacity="0.8" />
+    
+    <!-- Right arm -->
+    <ellipse id="biceps-right" cx="260" cy="180" rx="12" ry="25" fill="#ddd" opacity="0.8" />
+    <ellipse id="triceps-right" cx="275" cy="185" rx="10" ry="20" fill="#ddd" opacity="0.8" />
+    <ellipse id="brachialis-right" cx="255" cy="200" rx="8" ry="15" fill="#ddd" opacity="0.8" />
+  </g>
+  
+  <!-- Forearms -->
+  <g id="forearm-muscles">
+    <!-- Left forearm -->
+    <ellipse id="forearm-flexors-left" cx="140" cy="230" rx="8" ry="20" fill="#ddd" opacity="0.8" />
+    <ellipse id="forearm-extensors-left" cx="130" cy="235" rx="6" ry="18" fill="#ddd" opacity="0.8" />
+    
+    <!-- Right forearm -->
+    <ellipse id="forearm-flexors-right" cx="260" cy="230" rx="8" ry="20" fill="#ddd" opacity="0.8" />
+    <ellipse id="forearm-extensors-right" cx="270" cy="235" rx="6" ry="18" fill="#ddd" opacity="0.8" />
+  </g>
+  
+  <!-- Core -->
+  <g id="core-muscles">
+    <ellipse id="rectus-abdominis" cx="200" cy="190" rx="18" ry="35" fill="#ddd" opacity="0.8" />
+    <ellipse id="external-obliques" cx="185" cy="200" rx="12" ry="25" fill="#ddd" opacity="0.8" />
+    <ellipse id="external-obliques-right" cx="215" cy="200" rx="12" ry="25" fill="#ddd" opacity="0.8" />
+    <ellipse id="serratus-anterior" cx="175" cy="170" rx="10" ry="20" fill="#ddd" opacity="0.8" />
+    <ellipse id="serratus-anterior-right" cx="225" cy="170" rx="10" ry="20" fill="#ddd" opacity="0.8" />
+  </g>
+  
+  <!-- Back -->
+  <g id="back-muscles">
+    <ellipse id="latissimus-dorsi" cx="170" cy="200" rx="20" ry="40" fill="#ddd" opacity="0.8" />
+    <ellipse id="latissimus-dorsi-right" cx="230" cy="200" rx="20" ry="40" fill="#ddd" opacity="0.8" />
+    <ellipse id="rhomboids" cx="200" cy="160" rx="25" ry="15" fill="#ddd" opacity="0.8" />
+    <ellipse id="middle-trapezius" cx="200" cy="150" rx="30" ry="20" fill="#ddd" opacity="0.8" />
+    <ellipse id="lower-trapezius" cx="200" cy="180" rx="25" ry="25" fill="#ddd" opacity="0.8" />
+  </g>
+  
+  <!-- Legs -->
+  <g id="leg-muscles">
+    <!-- Left leg -->
+    <ellipse id="quadriceps-left" cx="175" cy="350" rx="20" ry="50" fill="#ddd" opacity="0.8" />
+    <ellipse id="hamstrings-left" cx="165" cy="360" rx="15" ry="45" fill="#ddd" opacity="0.8" />
+    <ellipse id="glutes-left" cx="175" cy="280" rx="25" ry="30" fill="#ddd" opacity="0.8" />
+    <ellipse id="hip-flexors-left" cx="185" cy="300" rx="12" ry="20" fill="#ddd" opacity="0.8" />
+    
+    <!-- Right leg -->
+    <ellipse id="quadriceps-right" cx="225" cy="350" rx="20" ry="50" fill="#ddd" opacity="0.8" />
+    <ellipse id="hamstrings-right" cx="235" cy="360" rx="15" ry="45" fill="#ddd" opacity="0.8" />
+    <ellipse id="glutes-right" cx="225" cy="280" rx="25" ry="30" fill="#ddd" opacity="0.8" />
+    <ellipse id="hip-flexors-right" cx="215" cy="300" rx="12" ry="20" fill="#ddd" opacity="0.8" />
+  </g>
+  
+  <!-- Calves -->
+  <g id="calf-muscles">
+    <!-- Left calf -->
+    <ellipse id="gastrocnemius-left" cx="175" cy="450" rx="12" ry="30" fill="#ddd" opacity="0.8" />
+    <ellipse id="soleus-left" cx="175" cy="470" rx="10" ry="20" fill="#ddd" opacity="0.8" />
+    <ellipse id="tibialis-anterior-left" cx="185" cy="440" rx="8" ry="25" fill="#ddd" opacity="0.8" />
+    
+    <!-- Right calf -->
+    <ellipse id="gastrocnemius-right" cx="225" cy="450" rx="12" ry="30" fill="#ddd" opacity="0.8" />
+    <ellipse id="soleus-right" cx="225" cy="470" rx="10" ry="20" fill="#ddd" opacity="0.8" />
+    <ellipse id="tibialis-anterior-right" cx="215" cy="440" rx="8" ry="25" fill="#ddd" opacity="0.8" />
+  </g>
+  
+  <!-- Additional muscle groups -->
+  <g id="additional-muscles">
+    <!-- Hip abductors -->
+    <ellipse id="hip-abductors-left" cx="155" cy="320" rx="10" ry="20" fill="#ddd" opacity="0.8" />
+    <ellipse id="hip-abductors-right" cx="245" cy="320" rx="10" ry="20" fill="#ddd" opacity="0.8" />
+    
+    <!-- Inner thighs -->
+    <ellipse id="adductors-left" cx="190" cy="340" rx="8" ry="25" fill="#ddd" opacity="0.8" />
+    <ellipse id="adductors-right" cx="210" cy="340" rx="8" ry="25" fill="#ddd" opacity="0.8" />
+    
+    <!-- IT Band -->
+    <ellipse id="it-band-left" cx="160" cy="370" rx="5" ry="40" fill="#ddd" opacity="0.8" />
+    <ellipse id="it-band-right" cx="240" cy="370" rx="5" ry="40" fill="#ddd" opacity="0.8" />
+  </g>
+</svg>

@@ -69,10 +69,29 @@ export const BodyHeatMapSVG: React.FC<BodyHeatMapSVGProps> = ({
       const el = svgEl.querySelector<SVGElement>(`#${muscleId}`);
       if (el) {
         el.style.cursor = "pointer";
+        
+        // Mouse events
         el.onmouseenter = () => setHoveredMuscle(muscleId);
         el.onmouseleave = () => setHoveredMuscle(null);
+        
+        // Touch events for mobile
+        el.ontouchstart = (e) => {
+          e.preventDefault();
+          setHoveredMuscle(muscleId);
+        };
+        el.ontouchend = (e) => {
+          e.preventDefault();
+          setTimeout(() => setHoveredMuscle(null), 2000); // Show tooltip for 2 seconds on touch
+        };
+        
+        // Click event for accessibility
+        el.onclick = () => {
+          setHoveredMuscle(hoveredMuscle === muscleId ? null : muscleId);
+        };
+        
         el.setAttribute("aria-label", prettyName(muscleId));
         el.setAttribute("tabindex", "0");
+        el.setAttribute("role", "button");
 
         // Enhanced pulse animation based on risk level
         const muscleData = muscleMap[normalizeId(muscleId)];
@@ -119,14 +138,17 @@ export const BodyHeatMapSVG: React.FC<BodyHeatMapSVGProps> = ({
         const normId = normalizeId(id);
         const row = muscleMap[normId];
         let color = "#d1d5db"; // Default gray
+        let opacity = "0.8";
         
         if (row) {
           if (typeof row.load === 'number') {
             // Use new load-based coloring with HSL
             color = getLoadColor(row.load);
+            opacity = "0.9";
           } else if (typeof row.acwr === 'number') {
             // Use existing ACWR-based coloring
             color = colorScale(row.acwr);
+            opacity = "0.9";
             
             // Enhanced color for high-risk muscles with better contrast
             if (row.acwr > 1.5) {
@@ -137,7 +159,14 @@ export const BodyHeatMapSVG: React.FC<BodyHeatMapSVGProps> = ({
           }
         }
         
-        return `id="${id}" style="fill:${color};transition:fill 300ms ease-out;"`;
+        // Add hover effects
+        const hoverColor = row ? (typeof row.load === 'number' ? 
+          getLoadColor(Math.min(100, row.load + 10)) : 
+          color) : "#9ca3af";
+        
+        return `id="${id}" style="fill:${color};opacity:${opacity};transition:all 300ms ease-out;cursor:pointer;" 
+                onmouseover="this.style.fill='${hoverColor}';this.style.opacity='1';" 
+                onmouseout="this.style.fill='${color}';this.style.opacity='${opacity}';"`;
       }
     );
   }
