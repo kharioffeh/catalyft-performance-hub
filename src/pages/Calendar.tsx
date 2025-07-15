@@ -11,6 +11,7 @@ import { SessionDrawer } from '@/components/SessionDrawer';
 import { Session } from '@/types/training';
 import { useIsMobile } from '@/hooks/useBreakpoint';
 import { Container } from '@/components/layout/Container';
+import '@/styles/calendar.css';
 
 // Session interface is now imported from types/training.ts
 
@@ -94,11 +95,11 @@ const Calendar: React.FC = () => {
       <div className="space-y-4 md:space-y-6">
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
-          initialView={isMobile ? "listWeek" : "dayGridMonth"}
+          initialView={isMobile ? "timeGridWeek" : "dayGridMonth"}
           headerToolbar={{
             left: 'prev,next today',
             center: 'title',
-            right: isMobile ? 'listWeek,dayGridMonth' : 'dayGridMonth,timeGridWeek,listWeek'
+            right: isMobile ? 'timeGridWeek,dayGridMonth,listWeek' : 'dayGridMonth,timeGridWeek,listWeek'
           }}
           events={calendarEvents}
           eventClick={handleEventClick}
@@ -108,10 +109,10 @@ const Calendar: React.FC = () => {
           eventDisplay="block"
           eventContent={(eventInfo) => (
             <div className="p-2 cursor-pointer hover:opacity-80 transition-opacity">
-              <div className="font-medium text-sm text-foreground truncate">
+              <div className="font-medium text-sm text-white truncate">
                 {eventInfo.event.title}
               </div>
-              <div className="text-xs text-muted-foreground truncate">
+              <div className="text-xs text-white/80 truncate">
                 {eventInfo.event.extendedProps.session.status === 'active' ? 'Active' :
                  eventInfo.event.extendedProps.session.status === 'completed' ? 'Completed' :
                  'Planned'}
@@ -120,6 +121,18 @@ const Calendar: React.FC = () => {
           )}
           dayMaxEvents={3}
           moreLinkClick="popover"
+          buttonText={{
+            today: 'Today',
+            month: 'Month',
+            week: 'Week',
+            day: 'Day',
+            list: 'List'
+          }}
+          dayHeaderFormat={{ weekday: 'short' }}
+          slotDuration="01:00:00"
+          slotLabelInterval="02:00:00"
+          scrollTime="08:00:00"
+          allDaySlot={false}
         />
       </div>
 

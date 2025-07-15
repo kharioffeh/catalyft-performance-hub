@@ -1,0 +1,186 @@
+/* Calendar custom styles using brand tokens */
+
+/* Toolbar styling */
+.rbc-toolbar {
+  @apply flex flex-wrap items-center justify-between p-4 bg-card border-b border-border;
+}
+
+.rbc-toolbar-label {
+  @apply text-lg font-semibold text-foreground;
+}
+
+/* Button groups */
+.rbc-btn-group {
+  @apply flex gap-2;
+}
+
+.rbc-btn-group button {
+  @apply px-3 py-2 text-sm font-medium rounded-md border border-border bg-background text-foreground;
+  @apply hover:bg-accent hover:text-accent-foreground;
+  @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+  @apply transition-colors duration-200;
+}
+
+.rbc-btn-group button:focus {
+  @apply ring-2 ring-primary ring-offset-2;
+}
+
+.rbc-btn-group button.rbc-active {
+  @apply bg-primary text-primary-foreground border-primary;
+}
+
+/* Today button */
+.rbc-btn-group button:first-child {
+  @apply bg-primary text-primary-foreground border-primary;
+}
+
+.rbc-btn-group button:first-child:hover {
+  @apply bg-primary/90;
+}
+
+/* Calendar grid */
+.rbc-calendar {
+  @apply bg-background text-foreground;
+}
+
+.rbc-month-view,
+.rbc-time-view {
+  @apply bg-background;
+}
+
+/* Header styling */
+.rbc-header {
+  @apply bg-muted/50 text-muted-foreground font-medium p-2 border-b border-border;
+}
+
+.rbc-header + .rbc-header {
+  @apply border-l border-border;
+}
+
+/* Date cells */
+.rbc-date-cell {
+  @apply text-muted-foreground;
+}
+
+.rbc-date-cell.rbc-off-range {
+  @apply text-muted-foreground/50;
+}
+
+.rbc-date-cell.rbc-now {
+  @apply text-primary font-semibold;
+}
+
+/* Month view dates */
+.rbc-month-row {
+  @apply border-b border-border;
+}
+
+.rbc-day-bg {
+  @apply border-r border-border;
+}
+
+.rbc-day-bg.rbc-off-range-bg {
+  @apply bg-muted/20;
+}
+
+.rbc-day-bg.rbc-today {
+  @apply bg-primary/10;
+}
+
+/* Events */
+.rbc-event {
+  @apply rounded-md border-0 text-white font-medium;
+}
+
+.rbc-event:focus {
+  @apply outline-none ring-2 ring-primary ring-offset-2;
+}
+
+.rbc-event.rbc-selected {
+  @apply ring-2 ring-white ring-offset-2;
+}
+
+/* Week view */
+.rbc-time-view .rbc-time-header {
+  @apply border-b border-border;
+}
+
+.rbc-time-view .rbc-time-content {
+  @apply border-l border-border;
+}
+
+.rbc-timeslot-group {
+  @apply border-b border-border/50;
+}
+
+.rbc-time-slot {
+  @apply border-r border-border/30;
+}
+
+.rbc-current-time-indicator {
+  @apply bg-primary;
+}
+
+/* Agenda view */
+.rbc-agenda-view {
+  @apply bg-background;
+}
+
+.rbc-agenda-view table {
+  @apply w-full border-collapse;
+}
+
+.rbc-agenda-view .rbc-agenda-date-cell,
+.rbc-agenda-view .rbc-agenda-time-cell,
+.rbc-agenda-view .rbc-agenda-event-cell {
+  @apply p-2 border-b border-border text-foreground;
+}
+
+.rbc-agenda-view .rbc-agenda-date-cell {
+  @apply bg-muted/30 font-medium;
+}
+
+/* List view */
+.rbc-list-view {
+  @apply bg-background;
+}
+
+.rbc-list-header {
+  @apply bg-muted/50 text-muted-foreground font-medium p-3 border-b border-border;
+}
+
+.rbc-list-content {
+  @apply p-0;
+}
+
+.rbc-list-event {
+  @apply p-3 border-b border-border hover:bg-accent/50 transition-colors;
+}
+
+/* Popup */
+.rbc-overlay {
+  @apply bg-popover border border-border shadow-lg rounded-md;
+}
+
+.rbc-overlay-header {
+  @apply bg-muted/50 text-muted-foreground font-medium p-2 border-b border-border rounded-t-md;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .rbc-toolbar {
+    @apply flex-col gap-3 items-stretch;
+  }
+  
+  .rbc-toolbar-label {
+    @apply text-center text-base;
+  }
+  
+  .rbc-btn-group {
+    @apply justify-center;
+  }
+  
+  .rbc-btn-group button {
+    @apply px-2 py-1 text-xs;
+  }
+}

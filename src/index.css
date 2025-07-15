@@ -207,3 +207,6 @@ html, body {
     min-width: 44px;
   }
 }
+
+/* Import calendar styles */
+@import './styles/calendar.css';
