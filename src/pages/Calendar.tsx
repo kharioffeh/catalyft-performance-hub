@@ -10,6 +10,7 @@ import listPlugin from '@fullcalendar/list';
 import { SessionDrawer } from '@/components/SessionDrawer';
 import { Session } from '@/types/training';
 import { useIsMobile } from '@/hooks/useBreakpoint';
+import { Container } from '@/components/layout/Container';
 
 // Session interface is now imported from types/training.ts
 
@@ -89,7 +90,7 @@ const Calendar: React.FC = () => {
   }
 
   return (
-    <>
+    <Container>
       <div className="space-y-4 md:space-y-6">
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
@@ -107,10 +108,10 @@ const Calendar: React.FC = () => {
           eventDisplay="block"
           eventContent={(eventInfo) => (
             <div className="p-2 cursor-pointer hover:opacity-80 transition-opacity">
-              <div className="font-medium text-sm text-white truncate">
+              <div className="font-medium text-sm text-foreground truncate">
                 {eventInfo.event.title}
               </div>
-              <div className="text-xs text-white/80 truncate">
+              <div className="text-xs text-muted-foreground truncate">
                 {eventInfo.event.extendedProps.session.status === 'active' ? 'Active' :
                  eventInfo.event.extendedProps.session.status === 'completed' ? 'Completed' :
                  'Planned'}
@@ -128,7 +129,7 @@ const Calendar: React.FC = () => {
         open={isDrawerOpen}
         onOpenChange={setIsDrawerOpen}
       />
-    </>
+    </Container>
   );
 };
 

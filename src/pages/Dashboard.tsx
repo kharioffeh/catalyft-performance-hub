@@ -19,6 +19,7 @@ import { AnimatedCard } from '@/components/ui/AnimatedCard';
 import { InsightCarousel } from '@/components/Dashboard/InsightCarousel';
 import { PeriodProvider } from '@/lib/hooks/usePeriod';
 import SoloDashboard from '@/pages/solo/Dashboard';
+import { Container } from '@/components/layout/Container';
 
 const AthleteTypeLoader: React.FC = () => {
   const { profile } = useAuth();
@@ -50,7 +51,7 @@ const AthleteTypeLoader: React.FC = () => {
   // Coach Dashboard - New glass morphism layout with animations
   return (
     <>
-      <div className="mx-auto w-full max-w-sm sm:max-w-md lg:max-w-7xl px-3 sm:px-4 md:px-8 py-4 md:py-8 grid gap-4 md:gap-6 grid-cols-1 lg:grid-cols-[340px_1fr]">
+      <Container className="py-4 md:py-8 grid-cols-1 lg:grid-cols-[340px_1fr]">
         {/* Left Column */}
         <div className="space-y-6">
           {/* Vertical Metric Cards */}
@@ -105,7 +106,7 @@ const AthleteTypeLoader: React.FC = () => {
             </SuspenseWrapper>
           </AnimatedCard>
         </div>
-      </div>
+      </Container>
       <InsightToastContainer />
     </>
   );

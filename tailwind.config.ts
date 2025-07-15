@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import { brand } from "./src/theme/colors";
 
 const config: Config = {
   darkMode: ["class"],
@@ -37,9 +38,15 @@ const config: Config = {
     },
     extend: {
       colors: {
-        base: '#0D0B20',
-        card: 'rgba(255,255,255,0.04)',
-        border: 'rgba(255,255,255,0.08)',
+        // Brand tokens
+        brand: {
+          bg: brand.bg,
+          blue: brand.blue,
+          slate: brand.slate,
+          text: brand.text,
+          card: brand.card,
+          border: brand.border,
+        },
         
         // Enhanced dual-tone design system (WCAG AA compliant)
         'theme-primary': {
