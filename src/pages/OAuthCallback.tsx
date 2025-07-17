@@ -73,7 +73,7 @@ const OAuthCallback: React.FC = () => {
   }, [searchParams, navigate, profile, toast]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 flex items-center justify-center">
+    <div className="min-h-screen bg-brand-charcoal flex items-center justify-center">
       <div className="max-w-md w-full mx-4">
         <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-8 text-center">
           {status === 'processing' && (

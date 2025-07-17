@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 const PrivacyPolicy: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 text-white">
+    <div className="min-h-screen bg-brand-charcoal text-white">
       {/* Navigation */}
       <nav className="container mx-auto px-6 py-6 flex items-center justify-between">
         <div className="flex items-center">

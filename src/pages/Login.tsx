@@ -92,7 +92,7 @@ const Login: React.FC = () => {
   // Show loading state while checking authentication
   if (session === undefined) {
     return (
-      <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 text-white font-[Inter] flex items-center justify-center p-4">
+      <div className="relative min-h-screen bg-brand-charcoal text-white font-[Inter] flex items-center justify-center p-4">
         <div ref={vantaRef} className="absolute inset-0 -z-10" />
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
@@ -103,7 +103,7 @@ const Login: React.FC = () => {
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 text-white font-[Inter] flex items-center justify-center p-4">
+    <div className="relative min-h-screen bg-brand-charcoal text-white font-[Inter] flex items-center justify-center p-4">
       {/* Background layers */}
       <div ref={vantaRef} className="absolute inset-0 -z-10" />
       <div className="absolute top-1/2 left-1/2 w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 bg-blue-500 opacity-10 blur-[120px] rounded-full pointer-events-none" />

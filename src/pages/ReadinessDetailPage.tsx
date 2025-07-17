@@ -80,7 +80,7 @@ export default function ReadinessDetailPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen bg-brand-charcoal">
         <InsightStrip
           readiness={latestReadiness}
           sleepHours={latestSleepHours}
@@ -98,7 +98,7 @@ export default function ReadinessDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-brand-charcoal">
       {/* Sticky Insight Strip */}
       <InsightStrip
         readiness={latestReadiness}
