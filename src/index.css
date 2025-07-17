@@ -83,8 +83,15 @@ body {
   * {
     @apply border-border;
   }
+  html {
+    @apply bg-brand-charcoal;
+    width: 100%;
+    overflow-x: hidden;
+  }
   body {
-    @apply bg-background text-foreground dark;
+    @apply bg-brand-charcoal text-foreground dark;
+    width: 100%;
+    overflow-x: hidden;
   }
 }
 
