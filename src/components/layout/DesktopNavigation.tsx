@@ -19,23 +19,22 @@ export const DesktopNavigation: React.FC<DesktopNavigationProps> = ({
   const { isCollapsed } = useSidebarCollapse();
 
   const desktopBg = cn(
-    "bg-gradient-to-b from-surface-light/90 to-surface-light/80",
-    "dark:from-surface-dark/90 dark:to-surface-dark/80",
-    "border-white/20 dark:border-white/10"
+    "bg-brand-charcoal/95 backdrop-blur-lg",
+    "border-white-12"
   );
 
   const activeBg = cn(
-    "bg-theme-accent/20 text-gray-800 dark:text-white font-semibold",
-    "border border-theme-accent/30 shadow-glass-sm"
+    "bg-brand-blue/20 text-brand-blue font-semibold",
+    "border-l-2 border-brand-blue shadow-glass-sm"
   );
   
   const inactiveText = cn(
-    "text-gray-700 dark:text-white/80",
-    "hover:bg-glass-card-light/60 dark:hover:bg-glass-card-dark/30",
-    "hover:text-gray-900 dark:hover:text-white"
+    "text-white-60",
+    "hover:bg-white/10",
+    "hover:text-white-90"
   );
 
-  const borderColor = "border-white/20 dark:border-white/10";
+  const borderColor = "border-white-12";
 
   return (
     <aside className={cn(
@@ -45,7 +44,7 @@ export const DesktopNavigation: React.FC<DesktopNavigationProps> = ({
       isCollapsed ? "lg:w-16" : "lg:w-60"
     )}>
       <div className={cn(
-        "flex items-center justify-center py-6 text-xl font-semibold text-gray-800 dark:text-white transition-all duration-300",
+        "flex items-center justify-center py-6 text-xl font-semibold text-brand-blue transition-all duration-300",
         isCollapsed ? "px-2" : "px-6"
       )}>
         {isCollapsed ? "C" : "Catalyft"}

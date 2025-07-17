@@ -1,15 +1,17 @@
 
-// Central chart theme and helper utilities
+// Catalyft Chart Theme with Electric Blue brand colors
 export const colors = {
-  text: "#E4E4E7",
-  grid: "rgba(255,255,255,0.08)",
-  accent: "#7C3AED",
-  positive: "#10B981",
-  negative: "#EF4444",
-  warning: "#F59E0B",
-  info: "#3B82F6",
-  muted: "rgba(255,255,255,0.6)",
-  background: "rgba(0,0,0,0.1)"
+  text: "rgba(255,255,255,0.9)",  // text-white-90
+  grid: "rgba(255,255,255,0.06)", // grid lines at 6% opacity
+  accent: "#7DF9FF",              // Electric Blue primary
+  primary: "#7DF9FF",             // Electric Blue
+  secondary: "#2E7BEF",           // Electric Blue gradient variant (10% blend)
+  positive: "#10B981",            // Keep existing success green
+  negative: "#EF4444",            // Keep existing error red
+  warning: "#F59E0B",             // Keep existing warning orange
+  info: "#60A5FA",                // Desaturated blue for secondary data
+  muted: "rgba(255,255,255,0.6)", // text-white-60
+  background: "rgba(255,255,255,0.05)" // subtle background for areas
 };
 
 export const chartTheme = {
@@ -114,11 +116,12 @@ export const createTooltipFormatter = (unitMap: Record<string, string>) => {
 
 export const standardTooltipProps = {
   contentStyle: {
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(7, 7, 7, 0.95)', // Charcoal with 95% opacity
+    border: '1px solid rgba(125, 249, 255, 0.25)', // Electric blue border with glow
     borderRadius: '8px',
     color: colors.text,
-    fontSize: chartTheme.fontSize.small
+    fontSize: chartTheme.fontSize.small,
+    backdropFilter: 'blur(8px)'
   },
   cursor: { stroke: colors.grid, strokeWidth: 1 }
 };

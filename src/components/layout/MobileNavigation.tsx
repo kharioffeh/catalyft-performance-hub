@@ -18,27 +18,26 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({
   navigate,
 }) => {
   const headerBg = cn(
-    "bg-glass-card-light/40 dark:bg-glass-card-dark/60",
-    "backdrop-blur-lg border-white/20 dark:border-white/10"
+    "bg-brand-charcoal/90 backdrop-blur-lg",
+    "border-white-12"
   );
   
   const drawerBg = cn(
-    "bg-gradient-to-b from-surface-light/90 to-surface-light/80",
-    "dark:from-surface-dark/90 dark:to-surface-dark/80"
+    "bg-brand-charcoal/95 backdrop-blur-lg"
   );
 
   const activeBg = cn(
-    "bg-theme-accent/20 text-gray-800 dark:text-white font-semibold",
-    "border border-theme-accent/30 shadow-glass-sm"
+    "bg-brand-blue/20 text-brand-blue font-semibold",
+    "border-l-2 border-brand-blue shadow-glass-sm"
   );
   
   const inactiveText = cn(
-    "text-gray-700 dark:text-white/80",
-    "hover:bg-glass-card-light/60 dark:hover:bg-glass-card-dark/30",
-    "hover:text-gray-900 dark:hover:text-white"
+    "text-white-60",
+    "hover:bg-white/10",
+    "hover:text-white-90"
   );
 
-  const borderColor = "border-white/20 dark:border-white/10";
+  const borderColor = "border-white-12";
 
   return (
     <Disclosure as="nav" className="lg:hidden">
@@ -49,12 +48,12 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({
             headerBg,
             "border-b"
           )}>
-            <span className="font-semibold tracking-tight text-gray-800 dark:text-white">Catalyft</span>
+            <span className="font-semibold tracking-tight text-brand-blue">Catalyft</span>
             <Disclosure.Button className={cn(
               "rounded-md p-2 transition-colors",
-              "text-gray-700 dark:text-white/80",
-              "hover:bg-glass-card-light/60 dark:hover:bg-glass-card-dark/60",
-              "focus:outline-none"
+              "text-brand-blue",
+              "hover:bg-white/10",
+              "focus:outline-none focus-brand"
             )}>
               {open ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
             </Disclosure.Button>

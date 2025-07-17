@@ -6,7 +6,7 @@ import { ChatThread } from "../components/ChatThread";
 
 // Error fallback component
 const ChatErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) => (
-  <div className="min-h-screen flex items-center justify-center bg-dark text-white">
+  <div className="min-h-screen flex items-center justify-center bg-brand-charcoal text-white-90">
     <div className="text-center space-y-4">
       <h2 className="text-xl font-semibold">Something went wrong with the chat</h2>
       <p className="text-white/70">{error.message}</p>

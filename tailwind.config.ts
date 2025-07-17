@@ -2,7 +2,7 @@ import type { Config } from "tailwindcss";
 import { brand } from "./src/theme/colors";
 
 const config: Config = {
-  darkMode: ["class"],
+  darkMode: "class",
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
@@ -38,10 +38,11 @@ const config: Config = {
     },
     extend: {
       colors: {
-        // Brand tokens
+        // Catalyft Brand tokens
         brand: {
           bg: brand.bg,
           blue: brand.blue,
+          charcoal: brand.charcoal,
           slate: brand.slate,
           text: brand.text,
           card: brand.card,

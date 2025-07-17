@@ -43,8 +43,8 @@ export const BottomTabBar: React.FC = () => {
   return (
     <div className={cn(
       "fixed bottom-0 left-0 right-0 z-50",
-      "bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg",
-      "border-t border-gray-200 dark:border-gray-800",
+      "bg-brand-charcoal/90 backdrop-blur-lg",
+      "border-t border-white-12",
       "safe-area-pb"
     )} style={{ pointerEvents: 'auto' }}>
       <div className="flex justify-around items-center px-2 pt-2 pb-1" style={{ pointerEvents: 'auto' }}>
@@ -64,13 +64,13 @@ export const BottomTabBar: React.FC = () => {
                 "touch-manipulation", // Optimizes for touch
                 // Active state
                 isActive 
-                  ? "text-indigo-600 dark:text-indigo-400" 
-                  : "text-gray-600 dark:text-gray-400",
+                  ? "text-brand-blue" 
+                  : "text-white-60",
                 // Hover and focus states
-                "hover:bg-gray-100 dark:hover:bg-gray-800",
-                "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50",
+                "hover:bg-white/10",
+                "focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-opacity-50",
                 // Active press feedback
-                "active:scale-95 active:bg-gray-200 dark:active:bg-gray-700"
+                "active:scale-95 active:bg-white/20"
               )}
               aria-label={tab.label}
               role="tab"
@@ -80,15 +80,15 @@ export const BottomTabBar: React.FC = () => {
                 className={cn(
                   "w-6 h-6 mb-0.5 transition-colors",
                   isActive 
-                    ? "text-indigo-600 dark:text-indigo-400" 
-                    : "text-gray-600 dark:text-gray-400"
+                    ? "text-brand-blue" 
+                    : "text-white-60"
                 )} 
               />
               <span className={cn(
                 "text-xs font-medium transition-colors",
                 isActive 
-                  ? "text-indigo-600 dark:text-indigo-400" 
-                  : "text-gray-600 dark:text-gray-400"
+                  ? "text-brand-blue" 
+                  : "text-white-60"
               )}>
                 {tab.label}  
               </span>

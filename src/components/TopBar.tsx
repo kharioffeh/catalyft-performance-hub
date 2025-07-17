@@ -23,8 +23,8 @@ export const TopBar: React.FC = () => {
   return (
     <header className={cn(
       "h-16 flex items-center justify-between px-4 md:px-6",
-      "bg-white/70 dark:bg-gray-900/80",
-      "backdrop-blur-lg border-b border-white/20 dark:border-white/10",
+      "bg-brand-charcoal/90",
+      "backdrop-blur-lg border-b border-white-12",
       "shadow-glass-sm"
     )}>
       <div className="flex items-center space-x-4">
@@ -34,8 +34,8 @@ export const TopBar: React.FC = () => {
             onClick={toggle}
             className={cn(
               "p-2 rounded-md transition-all duration-200",
-              "hover:bg-white/20 dark:hover:bg-white/10",
-              "text-gray-600 dark:text-white/80 hover:text-gray-800 dark:hover:text-white"
+              "hover:bg-white/10",
+              "text-brand-blue hover:text-brand-blue/80 focus-brand"
             )}
             aria-label="Toggle sidebar"
           >
@@ -43,7 +43,7 @@ export const TopBar: React.FC = () => {
           </button>
         )}
         
-        <h1 className="text-lg md:text-xl font-semibold text-gray-800 dark:text-white">
+        <h1 className="text-lg md:text-xl font-semibold text-brand-blue">
           Catalyft AI
         </h1>
         {/* Show readiness badge on desktop only */}
@@ -58,10 +58,10 @@ export const TopBar: React.FC = () => {
         <ThemeToggle />
         
         {!isMobile && (
-          <span className="text-sm text-gray-600 dark:text-white/80">
+          <span className="text-sm text-white-90">
             {profile?.full_name || 'User'}
             {profile?.role && (
-              <span className="ml-2 text-xs text-gray-500 dark:text-white/60 capitalize">
+              <span className="ml-2 text-xs text-white-60 capitalize">
                 ({profile.role})
               </span>
             )}
@@ -72,9 +72,9 @@ export const TopBar: React.FC = () => {
         <AvatarDrawer>
           <Avatar className="h-8 w-8 md:h-10 md:w-10 cursor-pointer hover:opacity-80 transition-opacity">
             <AvatarFallback className={cn(
-              "bg-white/70 dark:bg-gray-900/80",
-              "text-gray-800 dark:text-white backdrop-blur-md",
-              "border border-white/20 dark:border-white/10"
+              "bg-white/10 backdrop-blur-md",
+              "text-white-90",
+              "border border-white-12"
             )}>
               {profile?.full_name?.charAt(0) || 'U'}
             </AvatarFallback>

@@ -10,28 +10,29 @@ body {
 
 @layer base {
   :root {
-    /* Brand tokens as HSL values for better contrast */
-    --brand-bg: 215 21% 6%;
-    --brand-blue: 207 100% 54%;
+    /* Catalyft Brand tokens as HSL values */
+    --brand-bg: 0 0% 3%; /* Charcoal Black #070707 */
+    --brand-blue: 185 100% 73%; /* Electric Blue #7DF9FF */
+    --brand-charcoal: 0 0% 3%; /* Charcoal Black #070707 */
     --brand-slate: 215 13% 13%;
-    --brand-text: 218 11% 90%;
+    --brand-text: 0 0% 100%; /* Pure white for better contrast */
     --brand-card: 212 21% 10%;
     --brand-border: 214 11% 18%;
     
-    --background: var(--brand-bg);
-    --foreground: var(--brand-text);
-    --card: var(--brand-card);
-    --card-foreground: var(--brand-text);
-    --popover: var(--brand-card);
-    --popover-foreground: var(--brand-text);
+    --background: var(--brand-charcoal);
+    --foreground: 0 0% 100%; /* White text at 90% opacity */
+    --card: 0 0% 100%; /* White at 5% opacity for glass effect */
+    --card-foreground: 0 0% 100%;
+    --popover: var(--brand-charcoal);
+    --popover-foreground: 0 0% 100%;
     --primary: var(--brand-blue);
-    --primary-foreground: var(--brand-bg);
+    --primary-foreground: var(--brand-charcoal);
     --secondary: var(--brand-slate);
-    --secondary-foreground: var(--brand-text);
+    --secondary-foreground: 0 0% 100%;
     --muted: var(--brand-slate);
-    --muted-foreground: 218 11% 70%;
+    --muted-foreground: 0 0% 100%; /* White at 60% opacity */
     --accent: var(--brand-blue);
-    --accent-foreground: var(--brand-bg);
+    --accent-foreground: var(--brand-charcoal);
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: var(--brand-border);
@@ -50,21 +51,21 @@ body {
   }
 
   .dark {
-    /* Same brand tokens for dark mode with enhanced contrast */
-    --background: var(--brand-bg);
-    --foreground: var(--brand-text);
-    --card: var(--brand-card);
-    --card-foreground: var(--brand-text);
-    --popover: var(--brand-card);
-    --popover-foreground: var(--brand-text);
+    /* Catalyft dark mode (default) */
+    --background: var(--brand-charcoal);
+    --foreground: 0 0% 100%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 100%;
+    --popover: var(--brand-charcoal);
+    --popover-foreground: 0 0% 100%;
     --primary: var(--brand-blue);
-    --primary-foreground: var(--brand-bg);
+    --primary-foreground: var(--brand-charcoal);
     --secondary: var(--brand-slate);
-    --secondary-foreground: var(--brand-text);
+    --secondary-foreground: 0 0% 100%;
     --muted: var(--brand-slate);
-    --muted-foreground: 218 11% 70%;
+    --muted-foreground: 0 0% 100%;
     --accent: var(--brand-blue);
-    --accent-foreground: var(--brand-bg);
+    --accent-foreground: var(--brand-charcoal);
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: var(--brand-border);
@@ -83,7 +84,7 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground dark;
   }
 }
 
@@ -206,6 +207,42 @@ html, body {
     min-height: 44px;
     min-width: 44px;
   }
+}
+
+/* Catalyft Text Opacity Utilities */
+.text-white-90 {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.text-white-60 {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.border-white-12 {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.border-white-6 {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Enhanced Glassmorphism Utilities */
+.glass-card {
+  @apply bg-white/5 backdrop-blur-md border border-white/10;
+  box-shadow: 0 0 30px -5px rgba(125, 249, 255, 0.25);
+}
+
+.glass-card:hover {
+  @apply bg-white/8 border-white/18;
+}
+
+.glass-surface {
+  @apply bg-white/3 backdrop-blur-lg border border-white/8;
+}
+
+/* Focus states with brand blue */
+.focus-brand {
+  @apply focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-charcoal;
 }
 
 /* Import calendar styles */

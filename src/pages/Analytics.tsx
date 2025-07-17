@@ -155,7 +155,7 @@ const AnalyticsPageContent: React.FC = () => {
   ];
   
   return (
-    <div className="min-h-screen bg-base">
+    <div className="min-h-screen bg-brand-charcoal">
       {/* Controls */}
       <AnalyticsControls
         selectedAthleteId={selectedAthleteId}

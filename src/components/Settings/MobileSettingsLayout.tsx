@@ -106,7 +106,7 @@ export const MobileSettingsLayout: React.FC = () => {
 
   if (showAppearance) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-brand-charcoal">
         <div className="sticky top-0 z-10 bg-white border-b px-4 py-3">
           <button
             onClick={() => setShowAppearance(false)}
@@ -209,7 +209,7 @@ export const MobileSettingsLayout: React.FC = () => {
 
   if (showNotifications) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-brand-charcoal">
         <div className="sticky top-0 z-10 bg-white border-b px-4 py-3">
           <button
             onClick={() => setShowNotifications(false)}
@@ -296,7 +296,7 @@ export const MobileSettingsLayout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-charcoal">
       <div className="sticky top-0 z-10 bg-white border-b px-4 py-4">
         <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
       </div>

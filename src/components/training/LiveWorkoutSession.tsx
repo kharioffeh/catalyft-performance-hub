@@ -121,7 +121,7 @@ export const LiveWorkoutSession: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 pb-20">
+    <div className="min-h-screen bg-brand-charcoal p-4 pb-20">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">

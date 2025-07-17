@@ -1,11 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  interpolateColor,
-} from 'react-native-reanimated';
+import { cn } from '@/lib/utils';
 import { useTargets } from '@/hooks/useTargets';
 import { useNutritionDay } from '@/hooks/useNutritionDay';
 
@@ -15,148 +9,58 @@ export const KcalBar: React.FC = () => {
 
   // Calculate progress percentage
   const progressPercentage = kcalTarget > 0 ? (kcal / kcalTarget) * 100 : 0;
-  const progressValue = useSharedValue(0);
-
-  // Update animated value when data changes
-  React.useEffect(() => {
-    progressValue.value = withSpring(Math.min(progressPercentage, 100), {
-      damping: 15,
-      stiffness: 150,
-    });
-  }, [progressPercentage, progressValue]);
-
-  // Animated styles for the progress bar
-  const animatedBarStyle = useAnimatedStyle(() => {
-    const backgroundColor = interpolateColor(
-      progressValue.value,
-      [0, 100, 150],
-      ['hsl(var(--primary))', 'hsl(var(--primary))', '#f97316'] // blue to orange
-    );
-
-    return {
-      width: `${progressValue.value}%`,
-      backgroundColor,
-    };
-  });
-
-  // Animated styles for overflow bar (when >100%)
-  const overflowBarStyle = useAnimatedStyle(() => {
-    const overflowPercentage = Math.max(0, progressPercentage - 100);
-    const width = Math.min(overflowPercentage, 50); // Cap at 50% additional width
-    
-    return {
-      width: `${width}%`,
-      backgroundColor: '#f97316', // orange for overflow
-      opacity: progressPercentage > 100 ? 1 : 0,
-    };
-  });
-
   const formattedPercentage = progressPercentage.toFixed(1);
+  const isOverTarget = progressPercentage > 100;
 
   return (
-    <View style={styles.container}>
+    <div className="glass-card p-4 rounded-lg">
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Calories</Text>
-        <Text style={styles.values}>
+      <div className="flex justify-between items-center mb-3">
+        <h3 className="text-lg font-semibold text-white-90">Calories</h3>
+        <span className="text-sm text-white-60">
           {Math.round(kcal)} / {Math.round(kcalTarget)} kcal
-        </Text>
-      </View>
+        </span>
+      </div>
 
       {/* Progress Bar Container */}
-      <View style={styles.progressContainer}>
-        <View style={styles.progressTrack}>
+      <div className="mb-2">
+        <div className="h-2 bg-white/10 rounded-full overflow-hidden relative">
           {/* Main Progress Bar */}
-          <Animated.View style={[styles.progressBar, animatedBarStyle]} />
+          <div 
+            className={cn(
+              "h-full rounded-full absolute left-0 top-0 transition-all duration-500",
+              isOverTarget ? "bg-orange-500" : "bg-brand-blue"
+            )}
+            style={{ width: `${Math.min(progressPercentage, 100)}%` }}
+          />
           
           {/* Overflow Bar (when >100%) */}
-          {progressPercentage > 100 && (
-            <Animated.View style={[styles.overflowBar, overflowBarStyle]} />
+          {isOverTarget && (
+            <div 
+              className="h-full bg-orange-500 rounded-full absolute top-0 opacity-60"
+              style={{ 
+                left: '100%', 
+                width: `${Math.min(progressPercentage - 100, 50)}%` 
+              }}
+            />
           )}
-        </View>
-      </View>
+        </div>
+      </div>
 
       {/* Percentage Display */}
-      <View style={styles.footer}>
-        <Text 
-          style={[
-            styles.percentage,
-            progressPercentage > 100 && styles.overPercentage
-          ]}
-        >
+      <div className="flex justify-between items-center">
+        <span className={cn(
+          "text-sm font-medium",
+          isOverTarget ? "text-orange-400" : "text-white-90"
+        )}>
           {formattedPercentage}%
-        </Text>
-        {progressPercentage > 100 && (
-          <Text style={styles.overTarget}>Over target</Text>
+        </span>
+        {isOverTarget && (
+          <span className="text-xs text-orange-400 font-medium">
+            Over target
+          </span>
         )}
-      </View>
-    </View>
+      </div>
+    </div>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-    backgroundColor: 'hsl(var(--card))',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'hsl(var(--border))',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: 'hsl(var(--foreground))',
-  },
-  values: {
-    fontSize: 14,
-    color: 'hsl(var(--muted-foreground))',
-  },
-  progressContainer: {
-    marginBottom: 8,
-  },
-  progressTrack: {
-    height: 8,
-    backgroundColor: 'hsl(var(--muted))',
-    borderRadius: 4,
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  progressBar: {
-    height: '100%',
-    borderRadius: 4,
-    position: 'absolute',
-    left: 0,
-    top: 0,
-  },
-  overflowBar: {
-    height: '100%',
-    borderRadius: 4,
-    position: 'absolute',
-    left: '100%',
-    top: 0,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  percentage: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: 'hsl(var(--foreground))',
-  },
-  overPercentage: {
-    color: '#f97316', // orange when over target
-  },
-  overTarget: {
-    fontSize: 12,
-    color: '#f97316',
-    fontWeight: '500',
-  },
-});

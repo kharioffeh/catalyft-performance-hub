@@ -83,7 +83,7 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
         <div className="lg:col-span-2 h-80 px-0 pb-1">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data} margin={{ top: 10, right: 10, left: 15, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
               <XAxis 
                 dataKey="date" 
                 stroke="rgba(255,255,255,0.6)"
@@ -104,11 +104,12 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
               />
               <Tooltip 
                 contentStyle={{
-                  backgroundColor: 'rgba(0,0,0,0.9)',
-                  border: '1px solid rgba(255,255,255,0.2)',
+                  backgroundColor: 'rgba(7, 7, 7, 0.95)',
+                  border: '1px solid rgba(125, 249, 255, 0.25)',
                   borderRadius: '8px',
-                  color: 'white',
-                  fontSize: '11px'
+                  color: 'rgba(255,255,255,0.9)',
+                  fontSize: '11px',
+                  backdropFilter: 'blur(8px)'
                 }}
                 formatter={(value: any) => [`${value}`, 'Readiness Score']}
                 labelFormatter={(label) => `Date: ${label}`}
@@ -116,10 +117,10 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
               <Line 
                 type="monotone" 
                 dataKey="score" 
-                stroke="hsl(142, 76%, 36%)"
-                strokeWidth={2}
-                dot={{ fill: 'hsl(142, 76%, 36%)', strokeWidth: 2, r: 3 }}
-                activeDot={{ r: 5, stroke: 'hsl(142, 76%, 36%)', fill: 'white' }}
+                stroke="#7DF9FF"
+                strokeWidth={3}
+                dot={{ fill: '#7DF9FF', strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, stroke: '#7DF9FF', fill: 'rgba(7,7,7,0.9)', strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>
