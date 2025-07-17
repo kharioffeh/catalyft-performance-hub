@@ -81,7 +81,7 @@ export const ChatThread = React.memo(() => {
 
   // Desktop layout (unchanged)
   return (
-    <div className="relative min-h-screen bg-dark text-white overflow-hidden">
+    <div className="relative min-h-screen bg-brand-charcoal text-white overflow-hidden">
       {/* Background Effects */}
       <ChatBackground />
       

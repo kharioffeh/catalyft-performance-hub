@@ -79,7 +79,7 @@ const SoloDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 p-4 md:p-8">
+    <div className="min-h-screen bg-brand-charcoal p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <AnimatedCard>

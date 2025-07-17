@@ -33,13 +33,13 @@ export const NavigationSidebar: React.FC<NavigationSidebarProps> = ({ className 
         animate={{ width: isCollapsed ? 64 : 240 }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
         className={cn(
-          "fixed left-0 top-0 z-40 h-full bg-card border-r border-border",
+          "fixed left-0 top-0 z-40 h-full bg-brand-charcoal border-r border-white/10",
           "flex flex-col overflow-hidden",
           className
         )}
       >
         {/* Header with hamburger */}
-        <div className="flex items-center justify-between p-4 border-b border-border">
+        <div className="flex items-center justify-between p-4 border-b border-white/10">
           <AnimatePresence mode="wait">
             {!isCollapsed && (
               <motion.div
@@ -47,23 +47,23 @@ export const NavigationSidebar: React.FC<NavigationSidebarProps> = ({ className 
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.2 }}
-                className="font-semibold text-foreground"
+                className="font-semibold text-brand-blue"
               >
-                CataLyft
+                Catalyft
               </motion.div>
             )}
           </AnimatePresence>
           
           <button
             onClick={toggleCollapsed}
-            className="p-2 rounded-lg hover:bg-accent transition-colors"
+            className="p-2 rounded-lg hover:bg-white/10 transition-colors text-brand-blue"
             aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             <motion.div
               animate={{ rotate: isCollapsed ? 180 : 0 }}
               transition={{ duration: 0.3 }}
             >
-              <Menu className="h-5 w-5 text-foreground" />
+              <Menu className="h-5 w-5" />
             </motion.div>
           </button>
         </div>
@@ -81,10 +81,10 @@ export const NavigationSidebar: React.FC<NavigationSidebarProps> = ({ className 
                   className={({ isActive: linkActive }) =>
                     cn(
                       "flex items-center px-3 py-2 rounded-lg transition-all duration-200",
-                      "hover:bg-accent hover:text-accent-foreground",
+                      "hover:bg-white/10 hover:text-white",
                       linkActive || isActive
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground"
+                        ? "bg-brand-blue/20 text-brand-blue border-l-2 border-brand-blue"
+                        : "text-white/60"
                     )
                   }
                 >
@@ -121,10 +121,10 @@ export const NavigationSidebar: React.FC<NavigationSidebarProps> = ({ className 
                         className={({ isActive }) =>
                           cn(
                             "flex items-center px-3 py-1.5 rounded-md text-sm transition-colors",
-                            "hover:bg-accent hover:text-accent-foreground",
+                            "hover:bg-white/10 hover:text-white",
                             isActive
-                              ? "bg-accent text-accent-foreground"
-                              : "text-muted-foreground"
+                              ? "bg-brand-blue/20 text-brand-blue"
+                              : "text-white/60"
                           )
                         }
                       >

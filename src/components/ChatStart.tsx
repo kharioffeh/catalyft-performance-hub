@@ -90,7 +90,7 @@ export const ChatStart = React.memo(() => {
   };
 
   return (
-    <div className="relative min-h-screen bg-accent text-white font-sans overflow-hidden">
+    <div className="relative min-h-screen bg-brand-charcoal text-white font-sans overflow-hidden">
       {/* Animated Background */}
       <div ref={bgRef} className="absolute inset-0 z-0" />
       <div className="absolute top-1/2 left-1/2 w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 bg-accent opacity-10 blur-[100px] rounded-full pointer-events-none" />
