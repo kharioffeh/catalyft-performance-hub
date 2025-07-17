@@ -28,7 +28,7 @@ export const TopBar: React.FC = () => {
       "shadow-glass-sm"
     )}>
       <div className="flex items-center space-x-4">
-        <h1 className="text-lg md:text-xl font-semibold text-brand-blue">
+        <h1 className="text-lg md:text-xl font-display font-semibold text-brand-blue">
           Catalyft AI
         </h1>
         {/* Show readiness badge on desktop only */}

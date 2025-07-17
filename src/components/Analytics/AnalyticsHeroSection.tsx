@@ -42,7 +42,7 @@ export const AnalyticsHeroSection: React.FC<AnalyticsHeroSectionProps> = ({
             <div className="flex flex-col">
               <div className="flex items-baseline space-x-1">
                 <span 
-                  className="text-3xl sm:text-4xl font-bold"
+                  className="text-3xl sm:text-4xl font-display font-bold"
                   style={{ color: scoreColor }}
                 >
                   {currentScore !== null ? Math.round(currentScore) : '--'}
@@ -73,7 +73,7 @@ export const AnalyticsHeroSection: React.FC<AnalyticsHeroSectionProps> = ({
         {/* Bottom section - Title, Description, Period Selector */}
         <div className="text-left lg:text-right">
           <div className="mb-4">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">{title}</h1>
+            <h1 className="text-2xl sm:text-3xl font-display font-bold text-white">{title}</h1>
             <p className="text-white/70 mt-1 text-sm sm:text-base">{description}</p>
           </div>
           

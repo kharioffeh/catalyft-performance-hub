@@ -20,7 +20,7 @@ export const ConnectWearableModal: React.FC<ConnectWearableModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="modal-glass p-6 max-w-md w-[90vw]">
-        <h3 className="text-lg font-semibold text-white mb-4">Connect Wearable Device</h3>
+        <h3 className="text-lg font-display font-semibold text-white mb-4">Connect Wearable Device</h3>
         <p className="text-white/70 mb-6">
           Connect your Apple Watch, Whoop, or other wearable device to start tracking your metrics.
         </p>

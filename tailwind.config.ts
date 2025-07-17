@@ -37,6 +37,10 @@ const config: Config = {
       },
     },
     extend: {
+      fontFamily: {
+        'display': ['"Space Grotesk"', 'ui-sans-serif', 'system-ui'],
+        'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
+      },
       colors: {
         // Catalyft Brand tokens
         brand: {

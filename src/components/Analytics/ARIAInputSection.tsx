@@ -18,7 +18,7 @@ export const ARIAInputSection: React.FC<ARIAInputSectionProps> = ({
     <div className="col-span-12">
       <GlassCard accent="secondary" className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold flex items-center gap-2 text-white">
+          <h3 className="font-display font-semibold flex items-center gap-2 text-white">
             <Sparkles className="w-5 h-5 text-purple-400" />
             Ask ARIA
           </h3>

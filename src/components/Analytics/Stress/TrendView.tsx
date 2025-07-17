@@ -50,7 +50,7 @@ export const TrendView: React.FC<TrendViewProps> = ({ data, period, isLoading })
         <GlassCard className="p-6">
           <h3 className="text-lg font-semibold text-white mb-4">7-Day Average</h3>
           <div className="text-center">
-            <div className="text-3xl font-bold text-white">{data.average7d}</div>
+            <div className="text-3xl font-display font-bold text-white">{data.average7d}</div>
             <p className="text-white/60 text-sm mt-1">Average stress level</p>
           </div>
           <div className="mt-4 pt-4 border-t border-white/10">

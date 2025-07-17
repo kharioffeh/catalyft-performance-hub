@@ -115,7 +115,7 @@ const ACWRGauge: React.FC<{ value: number }> = ({ value }) => {
       {/* Center value display */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <div 
-          className="text-2xl font-bold"
+          className="text-2xl font-display font-bold"
           style={{ color: getACWRColor(value) }}
         >
           {value.toFixed(1)}
@@ -181,7 +181,7 @@ const TrainingLoadGauge: React.FC<{ value: number }> = ({ value }) => {
       {/* Center value display */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <div 
-          className="text-2xl font-bold"
+          className="text-2xl font-display font-bold"
           style={{ color: getLoadColor(value) }}
         >
           {Math.round(value)}
@@ -215,7 +215,7 @@ export const MuscleAnatomyPanel: React.FC<MuscleAnatomyPanelProps> = ({
         <GlassCard className="p-6 h-full min-h-[380px]">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-lg font-semibold text-white">Muscle Training Load</h3>
+              <h3 className="text-lg font-display font-semibold text-white">Muscle Training Load</h3>
               <p className="text-white/60 text-sm">Recent training stress by muscle group</p>
             </div>
           </div>

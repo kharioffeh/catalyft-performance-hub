@@ -73,7 +73,7 @@ export const CalendarStats: React.FC<CalendarStatsProps> = ({ sessions }) => {
           <Calendar className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{totalSessions}</div>
+          <div className="text-2xl font-display font-bold">{totalSessions}</div>
           <p className="text-xs text-muted-foreground">
             Sessions scheduled
           </p>
@@ -86,7 +86,7 @@ export const CalendarStats: React.FC<CalendarStatsProps> = ({ sessions }) => {
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{uniqueAthletes}</div>
+          <div className="text-2xl font-display font-bold">{uniqueAthletes}</div>
           <p className="text-xs text-muted-foreground">
             Athletes training
           </p>
@@ -99,7 +99,7 @@ export const CalendarStats: React.FC<CalendarStatsProps> = ({ sessions }) => {
           <Clock className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{totalHours.toFixed(1)}</div>
+          <div className="text-2xl font-display font-bold">{totalHours.toFixed(1)}</div>
           <p className="text-xs text-muted-foreground">
             Hours scheduled
           </p>

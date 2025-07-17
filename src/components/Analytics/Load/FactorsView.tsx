@@ -23,7 +23,7 @@ export const FactorsView: React.FC<FactorsViewProps> = ({ data, period, isLoadin
     <div className="space-y-6">
       {/* Secondary Chart: Acute vs Chronic Load */}
       <section className="card">
-        <h2 className="text-lg font-semibold mb-2">Acute vs Chronic Load</h2>
+        <h2 className="text-lg font-display font-semibold mb-2">Acute vs Chronic Load</h2>
         <p className="text-sm text-gray-600 mb-4">
           Comparison of 7-day acute load vs 28-day chronic load
         </p>

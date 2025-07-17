@@ -52,15 +52,15 @@ export const FactorsView: React.FC<FactorsViewProps> = ({ data, period, isLoadin
         <h3 className="text-lg font-semibold text-white mb-4">Current Stress Breakdown</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-white">{data.current}</div>
+            <div className="text-2xl font-display font-bold text-white">{data.current}</div>
             <div className="text-white/60 text-sm">Current Level</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-white">{data.average7d}</div>
+            <div className="text-2xl font-display font-bold text-white">{data.average7d}</div>
             <div className="text-white/60 text-sm">7-Day Average</div>
           </div>
           <div className="text-center">
-            <div className={`text-2xl font-bold ${
+            <div className={`text-2xl font-display font-bold ${
               data.level === 'low' ? 'text-green-400' :
               data.level === 'moderate' ? 'text-yellow-400' : 'text-red-400'
             }`}>

@@ -24,7 +24,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   };
   return <div className="flex items-center justify-between">
       <div>
-        <h1 className="text-3xl font-bold text-slate-50">
+        <h1 className="text-3xl font-display font-bold text-slate-50">
           {getTitle()}
         </h1>
         <p className="text-slate-50">

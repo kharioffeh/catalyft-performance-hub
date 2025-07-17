@@ -80,11 +80,18 @@ body {
 }
 
 @layer base {
+  /* Font family variables */
+  :root {
+    --font-display: "Space Grotesk", ui-sans-serif, system-ui;
+    --font-sans: "Inter", ui-sans-serif, system-ui;
+  }
+
   * {
     @apply border-border;
   }
   html {
     @apply bg-brand-charcoal;
+    font-family: var(--font-sans);
     width: 100%;
     overflow-x: hidden;
   }

@@ -131,11 +131,11 @@ export const MetricCard: React.FC<MetricCardProps> = ({
       <div className="flex items-start justify-between mb-2">
         <div className="flex-1">
           <div className="flex flex-col gap-1">
-            <h3 className="text-xs text-white/60 font-medium">{title}</h3>
+            <h3 className="text-xs text-white/60 font-sans font-medium">{title}</h3>
             <span 
               ref={valueRef}
               className={cn(
-                "text-3xl font-semibold",
+                "text-3xl font-display font-semibold",
                 `text-${metric}`
               )}
             >

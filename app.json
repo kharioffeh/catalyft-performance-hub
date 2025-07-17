@@ -1,4 +1,14 @@
 {
+  "expo": {
+    "plugins": [
+      [
+        "expo-google-fonts",
+        {
+          "families": ["SpaceGrotesk_400Regular", "SpaceGrotesk_600SemiBold", "SpaceGrotesk_700Bold", "Inter_400Regular", "Inter_500Medium", "Inter_600SemiBold"]
+        }
+      ]
+    ]
+  },
   "android": {
     "package": "com.anonymous.vite_react_shadcn_ts"
   },

@@ -91,7 +91,7 @@ export const QuickStatusCards: React.FC<QuickStatusCardsProps> = ({
         <CardContent>
           {currentReadiness ? (
             <div>
-              <div className={`text-2xl font-bold ${getReadinessColor(currentReadiness.score)}`}>
+              <div className={`text-2xl font-display font-bold ${getReadinessColor(currentReadiness.score)}`}>
                 {Math.round(currentReadiness.score)}%
               </div>
               <p className="text-xs text-muted-foreground">
@@ -99,7 +99,7 @@ export const QuickStatusCards: React.FC<QuickStatusCardsProps> = ({
               </p>
             </div>
           ) : (
-            <div className="text-2xl font-bold text-gray-400">--</div>
+            <div className="text-2xl font-display font-bold text-gray-400">--</div>
           )}
         </CardContent>
       </Card>
@@ -110,7 +110,7 @@ export const QuickStatusCards: React.FC<QuickStatusCardsProps> = ({
           <Calendar className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{todaySessions.length}</div>
+          <div className="text-2xl font-display font-bold">{todaySessions.length}</div>
           <p className="text-xs text-muted-foreground">
             {todaySessions.length === 0 ? 'Rest day' : 
              todaySessions.length === 1 ? 'session planned' : 
@@ -125,7 +125,7 @@ export const QuickStatusCards: React.FC<QuickStatusCardsProps> = ({
           <BarChart3 className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
+          <div className="text-2xl font-display font-bold">
             {weeklyStats?.completed || 0}/{weeklyStats?.planned || 0}
           </div>
           <p className="text-xs text-muted-foreground">
@@ -142,7 +142,7 @@ export const QuickStatusCards: React.FC<QuickStatusCardsProps> = ({
         <CardContent>
           {injuryRisk ? (
             <div>
-              <div className={`text-2xl font-bold ${getRiskLevel(injuryRisk.probabilities).color}`}>
+              <div className={`text-2xl font-display font-bold ${getRiskLevel(injuryRisk.probabilities).color}`}>
                 {getRiskLevel(injuryRisk.probabilities).level}
               </div>
               <p className="text-xs text-muted-foreground">
@@ -150,7 +150,7 @@ export const QuickStatusCards: React.FC<QuickStatusCardsProps> = ({
               </p>
             </div>
           ) : (
-            <div className="text-2xl font-bold text-gray-400">--</div>
+            <div className="text-2xl font-display font-bold text-gray-400">--</div>
           )}
         </CardContent>
       </Card>

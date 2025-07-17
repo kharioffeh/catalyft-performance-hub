@@ -25,7 +25,7 @@ export const TableView: React.FC<TableViewProps> = ({ data, period, isLoading })
     <div className="space-y-6">
       {/* Data Table: Daily Load Details */}
       <section className="card overflow-x-auto">
-        <h2 className="text-lg font-semibold mb-2">Daily Load Details</h2>
+        <h2 className="text-lg font-display font-semibold mb-2">Daily Load Details</h2>
         <p className="text-sm text-gray-600 mb-4">
           Detailed breakdown of daily training load and calculated metrics
         </p>
