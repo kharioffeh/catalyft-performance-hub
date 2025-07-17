@@ -11,10 +11,10 @@ export const TrainingPlanLayout: React.FC = () => {
   const { contentPadding } = useFabPosition();
 
   return (
-    <div className={cn("min-h-screen bg-brand-charcoal p-6", contentPadding)}>
+    <div className={cn("min-h-screen w-full bg-brand-charcoal", contentPadding)}>
       <Container>
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 pt-6">
           <h1 className="text-4xl font-bold text-foreground mb-2">Training Plan</h1>
           <p className="text-muted-foreground">Your personalized training schedule</p>
         </div>
