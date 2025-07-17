@@ -42,11 +42,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ variant }) => {
           <ResponsiveNavigation />
         </ErrorBoundary>
         
-        <div className={cn(
-          "flex-1 flex flex-col min-w-0",
-          // Add left margin on desktop to account for sidebar
-          !isMobile ? "lg:ml-60" : ""
-        )}>
+        <div className="flex-1 flex flex-col min-w-0 w-full">
           {!isMobile && (
             <ErrorBoundary FallbackComponent={({ error }) => (
               <div className="p-4 text-red-400 text-sm">TopBar error: {error.message}</div>

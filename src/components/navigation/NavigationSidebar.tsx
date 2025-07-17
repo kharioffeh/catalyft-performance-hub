@@ -33,8 +33,8 @@ export const NavigationSidebar: React.FC<NavigationSidebarProps> = ({ className 
         animate={{ width: isCollapsed ? 64 : 240 }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
         className={cn(
-          "fixed left-0 top-0 z-40 h-full bg-brand-charcoal border-r border-white/10",
-          "flex flex-col overflow-hidden",
+          "fixed left-0 top-0 z-50 h-full bg-brand-charcoal/90 backdrop-blur-xl border-r border-white/10",
+          "flex flex-col overflow-hidden shadow-2xl",
           className
         )}
       >
