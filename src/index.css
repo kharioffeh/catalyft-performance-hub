@@ -237,7 +237,7 @@ html, body {
 }
 
 .glass-surface {
-  @apply bg-white/3 backdrop-blur-lg border border-white/8;
+  @apply bg-white/5 backdrop-blur-lg border border-white/10;
 }
 
 /* Focus states with brand blue */
