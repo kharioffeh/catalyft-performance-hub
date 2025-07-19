@@ -29,10 +29,19 @@ serve(async (req) => {
 
     const { athlete_uuid, coach_uuid, goal, weeks } = await req.json();
 
-    // Use consistent naming with OPENAI_ARIA_KEY instead of OPENAI_KEY_ARIA
-    const OPENAI_ARIA_KEY = Deno.env.get('OPENAI_ARIA_KEY');
+    // Try both possible OpenAI API key names
+    const OPENAI_ARIA_KEY = Deno.env.get('OPENAI_ARIA_KEY') || Deno.env.get('OPENAI_API_KEY');
+    
+    // Debug logging to check environment variables
+    console.log('Environment check:', {
+      OPENAI_ARIA_KEY_exists: !!Deno.env.get('OPENAI_ARIA_KEY'),
+      OPENAI_API_KEY_exists: !!Deno.env.get('OPENAI_API_KEY'),
+      using_key: OPENAI_ARIA_KEY ? 'FOUND' : 'NOT_FOUND',
+      timestamp: new Date().toISOString()
+    });
+    
     if (!OPENAI_ARIA_KEY) {
-      throw new Error('OpenAI API key not configured');
+      throw new Error('OpenAI API key not configured - checked both OPENAI_ARIA_KEY and OPENAI_API_KEY');
     }
 
     const prompt = `Create a ${weeks}-week training program for the following goal: "${goal}".
