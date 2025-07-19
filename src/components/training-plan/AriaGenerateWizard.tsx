@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -160,15 +161,15 @@ Please create a progressive program that incorporates these goals, fits the avai
     {
       label: 'Goals',
       content: (
-        <div className="space-y-8 px-2">
+        <div className="space-y-6 sm:space-y-8">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-white mb-2">Training Goals</h2>
-            <p className="text-white/70">What do you want to achieve? (Select all that apply)</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Training Goals</h2>
+            <p className="text-sm sm:text-base text-white/70">What do you want to achieve? (Select all that apply)</p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-4xl mx-auto">
             {GOALS.map((goal) => (
-              <div key={goal.id} className="flex items-center space-x-3 p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer">
+              <div key={goal.id} className="flex items-center space-x-3 p-3 sm:p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer">
                 <Checkbox
                   id={goal.id}
                   checked={state.goals.includes(goal.id)}
@@ -177,7 +178,7 @@ Please create a progressive program that incorporates these goals, fits the avai
                   })}
                   className="flex-shrink-0"
                 />
-                <Label htmlFor={goal.id} className="text-white cursor-pointer flex-1 text-sm">
+                <Label htmlFor={goal.id} className="text-white cursor-pointer flex-1 text-sm sm:text-base">
                   {goal.label}
                 </Label>
               </div>
@@ -189,15 +190,15 @@ Please create a progressive program that incorporates these goals, fits the avai
     {
       label: 'Schedule',
       content: (
-        <div className="space-y-8 px-2">
+        <div className="space-y-6 sm:space-y-8">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-white mb-2">Training Schedule</h2>
-            <p className="text-white/70">When can you train?</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Training Schedule</h2>
+            <p className="text-sm sm:text-base text-white/70">When can you train?</p>
           </div>
           
           <div className="max-w-md mx-auto space-y-6">
             <div>
-              <Label className="text-white mb-3 block font-medium">Program Duration</Label>
+              <Label className="text-white mb-3 block font-medium text-sm sm:text-base">Program Duration</Label>
               <Select value={state.weeks.toString()} onValueChange={(value) => updateState({ weeks: parseInt(value) })}>
                 <SelectTrigger className="bg-white/10 border-white/20 text-white">
                   <SelectValue />
@@ -214,10 +215,10 @@ Please create a progressive program that incorporates these goals, fits the avai
           </div>
           
           <div>
-            <Label className="text-white mb-4 block text-center font-medium">Available Training Days</Label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
+            <Label className="text-white mb-4 block text-center font-medium text-sm sm:text-base">Available Training Days</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-2xl mx-auto">
               {DAYS.map((day) => (
-                <div key={day.id} className="flex items-center space-x-3 p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer">
+                <div key={day.id} className="flex items-center space-x-3 p-3 sm:p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer">
                   <Checkbox
                     id={day.id}
                     checked={state.availableDays.includes(day.id)}
@@ -226,7 +227,7 @@ Please create a progressive program that incorporates these goals, fits the avai
                     })}
                     className="flex-shrink-0"
                   />
-                  <Label htmlFor={day.id} className="text-white cursor-pointer flex-1 text-sm">
+                  <Label htmlFor={day.id} className="text-white cursor-pointer flex-1 text-sm sm:text-base">
                     {day.label}
                   </Label>
                 </div>
@@ -239,15 +240,15 @@ Please create a progressive program that incorporates these goals, fits the avai
     {
       label: 'Equipment',
       content: (
-        <div className="space-y-8 px-2">
+        <div className="space-y-6 sm:space-y-8">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-white mb-2">Available Equipment</h2>
-            <p className="text-white/70">What equipment do you have access to?</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Available Equipment</h2>
+            <p className="text-sm sm:text-base text-white/70">What equipment do you have access to?</p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-4xl mx-auto">
             {EQUIPMENT.map((equipment) => (
-              <div key={equipment.id} className="flex items-center space-x-3 p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer">
+              <div key={equipment.id} className="flex items-center space-x-3 p-3 sm:p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer">
                 <Checkbox
                   id={equipment.id}
                   checked={state.equipment.includes(equipment.id)}
@@ -256,7 +257,7 @@ Please create a progressive program that incorporates these goals, fits the avai
                   })}
                   className="flex-shrink-0"
                 />
-                <Label htmlFor={equipment.id} className="text-white cursor-pointer flex-1 text-sm">
+                <Label htmlFor={equipment.id} className="text-white cursor-pointer flex-1 text-sm sm:text-base">
                   {equipment.label}
                 </Label>
               </div>
@@ -268,45 +269,45 @@ Please create a progressive program that incorporates these goals, fits the avai
     {
       label: 'Preview',
       content: (
-        <div className="space-y-8 px-2">
+        <div className="space-y-6 sm:space-y-8">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-white mb-2">Program Preview</h2>
-            <p className="text-white/70">Review your program specifications before generation</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Program Preview</h2>
+            <p className="text-sm sm:text-base text-white/70">Review your program specifications before generation</p>
           </div>
           
-          <Card className="bg-white/10 border-white/20 max-w-3xl mx-auto">
+          <Card className="bg-white/10 border-white/20 max-w-4xl mx-auto">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
+              <CardTitle className="text-white flex items-center gap-2 text-base sm:text-lg">
                 <Sparkles className="w-5 h-5" />
                 ARIA will generate a program with these specifications:
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 sm:space-y-6">
               <div>
-                <h4 className="text-white font-semibold mb-2">Goals:</h4>
-                <p className="text-white/80 text-sm">
+                <h4 className="text-white font-semibold mb-2 text-sm sm:text-base">Goals:</h4>
+                <p className="text-white/80 text-xs sm:text-sm">
                   {state.goals.map(g => GOALS.find(goal => goal.id === g)?.label).join(', ')}
                 </p>
               </div>
               
               <div>
-                <h4 className="text-white font-semibold mb-2">Schedule:</h4>
-                <p className="text-white/80 text-sm">
+                <h4 className="text-white font-semibold mb-2 text-sm sm:text-base">Schedule:</h4>
+                <p className="text-white/80 text-xs sm:text-sm">
                   {state.weeks} weeks, {state.availableDays.length} days per week ({state.availableDays.map(d => DAYS.find(day => day.id === d)?.label).join(', ')})
                 </p>
               </div>
               
               <div>
-                <h4 className="text-white font-semibold mb-2">Equipment:</h4>
-                <p className="text-white/80 text-sm">
+                <h4 className="text-white font-semibold mb-2 text-sm sm:text-base">Equipment:</h4>
+                <p className="text-white/80 text-xs sm:text-sm">
                   {state.equipment.map(e => EQUIPMENT.find(eq => eq.id === e)?.label).join(', ')}
                 </p>
               </div>
               
-              <div className="mt-6 p-4 bg-white/5 rounded-lg">
-                <h4 className="text-white font-semibold mb-2">Prompt to ARIA:</h4>
-                <ScrollArea className="h-32">
-                  <p className="text-white/70 text-sm whitespace-pre-wrap pr-4">{generatePrompt()}</p>
+              <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-white/5 rounded-lg">
+                <h4 className="text-white font-semibold mb-2 text-sm sm:text-base">Prompt to ARIA:</h4>
+                <ScrollArea className="h-24 sm:h-32">
+                  <p className="text-white/70 text-xs sm:text-sm whitespace-pre-wrap pr-4">{generatePrompt()}</p>
                 </ScrollArea>
               </div>
             </CardContent>
@@ -318,16 +319,16 @@ Please create a progressive program that incorporates these goals, fits the avai
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[95vh] p-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <div className="flex flex-col h-full min-h-0">
+      <DialogContent className="max-w-6xl max-h-[98vh] p-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
+        <div className="grid grid-rows-[auto_1fr_auto] h-full min-h-[85vh] sm:min-h-[90vh] max-h-[98vh]">
           {/* Fixed Header */}
-          <div className="flex-shrink-0 px-6 pt-6 pb-4 border-b border-white/10">
-            <div className="text-center mb-6">
-              <h1 className="text-3xl font-bold text-white mb-2 flex items-center justify-center gap-3">
-                <Sparkles className="w-8 h-8 text-purple-400" />
+          <div className="flex-shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-white/10">
+            <div className="text-center mb-4 sm:mb-6">
+              <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 flex items-center justify-center gap-2 sm:gap-3">
+                <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400" />
                 Generate with ARIA
               </h1>
-              <p className="text-white/70">Let AI create a personalized training program for you</p>
+              <p className="text-sm sm:text-base text-white/70">Let AI create a personalized training program for you</p>
             </div>
             <Stepper value={currentStep} className="max-w-2xl mx-auto">
               {steps.map((step, index) => (
@@ -338,50 +339,53 @@ Please create a progressive program that incorporates these goals, fits the avai
 
           {/* Scrollable Content Area */}
           <div className="flex-1 min-h-0 overflow-hidden">
-            <ScrollArea className="h-full">
-              <div className="px-4 py-8 min-h-full">
+            <ScrollArea className="h-full min-h-[300px] sm:min-h-[400px]">
+              <div className="px-2 sm:px-4 py-4 sm:py-6 min-h-full">
                 {steps[currentStep].content}
               </div>
             </ScrollArea>
           </div>
 
           {/* Fixed Footer Navigation */}
-          <div className="flex-shrink-0 px-6 py-4 border-t border-white/10 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+          <div className="flex-shrink-0 px-4 sm:px-6 py-3 sm:py-4 border-t border-white/10 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
             <div className="flex justify-between items-center max-w-4xl mx-auto">
               <Button
                 variant="ghost"
                 onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
                 disabled={currentStep === 0}
-                className="text-white hover:bg-white/10"
+                className="text-white hover:bg-white/10 text-sm sm:text-base"
+                size={window.innerWidth < 640 ? "sm" : "default"}
               >
-                <ChevronLeft className="w-4 h-4 mr-2" />
+                <ChevronLeft className="w-4 h-4 mr-1 sm:mr-2" />
                 Previous
               </Button>
 
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3">
                 {currentStep < steps.length - 1 ? (
                   <Button
                     onClick={() => setCurrentStep(currentStep + 1)}
                     disabled={!canProceed()}
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
+                    className="bg-purple-600 hover:bg-purple-700 text-white text-sm sm:text-base"
+                    size={window.innerWidth < 640 ? "sm" : "default"}
                   >
                     Next
-                    <ChevronRight className="w-4 h-4 ml-2" />
+                    <ChevronRight className="w-4 h-4 ml-1 sm:ml-2" />
                   </Button>
                 ) : (
                   <Button
                     onClick={handleGenerate}
                     disabled={!canProceed() || isGenerating}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm sm:text-base"
+                    size={window.innerWidth < 640 ? "sm" : "default"}
                   >
                     {isGenerating ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <Loader2 className="w-4 h-4 mr-1 sm:mr-2 animate-spin" />
                         Generating...
                       </>
                     ) : (
                       <>
-                        <Sparkles className="w-4 h-4 mr-2" />
+                        <Sparkles className="w-4 h-4 mr-1 sm:mr-2" />
                         Generate Program
                       </>
                     )}
