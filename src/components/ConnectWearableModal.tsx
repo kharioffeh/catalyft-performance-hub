@@ -50,7 +50,17 @@ export const ConnectWearableModal: React.FC<ConnectWearableModalProps> = ({
   const { toast } = useToast();
 
   const handleWhoopConnect = () => {
-    const clientId = 'YOUR_WHOOP_CLIENT_ID'; // This should come from env
+    const clientId = import.meta.env.VITE_WHOOP_CLIENT_ID;
+    
+    if (!clientId) {
+      toast({
+        title: "Configuration Error",
+        description: "Whoop integration is not configured. Please contact support.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     const redirectUri = encodeURIComponent('https://xeugyryfvilanoiethum.supabase.co/functions/v1/solo-link-wearable/whoop-callback');
     const scope = encodeURIComponent('read:recovery read:sleep read:workout');
     const state = encodeURIComponent(profile?.id || '');
