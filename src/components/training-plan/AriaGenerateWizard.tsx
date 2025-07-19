@@ -27,13 +27,13 @@ interface WizardState {
 
 const GOALS = [
   { id: 'strength', label: 'Build Strength' },
-  { id: 'muscle', label: 'Gain Muscle Mass' },
+  { id: 'hypertrophy', label: 'Gain Muscle Mass' },
   { id: 'endurance', label: 'Improve Endurance' },
   { id: 'power', label: 'Develop Power' },
-  { id: 'fat_loss', label: 'Fat Loss' },
-  { id: 'general_fitness', label: 'General Fitness' },
-  { id: 'sport_specific', label: 'Sport-Specific Training' },
-  { id: 'rehabilitation', label: 'Rehabilitation' }
+  { id: 'strength', label: 'Fat Loss' },
+  { id: 'endurance', label: 'General Fitness' },
+  { id: 'power', label: 'Sport-Specific Training' },
+  { id: 'rehab', label: 'Rehabilitation' }
 ];
 
 const DAYS = [
