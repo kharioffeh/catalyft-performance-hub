@@ -24,9 +24,9 @@ export const ProgramsTab: React.FC = () => {
 
   const handleProgramGenerated = (templateId: string) => {
     setGeneratedTemplateId(templateId);
-    // TODO: Open the ProgramBuilder with the generated template loaded
-    // For now, we'll just close the wizard and show a success message
     setAriaWizardOpen(false);
+    // Navigate to the generated template
+    window.location.href = `/template/${templateId}`;
   };
 
   return (
