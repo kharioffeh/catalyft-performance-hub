@@ -102,15 +102,26 @@ Include 7 days per week for ${weeks} weeks. Focus on progressive overload and pe
       }
     }
 
-    // Map goal to valid database values
+    // Extract and map goal from descriptive text to valid database values
     const validGoals = ['strength', 'power', 'hypertrophy', 'endurance', 'rehab'];
-    const normalizedGoal = programData.goal?.toLowerCase()?.replace(/[^a-z]/g, '') || goal.toLowerCase();
-    const mappedGoal = validGoals.includes(normalizedGoal) ? normalizedGoal : 
-                      normalizedGoal.includes('strength') ? 'strength' :
-                      normalizedGoal.includes('power') ? 'power' :
-                      normalizedGoal.includes('muscle') || normalizedGoal.includes('hypertrophy') ? 'hypertrophy' :
-                      normalizedGoal.includes('endurance') || normalizedGoal.includes('cardio') ? 'endurance' :
-                      'strength'; // default fallback
+    
+    // The goal field contains a long description, extract the actual goal
+    const goalText = goal.toLowerCase();
+    let mappedGoal = 'strength'; // default fallback
+    
+    if (goalText.includes('strength') || goalText.includes('build strength')) {
+      mappedGoal = 'strength';
+    } else if (goalText.includes('power') || goalText.includes('develop power')) {
+      mappedGoal = 'power';
+    } else if (goalText.includes('muscle') || goalText.includes('hypertrophy') || goalText.includes('gain muscle')) {
+      mappedGoal = 'hypertrophy';
+    } else if (goalText.includes('endurance') || goalText.includes('cardio') || goalText.includes('fitness')) {
+      mappedGoal = 'endurance';
+    } else if (goalText.includes('rehab') || goalText.includes('rehabilitation')) {
+      mappedGoal = 'rehab';
+    }
+    
+    console.log('Goal mapping:', { original: goal, mapped: mappedGoal });
 
     // Create template
     const { data: template, error: templateError } = await supabaseClient
