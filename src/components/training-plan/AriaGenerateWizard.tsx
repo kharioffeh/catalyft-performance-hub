@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -314,8 +315,8 @@ Please create a progressive program that incorporates these goals, fits the avai
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl h-[90vh] p-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <div className="flex flex-col h-full">
-          {/* Header - Sticky */}
-          <div className="sticky top-0 z-10 flex-shrink-0 px-8 pt-8 pb-6 border-b border-white/10 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+          {/* Header - Title and Stepper only */}
+          <div className="flex-shrink-0 px-8 pt-8 pb-6 border-b border-white/10 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
             <div className="text-center mb-6">
               <h1 className="text-3xl font-bold text-white mb-2 flex items-center justify-center gap-3">
                 <Sparkles className="w-8 h-8 text-purple-400" />
@@ -330,15 +331,15 @@ Please create a progressive program that incorporates these goals, fits the avai
             </Stepper>
           </div>
 
-          {/* Content - Scrollable with max height */}
-          <div className="overflow-y-auto max-h-[70vh] px-6">
+          {/* Content - Scrollable with proper spacing */}
+          <div className="flex-1 overflow-y-auto px-6 pb-6">
             <div className="py-8">
               {steps[currentStep].content}
             </div>
           </div>
 
-          {/* Footer - Sticky */}
-          <div className="sticky bottom-0 z-10 flex-shrink-0 px-8 py-6 border-t border-white/10 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+          {/* Footer - Navigation Controls */}
+          <div className="flex-shrink-0 px-8 py-6 border-t border-white/10 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
             <div className="flex justify-between items-center">
               <Button
                 variant="ghost"

@@ -6,9 +6,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { EnhancedProgramBuilder } from '@/components/program-builder/EnhancedProgramBuilder';
-import { AriaGenerateWizard } from './AriaGenerateWizard';
-import { Button } from '@/components/ui/button';
-import { Plus, Sparkles } from 'lucide-react';
 import { Fab } from '@/components/ui/Fab';
 
 export const TemplateGrid: React.FC = () => {
@@ -17,7 +14,6 @@ export const TemplateGrid: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [builderOpen, setBuilderOpen] = useState(false);
-  const [ariaWizardOpen, setAriaWizardOpen] = useState(false);
 
   const handleEdit = (templateId: string) => {
     navigate(`/program/${templateId}`);
@@ -49,18 +45,6 @@ export const TemplateGrid: React.FC = () => {
     toast({ description: "Assign functionality coming soon" });
   };
 
-  const handleAriaGenerate = () => {
-    setAriaWizardOpen(true);
-  };
-
-  const handleProgramGenerated = (templateId: string) => {
-    setAriaWizardOpen(false);
-    toast({
-      title: "Program Generated",
-      description: "Your AI-generated program has been created successfully",
-    });
-  };
-
   if (isLoading) {
     return (
       <ul className="grid gap-4 md:[grid-template-columns:repeat(auto-fill,minmax(320px,1fr))] sm:[grid-template-columns:repeat(auto-fill,minmax(240px,1fr))] grid-cols-1 pb-2">
@@ -80,27 +64,15 @@ export const TemplateGrid: React.FC = () => {
   if (programs.length === 0) {
     return (
       <>
-        <div className="relative">
-          {/* Generate with AI Button - Absolute positioned top-right */}
-          <Button
-            onClick={handleAriaGenerate}
-            size="lg"
-            className="absolute -top-16 right-0 z-10 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0 shadow-lg"
-          >
-            <Sparkles className="w-4 h-4 mr-2" />
-            Generate with AI
-          </Button>
-
-          <div className="text-center py-12">
-            <div className="mx-auto h-12 w-12 text-white/30 mb-4">
-              <svg fill="currentColor" viewBox="0 0 24 24">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" />
-                <polyline points="14,2 14,8 20,8" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-white mb-2">No programs found</h3>
-            <p className="text-white/60 mb-4">Create your first training program to get started</p>
+        <div className="text-center py-12">
+          <div className="mx-auto h-12 w-12 text-white/30 mb-4">
+            <svg fill="currentColor" viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" />
+              <polyline points="14,2 14,8 20,8" />
+            </svg>
           </div>
+          <h3 className="text-lg font-semibold text-white mb-2">No programs found</h3>
+          <p className="text-white/60 mb-4">Create your first training program to get started</p>
         </div>
 
         {/* FAB for empty state */}
@@ -113,52 +85,34 @@ export const TemplateGrid: React.FC = () => {
           open={builderOpen}
           onOpenChange={setBuilderOpen}
         />
-
-        <AriaGenerateWizard
-          open={ariaWizardOpen}
-          onOpenChange={setAriaWizardOpen}
-          onProgramGenerated={handleProgramGenerated}
-        />
       </>
     );
   }
 
   return (
     <>
-      <div className="relative">
-        {/* Generate with AI Button - Absolute positioned top-right */}
-        <Button
-          onClick={handleAriaGenerate}
-          size="lg"
-          className="absolute -top-16 right-0 z-10 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0 shadow-lg"
-        >
-          <Sparkles className="w-4 h-4 mr-2" />
-          Generate with AI
-        </Button>
-
-        <ul className="grid gap-4 md:[grid-template-columns:repeat(auto-fill,minmax(320px,1fr))] sm:[grid-template-columns:repeat(auto-fill,minmax(240px,1fr))] grid-cols-1 pb-2">
-          {programs.map((program) => (
-            <TemplateCard
-              key={program.id}
-              template={{
-                id: program.id,
-                title: program.name,
-                goal: 'strength', // TODO: Extract from block_json
-                weeks: 4, // TODO: Extract from block_json
-                visibility: 'private',
-                created_at: program.created_at,
-                owner_uuid: program.coach_uuid,
-                sessions_count: 0 // Calculate from block_json if needed
-              }}
-              onAssign={handleAssign}
-              onEdit={handleEdit}
-              onDuplicate={handleDuplicate}
-              onDelete={handleDelete}
-              deleteLoading={deleteTemplate.isPending}
-            />
-          ))}
-        </ul>
-      </div>
+      <ul className="grid gap-4 md:[grid-template-columns:repeat(auto-fill,minmax(320px,1fr))] sm:[grid-template-columns:repeat(auto-fill,minmax(240px,1fr))] grid-cols-1 pb-2">
+        {programs.map((program) => (
+          <TemplateCard
+            key={program.id}
+            template={{
+              id: program.id,
+              title: program.name,
+              goal: 'strength', // TODO: Extract from block_json
+              weeks: 4, // TODO: Extract from block_json
+              visibility: 'private',
+              created_at: program.created_at,
+              owner_uuid: program.coach_uuid,
+              sessions_count: 0 // Calculate from block_json if needed
+            }}
+            onAssign={handleAssign}
+            onEdit={handleEdit}
+            onDuplicate={handleDuplicate}
+            onDelete={handleDelete}
+            deleteLoading={deleteTemplate.isPending}
+          />
+        ))}
+      </ul>
 
       {/* FAB */}
       <Fab 
@@ -169,12 +123,6 @@ export const TemplateGrid: React.FC = () => {
       <EnhancedProgramBuilder
         open={builderOpen}
         onOpenChange={setBuilderOpen}
-      />
-
-      <AriaGenerateWizard
-        open={ariaWizardOpen}
-        onOpenChange={setAriaWizardOpen}
-        onProgramGenerated={handleProgramGenerated}
       />
     </>
   );
