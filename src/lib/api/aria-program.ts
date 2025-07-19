@@ -1,3 +1,4 @@
+
 /**
  * API functions for ARIA program generation
  */
@@ -13,6 +14,7 @@ export interface AriaGenerateProgramRequest {
 
 export interface AriaGenerateProgramResponse {
   template_id: string;
+  program_instance_id: string;
 }
 
 /**
@@ -45,7 +47,7 @@ export async function generateProgramWithAria(request: AriaGenerateProgramReques
       throw new Error(`ARIA program generation failed: ${error.message}`);
     }
 
-    console.log('ARIA program generated successfully');
+    console.log('ARIA program generated successfully:', data);
     return data as AriaGenerateProgramResponse;
   } catch (error) {
     console.error('Error in generateProgramWithAria:', error);

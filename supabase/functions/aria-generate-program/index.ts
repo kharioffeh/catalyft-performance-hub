@@ -27,40 +27,46 @@ serve(async (req) => {
       return new Response('Unauthorized', { status: 401 });
     }
 
-    const { athlete_uuid, coach_uuid, goal, weeks } = await req.json();
+    const { athlete_uuid, coach_uuid, goal, weeks, available_days, equipment } = await req.json();
 
-    // Use consistent naming with OPENAI_ARIA_KEY instead of OPENAI_KEY_ARIA
+    // Use OPENAI_ARIA_KEY instead of OPENAI_KEY_ARIA for consistency
     const OPENAI_ARIA_KEY = Deno.env.get('OPENAI_ARIA_KEY');
     if (!OPENAI_ARIA_KEY) {
       throw new Error('OpenAI API key not configured');
     }
 
     const prompt = `Create a ${weeks}-week training program for the following goal: "${goal}".
+Available days: ${available_days?.join(', ') || 'All days'}
+Equipment: ${equipment?.join(', ') || 'Basic gym equipment'}
 
 Return a JSON object with this exact structure:
 {
   "title": "Program Title",
   "goal": "Training goal description", 
   "weeks": ${weeks},
-  "blocks": [
+  "sessions": [
     {
-      "week_no": 1,
-      "day_no": 1,
-      "session_title": "Session Name",
+      "week": 1,
+      "day": 1,
+      "title": "Session Name",
+      "type": "strength",
+      "duration_minutes": 60,
       "exercises": [
         {
           "name": "Exercise Name",
           "sets": 3,
           "reps": 12,
-          "load_pct": 75,
-          "rest_seconds": 60
+          "load_percent": 75,
+          "rest_seconds": 60,
+          "rpe_target": 7,
+          "notes": "Form cues"
         }
       ]
     }
   ]
 }
 
-Include 7 days per week for ${weeks} weeks. Focus on progressive overload and periodization.`;
+Include ${available_days?.length || 7} sessions per week for ${weeks} weeks. Focus on progressive overload and periodization.`;
 
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -78,6 +84,10 @@ Include 7 days per week for ${weeks} weeks. Focus on progressive overload and pe
       }),
     });
 
+    if (!openaiResponse.ok) {
+      throw new Error(`OpenAI API error: ${openaiResponse.statusText}`);
+    }
+
     const aiResponse = await openaiResponse.json();
     const content = aiResponse.choices[0].message.content;
     
@@ -93,37 +103,79 @@ Include 7 days per week for ${weeks} weeks. Focus on progressive overload and pe
       }
     }
 
-    // Create template
-    const { data: template, error: templateError } = await supabaseClient
-      .from('template')
+    // Create program template in the correct table
+    const { data: programTemplate, error: templateError } = await supabaseClient
+      .from('program_templates')
       .insert({
-        title: programData.title,
-        goal: programData.goal,
-        weeks: programData.weeks,
-        owner_uuid: coach_uuid,
-        visibility: 'private'
+        name: programData.title,
+        block_json: {
+          title: programData.title,
+          goal: programData.goal,
+          weeks: programData.weeks,
+          sessions: programData.sessions
+        },
+        origin: 'ARIA',
+        coach_uuid: coach_uuid
       })
       .select()
       .single();
 
-    if (templateError) throw templateError;
+    if (templateError) {
+      console.error('Template creation error:', templateError);
+      throw templateError;
+    }
 
-    // Create template blocks
-    const blocks = programData.blocks.map((block: any) => ({
-      template_id: template.id,
-      week_no: block.week_no,
-      day_no: block.day_no,
-      session_title: block.session_title,
-      exercises: block.exercises
-    }));
+    // Create program instance for the athlete
+    const startDate = new Date().toISOString().split('T')[0];
+    const endDate = new Date(Date.now() + weeks * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-    const { error: blocksError } = await supabaseClient
-      .from('template_block')
-      .insert(blocks);
+    const { data: programInstance, error: instanceError } = await supabaseClient
+      .from('program_instance')
+      .insert({
+        athlete_uuid: athlete_uuid,
+        coach_uuid: coach_uuid,
+        source: 'aria',
+        template_id: programTemplate.id,
+        start_date: startDate,
+        end_date: endDate,
+        status: 'active'
+      })
+      .select()
+      .single();
 
-    if (blocksError) throw blocksError;
+    if (instanceError) {
+      console.error('Instance creation error:', instanceError);
+      throw instanceError;
+    }
 
-    return new Response(JSON.stringify({ template_id: template.id }), {
+    // Create sessions for each day in the program
+    const sessionsToCreate = [];
+    const startDateObj = new Date(startDate);
+
+    programData.sessions.forEach((session: any) => {
+      const sessionDate = new Date(startDateObj);
+      sessionDate.setDate(startDateObj.getDate() + ((session.week - 1) * 7) + (session.day - 1));
+
+      sessionsToCreate.push({
+        program_id: programInstance.id,
+        planned_at: sessionDate.toISOString(),
+        exercises: session.exercises
+      });
+    });
+
+    const { error: sessionsError } = await supabaseClient
+      .from('session')
+      .insert(sessionsToCreate);
+
+    if (sessionsError) {
+      console.error('Sessions creation error:', sessionsError);
+      throw sessionsError;
+    }
+
+    return new Response(JSON.stringify({ 
+      template_id: programTemplate.id,
+      program_instance_id: programInstance.id
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 

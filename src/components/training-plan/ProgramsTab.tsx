@@ -6,12 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Plus, Sparkles } from 'lucide-react';
 import { EnhancedProgramBuilder } from '@/components/program-builder/EnhancedProgramBuilder';
 import { AriaGenerateWizard } from './AriaGenerateWizard';
+import { useNavigate } from 'react-router-dom';
 
 export const ProgramsTab: React.FC = () => {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [builderOpen, setBuilderOpen] = useState(false);
   const [ariaWizardOpen, setAriaWizardOpen] = useState(false);
-  const [generatedTemplateId, setGeneratedTemplateId] = useState<string | null>(null);
   const isCoach = profile?.role === 'coach';
 
   const handleCreateProgram = () => {
@@ -22,11 +23,10 @@ export const ProgramsTab: React.FC = () => {
     setAriaWizardOpen(true);
   };
 
-  const handleProgramGenerated = (templateId: string) => {
-    setGeneratedTemplateId(templateId);
-    // TODO: Open the ProgramBuilder with the generated template loaded
-    // For now, we'll just close the wizard and show a success message
+  const handleProgramGenerated = (data: { template_id: string; program_instance_id: string }) => {
     setAriaWizardOpen(false);
+    // Navigate to the program instance view instead of template
+    navigate(`/program-instance/${data.program_instance_id}`);
   };
 
   return (
