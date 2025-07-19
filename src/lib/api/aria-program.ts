@@ -30,6 +30,8 @@ export async function generateProgramWithAria(request: AriaGenerateProgramReques
 
     // For now, we'll use the coach as both coach and athlete
     // In a full implementation, you might want to select an athlete
+    console.log('Sending to ARIA:', { goal: request.goal, weeks: request.weeks, prompt: request.prompt });
+    
     const { data, error } = await supabase.functions.invoke('aria-generate-program', {
       body: {
         athlete_uuid: user.id,
@@ -37,7 +39,8 @@ export async function generateProgramWithAria(request: AriaGenerateProgramReques
         goal: request.goal,
         weeks: request.weeks,
         available_days: request.availableDays,
-        equipment: request.equipment
+        equipment: request.equipment,
+        prompt: request.prompt
       },
     });
 
