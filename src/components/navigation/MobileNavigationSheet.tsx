@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSidebar } from '@/contexts/SidebarContext';
 import { getNavigationForRole } from '@/config/routes';
 import { cn } from '@/lib/utils';
 import {
@@ -9,7 +10,6 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from '@/components/ui/sheet';
 
 interface MobileNavigationSheetProps {
@@ -31,15 +31,6 @@ export const MobileNavigationSheet: React.FC<MobileNavigationSheetProps> = ({
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetTrigger asChild>
-        <button
-          className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-card border border-border shadow-lg lg:hidden"
-          aria-label="Open navigation menu"
-        >
-          <Menu className="h-5 w-5 text-foreground" />
-        </button>
-      </SheetTrigger>
-      
       <SheetContent side="left" className="w-80 p-0">
         <SheetHeader className="p-6 border-b border-border">
           <SheetTitle className="text-left font-semibold text-foreground">

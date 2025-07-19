@@ -7,6 +7,7 @@ import { BottomTabBar } from '@/components/layout/BottomTabBar';
 import { MobileDrawer } from '@/components/layout/MobileDrawer';
 import { GlassLayout } from '@/components/Glass/GlassLayout';
 import { ResponsiveNavigation } from '@/components/navigation/ResponsiveNavigation';
+import { SidebarProvider } from '@/contexts/SidebarContext';
 import { useIsMobile } from '@/hooks/useBreakpoint';
 import { useAuth } from '@/contexts/AuthContext';
 import { getNavigationForRole } from '@/config/routes';
@@ -28,52 +29,53 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ variant }) => {
   const navigationItems = getNavigationForRole(profile?.role);
 
   return (
-    <GlassLayout variant={variant}>
-      <div className="min-h-screen flex w-full">
-        {/* Responsive Navigation */}
-        <ErrorBoundary FallbackComponent={({ error, resetErrorBoundary }) => (
-          <div className="p-4 text-red-400 text-sm">
-            Navigation error: {error.message}
-            <button onClick={resetErrorBoundary} className="block mt-2 text-indigo-400">
-              Retry
-            </button>
-          </div>
-        )}>
-          <ResponsiveNavigation />
-        </ErrorBoundary>
-        
-        <div className="flex-1 flex flex-col min-w-0 w-full">
-          {!isMobile && (
+    <SidebarProvider>
+      <GlassLayout variant={variant}>
+        <div className="min-h-screen flex w-full">
+          {/* Responsive Navigation */}
+          <ErrorBoundary FallbackComponent={({ error, resetErrorBoundary }) => (
+            <div className="p-4 text-red-400 text-sm">
+              Navigation error: {error.message}
+              <button onClick={resetErrorBoundary} className="block mt-2 text-indigo-400">
+                Retry
+              </button>
+            </div>
+          )}>
+            <ResponsiveNavigation />
+          </ErrorBoundary>
+          
+          <div className="flex-1 flex flex-col min-w-0 w-full">
             <ErrorBoundary FallbackComponent={({ error }) => (
               <div className="p-4 text-red-400 text-sm">TopBar error: {error.message}</div>
             )}>
               <TopBar />
             </ErrorBoundary>
-          )}
-          <main className={cn(
-            "flex-1 overflow-auto scrollbar-hide",
-            // Add top padding on mobile for navigation trigger
-            isMobile ? "pt-16 pb-20" : "pt-4"
-          )}>
-            <SafeAreaView>
-              <ErrorBoundary FallbackComponent={ErrorFallback}>
-                <Outlet />
-              </ErrorBoundary>
-            </SafeAreaView>
-          </main>
-        </div>
-      </div>
-      
-      {/* Bottom tab bar - only on mobile */}
-      {isMobile && (
-        <ErrorBoundary FallbackComponent={({ error }) => (
-          <div className="fixed bottom-0 left-0 right-0 p-4 bg-red-100 text-red-600 text-sm">
-            Bottom tab error: {error.message}
+            
+            <main className={cn(
+              "flex-1 overflow-auto scrollbar-hide",
+              // Add bottom padding on mobile for bottom navigation
+              isMobile ? "pb-20" : "pt-4"
+            )}>
+              <SafeAreaView>
+                <ErrorBoundary FallbackComponent={ErrorFallback}>
+                  <Outlet />
+                </ErrorBoundary>
+              </SafeAreaView>
+            </main>
           </div>
-        )}>
-          <BottomTabBar />
-        </ErrorBoundary>
-      )}
-    </GlassLayout>
+        </div>
+        
+        {/* Bottom tab bar - only on mobile */}
+        {isMobile && (
+          <ErrorBoundary FallbackComponent={({ error }) => (
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-red-100 text-red-600 text-sm">
+              Bottom tab error: {error.message}
+            </div>
+          )}>
+            <BottomTabBar />
+          </ErrorBoundary>
+        )}
+      </GlassLayout>
+    </SidebarProvider>
   );
 };
