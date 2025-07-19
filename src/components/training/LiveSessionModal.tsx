@@ -45,7 +45,7 @@ export const LiveSessionModal: React.FC<LiveSessionModalProps> = ({
 
   // Timer effect
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     if (isActive && startTime) {
       interval = setInterval(() => {
         setElapsedTime(Math.floor((Date.now() - startTime.getTime()) / 1000));
