@@ -118,10 +118,11 @@ Please create a progressive program that incorporates these goals, fits the avai
       setIsGenerating(true);
       
       const request: AriaGenerateProgramRequest = {
-        goal: generatePrompt(),
+        goal: state.goals[0] || 'strength', // Send the first selected goal ID instead of full prompt
         weeks: state.weeks,
         availableDays: state.availableDays,
-        equipment: state.equipment
+        equipment: state.equipment,
+        prompt: generatePrompt() // Keep the full prompt as a separate field for ARIA
       };
 
       const result = await generateProgramWithAria(request);

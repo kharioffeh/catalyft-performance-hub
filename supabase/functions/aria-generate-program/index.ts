@@ -27,7 +27,7 @@ serve(async (req) => {
       return new Response('Unauthorized', { status: 401 });
     }
 
-    const { athlete_uuid, coach_uuid, goal, weeks } = await req.json();
+    const { athlete_uuid, coach_uuid, goal, weeks, prompt } = await req.json();
 
     // Try both possible OpenAI API key names
     const OPENAI_ARIA_KEY = Deno.env.get('OPENAI_ARIA_KEY') || Deno.env.get('OPENAI_API_KEY');
@@ -44,7 +44,7 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured - checked both OPENAI_ARIA_KEY and OPENAI_API_KEY');
     }
 
-    const prompt = `Create a ${weeks}-week training program for the following goal: "${goal}".
+    const ariaPrompt = prompt || `Create a ${weeks}-week training program for the following goal: "${goal}".
 
 Return a JSON object with this exact structure:
 {
@@ -81,7 +81,7 @@ Include 7 days per week for ${weeks} weeks. Focus on progressive overload and pe
         model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: 'You are ARIA, an expert fitness coach. Return only valid JSON.' },
-          { role: 'user', content: prompt }
+          { role: 'user', content: ariaPrompt }
         ],
         temperature: 0.7,
       }),

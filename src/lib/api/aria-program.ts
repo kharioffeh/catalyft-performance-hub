@@ -9,6 +9,7 @@ export interface AriaGenerateProgramRequest {
   weeks: number;
   availableDays: string[];
   equipment: string[];
+  prompt?: string; // Optional full prompt for ARIA
 }
 
 export interface AriaGenerateProgramResponse {
