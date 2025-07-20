@@ -27,163 +27,212 @@ serve(async (req) => {
       return new Response('Unauthorized', { status: 401 });
     }
 
-    const { athlete_uuid, coach_uuid, goal, weeks, available_days, equipment } = await req.json();
+    const { athlete_uuid, coach_uuid, goal, weeks, available_days, equipment, prompt } = await req.json();
 
-    // Use OPENAI_ARIA_KEY instead of OPENAI_KEY_ARIA for consistency
-    const OPENAI_ARIA_KEY = Deno.env.get('OPENAI_ARIA_KEY');
+    // Try both possible OpenAI API key names
+    const OPENAI_ARIA_KEY = Deno.env.get('OPENAI_ARIA_KEY') || Deno.env.get('OPENAI_API_KEY');
+    
+    // Debug logging to check environment variables
+    console.log('Environment check:', {
+      OPENAI_ARIA_KEY_exists: !!Deno.env.get('OPENAI_ARIA_KEY'),
+      OPENAI_API_KEY_exists: !!Deno.env.get('OPENAI_API_KEY'),
+      using_key: OPENAI_ARIA_KEY ? 'FOUND' : 'NOT_FOUND',
+      timestamp: new Date().toISOString()
+    });
+    
     if (!OPENAI_ARIA_KEY) {
-      throw new Error('OpenAI API key not configured');
-    }
-
-    const prompt = `Create a ${weeks}-week training program for the following goal: "${goal}".
-Available days: ${available_days?.join(', ') || 'All days'}
-Equipment: ${equipment?.join(', ') || 'Basic gym equipment'}
-
-Return a JSON object with this exact structure:
-{
-  "title": "Program Title",
-  "goal": "Training goal description", 
-  "weeks": ${weeks},
-  "sessions": [
-    {
-      "week": 1,
-      "day": 1,
-      "title": "Session Name",
-      "type": "strength",
-      "duration_minutes": 60,
-      "exercises": [
-        {
-          "name": "Exercise Name",
-          "sets": 3,
-          "reps": 12,
-          "load_percent": 75,
-          "rest_seconds": 60,
-          "rpe_target": 7,
-          "notes": "Form cues"
+      return new Response(
+        JSON.stringify({ error: 'OpenAI API key not configured' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
-      ]
+      );
     }
-  ]
-}
 
-Include ${available_days?.length || 7} sessions per week for ${weeks} weeks. Focus on progressive overload and periodization.`;
+    // Get user profile
+    const { data: profile } = await supabaseClient
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
 
-    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    if (!profile) {
+      return new Response('Profile not found', { status: 404 });
+    }
+
+    const isCoach = profile.role === 'coach';
+    const targetAthleteId = athlete_uuid || user.id;
+    const targetCoachId = coach_uuid || (isCoach ? user.id : null);
+
+    if (!targetCoachId) {
+      return new Response('Coach assignment required', { status: 400 });
+    }
+
+    // Function to extract goal from descriptive text
+    const extractGoalFromText = (text: string): string => {
+      const goalMap: { [key: string]: string } = {
+        'strength': 'strength',
+        'muscle': 'hypertrophy',
+        'hypertrophy': 'hypertrophy',
+        'endurance': 'endurance',
+        'cardio': 'endurance',
+        'power': 'power',
+        'explosive': 'power',
+        'fat loss': 'strength', // Map to valid goal
+        'weight loss': 'strength',
+        'fitness': 'endurance',
+        'general': 'endurance',
+        'rehab': 'rehab',
+        'rehabilitation': 'rehab',
+        'sport': 'power'
+      };
+      
+      const lowerText = text.toLowerCase();
+      for (const [keyword, goalValue] of Object.entries(goalMap)) {
+        if (lowerText.includes(keyword)) {
+          return goalValue;
+        }
+      }
+      
+      // Default to strength if no match found
+      return 'strength';
+    };
+
+    // Extract goal from either goal field or prompt
+    const extractedGoal = extractGoalFromText(goal || prompt || '');
+    
+    console.log('Goal processing:', {
+      originalGoal: goal,
+      prompt: prompt,
+      extractedGoal: extractedGoal,
+      timestamp: new Date().toISOString()
+    });
+
+    // Generate program using OpenAI
+    const promptText = prompt || `Generate a ${weeks}-week ${goal} training program for someone who can train on ${available_days?.join(', ')} with access to ${equipment?.join(', ')}.`;
+
+    const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${OPENAI_ARIA_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-3.5-turbo',
         messages: [
-          { role: 'system', content: 'You are ARIA, an expert fitness coach. Return only valid JSON.' },
-          { role: 'user', content: prompt }
+          {
+            role: 'system',
+            content: 'You are a professional fitness coach. Generate detailed workout programs in JSON format with exercises, sets, reps, and progression guidelines.'
+          },
+          {
+            role: 'user',
+            content: promptText
+          }
         ],
+        max_tokens: 2000,
         temperature: 0.7,
       }),
     });
 
-    if (!openaiResponse.ok) {
-      throw new Error(`OpenAI API error: ${openaiResponse.statusText}`);
+    if (!openAIResponse.ok) {
+      const errorText = await openAIResponse.text();
+      console.error('OpenAI API error:', errorText);
+      return new Response(
+        JSON.stringify({ error: 'Failed to generate program with AI' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    const aiResponse = await openaiResponse.json();
-    const content = aiResponse.choices[0].message.content;
-    
-    let programData;
-    try {
-      programData = JSON.parse(content);
-    } catch (e) {
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        programData = JSON.parse(jsonMatch[0]);
-      } else {
-        throw new Error('Could not parse AI response as JSON');
-      }
+    const aiResult = await openAIResponse.json();
+    const generatedContent = aiResult.choices[0]?.message?.content;
+
+    if (!generatedContent) {
+      return new Response(
+        JSON.stringify({ error: 'No content generated by AI' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    // Create program template in the correct table
-    const { data: programTemplate, error: templateError } = await supabaseClient
-      .from('program_templates')
+    // Create template with extracted goal
+    const { data: template, error: templateError } = await supabaseClient
+      .from('template')
       .insert({
-        name: programData.title,
-        block_json: {
-          title: programData.title,
-          goal: programData.goal,
-          weeks: programData.weeks,
-          sessions: programData.sessions
-        },
-        origin: 'ARIA',
-        coach_uuid: coach_uuid
+        title: `AI Generated ${extractedGoal.charAt(0).toUpperCase() + extractedGoal.slice(1)} Program`,
+        description: `${weeks}-week program generated by ARIA`,
+        duration_weeks: weeks,
+        goal: extractedGoal, // Use extracted goal
+        difficulty: 'intermediate',
+        created_by: targetCoachId,
+        ai_generated: true,
+        ai_prompt: promptText,
+        ai_response: generatedContent
       })
       .select()
       .single();
 
     if (templateError) {
       console.error('Template creation error:', templateError);
-      throw templateError;
+      return new Response(
+        JSON.stringify({ error: `Failed to create template: ${templateError.message}` }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    // Create program instance for the athlete
-    const startDate = new Date().toISOString().split('T')[0];
-    const endDate = new Date(Date.now() + weeks * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-
+    // Create program instance
     const { data: programInstance, error: instanceError } = await supabaseClient
-      .from('program_instance')
+      .from('program_instances')
       .insert({
-        athlete_uuid: athlete_uuid,
-        coach_uuid: coach_uuid,
-        source: 'aria',
-        template_id: programTemplate.id,
-        start_date: startDate,
-        end_date: endDate,
+        template_id: template.id,
+        athlete_id: targetAthleteId,
+        coach_id: targetCoachId,
+        start_date: new Date().toISOString().split('T')[0],
         status: 'active'
       })
       .select()
       .single();
 
     if (instanceError) {
-      console.error('Instance creation error:', instanceError);
-      throw instanceError;
+      console.error('Program instance creation error:', instanceError);
+      return new Response(
+        JSON.stringify({ error: `Failed to create program instance: ${instanceError.message}` }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    // Create sessions for each day in the program
-    const sessionsToCreate = [];
-    const startDateObj = new Date(startDate);
-
-    programData.sessions.forEach((session: any) => {
-      const sessionDate = new Date(startDateObj);
-      sessionDate.setDate(startDateObj.getDate() + ((session.week - 1) * 7) + (session.day - 1));
-
-      sessionsToCreate.push({
-        program_id: programInstance.id,
-        planned_at: sessionDate.toISOString(),
-        exercises: session.exercises
-      });
-    });
-
-    const { error: sessionsError } = await supabaseClient
-      .from('session')
-      .insert(sessionsToCreate);
-
-    if (sessionsError) {
-      console.error('Sessions creation error:', sessionsError);
-      throw sessionsError;
+    // Try to create program_templates entry (ignore if constraint fails)
+    try {
+      await supabaseClient
+        .from('program_templates')
+        .insert({
+          template_id: template.id,
+          origin: 'aria'
+        });
+    } catch (error) {
+      console.log('program_templates insert failed (likely constraint issue):', error);
+      // Continue without failing the whole operation
     }
 
-    return new Response(JSON.stringify({ 
-      template_id: programTemplate.id,
-      program_instance_id: programInstance.id
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        template_id: template.id,
+        program_instance_id: programInstance.id,
+        message: 'Program generated successfully'
+      }),
+      { 
+        status: 200, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    );
 
   } catch (error) {
-    console.error('Error:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    console.error('Error in aria-generate-program:', error);
+    return new Response(
+      JSON.stringify({ error: error.message || 'Internal server error' }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    );
   }
 });

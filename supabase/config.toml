@@ -38,6 +38,6 @@ verify_jwt = true
 verify_jwt = true
 
 # Cron job to run session reminders every 15 minutes
-[functions.sessionReminders.cron]
-schedule = "*/15 * * * *"
+[functions.sessionReminders.schedule]
+cron = "*/15 * * * *"
 timezone = "UTC"

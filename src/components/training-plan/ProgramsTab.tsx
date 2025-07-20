@@ -41,15 +41,12 @@ export const ProgramsTab: React.FC = () => {
           <div className="flex gap-3">
             <Button 
               onClick={handleAriaGenerate}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               Generate with AI
             </Button>
-            <Button 
-              onClick={handleCreateProgram}
-              className="bg-white/10 hover:bg-white/20 text-white border-white/20"
-            >
+            <Button onClick={handleCreateProgram} variant="outline" className="border-white/20 text-white hover:bg-white/10">
               <Plus className="w-4 h-4 mr-2" />
               Create Program
             </Button>
@@ -57,14 +54,15 @@ export const ProgramsTab: React.FC = () => {
         )}
       </div>
 
-      {/* Program Grid */}
+      {/* Templates Grid */}
       <TemplateGrid />
-      
+
+      {/* Modals */}
       <EnhancedProgramBuilder
         open={builderOpen}
         onOpenChange={setBuilderOpen}
       />
-      
+
       <AriaGenerateWizard
         open={ariaWizardOpen}
         onOpenChange={setAriaWizardOpen}

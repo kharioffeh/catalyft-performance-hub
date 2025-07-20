@@ -63,7 +63,7 @@ export const AriaGenerateWizard: React.FC<AriaGenerateWizardProps> = ({
 
     if (availableDays.length === 0) {
       toast({
-        title: "Days Required",
+        title: "Training Days Required",
         description: "Please select at least one training day",
         variant: "destructive"
       });
@@ -71,22 +71,32 @@ export const AriaGenerateWizard: React.FC<AriaGenerateWizardProps> = ({
     }
 
     setIsGenerating(true);
+
     try {
-      const result = await generateProgramWithAria({
+      console.log('Generating program with:', {
         goal,
         weeks,
-        availableDays,
+        available_days: availableDays,
         equipment
       });
 
+      const result = await generateProgramWithAria({
+        goal,
+        weeks,
+        available_days: availableDays,
+        equipment
+      });
+
+      console.log('Generation result:', result);
+
       toast({
         title: "Program Generated!",
-        description: "Your training program has been created successfully"
+        description: "Your personalized training program has been created",
       });
 
       onProgramGenerated(result);
     } catch (error) {
-      console.error('Generation error:', error);
+      console.error('Program generation failed:', error);
       toast({
         title: "Generation Failed",
         description: error instanceof Error ? error.message : "Failed to generate program",
@@ -165,30 +175,21 @@ export const AriaGenerateWizard: React.FC<AriaGenerateWizardProps> = ({
             </div>
           </div>
 
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-end gap-3 pt-4">
             <Button 
               variant="outline" 
               onClick={() => onOpenChange(false)}
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              className="border-white/20 text-white hover:bg-white/10"
             >
               Cancel
             </Button>
             <Button 
-              onClick={handleGenerate}
+              onClick={handleGenerate} 
               disabled={isGenerating}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              className="bg-purple-600 hover:bg-purple-700 text-white"
             >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Generate Program
-                </>
-              )}
+              {isGenerating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {isGenerating ? 'Generating...' : 'Generate Program'}
             </Button>
           </div>
         </div>

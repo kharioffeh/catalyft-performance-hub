@@ -24,7 +24,7 @@ export const GenerateProgramModal: React.FC<Props> = ({ open, onClose }) => {
   const navigate = useNavigate();
 
   const { register, handleSubmit, setValue, watch } = useForm({
-    defaultValues: { athlete_uuid: "", goal: "max_strength", weeks: 6 }
+    defaultValues: { athlete_uuid: "", goal: "strength", weeks: 6 }
   });
 
   const runGenerate = useGenerateProgram();
@@ -77,10 +77,10 @@ export const GenerateProgramModal: React.FC<Props> = ({ open, onClose }) => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="max_strength">Max Strength</SelectItem>
+                <SelectItem value="strength">Max Strength</SelectItem>
                 <SelectItem value="hypertrophy">Hypertrophy</SelectItem>
-                <SelectItem value="speed_power">Speed & Power</SelectItem>
-                <SelectItem value="in-season_maint">In-Season Maintenance</SelectItem>
+                <SelectItem value="power">Speed & Power</SelectItem>
+                <SelectItem value="endurance">Endurance</SelectItem>
               </SelectContent>
             </Select>
           </div>
