@@ -23,7 +23,9 @@ interface SidebarProviderProps {
 }
 
 export const SidebarProvider: React.FC<SidebarProviderProps> = ({ children }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  // This context is now only used for desktop sidebar state if needed
+  // The actual desktop sidebar uses useSidebarCollapse hook
+  const [isOpen, setIsOpen] = useState(true);
 
   const open = useCallback(() => {
     setIsOpen(true);
