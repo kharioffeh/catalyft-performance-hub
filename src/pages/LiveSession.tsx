@@ -1,27 +1,17 @@
+
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
 import { LiveWorkoutSession } from '@/components/training/LiveWorkoutSession';
 import { LiveBanner } from '@/features/session/LiveBanner';
 
 const LiveSession: React.FC = () => {
   return (
-    <View style={styles.container}>
+    <div className="flex flex-col min-h-screen">
       <LiveBanner />
-      <View style={styles.content}>
+      <div className="flex-1 pt-14">
         <LiveWorkoutSession />
-      </View>
-    </View>
+      </div>
+    </div>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    paddingTop: 56, // Account for banner height
-  },
-});
 
 export default LiveSession;

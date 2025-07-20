@@ -3,6 +3,8 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { WorkoutProvider } from '@/contexts/WorkoutContext';
+import { GlassToastProvider } from '@/components/ui/GlassToastProvider';
 import Dashboard from '@/pages/Dashboard';
 import CalendarPage from '@/pages/CalendarPage';
 import Athletes from '@/pages/Athletes';
@@ -34,28 +36,32 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <BrowserRouter>
-          <div className="App">
-            <Toaster />
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/calendar" element={<CalendarPage />} />
-              <Route path="/athletes" element={<Athletes />} />
-              <Route path="/risk-board" element={<RiskBoard />} />
-              <Route path="/chat" element={<Chat />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/workout" element={<Workout />} />
-              <Route path="/training-plan/*" element={<TrainingPlan />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/program" element={<ProgramPage />} />
-              <Route path="/template/:id" element={<TemplatePage />} />
-              <Route path="/training-objects" element={<TrainingObjects />} />
-              <Route path="/live" element={<LiveSession />} />
-              <Route path="/program-instance/:id" element={<ProgramInstanceView />} />
-            </Routes>
-          </div>
-        </BrowserRouter>
+        <WorkoutProvider>
+          <GlassToastProvider>
+            <BrowserRouter>
+              <div className="App">
+                <Toaster />
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/calendar" element={<CalendarPage />} />
+                  <Route path="/athletes" element={<Athletes />} />
+                  <Route path="/risk-board" element={<RiskBoard />} />
+                  <Route path="/chat" element={<Chat />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/workout" element={<Workout />} />
+                  <Route path="/training-plan/*" element={<TrainingPlan />} />
+                  <Route path="/analytics" element={<Analytics />} />
+                  <Route path="/program" element={<ProgramPage />} />
+                  <Route path="/template/:id" element={<TemplatePage />} />
+                  <Route path="/training-objects" element={<TrainingObjects />} />
+                  <Route path="/live" element={<LiveSession />} />
+                  <Route path="/program-instance/:id" element={<ProgramInstanceView />} />
+                </Routes>
+              </div>
+            </BrowserRouter>
+          </GlassToastProvider>
+        </WorkoutProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
