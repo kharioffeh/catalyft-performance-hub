@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { WorkoutProvider } from '@/contexts/WorkoutContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import { GlassToastProvider } from '@/components/ui/GlassToastProvider';
 import { Toaster } from '@/components/ui/toaster';
 import AppRouter from '@/components/AppRouter';
@@ -22,18 +23,20 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <WorkoutProvider>
-          <GlassToastProvider>
-            <BrowserRouter>
-              <div className="App">
-                <Toaster />
-                <AppRouter />
-              </div>
-            </BrowserRouter>
-          </GlassToastProvider>
-        </WorkoutProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <WorkoutProvider>
+            <GlassToastProvider>
+              <BrowserRouter>
+                <div className="App">
+                  <Toaster />
+                  <AppRouter />
+                </div>
+              </BrowserRouter>
+            </GlassToastProvider>
+          </WorkoutProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
