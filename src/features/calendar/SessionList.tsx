@@ -45,7 +45,7 @@ const SessionList: React.FC = () => {
       
       if (targetSession && movedSession.id !== targetSession.id) {
         const newDate = new Date(targetSession.start_ts);
-        await rescheduleSession(movedSession.id, newDate);
+        await rescheduleSession(movedSession.id, newDate.toISOString());
         
         // Invalidate queries to refetch fresh data
         queryClient?.invalidateQueries({ queryKey: ['sessions'] });
