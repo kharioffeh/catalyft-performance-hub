@@ -17,41 +17,6 @@ interface AriaGenerateWizardProps {
   onProgramGenerated: (data: { template_id: string; program_instance_id: string }) => void;
 }
 
-// Keep the constants from the cursor branch (with fixed goal values)
-const GOALS = [
-  { id: 'strength', label: 'Build Strength' },
-  { id: 'hypertrophy', label: 'Gain Muscle Mass' },
-  { id: 'endurance', label: 'Improve Endurance' },
-  { id: 'power', label: 'Develop Power' },
-  { id: 'strength', label: 'Fat Loss' },
-  { id: 'endurance', label: 'General Fitness' },
-  { id: 'power', label: 'Sport-Specific Training' },
-  { id: 'rehab', label: 'Rehabilitation' }
-];
-
-const DAYS = [
-  { id: 'monday', label: 'Monday' },
-  { id: 'tuesday', label: 'Tuesday' },
-  { id: 'wednesday', label: 'Wednesday' },
-  { id: 'thursday', label: 'Thursday' },
-  { id: 'friday', label: 'Friday' },
-  { id: 'saturday', label: 'Saturday' },
-  { id: 'sunday', label: 'Sunday' }
-];
-
-const EQUIPMENT = [
-  { id: 'barbell', label: 'Barbell' },
-  { id: 'dumbbells', label: 'Dumbbells' },
-  { id: 'kettlebells', label: 'Kettlebells' },
-  { id: 'resistance_bands', label: 'Resistance Bands' },
-  { id: 'pull_up_bar', label: 'Pull-up Bar' },
-  { id: 'bench', label: 'Bench' },
-  { id: 'squat_rack', label: 'Squat Rack' },
-  { id: 'cable_machine', label: 'Cable Machine' },
-  { id: 'bodyweight', label: 'Bodyweight Only' },
-  { id: 'full_gym', label: 'Full Gym Access' }
-];
-
 export const AriaGenerateWizard: React.FC<AriaGenerateWizardProps> = ({
   open,
   onOpenChange,
@@ -98,7 +63,7 @@ export const AriaGenerateWizard: React.FC<AriaGenerateWizardProps> = ({
 
     if (availableDays.length === 0) {
       toast({
-        title: "Days Required",
+        title: "Training Days Required",
         description: "Please select at least one training day",
         variant: "destructive"
       });
@@ -106,23 +71,32 @@ export const AriaGenerateWizard: React.FC<AriaGenerateWizardProps> = ({
     }
 
     setIsGenerating(true);
+
     try {
-      // Use the main branch API call approach
-      const result = await generateProgramWithAria({
+      console.log('Generating program with:', {
         goal,
         weeks,
-        availableDays,
+        available_days: availableDays,
         equipment
       });
 
+      const result = await generateProgramWithAria({
+        goal,
+        weeks,
+        available_days: availableDays,
+        equipment
+      });
+
+      console.log('Generation result:', result);
+
       toast({
         title: "Program Generated!",
-        description: "Your training program has been created successfully"
+        description: "Your personalized training program has been created",
       });
 
       onProgramGenerated(result);
     } catch (error) {
-      console.error('Generation error:', error);
+      console.error('Program generation failed:', error);
       toast({
         title: "Generation Failed",
         description: error instanceof Error ? error.message : "Failed to generate program",
@@ -201,30 +175,21 @@ export const AriaGenerateWizard: React.FC<AriaGenerateWizardProps> = ({
             </div>
           </div>
 
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-end gap-3 pt-4">
             <Button 
               variant="outline" 
               onClick={() => onOpenChange(false)}
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              className="border-white/20 text-white hover:bg-white/10"
             >
               Cancel
             </Button>
             <Button 
-              onClick={handleGenerate}
+              onClick={handleGenerate} 
               disabled={isGenerating}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              className="bg-purple-600 hover:bg-purple-700 text-white"
             >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Generate Program
-                </>
-              )}
+              {isGenerating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {isGenerating ? 'Generating...' : 'Generate Program'}
             </Button>
           </div>
         </div>

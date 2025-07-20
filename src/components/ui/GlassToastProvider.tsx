@@ -7,6 +7,10 @@ interface ToastContextType {
   push: (type: ToastType, title: string, message?: string, duration?: number) => void;
   dismiss: (id: string) => void;
   clear: () => void;
+  success: (title: string, message?: string, duration?: number) => void;
+  error: (title: string, message?: string, duration?: number) => void;
+  warning: (title: string, message?: string, duration?: number) => void;
+  info: (title: string, message?: string, duration?: number) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -33,8 +37,24 @@ export const GlassToastProvider: React.FC<GlassToastProviderProps> = ({ children
     setToasts([]);
   }, []);
 
+  const success = useCallback((title: string, message?: string, duration?: number) => {
+    push('success', title, message, duration);
+  }, [push]);
+
+  const error = useCallback((title: string, message?: string, duration?: number) => {
+    push('error', title, message, duration);
+  }, [push]);
+
+  const warning = useCallback((title: string, message?: string, duration?: number) => {
+    push('warning', title, message, duration);
+  }, [push]);
+
+  const info = useCallback((title: string, message?: string, duration?: number) => {
+    push('info', title, message, duration);
+  }, [push]);
+
   return (
-    <ToastContext.Provider value={{ push, dismiss, clear }}>
+    <ToastContext.Provider value={{ push, dismiss, clear, success, error, warning, info }}>
       {children}
       
       {/* Toast Container */}

@@ -6,12 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Plus, Sparkles } from 'lucide-react';
 import { EnhancedProgramBuilder } from '@/components/program-builder/EnhancedProgramBuilder';
 import { AriaGenerateWizard } from './AriaGenerateWizard';
+import { useNavigate } from 'react-router-dom';
 
 export const ProgramsTab: React.FC = () => {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [builderOpen, setBuilderOpen] = useState(false);
   const [ariaWizardOpen, setAriaWizardOpen] = useState(false);
-  const [generatedTemplateId, setGeneratedTemplateId] = useState<string | null>(null);
   const isCoach = profile?.role === 'coach';
 
   const handleCreateProgram = () => {
@@ -22,11 +23,10 @@ export const ProgramsTab: React.FC = () => {
     setAriaWizardOpen(true);
   };
 
-  const handleProgramGenerated = (templateId: string) => {
-    setGeneratedTemplateId(templateId);
+  const handleProgramGenerated = (data: { template_id: string; program_instance_id: string }) => {
     setAriaWizardOpen(false);
-    // Navigate to the generated template
-    window.location.href = `/template/${templateId}`;
+    // Navigate to the program instance view instead of template
+    navigate(`/program-instance/${data.program_instance_id}`);
   };
 
   return (
@@ -41,15 +41,12 @@ export const ProgramsTab: React.FC = () => {
           <div className="flex gap-3">
             <Button 
               onClick={handleAriaGenerate}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               Generate with AI
             </Button>
-            <Button 
-              onClick={handleCreateProgram}
-              className="bg-white/10 hover:bg-white/20 text-white border-white/20"
-            >
+            <Button onClick={handleCreateProgram} variant="outline" className="border-white/20 text-white hover:bg-white/10">
               <Plus className="w-4 h-4 mr-2" />
               Create Program
             </Button>
@@ -57,14 +54,15 @@ export const ProgramsTab: React.FC = () => {
         )}
       </div>
 
-      {/* Program Grid */}
+      {/* Templates Grid */}
       <TemplateGrid />
-      
+
+      {/* Modals */}
       <EnhancedProgramBuilder
         open={builderOpen}
         onOpenChange={setBuilderOpen}
       />
-      
+
       <AriaGenerateWizard
         open={ariaWizardOpen}
         onOpenChange={setAriaWizardOpen}

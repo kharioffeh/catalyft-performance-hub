@@ -8,14 +8,14 @@ import { useIsMobile } from '@/hooks/useBreakpoint';
 import { NotificationBell } from '@/components/NotificationBell';
 import { useTimezoneDetection } from '@/hooks/useTimezoneDetection';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
-import { useSidebar } from '@/contexts/SidebarContext';
-import { Menu } from 'lucide-react';
+import { useSidebarCollapse } from '@/hooks/useSidebarCollapse';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const TopBar: React.FC = () => {
   const { profile } = useAuth();
   const isMobile = useIsMobile();
-  const { toggle } = useSidebar();
+  const { isCollapsed, toggle } = useSidebarCollapse();
   
   // Initialize timezone detection
   useTimezoneDetection();
@@ -28,18 +28,24 @@ export const TopBar: React.FC = () => {
       "shadow-glass-sm"
     )}>
       <div className="flex items-center space-x-4">
-        {/* Menu Button */}
-        <button
-          onClick={toggle}
-          className={cn(
-            "p-2 rounded-lg transition-colors",
-            "text-brand-blue hover:bg-white/10",
-            "focus:outline-none focus:ring-2 focus:ring-brand-blue/50"
-          )}
-          aria-label="Toggle navigation menu"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
+        {/* Desktop Sidebar Toggle Button */}
+        {!isMobile && (
+          <button
+            onClick={toggle}
+            className={cn(
+              "p-2 rounded-lg transition-colors",
+              "text-brand-blue hover:bg-white/10",
+              "focus:outline-none focus:ring-2 focus:ring-brand-blue/50"
+            )}
+            aria-label="Toggle sidebar"
+          >
+            {isCollapsed ? (
+              <ChevronRight className="h-5 w-5" />
+            ) : (
+              <ChevronLeft className="h-5 w-5" />
+            )}
+          </button>
+        )}
         
         <h1 className="text-lg md:text-xl font-display font-semibold text-brand-blue">
           Catalyft AI

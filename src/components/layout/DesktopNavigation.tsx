@@ -38,10 +38,10 @@ export const DesktopNavigation: React.FC<DesktopNavigationProps> = ({
 
   return (
     <aside className={cn(
-      "hidden lg:flex lg:h-screen lg:flex-col shadow-glass-md transition-all duration-300",
+      "flex h-screen flex-col shadow-glass-md transition-all duration-300",
       desktopBg,
       "border-r",
-      isCollapsed ? "lg:w-16" : "lg:w-60"
+      isCollapsed ? "w-16" : "w-60"
     )}>
       <div className={cn(
         "flex items-center justify-center py-6 text-xl font-semibold text-brand-blue transition-all duration-300",
