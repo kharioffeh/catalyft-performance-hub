@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Mail, Eye, Calendar } from 'lucide-react';
 import { useLatestWeeklySummary } from '@/hooks/useWeeklySummaries';
 import { format } from 'date-fns';
+import { sanitizeHtml } from '@/lib/security';
 
 export const WeeklySummaryCard: React.FC = () => {
   const { data: latestSummary, isLoading } = useLatestWeeklySummary();
@@ -95,7 +96,7 @@ export const WeeklySummaryCard: React.FC = () => {
             <div 
               className="prose prose-invert prose-sm max-w-none"
               dangerouslySetInnerHTML={{ 
-                __html: formatMarkdownForDisplay(latestSummary.summary_md) 
+                __html: sanitizeHtml(formatMarkdownForDisplay(latestSummary.summary_md)) 
               }} 
             />
           </div>

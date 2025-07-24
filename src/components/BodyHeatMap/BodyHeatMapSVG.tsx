@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useSpring, animated } from '@react-spring/web';
 import { colorScale, getLoadColor, prettyName, normalizeId } from "../bodyHeatMapUtils";
+import { sanitizeSvg } from '@/lib/security';
 import { MuscleHeatmapTooltip } from "../MuscleHeatmapTooltip";
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { PulseWrapper } from '@/components/animations/PulseWrapper';
@@ -180,7 +181,7 @@ export const BodyHeatMapSVG: React.FC<BodyHeatMapSVGProps> = ({
         <div
           className="w-full h-full flex items-center justify-center"
           data-heatmap-svg-wrapper
-          dangerouslySetInnerHTML={{ __html: svgWithColors || "" }}
+          dangerouslySetInnerHTML={{ __html: sanitizeSvg(svgWithColors || "") }}
         />
         <Tooltip open={!!muscleData}>
           <TooltipTrigger asChild>
