@@ -13,6 +13,7 @@ body {
     /* Catalyft Brand tokens as HSL values */
     --brand-bg: 0 0% 3%; /* Charcoal Black #070707 */
     --brand-blue: 185 100% 73%; /* Electric Blue #7DF9FF */
+    --electric-blue: 185 100% 73%; /* Electric Blue #7DF9FF - alias for easier use */
     --brand-charcoal: 0 0% 3%; /* Charcoal Black #070707 */
     --brand-slate: 215 13% 13%;
     --brand-text: 0 0% 100%; /* Pure white for better contrast */

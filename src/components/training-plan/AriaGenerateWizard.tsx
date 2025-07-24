@@ -83,7 +83,7 @@ export const AriaGenerateWizard: React.FC<AriaGenerateWizardProps> = ({
       const result = await generateProgramWithAria({
         goal,
         weeks,
-        available_days: availableDays,
+        availableDays: availableDays,
         equipment
       });
 

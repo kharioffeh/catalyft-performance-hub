@@ -52,6 +52,7 @@ const config: Config = {
           card: brand.card,
           border: brand.border,
         },
+        'electric-blue': 'hsl(var(--electric-blue))',
         
         // Enhanced dual-tone design system (WCAG AA compliant)
         'theme-primary': {
