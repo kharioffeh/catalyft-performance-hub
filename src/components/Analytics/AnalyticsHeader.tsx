@@ -1,25 +1,18 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { PeriodSelector } from './PeriodSelector';
-import { AthleteSelector } from './AthleteSelector';
 import { Download, Filter, TrendingUp } from 'lucide-react';
 interface AnalyticsHeaderProps {
   displayName: string;
   isHourlyView: boolean;
   period: 1 | 7 | 30 | 90;
   onPeriodChange: (period: 1 | 7 | 30 | 90) => void;
-  selectedAthleteId: string;
-  onAthleteChange: (athleteId: string) => void;
-  isCoach: boolean;
 }
 export const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({
   displayName,
   isHourlyView,
   period,
-  onPeriodChange,
-  selectedAthleteId,
-  onAthleteChange,
-  isCoach
+  onPeriodChange
 }) => {
   return <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
       <div>
@@ -30,7 +23,7 @@ export const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({
           <h1 className="text-3xl font-display font-bold text-slate-50">Performance Analytics</h1>
         </div>
         <p className="text-slate-50">
-          {isCoach ? `Analyzing ${displayName}'s performance metrics` : 'Comprehensive performance insights and data trends'}
+          Your comprehensive performance insights and data trends
           {isHourlyView && " - 24 Hour View"}
         </p>
       </div>
@@ -38,7 +31,7 @@ export const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <PeriodSelector period={period} onPeriodChange={onPeriodChange} />
         
-        <AthleteSelector selectedAthleteId={selectedAthleteId} onAthleteChange={onAthleteChange} />
+
         
         <div className="flex gap-2">
           <Button variant="outline" size="sm" className="text-gray-600">

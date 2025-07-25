@@ -5,7 +5,7 @@ import { GlassCard } from '@/components/ui';
 import { AriaSummary } from '@/components/AriaSummary';
 import { InjuryForecastCard } from '@/components/InjuryForecastCard';
 import { TodaysSchedule } from '@/components/Dashboard/TodaysSchedule';
-import { CoachedDashboard } from '@/components/Dashboard/CoachedDashboard';
+
 import { VerticalMetricCards } from '@/components/Dashboard/VerticalMetricCards';
 import { QuickActionsCard } from '@/components/Dashboard/QuickActionsCard';
 import { InsightToastContainer } from '@/components/ui/InsightToastContainer';
@@ -32,23 +32,7 @@ const AthleteTypeLoader: React.FC = () => {
     return <SoloDashboard />;
   }
 
-  // Coached Athlete Dashboard
-  if (athleteTypeData?.type === 'coached') {
-    return (
-      <>
-        <CoachedDashboard
-          currentReadiness={currentReadiness}
-          todaySessions={todaySessions}
-          weeklyStats={weeklyStats}
-          injuryRisk={injuryRisk}
-          insights={insights}
-        />
-        <InsightToastContainer />
-      </>
-    );
-  }
-
-  // Coach Dashboard - New glass morphism layout with animations
+  // Default Dashboard - for any remaining users (coaches will be converted to solo)
   return (
     <>
       <Container className="py-4 md:py-8 grid-cols-1 lg:grid-cols-[340px_1fr]">
