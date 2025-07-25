@@ -1,21 +1,26 @@
 import { format, subDays, addDays, addHours, startOfDay } from 'date-fns';
-import { mockAthletes } from './athleteProfiles';
 
-// Generate realistic readiness data
+// Base metrics for solo athlete mock data
+const baseSoloMetrics = {
+  baseReadiness: 75,
+  baseSleep: 7.5,
+  baseLoad: 12
+};
+
+// Generate realistic readiness data for solo athletes
 export const generateReadinessData = (athleteId: string, period: number) => {
-  const athlete = mockAthletes.find(a => a.id === athleteId) || mockAthletes[0];
   const endDate = new Date();
   const startDate = subDays(endDate, period);
   const data = [];
   
-  let currentScore = athlete.baseReadiness;
+  let currentScore = baseSoloMetrics.baseReadiness;
   
   for (let i = 0; i <= period; i++) {
     const date = format(addDays(startDate, i), 'yyyy-MM-dd');
     const dayOfWeek = addDays(startDate, i).getDay();
     
     // Add weekly patterns (weekend recovery)
-    let weekendBonus = (dayOfWeek === 0 || dayOfWeek === 6) ? 5 : 0;
+    const weekendBonus = (dayOfWeek === 0 || dayOfWeek === 6) ? 5 : 0;
     
     // Add training stress patterns
     let trainingStress = 0;
@@ -28,15 +33,15 @@ export const generateReadinessData = (athleteId: string, period: number) => {
     
     // Calculate score with bounds
     currentScore = Math.max(30, Math.min(100, 
-      athlete.baseReadiness + weekendBonus + trainingStress + randomVariation
+      baseSoloMetrics.baseReadiness + weekendBonus + trainingStress + randomVariation
     ));
     
     data.push({
       day: date,
       readiness_score: Math.round(currentScore),
       avg_7d: Math.round(currentScore + (Math.random() - 0.5) * 3),
-      avg_30d: Math.round(athlete.baseReadiness + (Math.random() - 0.5) * 5),
-      avg_90d: Math.round(athlete.baseReadiness + (Math.random() - 0.5) * 3)
+      avg_30d: Math.round(baseSoloMetrics.baseReadiness + (Math.random() - 0.5) * 5),
+      avg_90d: Math.round(baseSoloMetrics.baseReadiness + (Math.random() - 0.5) * 3)
     });
   }
   
@@ -45,7 +50,7 @@ export const generateReadinessData = (athleteId: string, period: number) => {
 
 // Generate hourly readiness data for 24h view
 export const generateHourlyReadinessData = (athleteId: string) => {
-  const athlete = mockAthletes.find(a => a.id === athleteId) || mockAthletes[0];
+  const athlete = baseSoloMetrics;
   const now = new Date();
   const startOfCurrentDay = startOfDay(now);
   const data = [];
@@ -93,7 +98,7 @@ export const generateHourlyReadinessData = (athleteId: string) => {
 
 // Generate realistic sleep data
 export const generateSleepData = (athleteId: string, period: number) => {
-  const athlete = mockAthletes.find(a => a.id === athleteId) || mockAthletes[0];
+  const athlete = baseSoloMetrics;
   const endDate = new Date();
   const startDate = subDays(endDate, period);
   const data = [];
@@ -131,7 +136,7 @@ export const generateSleepData = (athleteId: string, period: number) => {
 
 // Generate hourly sleep quality data for 24h view
 export const generateHourlySleepData = (athleteId: string) => {
-  const athlete = mockAthletes.find(a => a.id === athleteId) || mockAthletes[0];
+  const athlete = baseSoloMetrics;
   const now = new Date();
   const startOfCurrentDay = startOfDay(now);
   const data = [];
@@ -188,7 +193,7 @@ export const generateHourlySleepData = (athleteId: string) => {
 
 // Generate realistic training load data
 export const generateLoadData = (athleteId: string, period: number) => {
-  const athlete = mockAthletes.find(a => a.id === athleteId) || mockAthletes[0];
+  const athlete = baseSoloMetrics;
   const endDate = new Date();
   const startDate = subDays(endDate, period);
   const data = [];
@@ -242,7 +247,7 @@ export const generateLoadData = (athleteId: string, period: number) => {
 
 // Generate hourly training load data for 24h view
 export const generateHourlyLoadData = (athleteId: string) => {
-  const athlete = mockAthletes.find(a => a.id === athleteId) || mockAthletes[0];
+  const athlete = baseSoloMetrics;
   const now = new Date();
   const startOfCurrentDay = startOfDay(now);
   const data = [];
@@ -289,7 +294,7 @@ export const generateHourlyLoadData = (athleteId: string) => {
 
 // Generate latest strain data
 export const generateLatestStrain = (athleteId: string) => {
-  const athlete = mockAthletes.find(a => a.id === athleteId) || mockAthletes[0];
+  const athlete = baseSoloMetrics;
   const baseStrain = athlete.baseLoad + 5;
   
   return {

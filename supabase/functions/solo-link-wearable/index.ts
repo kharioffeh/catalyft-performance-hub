@@ -225,9 +225,9 @@ serve(async (req) => {
       }
     }
 
-    // Update athlete's wearable_connected status
+    // Update solo athlete's wearable_connected status in profile
     await supabaseClient
-      .from('athletes')
+      .from('profiles')
       .update({ wearable_connected: true })
       .eq('id', athlete_uuid)
 

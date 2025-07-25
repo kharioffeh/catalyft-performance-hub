@@ -2437,17 +2437,7 @@ export type Database = {
         }
         Returns: string
       }
-      get_active_athletes_for_coach: {
-        Args: { p_coach_uuid: string }
-        Returns: {
-          athlete_uuid: string
-          athlete_name: string
-        }[]
-      }
-      get_current_coach_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+
       get_load_detail: {
         Args: { pv_period: number }
         Returns: {

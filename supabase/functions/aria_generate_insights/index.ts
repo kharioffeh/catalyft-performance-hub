@@ -79,15 +79,16 @@ serve(async (req) => {
 async function generateInsightsForAthlete(supabase: any, athleteUuid: string) {
   console.log(`Generating insights for athlete: ${athleteUuid}`)
 
-  // Get athlete info including coach
+  // Get athlete info (solo athletes only)
   const { data: athlete, error: athleteError } = await supabase
-    .from('athletes')
-    .select('id, name, coach_uuid')
+    .from('profiles')
+    .select('id, full_name')
     .eq('id', athleteUuid)
+    .eq('role', 'solo')
     .single()
 
   if (athleteError || !athlete) {
-    console.error(`Error fetching athlete ${athleteUuid}:`, athleteError)
+    console.error(`Error fetching solo athlete ${athleteUuid}:`, athleteError)
     return
   }
 

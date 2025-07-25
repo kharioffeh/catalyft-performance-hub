@@ -13,7 +13,7 @@ const AnalyticsPage = React.lazy(() => import('../pages/Analytics'));
 const ReadinessDetailPage = React.lazy(() => import('../pages/ReadinessDetailPage'));
 
 const LoadDetailPage = React.lazy(() => import('../pages/LoadDetailPage'));
-const AthletesPage = React.lazy(() => import('../pages/Athletes'));
+
 const TrainingPrograms = React.lazy(() => import('../pages/TrainingPrograms'));
 const SettingsPage = React.lazy(() => import('../pages/SettingsRevamped'));
 const SubscriptionsPage = React.lazy(() => import('../pages/Subscriptions'));
@@ -29,7 +29,7 @@ const HomePage = React.lazy(() => import('../pages/Home'));
 const PrivacyPolicyPage = React.lazy(() => import('../pages/PrivacyPolicy'));
 const OAuthCallback = React.lazy(() => import('../pages/OAuthCallback'));
 const SoloProgramPage = React.lazy(() => import('../pages/solo/ProgramPage'));
-const RiskBoardPage = React.lazy(() => import('../pages/CoachRiskBoard'));
+
 const TemplateDetailPage = React.lazy(() => import('@/pages/TemplateDetailPage'));
 const TrainingPlan = React.lazy(() => import('@/pages/TrainingPlan'));
 
@@ -97,19 +97,11 @@ const AppRouter = () => {
           <Route path="analytics/readiness" element={<Navigate to="/analytics" replace />} />
           <Route path="analytics/sleep" element={<Navigate to="/analytics" replace />} />
           <Route path="analytics/load" element={<Navigate to="/analytics" replace />} />
-          <Route path="athletes" element={
-            <ProtectedRoute roles={['coach']}>
-              <AthletesPage />
-            </ProtectedRoute>
-          } />
+
           <Route path="calendar" element={<CalendarPage />} />
           <Route path="chat" element={<ChatPage />} />
           <Route path="chat/:threadId" element={<ChatPage />} />
-          <Route path="risk-board" element={
-            <ProtectedRoute roles={['coach']}>
-              <RiskBoardPage />
-            </ProtectedRoute>
-          } />
+
           <Route path="training-programs" element={<Navigate to="/training-plan" replace />} />
           <Route path="training-plan/*" element={<TrainingPlan />} />
           {/* Redirect old routes to new unified page */}
