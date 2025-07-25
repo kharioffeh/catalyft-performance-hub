@@ -5,7 +5,6 @@ import { GlassCard } from '@/components/ui';
 import { AriaSummary } from '@/components/AriaSummary';
 import { InjuryForecastCard } from '@/components/InjuryForecastCard';
 import { TodaysSchedule } from '@/components/Dashboard/TodaysSchedule';
-
 import { VerticalMetricCards } from '@/components/Dashboard/VerticalMetricCards';
 import { QuickActionsCard } from '@/components/Dashboard/QuickActionsCard';
 import { InsightToastContainer } from '@/components/ui/InsightToastContainer';
