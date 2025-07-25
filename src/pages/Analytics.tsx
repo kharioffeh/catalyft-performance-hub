@@ -157,10 +157,7 @@ const AnalyticsPageContent: React.FC = () => {
   return (
     <div className="min-h-screen bg-brand-charcoal">
       {/* Controls */}
-      <AnalyticsControls
-        selectedAthleteId={selectedAthleteId}
-        onAthleteChange={setSelectedAthleteId}
-      />
+      <AnalyticsControls />
 
       {/* Sticky Insight Strip */}
       <InsightStrip
