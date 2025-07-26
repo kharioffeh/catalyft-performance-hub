@@ -10,8 +10,12 @@ interface BillingCustomer {
   role: 'solo';
   trial_end: string;
   plan_status: 'trialing' | 'active' | 'past_due' | 'canceled';
-  current_period_end: string | null;
   created_at: string;
+  additional_athletes_purchased?: number;
+  current_athlete_count?: number;
+  monthly_addon_cost?: number;
+  plan_id?: string;
+  preferred_currency?: string;
 }
 
 // Solo Pro pricing
@@ -37,7 +41,7 @@ export const useBilling = () => {
         return null;
       }
 
-      return { ...data, current_period_end: null } as BillingCustomer;
+      return data as BillingCustomer;
     },
     enabled: !!user?.id,
   });

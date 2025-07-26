@@ -27,7 +27,10 @@ export const useProgramInstances = (athleteId?: string) => {
       const { data, error } = await query;
 
       if (error) throw error;
-      return data as any[];
+      return data.map(item => ({
+        ...item,
+        user_uuid: item.athlete_uuid
+      })) as any[];
     },
   });
 };
@@ -51,7 +54,10 @@ export const useProgramInstance = (id: string) => {
         .single();
 
       if (error) throw error;
-      return data as any;
+      return {
+        ...data,
+        user_uuid: data.athlete_uuid
+      } as any;
     },
     enabled: !!id,
   });
@@ -76,7 +82,10 @@ export const useCreateProgramInstance = () => {
         .single();
 
       if (error) throw error;
-      return data as any;
+      return {
+        ...data,
+        user_uuid: data.athlete_uuid
+      } as ProgramInstance;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['program-instances'] });
@@ -97,7 +106,10 @@ export const useUpdateProgramInstance = () => {
         .single();
 
       if (error) throw error;
-      return data as any;
+      return {
+        ...data,
+        user_uuid: data.athlete_uuid
+      } as ProgramInstance;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['program-instances'] });

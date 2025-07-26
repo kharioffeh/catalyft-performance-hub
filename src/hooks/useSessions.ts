@@ -22,9 +22,8 @@ export const useSessions = (athleteUuid?: string) => {
       // Map database fields to frontend interface
       return data.map(session => ({
         ...session,
-        // Add compatibility mappings
-        user_uuid: session.athlete_uuid, // Map athlete_uuid to user_uuid
-        program_id: session.id, // Use session id as program_id for now
+        user_uuid: session.athlete_uuid,
+        program_id: session.id,
         planned_at: session.start_ts,
         title: `${session.type} Session`,
         exercises: Array.isArray(session.payload) ? [] : (session.payload as any)?.exercises || []
@@ -48,7 +47,7 @@ export const useSession = (id: string) => {
       // Map database fields to frontend interface
       return {
         ...data,
-        user_uuid: data.athlete_uuid, // Map athlete_uuid to user_uuid
+        user_uuid: data.athlete_uuid,
         program_id: data.id,
         planned_at: data.start_ts,
         title: `${data.type} Session`,
@@ -86,7 +85,7 @@ export const useCreateSession = () => {
       // Map database fields to frontend interface
       return {
         ...data,
-        user_uuid: data.athlete_uuid, // Map athlete_uuid to user_uuid
+        user_uuid: data.athlete_uuid,
         program_id: data.id,
         planned_at: data.start_ts,
         title: `${data.type} Session`,
@@ -126,7 +125,7 @@ export const useUpdateSession = () => {
       // Map database fields to frontend interface
       return {
         ...data,
-        user_uuid: data.athlete_uuid, // Map athlete_uuid to user_uuid
+        user_uuid: data.athlete_uuid,
         program_id: data.id,
         planned_at: data.start_ts,
         title: `${data.type} Session`,
