@@ -37,8 +37,9 @@ const TemplateDetailPage: React.FC = () => {
   }
 
   const relatedPrograms = programInstances.filter(p => p.template_id === template.id);
-  const isCoach = profile?.role === 'coach';
-  const isSolo = profile?.role === 'solo';
+  // All users are solo now
+  const isCoach = false;
+  const isSolo = true; // All users are solo now
 
   return (
     <div className="space-y-6">

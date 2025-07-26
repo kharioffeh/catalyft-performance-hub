@@ -58,7 +58,7 @@ const InsightsContent: React.FC = () => {
         };
       });
     },
-    enabled: !!profile?.id && profile?.role === 'coach'
+    enabled: false // Aria summary disabled for solo users
   });
 
   // Group insights by athlete
@@ -146,9 +146,8 @@ const InsightsContent: React.FC = () => {
 export const AriaSummary: React.FC = () => {
   const { profile } = useAuth();
 
-  if (profile?.role !== 'coach') {
-    return null;
-  }
+  // Component disabled for solo users
+  return null;
 
   const insightsSkeleton = (
     <div className="space-y-4">

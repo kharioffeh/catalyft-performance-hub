@@ -137,7 +137,7 @@ const Profile: React.FC = () => {
               <Card className="bg-white/5 border-white/10">
                 <CardContent className="p-4 text-center">
                   <div className="text-2xl font-bold text-blue-400 mb-1">
-                    {profile?.role === 'coach' ? 'Coach' : profile?.role === 'solo' ? 'Solo' : 'Athlete'}
+                    Solo
                   </div>
                   <div className="text-sm text-white/70">Account Type</div>
                 </CardContent>

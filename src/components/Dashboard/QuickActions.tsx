@@ -36,7 +36,8 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ userRole }) => {
             <Calendar className="w-5 h-5" />
             Training Calendar
           </Button>
-          {userRole === 'coach' && (
+          {/* Coach actions hidden for solo users */}
+          {false && (
             <Button 
               variant="outline" 
               className="flex items-center gap-2 h-12"

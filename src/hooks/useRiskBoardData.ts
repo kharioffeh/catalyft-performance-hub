@@ -42,7 +42,7 @@ export const useRiskBoardData = () => {
       console.log('Risk board data fetched:', data?.length || 0, 'athletes');
       return data as RiskBoardData[];
     },
-    enabled: !!profile?.id && profile?.role === 'coach',
+    enabled: false, // Risk board disabled for solo users
     retry: 2,
     staleTime: 30000, // 30 seconds
     refetchOnWindowFocus: false

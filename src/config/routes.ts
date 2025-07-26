@@ -28,36 +28,12 @@ export const NAV_ROUTES: NavItem[] = [
     label: "Training Plan",
     path: "/training-plan",
     icon: Target,
-    roles: ["solo", "athlete", "coach"],
+    roles: ["solo"],
     children: [
       { label: "Programs", path: "/training-plan/programs", icon: Target },
       { label: "Instances", path: "/training-plan/instances", icon: Activity },
       { label: "Library", path: "/training-plan/library", icon: BookOpen }
     ]
-  },
-  {
-    label: "Analytics",
-    path: "/analytics",
-    icon: BarChart3,
-    roles: ["coach", "athlete"]
-  },
-  { 
-    label: "Calendar", 
-    path: "/calendar", 
-    icon: Calendar, 
-    roles: ["coach", "athlete"] 
-  },
-  { 
-    label: "Athletes", 
-    path: "/athletes", 
-    icon: UsersRound, 
-    roles: ["coach"] 
-  },
-  { 
-    label: "Risk Board", 
-    path: "/risk-board", 
-    icon: AlertTriangle, 
-    roles: ["coach"] 
   },
   { 
     label: "Chat", 

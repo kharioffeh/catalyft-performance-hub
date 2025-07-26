@@ -22,7 +22,7 @@ export const useAthleteSearch = (query: string) => {
       if (error) throw error;
       return data || [];
     },
-    enabled: Boolean(query && query.length >= 2 && profile?.role === 'coach'),
+    enabled: false, // Command palette athlete search disabled for solo users
   });
 };
 

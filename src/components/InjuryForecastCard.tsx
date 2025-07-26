@@ -57,7 +57,7 @@ export const InjuryForecastCard: React.FC = () => {
         };
       });
     },
-    enabled: !!profile?.id && profile?.role === 'coach'
+    enabled: false // Injury forecast disabled for solo users
   });
 
   const getRiskIcon = (riskLevel: string) => {

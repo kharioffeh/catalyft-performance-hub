@@ -38,14 +38,9 @@ const AppLayout: React.FC = () => {
     if (!loading && session && profile) {
       const currentPath = location.pathname;
       if (currentPath === '/' || currentPath === '/home') {
-        // Role-based default routing
-        if (profile.role === 'coach') {
-          console.log('Redirecting coach to athletes from:', currentPath);
-          navigate('/athletes', { replace: true });
-        } else {
-          console.log('Redirecting solo user to dashboard from:', currentPath);
-          navigate('/dashboard', { replace: true });
-        }
+        // All users redirect to dashboard (solo role)
+        console.log('Redirecting user to dashboard from:', currentPath);
+        navigate('/dashboard', { replace: true });
       }
     }
   }, [profile, loading, session, navigate, location.pathname]);

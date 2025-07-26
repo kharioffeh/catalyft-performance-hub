@@ -51,7 +51,7 @@ const InviteComplete: React.FC = () => {
         console.log('Profile loaded:', profile);
 
         // Navigate based on role
-        const redirectPath = profile?.role === 'coach' ? '/coach' : '/dashboard';
+        const redirectPath = '/dashboard'; // All users go to dashboard now
         console.log('Redirecting to:', redirectPath);
         navigate(redirectPath, { replace: true });
 

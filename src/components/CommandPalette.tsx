@@ -145,48 +145,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ children }) => {
       );
     }
 
-    if (profile?.role === 'coach') {
-      baseActions.push(
-        {
-          id: 'athletes',
-          name: 'Athletes',
-          shortcut: ['a'],
-          keywords: 'athletes team members',
-          section: 'Navigation',
-          icon: <Users className="w-4 h-4" />,
-          perform: () => navigate('/athletes'),
-        },
-        {
-          id: 'risk-board',
-          name: 'Risk Board',
-          shortcut: ['r'],
-          keywords: 'risk board alerts warnings',
-          section: 'Navigation',
-          icon: <AlertTriangle className="w-4 h-4" />,
-          perform: () => navigate('/risk-board'),
-        },
-        {
-          id: 'training-programs',
-          name: 'Training Programs',
-          shortcut: ['t'],
-          keywords: 'training programs templates workouts',
-          section: 'Navigation',
-          icon: <BookOpen className="w-4 h-4" />,
-          perform: () => navigate('/training-plan'),
-        },
-        {
-          id: 'calendar',
-          name: 'Calendar',
-          shortcut: ['l'],
-          keywords: 'calendar schedule sessions',
-          section: 'Navigation',
-          icon: <Calendar className="w-4 h-4" />,
-          perform: () => navigate('/calendar'),
-        }
-      );
-    }
+    // Coach-specific actions removed for solo users
 
-    if (profile?.role === 'athlete' || profile?.role === 'coach') {
+    // Analytics available for all users
+    if (true) {
       baseActions.push({
         id: 'analytics',
         name: 'Analytics',

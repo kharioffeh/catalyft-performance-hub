@@ -52,7 +52,7 @@ const AthleteTypeLoader: React.FC = () => {
           {/* Quick Actions Card */}
           <AnimatedCard delay={0.2}>
             <SuspenseWrapper fallback={<SkeletonCard className="h-48" />}>
-              <QuickActionsCard userRole={profile?.role} />
+              <QuickActionsCard userRole="solo" />
             </SuspenseWrapper>
           </AnimatedCard>
         </div>

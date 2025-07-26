@@ -232,7 +232,7 @@ const BillingEnhancedPage: React.FC = () => {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-white">Coach Plans</h3>
                 {coachPlans.map((plan) => (
-                  <GlassCard key={plan.id} className="p-6" accent={billing.role === 'coach' ? 'primary' : undefined}>
+                  <GlassCard key={plan.id} className="p-6">
                     <div className="text-center mb-4">
                       <h4 className="text-xl font-semibold text-white mb-2">{plan.label}</h4>
                       <div className="text-3xl font-bold text-white mb-1">{getPlanPrice(plan.id)}</div>

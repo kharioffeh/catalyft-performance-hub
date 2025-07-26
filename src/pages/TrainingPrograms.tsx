@@ -19,8 +19,9 @@ const TrainingPrograms = () => {
   const [showProgramBuilder, setShowProgramBuilder] = useState(false);
 
 
-  const isCoach = profile?.role === 'coach';
-  const isSolo = profile?.role === 'solo';
+  // All users are solo now
+  const isCoach = false;
+  const isSolo = true; // All users are solo now
 
   // Data hooks - now using program_templates as primary
   const { data: programs = [], refetch: refetchPrograms } = useProgramTemplates();

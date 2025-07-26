@@ -40,19 +40,12 @@ const Index = () => {
                   Calendar
                 </Button>
               </Link>
-              {profile?.role === 'coach' && (
-                <Link to="/athletes">
-                  <Button variant="outline" size="sm">
-                    <Users className="w-4 h-4 mr-2" />
-                    Athletes
-                  </Button>
-                </Link>
-              )}
+
               <span className="text-sm text-gray-600">
                 Welcome, {profile?.full_name || user.email}
               </span>
-              <Badge variant={profile?.role === 'coach' ? 'default' : 'secondary'}>
-                {profile?.role || 'User'}
+              <Badge variant="secondary">
+                Solo
               </Badge>
               <Button variant="outline" onClick={signOut}>
                 Sign Out
@@ -76,27 +69,7 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          {profile?.role === 'coach' && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Athletes</CardTitle>
-                <CardDescription>Manage your athletes and WHOOP integrations</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">
-                    Add athletes and connect their WHOOP accounts for automatic recovery data sync.
-                  </p>
-                  <Link to="/athletes">
-                    <Button variant="outline" size="sm" className="w-full">
-                      <Users className="w-4 h-4 mr-2" />
-                      Manage Athletes
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+
 
           <Card>
             <CardHeader>
