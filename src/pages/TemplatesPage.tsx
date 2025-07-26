@@ -18,13 +18,12 @@ const TemplatesPage: React.FC = () => {
 
   const { tpl, close } = useTemplateModal();
 
-  if (profile?.role !== 'coach') {
-    return (
-      <div className="text-center py-8">
-        <p className="text-gray-500">Only coaches can access program templates.</p>
-      </div>
-    );
-  }
+  // Templates page disabled for solo users
+  return (
+    <div className="text-center py-8">
+      <p className="text-gray-500">Program templates are not available for solo users.</p>
+    </div>
+  );
 
   // Assign functionality removed for solo pivot
 

@@ -41,7 +41,8 @@ export const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ userRole }) 
           </div>
         </button>
         
-        {userRole === 'coach' && (
+        {/* Coach actions hidden for solo users */}
+        {false && (
           <button 
             onClick={() => navigate('/athletes')}
             className="w-full flex items-center gap-3 p-4 rounded-2xl bg-white/10 hover:bg-white/20 transition-all duration-200 text-left"

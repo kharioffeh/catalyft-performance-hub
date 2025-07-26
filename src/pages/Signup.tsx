@@ -12,17 +12,13 @@ interface SignupForm {
   fullName: string
   email: string
   password: string
-  role: 'athlete' | 'coach'
 }
 
 const Signup: React.FC = () => {
   const [loading, setLoading] = useState(false)
-  const [selectedRole, setSelectedRole] = useState('')
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  // Role selection removed - all users are solo
   const navigate = useNavigate()
-  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<SignupForm>()
-  
-  const watchedRole = watch('role')
+  const { register, handleSubmit, formState: { errors } } = useForm<SignupForm>()
 
   // Vanta background effect
   const vantaRef = useRef<HTMLDivElement>(null)
@@ -50,7 +46,7 @@ const Signup: React.FC = () => {
         options: {
           data: {
             full_name: data.fullName,
-            role: data.role,
+            role: 'solo', // All users are solo now
           },
         },
       })
@@ -73,7 +69,7 @@ const Signup: React.FC = () => {
               id: authData.user.id,
               email: data.email,
               full_name: data.fullName,
-              role: data.role,
+              role: 'solo', // All users are solo now
             }
           ])
 
@@ -92,12 +88,8 @@ const Signup: React.FC = () => {
           description: "Your account has been created successfully.",
         })
 
-        // Navigate based on role
-        if (data.role === 'coach') {
-          navigate('/coach')
-        } else {
-          navigate('/dashboard')
-        }
+        // All users navigate to dashboard now (solo role)
+        navigate('/dashboard')
       }
     } catch (error) {
       console.error('Signup error:', error)
@@ -111,11 +103,7 @@ const Signup: React.FC = () => {
     }
   }
 
-  const handleRoleSelect = (role: 'athlete' | 'coach', label: string) => {
-    setSelectedRole(label)
-    setValue('role', role)
-    setIsDropdownOpen(false)
-  }
+  // Role selection function removed - all users are solo
 
   return (
     <div className="relative min-h-screen bg-brand-charcoal text-white font-[Inter] flex items-center justify-center p-4">
@@ -210,63 +198,7 @@ const Signup: React.FC = () => {
               )}
             </div>
 
-            {/* Role Selection */}
-            <div>
-              <label className="block text-sm font-medium text-white mb-2">Your role</label>
-              <div className="relative">
-                <div 
-                  className="relative overflow-hidden rounded-xl cursor-pointer"
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                >
-                  <div className="absolute z-0 inset-0 backdrop-blur-sm"></div>
-                  <div className="z-10 absolute inset-0 bg-white bg-opacity-10"></div>
-                  <div className="absolute inset-0 z-20 border border-white/20 rounded-xl"></div>
-                  <div className="z-30 relative w-full px-4 py-3 text-sm text-white flex items-center justify-between">
-                    <span className={selectedRole ? "text-white" : "text-gray-300"}>
-                      {selectedRole || "Select your role"}
-                    </span>
-                    <svg 
-                      width="16" 
-                      height="16" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24" 
-                      className={`text-white/50 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                  </div>
-                </div>
-                
-                {/* Custom Dropdown Menu */}
-                {isDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 z-50 mt-2">
-                    <div className="relative overflow-hidden rounded-xl">
-                      <div className="absolute z-0 inset-0 backdrop-blur-lg"></div>
-                      <div className="z-10 absolute inset-0 bg-white bg-opacity-15"></div>
-                      <div className="absolute inset-0 z-20 border border-white/30 rounded-xl"></div>
-                      <div className="z-30 relative py-2">
-                        <div 
-                          className="px-4 py-2 text-sm text-white bg-white/5 hover:bg-white/15 cursor-pointer transition-colors"
-                          onClick={() => handleRoleSelect('athlete', 'Athlete')}
-                        >
-                          Athlete
-                        </div>
-                        <div 
-                          className="px-4 py-2 text-sm text-white bg-white/5 hover:bg-white/15 cursor-pointer transition-colors"
-                          onClick={() => handleRoleSelect('coach', 'Coach')}
-                        >
-                          Coach
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-              {!watchedRole && (
-                <p className="text-sm text-red-400 mt-1">Role is required</p>
-              )}
-            </div>
+            {/* Role is now automatically set to 'solo' */}
 
             {/* Password */}
             <div>

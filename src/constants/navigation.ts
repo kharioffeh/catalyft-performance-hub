@@ -25,36 +25,7 @@ export const navigationItems = [
     icon: Activity,
     roles: ['solo'],
   },
-  {
-    title: 'Analytics',
-    href: '/analytics',
-    icon: BarChart3,
-    roles: ['coach', 'athlete'],
-  },
-  {
-    title: 'Calendar',
-    href: '/calendar',
-    icon: Calendar,
-    roles: ['coach', 'athlete'],
-  },
-  {
-    title: 'Athletes',
-    href: '/athletes',
-    icon: Users,
-    roles: ['coach'],
-  },
-  {
-    title: 'Risk Board',
-    href: '/risk-board',
-    icon: AlertTriangle,
-    roles: ['coach'],
-  },
-  {
-    title: 'Training',
-    href: '/training-plan',
-    icon: BookOpen,
-    roles: ['coach'],
-  },
+
   {
     title: 'Chat (KAI)',
     href: '/chat',

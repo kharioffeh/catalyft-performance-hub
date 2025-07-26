@@ -29,7 +29,7 @@ export function useCreateSessionForm(open: boolean, profile: any) {
   });
 
   useEffect(() => {
-    if (open && profile?.role === 'coach') {
+    if (open && false) { // Disabled for solo users
       fetchAthletes();
     }
     // eslint-disable-next-line

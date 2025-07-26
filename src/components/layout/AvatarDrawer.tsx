@@ -54,7 +54,7 @@ export const AvatarDrawer: React.FC<AvatarDrawerProps> = ({ children }) => {
       label: 'Subscriptions',
       icon: CreditCard,
       onClick: () => handleNavigation('/subscriptions'),
-      show: profile?.role === 'coach',
+      show: false, // Hidden for solo users
     },
     {
       id: 'logout',

@@ -8,18 +8,17 @@ import { AlertCircle } from 'lucide-react';
 const Subscription: React.FC = () => {
   const { profile } = useAuth();
 
-  if (profile?.role !== 'coach') {
-    return (
-      <div className="space-responsive">
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Subscription management is only available for coaches.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+  // Subscription page disabled for solo users
+  return (
+    <div className="space-responsive">
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Subscription management is not available for solo users.
+        </AlertDescription>
+      </Alert>
+    </div>
+  );
 
   return (
     <div className="space-responsive">

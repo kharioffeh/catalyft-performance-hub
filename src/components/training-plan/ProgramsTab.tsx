@@ -13,7 +13,8 @@ export const ProgramsTab: React.FC = () => {
   const navigate = useNavigate();
   const [builderOpen, setBuilderOpen] = useState(false);
   const [ariaWizardOpen, setAriaWizardOpen] = useState(false);
-  const isCoach = profile?.role === 'coach';
+  // All users are solo now
+  const isCoach = false;
 
   const handleCreateProgram = () => {
     setBuilderOpen(true);

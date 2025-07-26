@@ -27,8 +27,9 @@ const TrainingObjectsPage: React.FC = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
 
-  const isCoach = profile?.role === 'coach';
-  const isSolo = profile?.role === 'solo';
+  // All users are solo now
+  const isCoach = false;
+  const isSolo = true; // All users are solo now
 
   const handleViewTemplate = (templateId: string) => {
     navigate(`/template/${templateId}`);

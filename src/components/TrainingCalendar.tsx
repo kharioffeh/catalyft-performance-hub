@@ -75,8 +75,8 @@ export const TrainingCalendar = ({ sessions, isLoading, queryClient, isMobile = 
           right: isMobile ? 'listWeek,dayGridMonth' : 'dayGridMonth,timeGridWeek,timeGridDay'
         }}
         events={calendarEvents}
-        editable={profile?.role === 'coach'}
-        droppable={profile?.role === 'coach'}
+                  editable={false}
+          droppable={false}
         eventClick={handleEventClick}
         eventDrop={(info) => handleEventDrop(info, queryClient)}
         eventResize={(info) => handleEventResize(info, queryClient)}
@@ -112,7 +112,7 @@ export const TrainingCalendar = ({ sessions, isLoading, queryClient, isMobile = 
         open={isDetailsDialogOpen}
         onOpenChange={setIsDetailsDialogOpen}
         queryClient={queryClient}
-        canEdit={profile?.role === 'coach'}
+                  canEdit={false}
       />
     </>
   );

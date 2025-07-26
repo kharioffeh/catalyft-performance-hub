@@ -43,7 +43,7 @@ export const CreateProgramFromTemplateDialog: React.FC<CreateProgramFromTemplate
   const { data: athletes = [] } = useQuery({
     queryKey: ['coach-athletes', profile?.id],
     queryFn: async () => {
-      if (!profile?.id || profile.role !== 'coach') return [];
+      if (!profile?.id) return []; // Solo users have no athletes
       
       const { data, error } = await supabase
         .from('athletes')
@@ -53,7 +53,7 @@ export const CreateProgramFromTemplateDialog: React.FC<CreateProgramFromTemplate
       if (error) throw error;
       return data;
     },
-    enabled: !!profile?.id && profile?.role === 'coach' && open,
+    enabled: false, // Athletes query disabled for solo users
   });
 
   const onSubmit = async (data: FormData) => {
@@ -62,7 +62,7 @@ export const CreateProgramFromTemplateDialog: React.FC<CreateProgramFromTemplate
     try {
       await createProgram.mutateAsync({
         templateId: template.id,
-        athleteUuid: profile.role === 'coach' ? data.athlete_uuid : undefined,
+        athleteUuid: undefined, // Solo users don't assign to athletes
       });
       reset();
       onOpenChange(false);
@@ -72,7 +72,8 @@ export const CreateProgramFromTemplateDialog: React.FC<CreateProgramFromTemplate
   };
 
   const selectedDate = watch('start_date');
-  const isCoach = profile?.role === 'coach';
+  // All users are solo now
+  const isCoach = false;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

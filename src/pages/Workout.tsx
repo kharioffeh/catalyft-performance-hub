@@ -40,7 +40,8 @@ const Workout: React.FC = () => {
     setIsAssignTemplateOpen(true);
   };
 
-  const isCoach = profile?.role === 'coach';
+  // All users are solo now
+  const isCoach = false;
 
   // Transform program templates to match WorkoutTemplate interface
   const transformedProgramTemplates: WorkoutTemplate[] = programTemplates.map(pt => ({

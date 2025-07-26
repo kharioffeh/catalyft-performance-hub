@@ -17,13 +17,12 @@ const Templates: React.FC = () => {
   const [previewTemplate, setPreviewTemplate] = useState(null);
 
 
-  if (profile?.role !== 'coach') {
-    return (
-      <div className="text-center py-8">
-        <p className="text-gray-500">Only coaches can access program templates.</p>
-      </div>
-    );
-  }
+  // Templates page disabled for solo users
+  return (
+    <div className="text-center py-8">
+      <p className="text-gray-500">Program templates are not available for solo users.</p>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
