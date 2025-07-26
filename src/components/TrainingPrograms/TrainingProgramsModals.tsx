@@ -2,7 +2,7 @@
 import React from 'react';
 import { NewTemplateBuilder } from '@/components/NewTemplateBuilder';
 import ProgramBuilder from '@/components/ProgramBuilder';
-import { AssignTemplateDialog } from '@/components/AssignTemplateDialog';
+
 import { Template } from '@/types/training';
 
 interface TrainingProgramsModalsProps {
@@ -41,13 +41,7 @@ export const TrainingProgramsModals: React.FC<TrainingProgramsModalsProps> = ({
         onClose={onCloseProgram}
       />
 
-      {selectedTemplate && (
-        <AssignTemplateDialog
-          open={showAssignDialog}
-          onOpenChange={onCloseAssignDialog}
-          template={selectedTemplate}
-        />
-      )}
+      {/* AssignTemplateDialog removed for solo pivot */}
     </>
   );
 };

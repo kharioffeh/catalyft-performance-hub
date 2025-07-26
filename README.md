@@ -67,42 +67,7 @@ This project is built with:
 
 The application includes a Supabase Edge Function for inviting athletes to join a coach's roster.
 
-**Endpoint:** `POST /functions/v1/invite_athlete`
-
-**Authentication:** Requires valid JWT token with coach permissions
-
-**Request Body:**
-```json
-{
-  "email": "athlete@example.com",
-  "name": "Athlete Name"
-}
-```
-
-**Example cURL:**
-```bash
-curl -X POST 'https://xeugyryfvilanoiethum.supabase.co/functions/v1/invite_athlete' \
-  -H 'Authorization: Bearer YOUR_JWT_TOKEN' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "email": "athlete@example.com",
-    "name": "John Doe"
-  }'
-```
-
-**Response (201):**
-```json
-{
-  "status": "sent",
-  "invitation_id": "uuid-string"
-}
-```
-
-**Error Responses:**
-- `401`: Unauthorized (invalid token or not a coach)
-- `402`: Payment required (athlete limit exceeded)
-- `409`: Conflict (invitation already sent)
-- `500`: Server error
+**Note:** Coach functionality has been removed for the solo-only pivot.
 
 ## How can I deploy this project?
 

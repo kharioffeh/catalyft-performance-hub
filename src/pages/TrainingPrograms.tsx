@@ -17,8 +17,7 @@ const TrainingPrograms = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('programs');
   const [showProgramBuilder, setShowProgramBuilder] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const [showAssignDialog, setShowAssignDialog] = useState(false);
+
 
   const isCoach = profile?.role === 'coach';
   const isSolo = profile?.role === 'solo';
@@ -57,10 +56,7 @@ const TrainingPrograms = () => {
     }
   };
 
-  const handleAssignProgram = (program: any) => {
-    setSelectedTemplate(program);
-    setShowAssignDialog(true);
-  };
+  // Assign functionality removed for solo pivot
 
   const handleCloseProgram = (refresh?: boolean) => {
     setShowProgramBuilder(false);
@@ -106,7 +102,7 @@ const TrainingPrograms = () => {
           onView={handleViewProgram}
           onEdit={handleEditProgram}
           onDelete={handleDeleteProgram}
-          onAssignTemplate={handleAssignProgram}
+          onAssignTemplate={undefined}
           onCreateTemplate={handleCreateProgram}
           onCreateProgram={handleCreateProgram}
         />

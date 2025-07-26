@@ -8,14 +8,14 @@ import { useProgramTemplates } from '@/hooks/useProgramTemplates';
 import { GenerateProgramDialog } from '@/components/GenerateProgramDialog';
 import { TemplateCard } from '@/components/TemplateCard';
 import { TemplateModal } from '@/components/TemplateModal';
-import { AssignTemplateDialog } from '@/components/AssignTemplateDialog';
+
 import { useTemplateModal } from '@/store/useTemplateModal';
 
 const TemplatesPage: React.FC = () => {
   const { profile } = useAuth();
   const { data: templates = [], isLoading, refetch } = useProgramTemplates();
   const [isGenerateOpen, setIsGenerateOpen] = useState(false);
-  const [assignTemplate, setAssignTemplate] = useState(null);
+
   const { tpl, close } = useTemplateModal();
 
   if (profile?.role !== 'coach') {
@@ -26,9 +26,7 @@ const TemplatesPage: React.FC = () => {
     );
   }
 
-  const openAssignDialog = (template) => {
-    setAssignTemplate(template);
-  };
+  // Assign functionality removed for solo pivot
 
   return (
     <div className="space-y-6">
@@ -94,11 +92,7 @@ const TemplatesPage: React.FC = () => {
         />
       )}
 
-      <AssignTemplateDialog
-        template={assignTemplate}
-        open={!!assignTemplate}
-        onOpenChange={(open) => !open && setAssignTemplate(null)}
-      />
+
     </div>
   );
 };

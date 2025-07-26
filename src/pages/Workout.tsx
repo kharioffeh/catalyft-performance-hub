@@ -13,7 +13,7 @@ import { AssignedWorkoutsTab } from '@/components/AssignedWorkoutsTab';
 import { PerformanceTab } from '@/components/PerformanceTab';
 import { ExerciseLibrary } from '@/components/ExerciseLibrary';
 import { AssignWorkoutDialog } from '@/components/AssignWorkoutDialog';
-import { AssignTemplateDialog } from '@/components/AssignTemplateDialog';
+
 import { TemplateModal } from '@/components/TemplateModal';
 import { useTemplateModal } from '@/store/useTemplateModal';
 import { WorkoutTemplate } from '@/types/workout';
@@ -173,11 +173,7 @@ const Workout: React.FC = () => {
         template={selectedTemplate}
       />
 
-      <AssignTemplateDialog
-        open={isAssignTemplateOpen}
-        onOpenChange={setIsAssignTemplateOpen}
-        template={selectedTemplate}
-      />
+      {/* AssignTemplateDialog removed for solo pivot */}
 
       <TemplateModal
         template={modalTemplate}

@@ -5,17 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Calendar, Users, Eye, Dumbbell } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useProgramTemplates, useAssignTemplate } from '@/hooks/useProgramTemplates';
+import { useProgramTemplates } from '@/hooks/useProgramTemplates';
 import { GenerateProgramDialog } from '@/components/GenerateProgramDialog';
 import { ProgramPreviewDialog } from '@/components/ProgramPreviewDialog';
-import { AssignProgramDialog } from '@/components/AssignProgramDialog';
+
 
 const Templates: React.FC = () => {
   const { profile } = useAuth();
   const { data: templates = [], isLoading } = useProgramTemplates();
   const [isGenerateOpen, setIsGenerateOpen] = useState(false);
   const [previewTemplate, setPreviewTemplate] = useState(null);
-  const [assignTemplate, setAssignTemplate] = useState(null);
+
 
   if (profile?.role !== 'coach') {
     return (
@@ -81,14 +81,7 @@ const Templates: React.FC = () => {
                     <Eye className="w-4 h-4 mr-2" />
                     Preview
                   </Button>
-                  <Button 
-                    size="sm"
-                    onClick={() => setAssignTemplate(template)}
-                    className="flex-1"
-                  >
-                    <Users className="w-4 h-4 mr-2" />
-                    Assign
-                  </Button>
+                  {/* Assign functionality removed for solo pivot */}
                 </div>
               </CardContent>
             </Card>
@@ -121,11 +114,7 @@ const Templates: React.FC = () => {
         onOpenChange={(open) => !open && setPreviewTemplate(null)}
       />
 
-      <AssignProgramDialog
-        template={assignTemplate}
-        open={!!assignTemplate}
-        onOpenChange={(open) => !open && setAssignTemplate(null)}
-      />
+
     </div>
   );
 };
