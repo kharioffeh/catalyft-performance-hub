@@ -1,23 +1,13 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  SafeAreaView,
-  Alert,
-  StyleSheet,
-} from 'react-native';
-import Slider from '@react-native-community/slider';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { ArrowLeft } from 'lucide-react';
 
 interface SorenessScreenProps {
-  navigation?: {
-    goBack: () => void;
-  };
+  onBack?: () => void;
 }
 
-export const SorenessScreen: React.FC<SorenessScreenProps> = ({ navigation }) => {
+export const SorenessScreen: React.FC<SorenessScreenProps> = ({ onBack }) => {
   const { toast } = useToast();
   const [sorenessScore, setSorenessScore] = useState(5);
   const [loading, setLoading] = useState(false);
@@ -44,197 +34,110 @@ export const SorenessScreen: React.FC<SorenessScreenProps> = ({ navigation }) =>
       });
 
       // Navigate back
-      navigation?.goBack();
+      if (onBack) {
+        onBack();
+      } else {
+        window.history.back();
+      }
     } catch (error) {
       console.error('Error saving soreness:', error);
       
-      Alert.alert(
-        "Error",
-        "Failed to save soreness data. Please try again.",
-        [{ text: "OK" }]
-      );
+      toast({
+        title: "Error",
+        description: "Failed to save soreness data. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.glassPanel}>
+    <div className="min-h-screen bg-brand-charcoal">
+      <div className="min-h-screen bg-white/5 backdrop-blur-md rounded-3xl m-4 overflow-hidden">
         {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity 
-            onPress={() => navigation?.goBack()}
-            style={styles.backButton}
+        <div className="flex items-center justify-between px-5 pt-5 pb-2">
+          <button 
+            onClick={() => onBack ? onBack() : window.history.back()}
+            className="w-10 h-10 rounded-full bg-white/10 border-none flex justify-center items-center cursor-pointer"
           >
-            <Text style={styles.backButtonText}>✕</Text>
-          </TouchableOpacity>
-          <Text style={styles.title}>Daily Soreness</Text>
-          <View style={styles.spacer} />
-        </View>
+            <ArrowLeft size={20} className="text-white" />
+          </button>
+          <h1 className="text-white text-2xl font-bold text-center m-0">Daily Soreness</h1>
+          <div className="w-10" />
+        </div>
 
         {/* Content */}
-        <View style={styles.content}>
-          <Text style={styles.subtitle}>
+        <div className="p-8 flex flex-col justify-center min-h-[calc(100vh-200px)]">
+          <p className="text-white/70 text-base text-center mb-12">
             Rate your overall muscle soreness level
-          </Text>
+          </p>
 
           {/* Live Score Display */}
-          <View style={styles.scoreContainer}>
-            <Text style={styles.scoreLabel}>Soreness Level</Text>
-            <Text style={styles.scoreValue}>{Math.round(sorenessScore)}</Text>
-            <Text style={styles.scoreSubtext}>out of 10</Text>
-          </View>
+          <div className="text-center mb-16">
+            <p className="text-white/60 text-sm mb-2">Soreness Level</p>
+            <div className="text-brand-blue text-7xl font-bold leading-none">{Math.round(sorenessScore)}</div>
+            <p className="text-white/60 text-base mt-1">out of 10</p>
+          </div>
 
           {/* Slider */}
-          <View style={styles.sliderContainer}>
-            <Slider
-              style={styles.slider}
-              minimumValue={1}
-              maximumValue={10}
+          <div className="mb-16">
+            <style>
+              {`
+                .soreness-slider::-webkit-slider-thumb {
+                  appearance: none;
+                  width: 24px;
+                  height: 24px;
+                  border-radius: 12px;
+                  background: #00D4FF;
+                  cursor: pointer;
+                }
+                
+                .soreness-slider::-moz-range-thumb {
+                  width: 24px;
+                  height: 24px;
+                  border-radius: 12px;
+                  background: #00D4FF;
+                  cursor: pointer;
+                  border: none;
+                }
+              `}
+            </style>
+            <input
+              type="range"
+              min="1"
+              max="10"
+              step="1"
               value={sorenessScore}
-              onValueChange={setSorenessScore}
-              step={1}
-              thumbTintColor="#00D4FF" // Electric blue
-              minimumTrackTintColor="#00D4FF" // Electric blue
-              maximumTrackTintColor="rgba(255,255,255,0.2)" // Charcoal
+              onChange={(e) => setSorenessScore(parseInt(e.target.value))}
+              className="soreness-slider w-full h-2 rounded bg-white/20 outline-none appearance-none mb-4"
             />
             
             {/* Scale Labels */}
-            <View style={styles.scaleLabels}>
-              <Text style={styles.scaleLabel}>1</Text>
-              <Text style={styles.scaleLabel}>No Pain</Text>
-              <Text style={styles.scaleLabel}>10</Text>
-            </View>
-            <View style={styles.scaleLabels}>
-              <Text style={styles.scaleLabel}></Text>
-              <Text style={styles.scaleLabel}>Extreme Pain</Text>
-              <Text style={styles.scaleLabel}></Text>
-            </View>
-          </View>
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-white/60 text-xs text-center">1</span>
+              <span className="text-white/60 text-xs text-center">No Pain</span>
+              <span className="text-white/60 text-xs text-center">10</span>
+            </div>
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-white/60 text-xs text-center"></span>
+              <span className="text-white/60 text-xs text-center">Extreme Pain</span>
+              <span className="text-white/60 text-xs text-center"></span>
+            </div>
+          </div>
 
           {/* Save Button */}
-          <TouchableOpacity
-            style={[styles.saveButton, loading && styles.saveButtonDisabled]}
-            onPress={handleSave}
+          <button
+            className={`bg-brand-blue py-4 px-8 rounded-xl border-none text-brand-charcoal text-lg font-semibold cursor-pointer w-full ${
+              loading ? 'bg-brand-blue/50 cursor-not-allowed' : ''
+            }`}
+            onClick={handleSave}
             disabled={loading}
           >
-            <Text style={styles.saveButtonText}>
-              {loading ? 'Saving...' : 'Save Soreness'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </SafeAreaView>
+            {loading ? 'Saving...' : 'Save Soreness'}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1A1B23', // Brand charcoal
-  },
-  glassPanel: {
-    flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 24,
-    margin: 16,
-    overflow: 'hidden',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  title: {
-    color: '#FFFFFF',
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  spacer: {
-    width: 40,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingVertical: 32,
-    justifyContent: 'center',
-  },
-  subtitle: {
-    color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 48,
-  },
-  scoreContainer: {
-    alignItems: 'center',
-    marginBottom: 64,
-  },
-  scoreLabel: {
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontSize: 14,
-    marginBottom: 8,
-  },
-  scoreValue: {
-    color: '#00D4FF', // Electric blue
-    fontSize: 72,
-    fontWeight: 'bold',
-    lineHeight: 72,
-  },
-  scoreSubtext: {
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontSize: 16,
-    marginTop: 4,
-  },
-  sliderContainer: {
-    marginBottom: 64,
-  },
-  slider: {
-    width: '100%',
-    height: 40,
-    marginBottom: 16,
-  },
-  scaleLabels: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  scaleLabel: {
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontSize: 12,
-    textAlign: 'center',
-  },
-  saveButton: {
-    backgroundColor: '#00D4FF', // Electric blue
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  saveButtonDisabled: {
-    backgroundColor: 'rgba(0, 212, 255, 0.5)',
-  },
-  saveButtonText: {
-    color: '#1A1B23', // Dark text on blue background
-    fontSize: 18,
-    fontWeight: '600',
-  },
-});
