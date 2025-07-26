@@ -37,13 +37,16 @@ export const useSessionsData = (profile: Profile | null) => {
       }
 
       // Map database result to Session interface
-      return data.map(session => ({
+      return data.map((session, index) => ({
         ...session,
         user_uuid: session.athlete_uuid,
         program_id: session.id,
         planned_at: session.start_ts,
         title: `${session.type} Session`,
-        exercises: Array.isArray(session.payload) ? [] : (session.payload as any)?.exercises || []
+        exercises: Array.isArray(session.payload) ? [] : (session.payload as any)?.exercises || [],
+        // Add demo color-coding data
+        loadPercent: Math.floor(Math.random() * 100), // Random load 0-100%
+        isPR: index % 5 === 0 // Every 5th session is a PR for demo
       })) as any[];
     },
   });

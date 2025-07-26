@@ -64,6 +64,9 @@ export interface Session {
   exercises?: SessionExercise[];
   created_at: string;
   updated_at: string;
+  // Color-coding properties
+  loadPercent?: number; // 0-100 percentage
+  isPR?: boolean; // true if session achieved new record
   // Computed properties for compatibility
   program_id?: string;
   planned_at?: string;

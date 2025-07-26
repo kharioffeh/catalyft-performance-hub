@@ -17,9 +17,34 @@ interface SessionCardProps {
 const SessionCard: React.FC<SessionCardProps> = ({ session }) => {
   const startTime = format(new Date(session.start_ts), 'HH:mm');
   
+  const getLoadBorderColor = (loadPercent?: number): string => {
+    if (loadPercent === undefined) return 'border-white/20';
+    
+    // HSL formula: hsl(120 - 120*loadPercent/100, 80%, 60%)
+    const hue = Math.max(0, 120 - (120 * loadPercent) / 100);
+    return `hsl(${hue}, 80%, 60%)`;
+  };
+
+  const getLoadInfo = (session: Session): string => {
+    const loadText = session.loadPercent !== undefined ? `Load: ${session.loadPercent}%` : 'Load: N/A';
+    const prText = session.isPR ? ' • PR' : '';
+    return loadText + prText;
+  };
+
+  const borderColor = session.isPR ? 'border-electric-blue' : '';
+  const customBorderColor = !session.isPR ? getLoadBorderColor(session.loadPercent) : '';
+  
   return (
-    <div className="mb-1 px-2 py-1 rounded-lg bg-white/10 border border-white/20">
-      <div className="flex items-center gap-1">
+    <div 
+      className={`
+        mb-1 px-2 py-1 rounded-lg bg-white/10 border-2 relative
+        ${borderColor || 'border-white/20'}
+        hover:bg-white/15 transition-colors cursor-pointer
+      `}
+      style={customBorderColor !== 'border-white/20' ? { borderColor: customBorderColor } : {}}
+      title={getLoadInfo(session)}
+    >
+      <div className="flex items-center gap-1 relative">
         <Dumbbell size={10} className="text-electric-blue" />
         <span className="text-xs text-white font-medium">
           {startTime}
@@ -27,6 +52,11 @@ const SessionCard: React.FC<SessionCardProps> = ({ session }) => {
         <span className="text-xs text-white/70 capitalize">
           {session.type}
         </span>
+        
+        {/* PR Badge */}
+        {session.isPR && (
+          <span className="absolute -top-1 -right-1 text-sm">🏅</span>
+        )}
       </div>
     </div>
   );
