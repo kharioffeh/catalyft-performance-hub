@@ -40,7 +40,7 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
         <Moon className="w-12 h-12 text-white/40 mb-4" />
         <h3 className="text-lg font-semibold text-white mb-2">No Sleep Data</h3>
         <p className="text-white/60 text-sm mb-4">
-          Connect your wearable to see sleep analysis
+          Connect your wearable to see your sleep analysis
         </p>
         {onConnectWearable && (
           <Button onClick={onConnectWearable} variant="outline" size="sm">

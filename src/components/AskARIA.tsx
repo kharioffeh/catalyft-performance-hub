@@ -136,7 +136,7 @@ export const AskARIA: React.FC<AskARIAProps> = ({
               <Textarea
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Ask ARIA anything about training, recovery, load monitoring, or performance..."
+                placeholder="Ask ARIA anything about your training, recovery, load monitoring, or performance..."
                 className="min-h-[100px] bg-white/5 border-white/10 text-white placeholder:text-white/50 focus:border-green-400/50"
                 disabled={isLoading}
               />

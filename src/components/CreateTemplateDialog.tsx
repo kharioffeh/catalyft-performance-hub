@@ -53,7 +53,7 @@ export const CreateTemplateDialog: React.FC<CreateTemplateDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Create Workout Template</DialogTitle>
           <DialogDescription>
-            Create a new workout template that can be assigned to athletes.
+            Create a new workout template for your training.
           </DialogDescription>
         </DialogHeader>
 

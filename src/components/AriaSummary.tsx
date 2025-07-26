@@ -108,7 +108,7 @@ const InsightsContent: React.FC = () => {
           {Object.entries(insightsByAthlete).map(([athleteUuid, athleteInsights]) => (
             <div key={athleteUuid} className="bg-white/5 border border-white/10 rounded-xl p-4">
               <div className="text-sm font-medium text-white mb-3">
-                {athleteInsights[0]?.athlete_name}
+                Your insights
               </div>
               <div className="space-y-3">
                 {athleteInsights.slice(0, 2).map((insight) => (

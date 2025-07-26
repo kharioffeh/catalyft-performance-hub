@@ -36,7 +36,7 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
         <Dumbbell className="w-12 h-12 text-white/40 mb-4" />
         <h3 className="text-lg font-semibold text-white mb-2">No Training Data</h3>
         <p className="text-white/60 text-sm mb-4">
-          Log workouts to see training load analysis
+          Log workouts to see your training load analysis
         </p>
         {onLogWorkout && (
           <Button onClick={onLogWorkout} variant="outline" size="sm">

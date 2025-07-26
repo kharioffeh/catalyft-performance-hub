@@ -111,8 +111,8 @@ export default function ReadinessDetailPage() {
         {/* Hero Section */}
         <AnalyticsHeroSection
           icon={Activity}
-          title="Readiness Analysis"
-          description="Detailed readiness trends and contributing factors"
+          title="Your Readiness Analysis"
+          description="Your detailed readiness trends and contributing factors"
           currentScore={currentScore}
           scoreColor={getScoreColor(currentScore)}
           sparklineData={sparklineData}

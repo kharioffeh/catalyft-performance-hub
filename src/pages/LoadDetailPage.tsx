@@ -124,8 +124,8 @@ export default function LoadDetailPage() {
         {/* Hero Section */}
         <AnalyticsHeroSection
           icon={Dumbbell}
-          title="Training Load Analysis"
-          description="Detailed training load trends and ACWR monitoring"
+          title="Your Training Load Analysis"
+          description="Your detailed training load trends and ACWR monitoring"
           currentScore={currentLoad}
           scoreUnit=""
           scoreColor={getScoreColor(currentLoad)}

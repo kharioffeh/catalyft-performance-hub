@@ -30,7 +30,7 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
         <Activity className="w-12 h-12 text-white/40 mb-4" />
         <h3 className="text-lg font-semibold text-white mb-2">No Readiness Data</h3>
         <p className="text-white/60 text-sm mb-4">
-          Connect your wearable to see readiness analysis
+          Connect your wearable to see your readiness analysis
         </p>
         {onConnectWearable && (
           <Button onClick={onConnectWearable} variant="outline" size="sm">

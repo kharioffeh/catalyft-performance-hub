@@ -119,7 +119,7 @@ export const ChatStart = React.memo(() => {
           </svg>
           <h1 className="text-2xl font-bold mb-2 font-sans">How can I help you today?</h1>
           <p className="text-muted-foreground max-w-md mx-auto">
-            Get tailored performance insights, or select a prompt to explore your athlete data.
+            Get tailored performance insights, or select a prompt to explore your training data.
           </p>
         </div>
 

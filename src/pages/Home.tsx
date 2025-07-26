@@ -172,7 +172,7 @@ const Home: React.FC = () => {
             Ready to optimize your performance?
           </h2>
           <p className="text-gray-300 mb-6 font-light">
-            Join the solo athlete training revolution. Get AI-powered programs tailored specifically for you.
+            Join the solo training revolution. Get AI-powered programs tailored specifically for you.
           </p>
           <Link to="/signup">
             <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-medium">

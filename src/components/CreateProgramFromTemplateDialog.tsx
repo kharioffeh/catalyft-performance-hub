@@ -81,7 +81,7 @@ export const CreateProgramFromTemplateDialog: React.FC<CreateProgramFromTemplate
         <DialogHeader>
           <DialogTitle>Create Program from Template</DialogTitle>
           <DialogDescription>
-            Create a new training program {isCoach ? 'for an athlete' : ''} using "{template?.title}" template.
+            Create a new training program using "{template?.title}" template.
           </DialogDescription>
         </DialogHeader>
 

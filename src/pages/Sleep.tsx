@@ -111,7 +111,7 @@ const SleepContent: React.FC = () => {
         {/* Hero Section */}
         <AnalyticsHeroSection
           icon={Moon}
-          title="Sleep Analysis"
+          title="Your Sleep Analysis"
           description="Track your sleep quality and understand your nightly patterns"
           currentScore={currentScore}
           scoreUnit="%"
