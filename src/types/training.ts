@@ -38,8 +38,7 @@ export interface TemplateExercise {
 
 export interface ProgramInstance {
   id: string;
-  athlete_uuid: string;
-  coach_uuid: string;
+  user_uuid: string;
   source: 'template' | 'aria';
   template_id?: string;
   start_date: string;
@@ -51,8 +50,7 @@ export interface ProgramInstance {
 
 export interface Session {
   id: string;
-  athlete_uuid: string;
-  coach_uuid: string;
+  user_uuid: string;
   start_ts: string;
   end_ts: string;
   planned_start?: string;
@@ -104,7 +102,7 @@ export interface CreateTemplateData {
 }
 
 export interface CreateProgramInstanceData {
-  athlete_uuid: string;
+  user_uuid: string;
   source: ProgramInstance['source'];
   template_id?: string;
   start_date: string;

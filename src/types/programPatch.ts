@@ -5,8 +5,7 @@ export interface ProgramPatch {
   start_date: string;
   end_date: string;
   total_weeks: number;
-  athlete_uuid?: string;
-  coach_uuid?: string;
+  user_uuid?: string;
 }
 
 export interface Mesocycle {

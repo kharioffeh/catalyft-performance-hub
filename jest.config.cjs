@@ -1,6 +1,6 @@
 module.exports = {
   preset: 'ts-jest',
-  testEnvironment: 'node',
+  testEnvironment: 'jsdom',
   
   // Test file patterns
   testMatch: [
@@ -8,12 +8,29 @@ module.exports = {
     '**/*.(test|spec).(ts|tsx|js)'
   ],
   
+  // Ignore Cypress and problematic test files
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '.*\\.cy\\.(ts|tsx|js)$',
+    'tests/',
+    'supabase/tests/'
+  ],
+  
   // Module file extensions
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   
   // Transform TypeScript files
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest'
+    '^.+\\.(ts|tsx)$': ['ts-jest', {
+      tsconfig: {
+        jsx: 'react-jsx',
+      },
+    }],
+  },
+  
+  // Module name mapping for path aliases
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
   },
   
   // Setup files

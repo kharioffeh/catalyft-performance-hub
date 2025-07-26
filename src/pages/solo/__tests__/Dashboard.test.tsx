@@ -27,10 +27,10 @@ const mockUseAriaInsights = useAriaInsights as jest.MockedFunction<typeof useAri
 const mockUseDashboardData = useDashboardData as jest.MockedFunction<typeof useDashboardData>;
 
 const mockProfile = {
-  id: 'test-athlete-id',
-  email: 'athlete@test.com',
-  full_name: 'Test Athlete',
-  role: 'athlete' as const,
+  id: 'test-user-id',
+  email: 'user@test.com',
+  full_name: 'Test User',
+  role: 'solo' as const,
   created_at: '2023-01-01',
   updated_at: '2023-01-01'
 };

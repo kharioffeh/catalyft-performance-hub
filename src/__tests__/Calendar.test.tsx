@@ -12,8 +12,7 @@ jest.mock('@/hooks/useSessions', () => ({
     data: [
       {
         id: '1',
-        athlete_uuid: 'athlete1',
-        coach_uuid: 'coach1',
+        user_uuid: 'user1',
         start_ts: '2024-01-15T10:00:00Z',
         end_ts: '2024-01-15T11:00:00Z',
         type: 'strength',
@@ -27,8 +26,7 @@ jest.mock('@/hooks/useSessions', () => ({
       } as Session,
       {
         id: '2', 
-        athlete_uuid: 'athlete1',
-        coach_uuid: 'coach1',
+        user_uuid: 'user1',
         start_ts: '2024-01-16T10:00:00Z',
         end_ts: '2024-01-16T11:00:00Z',
         type: 'power',
@@ -51,7 +49,7 @@ jest.mock('@/hooks/useBreakpoint', () => ({
 
 jest.mock('@/contexts/AuthContext', () => ({
   useAuth: jest.fn(() => ({
-    profile: { id: 'user1', role: 'athlete' }
+    profile: { id: 'user1', role: 'solo' }
   })),
   AuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
 }));

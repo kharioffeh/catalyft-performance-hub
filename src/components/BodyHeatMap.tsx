@@ -19,19 +19,19 @@ type MuscleHeatmapEntry = {
 };
 
 interface BodyHeatMapProps {
-  athleteId: string;
+  userId: string;
   window_days?: number;
   // Optional prop to override data for testing/storybook
   mockData?: MuscleHeatmapEntry[];
 }
 
 export const BodyHeatMap: React.FC<BodyHeatMapProps> = ({
-  athleteId,
+  userId,
   window_days = 7,
   mockData,
 }) => {
   const { svg, svgError } = useSVGLoader();
-  const { data, isLoading, isError, error } = useMuscleHeatmap(athleteId, window_days);
+  const { data, isLoading, isError, error } = useMuscleHeatmap(userId, window_days);
   const [hoveredMuscle, setHoveredMuscle] = useState<string | null>(null);
   const [debugOpen, setDebugOpen] = useState(false);
 
@@ -62,7 +62,7 @@ export const BodyHeatMap: React.FC<BodyHeatMapProps> = ({
       <BodyHeatMapDebugPanel
         debugOpen={debugOpen}
         setDebugOpen={setDebugOpen}
-        athleteId={athleteId}
+        athleteId={userId}
         svg={svg}
         svgError={svgError}
         isLoading={isLoading}
@@ -85,7 +85,7 @@ export const BodyHeatMap: React.FC<BodyHeatMapProps> = ({
         isLoading={isLoading}
         isError={isError}
         error={error}
-        athleteId={athleteId}
+        athleteId={userId}
         data={muscleData}
       />
     </div>
