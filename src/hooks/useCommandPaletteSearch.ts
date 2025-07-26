@@ -3,26 +3,14 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Athlete search removed for solo-only pivot
 export const useAthleteSearch = (query: string) => {
-  const { profile } = useAuth();
-  
   return useQuery({
     queryKey: ['athlete-search', query],
     queryFn: async () => {
-      if (!query || query.length < 2 || profile?.role !== 'coach') {
-        return [];
-      }
-
-      const { data, error } = await supabase
-        .from('athletes')
-        .select('id, name, email')
-        .ilike('name', `%${query}%`)
-        .limit(5);
-
-      if (error) throw error;
-      return data || [];
+      return []; // No athlete search in solo mode
     },
-    enabled: false, // Command palette athlete search disabled for solo users
+    enabled: false, // Disabled for solo-only
   });
 };
 

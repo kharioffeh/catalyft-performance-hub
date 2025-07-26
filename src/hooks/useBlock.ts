@@ -77,10 +77,8 @@ export const useGenerateSoloProgram = () => {
 
       const { data, error } = await supabase.functions.invoke('aria-generate-program', {
         body: { 
-          athlete_uuid: user.user.id,
           goal, 
-          weeks,
-          is_solo: true
+          weeks
         }
       });
 
