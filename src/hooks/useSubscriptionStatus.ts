@@ -5,10 +5,6 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface SubscriptionStatus {
   isSubscribed: boolean;
-  plan: any;
-  athleteCount: number;
-  athleteLimit: number | null;
-  canAddAthlete: boolean;
   loading: boolean;
 }
 
@@ -16,10 +12,6 @@ export const useSubscriptionStatus = () => {
   const { user } = useAuth();
   const [status, setStatus] = useState<SubscriptionStatus>({
     isSubscribed: false,
-    plan: null,
-    athleteCount: 0,
-    athleteLimit: null,
-    canAddAthlete: false,
     loading: true,
   });
 
@@ -30,31 +22,15 @@ export const useSubscriptionStatus = () => {
     }
 
     try {
-      // Get user subscription with plan details
-      const { data: subscription } = await supabase
-        .from('user_subscriptions')
-        .select(`
-          *,
-          plan:subscription_plans(*)
-        `)
-        .eq('user_id', user.id)
-        .eq('status', 'active')
+      // Get user billing status
+      const { data: billing } = await supabase
+        .from('billing_customers')
+        .select('plan_status')
+        .eq('id', user.id)
         .single();
 
-      // Get current athlete count
-      const { data: athleteCountData } = await supabase
-        .rpc('get_user_athlete_count', { user_uuid: user.id });
-
-      // Check if user can add more athletes
-      const { data: canAddData } = await supabase
-        .rpc('can_add_athlete', { user_uuid: user.id });
-
       setStatus({
-        isSubscribed: !!subscription,
-        plan: subscription?.plan || null,
-        athleteCount: athleteCountData || 0,
-        athleteLimit: subscription?.plan?.athlete_limit || null,
-        canAddAthlete: canAddData || false,
+        isSubscribed: billing?.plan_status === 'active',
         loading: false,
       });
     } catch (error) {

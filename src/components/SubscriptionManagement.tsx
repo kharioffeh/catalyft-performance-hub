@@ -3,15 +3,14 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import { Users, Crown, Calendar, TrendingUp } from 'lucide-react';
+import { Crown, Calendar, Star } from 'lucide-react';
 
 const SubscriptionManagement: React.FC = () => {
   const { toast } = useToast();
-  const { isSubscribed, plan, athleteCount, athleteLimit, canAddAthlete, loading, refresh } = useSubscriptionStatus();
+  const { isSubscribed, loading, refresh } = useSubscriptionStatus();
 
   const handleManageSubscription = async () => {
     try {
@@ -57,17 +56,15 @@ const SubscriptionManagement: React.FC = () => {
         </CardHeader>
         <CardContent>
           <p className="text-gray-600 mb-4">
-            Subscribe to a plan to start managing athletes and accessing premium features.
+            Subscribe to Solo Pro to access all premium features and optimize your training.
           </p>
-          <Button onClick={() => window.location.href = '/subscriptions'}>
-            View Plans
+          <Button onClick={() => window.location.href = '/billing'}>
+            Subscribe to Solo Pro
           </Button>
         </CardContent>
       </Card>
     );
   }
-
-  const usagePercentage = athleteLimit ? (athleteCount / athleteLimit) * 100 : 0;
 
   return (
     <div className="space-y-6">
@@ -75,85 +72,53 @@ const SubscriptionManagement: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Crown className="h-5 w-5 text-blue-600" />
-            Current Subscription
+            Solo Pro Subscription
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold">{plan?.name}</h3>
-              <p className="text-gray-600">{plan?.description}</p>
+              <h3 className="text-lg font-semibold">Solo Pro</h3>
+              <p className="text-gray-600">Personal training optimization platform</p>
             </div>
             <Badge variant="secondary" className="bg-green-100 text-green-800">
               Active
             </Badge>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <div className="flex items-center justify-center mb-2">
-                <Users className="h-5 w-5 text-blue-600" />
-              </div>
-              <p className="text-2xl font-bold">{athleteCount}</p>
-              <p className="text-sm text-gray-600">
-                {athleteLimit ? `of ${athleteLimit} athletes` : 'athletes'}
-              </p>
-            </div>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <div className="flex items-center justify-center mb-2">
                 <Calendar className="h-5 w-5 text-green-600" />
               </div>
-              <p className="text-2xl font-bold">£{plan?.price_monthly}</p>
+              <p className="text-2xl font-bold">$14.99</p>
               <p className="text-sm text-gray-600">per month</p>
             </div>
 
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <div className="flex items-center justify-center mb-2">
-                <TrendingUp className="h-5 w-5 text-purple-600" />
+                <Star className="h-5 w-5 text-purple-600" />
               </div>
-              <p className="text-2xl font-bold">
-                {athleteLimit === null ? '∞' : athleteLimit}
-              </p>
-              <p className="text-sm text-gray-600">athlete limit</p>
+              <p className="text-2xl font-bold">All Features</p>
+              <p className="text-sm text-gray-600">unlocked</p>
             </div>
           </div>
 
-          {athleteLimit && (
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Athlete Usage</span>
-                <span className="text-sm text-gray-600">
-                  {athleteCount} / {athleteLimit}
-                </span>
-              </div>
-              <Progress value={usagePercentage} className="h-2" />
-              {usagePercentage >= 90 && (
-                <p className="text-sm text-amber-600">
-                  You're approaching your athlete limit. Consider upgrading your plan.
-                </p>
-              )}
-            </div>
-          )}
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <h4 className="font-medium text-blue-900 mb-2">Included Features</h4>
+            <ul className="text-sm text-blue-800 space-y-1">
+              <li>• Advanced AI training insights</li>
+              <li>• Personalized program optimization</li>
+              <li>• Comprehensive analytics</li>
+              <li>• Priority support</li>
+            </ul>
+          </div>
 
           <Button onClick={handleManageSubscription} className="w-full">
             Manage Subscription
           </Button>
         </CardContent>
       </Card>
-
-      {!canAddAthlete && athleteLimit && (
-        <Card className="border-amber-200 bg-amber-50">
-          <CardHeader>
-            <CardTitle className="text-amber-800">Athlete Limit Reached</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-amber-700">
-              You've reached your current plan's athlete limit. Upgrade your subscription to add more athletes.
-            </p>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };

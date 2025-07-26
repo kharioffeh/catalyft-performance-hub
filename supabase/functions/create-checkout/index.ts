@@ -21,14 +21,23 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    const { plan_id } = await req.json();
-    if (!plan_id) {
-      throw new Error("plan_id is required");
+    const { plan } = await req.json();
+    if (!plan || (plan !== 'monthly' && plan !== 'yearly')) {
+      throw new Error("plan is required and must be 'monthly' or 'yearly'");
     }
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
       throw new Error("STRIPE_SECRET_KEY is not set");
+    }
+
+    // Get the appropriate price ID for solo Pro plan
+    const priceId = plan === 'yearly'
+      ? Deno.env.get("STRIPE_PRICE_SOLO_YEARLY")
+      : Deno.env.get("STRIPE_PRICE_SOLO_MONTHLY");
+
+    if (!priceId) {
+      throw new Error(`Missing Stripe price ID for ${plan} plan`);
     }
 
     const supabaseClient = createClient(
@@ -45,20 +54,7 @@ serve(async (req) => {
       throw new Error("User not authenticated or email not available");
     }
 
-    logStep("User authenticated", { userId: user.id, email: user.email, planId: plan_id });
-
-    // Get plan details from database
-    const { data: plan, error: planError } = await supabaseClient
-      .from('plans')
-      .select('*')
-      .eq('id', plan_id)
-      .single();
-
-    if (planError || !plan) {
-      throw new Error(`Invalid plan_id: ${plan_id}`);
-    }
-
-    logStep("Plan found", { planId: plan.id, label: plan.label, priceId: plan.price_id });
+    logStep("User authenticated", { userId: user.id, email: user.email, plan });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     
@@ -81,14 +77,13 @@ serve(async (req) => {
       logStep("Created new customer", { customerId });
     }
 
-    // Update billing_customers with stripe_customer_id and plan_id
+    // Update billing_customers with stripe_customer_id
     const { error: updateError } = await supabaseClient
       .from('billing_customers')
       .upsert({
         id: user.id,
         stripe_customer_id: customerId,
-        plan_id: plan_id,
-        role: plan.type, // Update role based on plan type
+        role: 'solo',
         trial_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         plan_status: 'trialing'
       });
@@ -103,7 +98,7 @@ serve(async (req) => {
       customer: customerId,
       line_items: [
         {
-          price: plan.price_id,
+          price: priceId,
           quantity: 1,
         },
       ],
@@ -112,11 +107,11 @@ serve(async (req) => {
       cancel_url: `${origin}/billing`,
       metadata: {
         user_id: user.id,
-        plan_id: plan_id,
+        plan: plan,
       },
     });
 
-    logStep("Checkout session created", { sessionId: session.id, url: session.url });
+    logStep("Checkout session created", { sessionId: session.id, url: session.url, priceId });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -442,63 +442,36 @@ export type Database = {
       }
       billing_customers: {
         Row: {
-          additional_athletes_purchased: number
           created_at: string
-          current_athlete_count: number
+          current_period_end: string | null
           id: string
-          monthly_addon_cost: number
-          plan_id: string | null
           plan_status: string
-          preferred_currency: string | null
           role: string
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           trial_end: string
         }
         Insert: {
-          additional_athletes_purchased?: number
           created_at?: string
-          current_athlete_count?: number
+          current_period_end?: string | null
           id: string
-          monthly_addon_cost?: number
-          plan_id?: string | null
           plan_status?: string
-          preferred_currency?: string | null
           role: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           trial_end: string
         }
         Update: {
-          additional_athletes_purchased?: number
           created_at?: string
-          current_athlete_count?: number
+          current_period_end?: string | null
           id?: string
-          monthly_addon_cost?: number
-          plan_id?: string | null
           plan_status?: string
-          preferred_currency?: string | null
           role?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           trial_end?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "billing_customers_plan_id_fkey"
-            columns: ["plan_id"]
-            isOneToOne: false
-            referencedRelation: "plans"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "billing_customers_preferred_currency_fkey"
-            columns: ["preferred_currency"]
-            isOneToOne: false
-            referencedRelation: "currencies"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       biomech_alerts: {
         Row: {
@@ -2396,14 +2369,7 @@ export type Database = {
         Args: { target_athlete_uuid: string }
         Returns: undefined
       }
-      can_add_athlete: {
-        Args: { user_uuid: string }
-        Returns: boolean
-      }
-      can_add_athlete_enhanced: {
-        Args: { user_uuid: string }
-        Returns: boolean
-      }
+
       convert_price: {
         Args: {
           base_price: number
@@ -2476,10 +2442,7 @@ export type Database = {
           rem_minutes: number
         }[]
       }
-      get_user_athlete_count: {
-        Args: { user_uuid: string }
-        Returns: number
-      }
+
       get_user_timezone: {
         Args: { user_uuid: string }
         Returns: string
