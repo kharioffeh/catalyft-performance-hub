@@ -27,9 +27,6 @@ export const TrainingProgramsTemplatesTab: React.FC<TrainingProgramsTemplatesTab
   onCreateTemplate,
   onCreateProgram,
 }) => {
-  const handleAssign = (templateId: string) => {
-    console.log('Assign program:', templateId);
-  };
 
   return (
     <div className="space-y-6">
@@ -67,9 +64,8 @@ export const TrainingProgramsTemplatesTab: React.FC<TrainingProgramsTemplatesTab
                 created_at: template.created_at,
                 owner_uuid: template.coach_uuid,
                 sessions_count: 0 // Calculate from block_json if needed
-              }}
-              onAssign={handleAssign}
-              onEdit={onEdit}
+               }}
+               onEdit={onEdit}
               onDelete={onDelete}
               onView={onView}
               deleteLoading={deleteLoading}

@@ -82,9 +82,9 @@ export const ProgramInstancesTab: React.FC = () => {
             <polyline points="14,2 14,8 20,8" />
           </svg>
         </div>
-        <h3 className="text-lg font-medium text-white mb-2">No Program Instances</h3>
+        <h3 className="text-lg font-medium text-white mb-2">No Program History</h3>
         <p className="text-white/60">
-          Program instances will appear here when athletes are assigned to programs
+          Your completed and archived programs will appear here
         </p>
       </div>
     );
@@ -93,8 +93,8 @@ export const ProgramInstancesTab: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-semibold text-white mb-2">Program Instances</h3>
-        <p className="text-white/60">Active and scheduled program assignments</p>
+        <h3 className="text-xl font-semibold text-white mb-2">Program History</h3>
+        <p className="text-white/60">Your active and completed training programs</p>
       </div>
 
       <InstancesTable

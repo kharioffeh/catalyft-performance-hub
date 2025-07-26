@@ -21,14 +21,16 @@ export const TrainingPlanTabs: React.FC = () => {
           <TabsTrigger 
             value="programs" 
             className="text-white/70 data-[state=active]:bg-indigo-500/20 data-[state=active]:text-indigo-200 data-[state=active]:rounded-xl transition-all duration-200"
+            data-variant="programs"
           >
-            Templates
+            Programs
           </TabsTrigger>
           <TabsTrigger 
             value="instances" 
             className="text-white/70 data-[state=active]:bg-indigo-500/20 data-[state=active]:text-indigo-200 data-[state=active]:rounded-xl transition-all duration-200"
+            data-variant="history"
           >
-            Instances
+            History
           </TabsTrigger>
           <TabsTrigger 
             value="library" 

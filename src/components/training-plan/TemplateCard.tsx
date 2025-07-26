@@ -3,13 +3,12 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Send, Edit, Copy, Trash2, MoreVertical } from 'lucide-react';
+import { Edit, Copy, Trash2, MoreVertical } from 'lucide-react';
 import { EnhancedTemplate } from '@/hooks/useTemplates';
 import { useToast } from '@/hooks/use-toast';
 
 interface TemplateCardProps {
   template: EnhancedTemplate;
-  onAssign?: (templateId: string) => void;
   onEdit?: (templateId: string) => void;
   onDuplicate?: (templateId: string) => void;
   onDelete?: (templateId: string) => void;
@@ -19,7 +18,6 @@ interface TemplateCardProps {
 
 export const TemplateCard: React.FC<TemplateCardProps> = ({
   template,
-  onAssign,
   onEdit,
   onDuplicate,
   onDelete,
@@ -27,14 +25,6 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
   deleteLoading = false,
 }) => {
   const { toast } = useToast();
-
-  const handleAssign = () => {
-    if (onAssign) {
-      onAssign(template.id);
-    } else {
-      toast({ description: "Assign functionality coming soon" });
-    }
-  };
 
   const handleEdit = () => {
     if (onEdit) {
@@ -88,10 +78,6 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
           align="end" 
           className="bg-[#1A1E26] border-white/10 rounded-xl w-40"
         >
-          <DropdownMenuItem onClick={handleAssign} className="text-white/90 hover:bg-white/10">
-            <Send className="h-4 w-4 mr-2" />
-            Assign
-          </DropdownMenuItem>
           <DropdownMenuItem onClick={handleEdit} className="text-white/90 hover:bg-white/10">
             <Edit className="h-4 w-4 mr-2" />
             Edit

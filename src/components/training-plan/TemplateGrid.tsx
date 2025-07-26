@@ -41,10 +41,6 @@ export const TemplateGrid: React.FC = () => {
     toast({ description: "Duplicate functionality coming soon" });
   };
 
-  const handleAssign = (templateId: string) => {
-    toast({ description: "Assign functionality coming soon" });
-  };
-
   if (isLoading) {
     return (
       <ul className="grid gap-4 md:[grid-template-columns:repeat(auto-fill,minmax(320px,1fr))] sm:[grid-template-columns:repeat(auto-fill,minmax(240px,1fr))] grid-cols-1 pb-2">
@@ -71,8 +67,8 @@ export const TemplateGrid: React.FC = () => {
               <polyline points="14,2 14,8 20,8" />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-white mb-2">No programs found</h3>
-          <p className="text-white/60 mb-4">Create your first training program to get started</p>
+          <h3 className="text-lg font-semibold text-white mb-2">No programs yet</h3>
+          <p className="text-white/60 mb-4">Tap <strong>Generate with AI</strong> to build your first plan</p>
         </div>
 
         {/* FAB for empty state */}
@@ -104,9 +100,8 @@ export const TemplateGrid: React.FC = () => {
               created_at: program.created_at,
               owner_uuid: program.coach_uuid,
               sessions_count: 0 // Calculate from block_json if needed
-            }}
-            onAssign={handleAssign}
-            onEdit={handleEdit}
+             }}
+             onEdit={handleEdit}
             onDuplicate={handleDuplicate}
             onDelete={handleDelete}
             deleteLoading={deleteTemplate.isPending}

@@ -28,7 +28,7 @@ export const NAV_ROUTES: NavItem[] = [
     icon: Target,
     children: [
       { label: "Programs", path: "/training-plan/programs", icon: Target },
-      { label: "Instances", path: "/training-plan/instances", icon: Activity },
+      { label: "History", path: "/training-plan/instances", icon: Activity },
       { label: "Library", path: "/training-plan/library", icon: BookOpen }
     ]
   },

@@ -13,8 +13,6 @@ export const ProgramsTab: React.FC = () => {
   const navigate = useNavigate();
   const [builderOpen, setBuilderOpen] = useState(false);
   const [ariaWizardOpen, setAriaWizardOpen] = useState(false);
-  // All users are solo now
-  const isCoach = false;
 
   const handleCreateProgram = () => {
     setBuilderOpen(true);
@@ -36,23 +34,21 @@ export const ProgramsTab: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-white">Training Programs</h2>
-          <p className="text-white/70">Create and manage training programs</p>
+          <p className="text-white/70">Create and manage your training programs</p>
         </div>
-        {isCoach && (
-          <div className="flex gap-3">
-            <Button 
-              onClick={handleAriaGenerate}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Generate with AI
-            </Button>
-            <Button onClick={handleCreateProgram} variant="outline" className="border-white/20 text-white hover:bg-white/10">
-              <Plus className="w-4 h-4 mr-2" />
-              Create Program
-            </Button>
-          </div>
-        )}
+        <div className="flex gap-3">
+          <Button 
+            onClick={handleAriaGenerate}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            Generate with AI
+          </Button>
+          <Button onClick={handleCreateProgram} variant="outline" className="border-white/20 text-white hover:bg-white/10">
+            <Plus className="w-4 h-4 mr-2" />
+            Create Program
+          </Button>
+        </div>
       </div>
 
       {/* Templates Grid */}
