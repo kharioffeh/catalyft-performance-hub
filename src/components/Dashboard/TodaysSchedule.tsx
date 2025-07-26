@@ -6,6 +6,7 @@ import { Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import GlassCard from '@/components/ui/GlassCard';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { SessionCard } from '@/features/dashboard/SessionCard';
 
 interface TodaysScheduleProps {
   todaySessions: any[];
@@ -29,25 +30,11 @@ export const TodaysSchedule: React.FC<TodaysScheduleProps> = ({ todaySessions })
       ) : (
         <div className="space-y-3">
           {todaySessions.map((session) => (
-            <div key={session.id} className="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-xl">
-              <div className="flex items-center gap-3">
-                <Badge variant="outline" className="capitalize bg-white/10 border-white/20 text-white">
-                  {session.type}
-                </Badge>
-                <div>
-                  <div className="font-medium text-white">
-                    {format(new Date(session.start_ts), 'h:mm a')} - 
-                    {format(new Date(session.end_ts), 'h:mm a')}
-                  </div>
-                  {session.notes && (
-                    <div className="text-sm text-white/60">{session.notes}</div>
-                  )}
-                </div>
-              </div>
-              <Button variant="ghost" size="sm" className="text-white/70 hover:text-white hover:bg-white/10">
-                View Details
-              </Button>
-            </div>
+            <SessionCard 
+              key={session.id} 
+              session={session}
+              onViewDetails={() => console.log('View details for session:', session.id)}
+            />
           ))}
         </div>
       )}
