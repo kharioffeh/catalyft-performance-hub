@@ -92,6 +92,7 @@
     "jspdf": "^3.0.1",
     "kbar": "^0.1.0-beta.45",
     "lucide-react": "^0.462.0",
+    "lucide-react-native": "^0.526.0",
     "next-themes": "^0.3.0",
     "nprogress": "^0.2.0",
     "playwright": "^1.52.0",
