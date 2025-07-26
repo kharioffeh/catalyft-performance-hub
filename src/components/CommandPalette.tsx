@@ -224,20 +224,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ children }) => {
       },
     ];
 
-    // Coach-only actions
-    if (profile?.role === 'coach') {
-      quickActions.unshift({
-        id: 'invite-athlete',
-        name: 'Invite Athlete',
-        shortcut: ['⌘', 'i'],
-        keywords: 'invite athlete add team member',
-        section: 'Quick Actions',
-        icon: <UserPlus className="w-4 h-4" />,
-        perform: () => {
-          navigate('/athletes');
-        },
-      });
-    }
+    // No coach-only actions for solo pivot
 
     return quickActions;
   };

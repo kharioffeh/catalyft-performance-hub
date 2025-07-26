@@ -13,14 +13,13 @@
 - **s** - Settings
 - **p** - Program (Solo users)
 - **t** - Training Plan/Programs
-- **a** - Athletes (Coaches)
-- **r** - Risk Board (Coaches)
+
 - **n** - Analytics
 - **l** - Calendar
 
 ## Quick Actions (via Command Palette)
 - **⌘⇧T** - Toggle dark/light mode
-- **⌘I** - Invite athlete (Coaches)
+
 - **⌘⇧Q** - Sign out
 
 ## Usage
