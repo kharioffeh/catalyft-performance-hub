@@ -16,6 +16,8 @@ import { AnalyticsGrid } from '@/components/Analytics/AnalyticsGrid';
 import { ARIAInputSection } from '@/components/Analytics/ARIAInputSection';
 import { ConnectWearableModal } from '@/components/Analytics/ConnectWearableModal';
 import { MuscleAnatomyPanel } from '@/components/Analytics/MuscleAnatomyPanel';
+import { TonnageCard, E1RMCard, VelocityFatigueCard, MuscleLoadCard } from '@/components/Analytics/ChartCards';
+import { useAnalyticsData } from '@/hooks/useAnalyticsData';
 
 const ARIA_SUGGESTIONS = [
   "How can I improve recovery this week?",
@@ -48,6 +50,9 @@ const AnalyticsPageContent: React.FC = () => {
 
   // Get enhanced metrics for the selected athlete
   const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetricsWithAthlete(selectedAthleteId);
+  
+  // Get analytics data for the new chart cards
+  const { data: analyticsData, isLoading: analyticsLoading } = useAnalyticsData();
   
   console.log('Analytics: Data loaded -', { 
     readinessCount: readinessRolling.length, 
@@ -192,6 +197,25 @@ const AnalyticsPageContent: React.FC = () => {
               onConnectWearable={handleConnectWearable}
             />
           </MetricCarousel>
+        </div>
+
+        {/* Performance Analytics Chart Cards */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-display font-semibold text-slate-50">
+            Performance Analytics
+          </h2>
+          
+          <div className="overflow-x-auto">
+            <div className="flex space-x-6 pb-4">
+              <TonnageCard data={analyticsData.tonnage} />
+              <E1RMCard data={analyticsData.e1rmCurve} />
+              <VelocityFatigueCard data={analyticsData.velocityFatigue} />
+              <MuscleLoadCard 
+                data={analyticsData.muscleLoad} 
+                selectedAthleteId={selectedAthleteId} 
+              />
+            </div>
+          </div>
         </div>
 
         {/* ARIA Spotlight - Contextual coaching overlay */}

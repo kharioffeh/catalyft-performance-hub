@@ -120,6 +120,7 @@
     "recharts": "^2.12.7",
     "rollup-plugin-analyzer": "^4.0.0",
     "sonner": "^1.5.0",
+    "swr": "^2.3.4",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.177.0",
