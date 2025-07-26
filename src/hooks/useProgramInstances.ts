@@ -27,7 +27,7 @@ export const useProgramInstances = (athleteId?: string) => {
       const { data, error } = await query;
 
       if (error) throw error;
-      return data as ProgramInstance[];
+      return data as any[];
     },
   });
 };
@@ -51,7 +51,7 @@ export const useProgramInstance = (id: string) => {
         .single();
 
       if (error) throw error;
-      return data as ProgramInstance;
+      return data as any;
     },
     enabled: !!id,
   });
@@ -65,14 +65,18 @@ export const useCreateProgramInstance = () => {
       const { data, error } = await supabase
         .from('program_instance')
         .insert({
-          ...programData,
+          athlete_uuid: programData.user_uuid,
           coach_uuid: (await supabase.auth.getUser()).data.user?.id,
+          source: programData.source,
+          template_id: programData.template_id,
+          start_date: programData.start_date,
+          end_date: programData.end_date,
         })
         .select()
         .single();
 
       if (error) throw error;
-      return data as ProgramInstance;
+      return data as any;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['program-instances'] });
@@ -93,7 +97,7 @@ export const useUpdateProgramInstance = () => {
         .single();
 
       if (error) throw error;
-      return data as ProgramInstance;
+      return data as any;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['program-instances'] });

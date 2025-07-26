@@ -5,20 +5,7 @@ import { Play, Clock, User } from 'lucide-react';
 import { updateSessionStatus } from '@/lib/api/sessions';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useGlassToast } from '@/hooks/useGlassToast';
-
-interface Session {
-  id: string;
-  athlete_uuid: string;
-  coach_uuid: string;
-  type: string;
-  start_ts: string;
-  end_ts: string;
-  status: 'planned' | 'active' | 'completed';
-  notes?: string;
-  athletes?: {
-    name: string;
-  };
-}
+import { Session } from '@/types/training';
 
 interface SessionCardProps {
   session: Session;
@@ -127,11 +114,11 @@ export const SessionCard: React.FC<SessionCardProps> = ({ session, onPress }) =>
           </Text>
         </View>
         
-        {session.athletes?.name && (
+        {session.user_uuid && (
           <View style={styles.athleteRow}>
             <User size={14} color="#888" />
             <Text style={styles.athleteText} numberOfLines={1}>
-              {session.athletes.name}
+              User: {session.user_uuid.slice(0, 8)}...
             </Text>
           </View>
         )}

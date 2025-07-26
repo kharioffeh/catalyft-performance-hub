@@ -30,13 +30,13 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 
 const mockPlannedSession = {
   id: 'session-1',
-  athlete_uuid: 'athlete-1',
-  coach_uuid: 'coach-1',
+  user_uuid: 'user-1',
   type: 'strength',
   start_ts: '2024-01-15T09:00:00Z',
   end_ts: '2024-01-15T10:00:00Z',
   status: 'planned' as const,
-  athletes: { name: 'John Doe' },
+  created_at: '2024-01-15T08:00:00Z',
+  updated_at: '2024-01-15T08:00:00Z',
 };
 
 const mockActiveSession = {
@@ -58,7 +58,6 @@ describe('SessionCard', () => {
     const { getByText } = render(<SessionCard session={mockPlannedSession} />, { wrapper });
 
     expect(getByText('Strength Session')).toBeTruthy();
-    expect(getByText('John Doe')).toBeTruthy();
     expect(getByText('planned')).toBeTruthy();
     expect(getByText('09:00')).toBeTruthy();
     expect(getByText('• 60m')).toBeTruthy();

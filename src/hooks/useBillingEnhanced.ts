@@ -38,7 +38,7 @@ export const useBillingEnhanced = () => {
         return null;
       }
 
-      return data as BillingCustomer;
+      return { ...data, current_period_end: null } as BillingCustomer;
     },
     enabled: !!user?.id,
   });

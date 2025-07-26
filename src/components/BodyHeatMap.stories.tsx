@@ -7,7 +7,7 @@ export default {
   component: BodyHeatMap,
 };
 
-export const Default = () => <BodyHeatMap athleteId="test-athlete" />;
+export const Default = () => <BodyHeatMap userId="test-athlete" />;
 
 // Sample data for the MuscleHeatMap loaded story with load values (0-100)
 const sampleLoadData = [
@@ -48,7 +48,7 @@ const sampleLoadData = [
 
 export const MuscleHeatMapLoaded = () => (
   <BodyHeatMap 
-    athleteId="test-athlete" 
+    userId="test-athlete" 
     mockData={sampleLoadData}
   />
 );

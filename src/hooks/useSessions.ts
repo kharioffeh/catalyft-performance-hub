@@ -23,6 +23,7 @@ export const useSessions = (athleteUuid?: string) => {
       return data.map(session => ({
         ...session,
         // Add compatibility mappings
+        user_uuid: session.athlete_uuid, // Map athlete_uuid to user_uuid
         program_id: session.id, // Use session id as program_id for now
         planned_at: session.start_ts,
         title: `${session.type} Session`,
@@ -47,6 +48,7 @@ export const useSession = (id: string) => {
       // Map database fields to frontend interface
       return {
         ...data,
+        user_uuid: data.athlete_uuid, // Map athlete_uuid to user_uuid
         program_id: data.id,
         planned_at: data.start_ts,
         title: `${data.type} Session`,
@@ -65,8 +67,8 @@ export const useCreateSession = () => {
       const { data, error } = await supabase
         .from('sessions')
         .insert({
-          athlete_uuid: sessionData.athlete_uuid,
-          coach_uuid: sessionData.coach_uuid,
+        athlete_uuid: sessionData.user_uuid,
+        coach_uuid: sessionData.user_uuid, // For solo athletes, they are their own coach
           start_ts: sessionData.start_ts,
           end_ts: sessionData.end_ts,
           type: sessionData.type,
@@ -81,8 +83,10 @@ export const useCreateSession = () => {
 
       if (error) throw error;
       
+      // Map database fields to frontend interface
       return {
         ...data,
+        user_uuid: data.athlete_uuid, // Map athlete_uuid to user_uuid
         program_id: data.id,
         planned_at: data.start_ts,
         title: `${data.type} Session`,
@@ -119,8 +123,10 @@ export const useUpdateSession = () => {
 
       if (error) throw error;
       
+      // Map database fields to frontend interface
       return {
         ...data,
+        user_uuid: data.athlete_uuid, // Map athlete_uuid to user_uuid
         program_id: data.id,
         planned_at: data.start_ts,
         title: `${data.type} Session`,
