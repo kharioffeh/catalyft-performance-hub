@@ -8,7 +8,7 @@ export type NavItem = {
 
 import {
   BarChart3, Calendar, MessageSquare, 
-  Settings, BookOpen, Activity, Target
+  Settings, BookOpen, Activity, Target, Users
 } from "lucide-react";
 
 export const NAV_ROUTES: NavItem[] = [
@@ -36,6 +36,11 @@ export const NAV_ROUTES: NavItem[] = [
     label: "Calendar",
     path: "/calendar", 
     icon: Calendar
+  },
+  {
+    label: "Feed",
+    path: "/feed", 
+    icon: Users
   },
   {
     label: "Analytics",
