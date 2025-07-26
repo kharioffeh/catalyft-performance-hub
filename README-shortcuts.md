@@ -74,3 +74,9 @@ Response:
 ```
 
 **Scheduled**: Runs automatically daily at 06:00 UTC via cron job.
+
+## Dev scripts
+
+### Database Triggers
+
+**Solo Role Assignment**: All new users automatically receive `role='solo'` in their `app_metadata` via a PostgreSQL trigger on `auth.users`. This ensures every account is tagged as a solo user without requiring application-level logic.
