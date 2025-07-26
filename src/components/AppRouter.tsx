@@ -39,6 +39,7 @@ const SleepPage = React.lazy(() => import('../pages/Sleep'));
 const StressDetailPage = React.lazy(() => import('../pages/StressDetailPage'));
 const LiveSessionPage = React.lazy(() => import('../pages/LiveSession'));
 const ProfilePage = React.lazy(() => import('../pages/Profile'));
+const FeedPage = React.lazy(() => import('../pages/Feed'));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -102,6 +103,7 @@ const AppRouter = () => {
           <Route path="analytics/load" element={<Navigate to="/analytics" replace />} />
 
           <Route path="calendar" element={<CalendarPage />} />
+          <Route path="feed" element={<FeedPage />} />
           <Route path="chat" element={<ChatPage />} />
           <Route path="chat/:threadId" element={<ChatPage />} />
 
