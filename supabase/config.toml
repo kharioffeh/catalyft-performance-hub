@@ -37,6 +37,15 @@ verify_jwt = true
 [functions.getReminderSettings]
 verify_jwt = true
 
+[functions.createWorkout]
+verify_jwt = true
+
+[functions.logSet]
+verify_jwt = true
+
+[functions.endWorkout]
+verify_jwt = true
+
 # Cron job to run session reminders every 15 minutes
 # [functions.sessionReminders.schedule]
 # cron = "*/15 * * * *"
