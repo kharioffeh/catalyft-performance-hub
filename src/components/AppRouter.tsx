@@ -17,7 +17,7 @@ const LoadDetailPage = React.lazy(() => import('../pages/LoadDetailPage'));
 const TrainingPrograms = React.lazy(() => import('../pages/TrainingPrograms'));
 const SettingsPage = React.lazy(() => import('../pages/SettingsRevamped'));
 const SubscriptionsPage = React.lazy(() => import('../pages/Subscriptions'));
-const BillingEnhancedPage = React.lazy(() => import('../pages/BillingEnhanced'));
+// const BillingEnhancedPage = React.lazy(() => import('../pages/BillingEnhanced'));
 const LoginPage = React.lazy(() => import('../pages/Login'));
 const SignupPage = React.lazy(() => import('../pages/Signup'));
 const ForgotPasswordPage = React.lazy(() => import('../pages/Auth'));
@@ -115,8 +115,8 @@ const AppRouter = () => {
           <Route path="template/:id" element={<TemplateDetailPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="subscriptions" element={<SubscriptionsPage />} />
-          <Route path="billing" element={<BillingEnhancedPage />} />
-          <Route path="billing-enhanced" element={<BillingEnhancedPage />} />
+          <Route path="billing" element={<SubscriptionsPage />} />
+          <Route path="billing-enhanced" element={<SubscriptionsPage />} />
         </Route>
         
         {/* Redirect root to home page for non-authenticated users */}
