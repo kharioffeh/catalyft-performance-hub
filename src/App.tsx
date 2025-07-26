@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { GlassToastProvider } from '@/components/ui/GlassToastProvider';
 import { Toaster } from '@/components/ui/toaster';
 import AppRouter from '@/components/AppRouter';
+import { useSecurityHeaders } from '@/hooks/useSecurityHeaders';
 
 // Create QueryClient instance with proper configuration
 const queryClient = new QueryClient({
@@ -21,6 +22,8 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  useSecurityHeaders();
+  
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>

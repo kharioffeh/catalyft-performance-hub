@@ -45,7 +45,7 @@ export function sanitizeSvg(svg: string): string {
       'x1', 'y1', 'x2', 'y2', 'points', 'gradientUnits', 'offset', 'stop-color',
       'stop-opacity', 'clip-path', 'mask', 'filter', 'in', 'in2', 'result',
       'type', 'values', 'stdDeviation', 'dx', 'dy', 'operator', 'k1', 'k2', 'k3', 'k4',
-      'flood-color', 'flood-opacity', 'onmouseover', 'onmouseout', 'cursor'
+      'flood-color', 'flood-opacity', 'cursor'
     ],
     ALLOW_DATA_ATTR: false
   });

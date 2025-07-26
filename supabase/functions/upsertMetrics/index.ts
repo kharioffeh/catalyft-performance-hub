@@ -31,6 +31,18 @@ serve(async (req) => {
       )
     }
 
+    // Basic rate limiting check
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
+    }
+
     // Parse and validate request body
     const body = await req.json()
     const validatedData = MetricsSchema.parse(body)
