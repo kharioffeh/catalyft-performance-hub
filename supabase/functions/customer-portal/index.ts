@@ -51,22 +51,22 @@ serve(async (req) => {
 
     logStep("User authenticated", { userId: user.id });
 
-    // Get user's subscription
-    const { data: subscription } = await supabaseClient
-      .from('user_subscriptions')
+    // Get user's billing customer
+    const { data: billing } = await supabaseClient
+      .from('billing_customers')
       .select('stripe_customer_id')
-      .eq('user_id', user.id)
+      .eq('id', user.id)
       .single();
 
-    if (!subscription?.stripe_customer_id) {
-      throw new Error("No active subscription found");
+    if (!billing?.stripe_customer_id) {
+      throw new Error("No billing customer found");
     }
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     const origin = req.headers.get("origin") || "http://localhost:3000";
     
     const portalSession = await stripe.billingPortal.sessions.create({
-      customer: subscription.stripe_customer_id,
+      customer: billing.stripe_customer_id,
       return_url: `${origin}/dashboard`,
     });
 

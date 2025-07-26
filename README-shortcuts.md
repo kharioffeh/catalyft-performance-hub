@@ -34,6 +34,20 @@
 
 ## API Examples
 
+### Solo Pro Checkout
+```bash
+curl -X POST https://your-project.supabase.co/functions/v1/create-checkout \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"plan":"monthly"}'
+```
+
+Response:
+```json
+{
+  "url": "https://checkout.stripe.com/c/pay/..."
+}
+```
+
 ### Upsert User Metrics
 ```bash
 curl -X POST https://your-project.supabase.co/functions/v1/upsertMetrics \

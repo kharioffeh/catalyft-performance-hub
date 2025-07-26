@@ -3,31 +3,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
-interface Plan {
-  id: string;
-  label: string;
-  type: 'coach' | 'solo' | 'topup';
-  price_id: string;
-  max_athletes: number | null;
-  has_aria_full: boolean;
-  has_adaptive_replan: boolean;
-  long_term_analytics: boolean;
-  export_api: boolean;
-  priority_support: boolean;
-  created_at: string;
-}
-
 interface BillingCustomer {
   id: string;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
-  role: 'coach' | 'solo';
-  plan_id: string | null;
+  role: 'solo';
   trial_end: string;
   plan_status: 'trialing' | 'active' | 'past_due' | 'canceled';
+  current_period_end: string | null;
   created_at: string;
-  plan?: Plan;
 }
+
+// Solo Pro pricing
+const SOLO_PRO_MONTHLY_PRICE = 14.99;
 
 export const useBilling = () => {
   const { user } = useAuth();
@@ -40,10 +28,7 @@ export const useBilling = () => {
       
       const { data, error } = await supabase
         .from('billing_customers')
-        .select(`
-          *,
-          plan:plans(*)
-        `)
+        .select('*')
         .eq('id', user.id)
         .single();
 
@@ -57,28 +42,10 @@ export const useBilling = () => {
     enabled: !!user?.id,
   });
 
-  const { data: allPlans, isLoading: isLoadingPlans } = useQuery({
-    queryKey: ['plans'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('plans')
-        .select('*')
-        .in('type', ['coach', 'solo'])
-        .order('type', { ascending: true });
-
-      if (error) {
-        console.error('Error fetching plans:', error);
-        return [];
-      }
-
-      return data as Plan[];
-    },
-  });
-
   const startCheckoutMutation = useMutation({
-    mutationFn: async (planId: string) => {
-      const { data, error } = await supabase.functions.invoke('create-checkout-enhanced', {
-        body: { plan_id: planId, currency: 'GBP' }
+    mutationFn: async (plan: 'monthly' | 'yearly') => {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { plan }
       });
 
       if (error) throw error;
@@ -99,8 +66,8 @@ export const useBilling = () => {
     },
   });
 
-  const startCheckout = (planId: string) => {
-    startCheckoutMutation.mutate(planId);
+  const startCheckout = (plan: 'monthly' | 'yearly') => {
+    startCheckoutMutation.mutate(plan);
   };
 
   const refreshBilling = () => {
@@ -120,39 +87,25 @@ export const useBilling = () => {
   const needsUpgrade = billing ? 
     (billing.plan_status === 'past_due' || billing.plan_status === 'canceled' || trialExpired) : false;
 
-  const currentPlan = billing?.plan;
-  const planName = currentPlan?.label || 'Unknown Plan';
+  const isSubscribed = billing?.plan_status === 'active';
   
-  // Calculate pricing based on plan type and features
-  const getPlanPrice = (plan: Plan) => {
-    if (plan.type === 'coach') {
-      return plan.has_adaptive_replan ? '£49.99/month' : '£29.99/month';
-    } else {
-      return plan.has_adaptive_replan ? '£14.99/month' : '£7.99/month';
-    }
-  };
-
-  const planPrice = currentPlan ? getPlanPrice(currentPlan) : '£0/month';
-
-  // Get plans by type for display
-  const coachPlans = allPlans?.filter(p => p.type === 'coach') || [];
-  const soloPlans = allPlans?.filter(p => p.type === 'solo') || [];
+  // Format pricing
+  const formatPrice = (amount: number) => `$${amount.toFixed(2)}`;
+  const monthlyPrice = formatPrice(SOLO_PRO_MONTHLY_PRICE);
+  const yearlyPrice = formatPrice(SOLO_PRO_MONTHLY_PRICE * 12 * 0.8); // 20% discount for yearly
 
   return {
     billing,
-    currentPlan,
-    allPlans,
-    coachPlans,
-    soloPlans,
-    isLoading: isLoading || isLoadingPlans,
+    isLoading,
     startCheckout,
     refreshBilling,
     inTrial,
     daysLeft,
     trialExpired,
     needsUpgrade,
-    planName,
-    planPrice,
+    isSubscribed,
+    monthlyPrice,
+    yearlyPrice,
     isCheckingOut: startCheckoutMutation.isPending,
   };
 };
