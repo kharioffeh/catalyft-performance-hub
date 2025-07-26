@@ -73,10 +73,17 @@ const AppLayout: React.FC = () => {
     return <ProfileError variant={getLayoutVariant()} />;
   }
 
-  // Role validation - redirect to onboarding if role is missing
+  // Check onboarding completion for new solo users
+  if (profile.role === 'solo' && profile.has_completed_onboarding === false) {
+    console.log('AppLayout: Solo user needs onboarding, redirecting to wizard');
+    navigate('/onboarding/solo', { replace: true });
+    return null;
+  }
+
+  // Legacy role validation for non-solo users (should not occur in solo pivot)
   if (!profile.role) {
-    console.log('AppLayout: No role, redirecting to onboarding');
-    navigate('/onboarding/role', { replace: true });
+    console.log('AppLayout: No role found - should not happen in solo experience');
+    navigate('/dashboard', { replace: true });
     return null;
   }
 

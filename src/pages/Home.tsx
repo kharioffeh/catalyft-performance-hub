@@ -172,7 +172,7 @@ const Home: React.FC = () => {
             Ready to optimize your performance?
           </h2>
           <p className="text-gray-300 mb-6 font-light">
-            Join thousands of athletes and coaches already using Catalyft AI.
+            Join the solo athlete training revolution. Get AI-powered programs tailored specifically for you.
           </p>
           <Link to="/signup">
             <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-medium">
@@ -240,9 +240,9 @@ const TESTIMONIALS = [
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
   },
   {
-    name: "Coach Jennifer Lee",
-    title: "Track & Field Coach",
-    quote: "Managing 20+ athletes became effortless with Catalyft. The risk assessment features have prevented countless injuries.",
+    name: "Alex Thompson",
+    title: "Solo Athlete",
+    quote: "Perfect for independent training. The AI creates programs that actually match my equipment and schedule constraints.",
     image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
   }
 ];

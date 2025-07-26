@@ -44,9 +44,11 @@ const Signup: React.FC = () => {
         email: data.email,
         password: data.password,
         options: {
+          emailRedirectTo: `${window.location.origin}/`,
           data: {
             full_name: data.fullName,
             role: 'solo', // All users are solo now
+            has_completed_onboarding: false, // They need to go through onboarding
           },
         },
       })
@@ -70,6 +72,7 @@ const Signup: React.FC = () => {
               email: data.email,
               full_name: data.fullName,
               role: 'solo', // All users are solo now
+              has_completed_onboarding: false, // They need onboarding
             }
           ])
 

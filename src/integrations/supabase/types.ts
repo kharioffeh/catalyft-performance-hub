@@ -1025,6 +1025,7 @@ export type Database = {
           daily_summary: boolean | null
           email: string
           full_name: string | null
+          has_completed_onboarding: boolean | null
           id: string
           last_metrics_update: string | null
           last_readiness: number | null
@@ -1042,6 +1043,7 @@ export type Database = {
           daily_summary?: boolean | null
           email: string
           full_name?: string | null
+          has_completed_onboarding?: boolean | null
           id: string
           last_metrics_update?: string | null
           last_readiness?: number | null
@@ -1059,6 +1061,7 @@ export type Database = {
           daily_summary?: boolean | null
           email?: string
           full_name?: string | null
+          has_completed_onboarding?: boolean | null
           id?: string
           last_metrics_update?: string | null
           last_readiness?: number | null
@@ -2437,7 +2440,17 @@ export type Database = {
         }
         Returns: string
       }
-
+      get_active_athletes_for_coach: {
+        Args: { p_coach_uuid: string }
+        Returns: {
+          athlete_uuid: string
+          athlete_name: string
+        }[]
+      }
+      get_current_coach_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_load_detail: {
         Args: { pv_period: number }
         Returns: {

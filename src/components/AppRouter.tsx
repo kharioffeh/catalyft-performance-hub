@@ -28,8 +28,8 @@ const ChatPage = React.lazy(() => import('../pages/Chat').then(module => ({ defa
 const HomePage = React.lazy(() => import('../pages/Home'));
 const PrivacyPolicyPage = React.lazy(() => import('../pages/PrivacyPolicy'));
 const OAuthCallback = React.lazy(() => import('../pages/OAuthCallback'));
+const SoloWizard = React.lazy(() => import('../pages/onboarding/SoloWizard').then(module => ({ default: module.SoloWizard })));
 const SoloProgramPage = React.lazy(() => import('../pages/solo/ProgramPage'));
-
 const TemplateDetailPage = React.lazy(() => import('@/pages/TemplateDetailPage'));
 const TrainingPlan = React.lazy(() => import('@/pages/TrainingPlan'));
 
@@ -66,6 +66,9 @@ const AppRouter = () => {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/finish-signup" element={<FinishSignupPage />} />
+        
+        {/* Onboarding routes */}
+        <Route path="/onboarding/solo" element={<SoloWizard />} />
         
         {/* OAuth callback routes */}
         <Route path="/oauth/whoop" element={<OAuthCallback />} />

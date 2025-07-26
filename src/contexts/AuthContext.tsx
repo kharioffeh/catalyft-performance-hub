@@ -10,6 +10,7 @@ interface Profile {
   created_at: string
   updated_at: string
   weekly_summary_opt_in?: boolean
+  has_completed_onboarding?: boolean
 }
 
 interface AuthContextType {
