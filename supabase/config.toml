@@ -19,6 +19,9 @@ verify_jwt = true
 [functions.aria-chat-and-log-stream]
 verify_jwt = true
 
+[functions.ariaChat]
+verify_jwt = true
+
 [functions.lookup-athlete-metric]
 verify_jwt = false
 
