@@ -12,21 +12,27 @@ module.exports = {
   testPathIgnorePatterns: [
     '/node_modules/',
     '.*\\.cy\\.(ts|tsx|js)$',
-    'tests/',
+    'tests/.*\\.(spec|cy)\\.(ts|tsx|js)$',
     'supabase/tests/'
   ],
   
   // Module file extensions
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   
-  // Transform TypeScript files
+  // Transform TypeScript files and handle ES modules
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
       tsconfig: {
         jsx: 'react-jsx',
       },
+      useESM: true,
     }],
   },
+  
+  // Transform ES modules from node_modules
+  transformIgnorePatterns: [
+    'node_modules/(?!(@supabase|isows)/)',
+  ],
   
   // Module name mapping for path aliases
   moduleNameMapper: {
