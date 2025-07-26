@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Save, Square } from 'lucide-react';
+import { ArrowLeft, Plus, Save, Square, Wifi, WifiOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -7,6 +7,7 @@ import { Fab } from '@/components/ui/Fab';
 import { GlassCard } from '@/components/ui/glass-card';
 import { useToast } from '@/hooks/use-toast';
 import { useExercises } from '@/hooks/useExercises';
+import { useSyncPendingSets } from '@/hooks/useSyncPendingSets';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { SetRow } from './components/SetRow';
@@ -29,6 +30,7 @@ export const LogWorkoutScreen: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { data: exercises = [] } = useExercises();
+  const { isOnline, isSyncing, pendingCount, addPendingSet } = useSyncPendingSets();
 
   // Create workout session on mount
   useEffect(() => {
@@ -95,8 +97,38 @@ export const LogWorkoutScreen: React.FC = () => {
       // Save all new/updated sets
       for (const set of sets) {
         if (set.exercise && set.weight && set.reps) {
-          const { error } = await supabase.functions.invoke('logSet', {
-            body: {
+          if (isOnline) {
+            // Try to save directly to server if online
+            try {
+              const { error } = await supabase.functions.invoke('logSet', {
+                body: {
+                  session_id: sessionId,
+                  exercise: set.exercise,
+                  weight: set.weight,
+                  reps: set.reps,
+                  rpe: set.rpe,
+                  tempo: set.tempo,
+                  velocity: set.velocity
+                }
+              });
+
+              if (error) throw error;
+            } catch (error) {
+              // If server call fails, save locally
+              console.warn('Server save failed, saving locally:', error);
+              await addPendingSet({
+                session_id: sessionId,
+                exercise: set.exercise,
+                weight: set.weight,
+                reps: set.reps,
+                rpe: set.rpe,
+                tempo: set.tempo,
+                velocity: set.velocity
+              });
+            }
+          } else {
+            // Save locally when offline
+            await addPendingSet({
               session_id: sessionId,
               exercise: set.exercise,
               weight: set.weight,
@@ -104,16 +136,14 @@ export const LogWorkoutScreen: React.FC = () => {
               rpe: set.rpe,
               tempo: set.tempo,
               velocity: set.velocity
-            }
-          });
-
-          if (error) throw error;
+            });
+          }
         }
       }
 
       toast({
-        title: "Sets Saved",
-        description: "Your workout sets have been saved"
+        title: isOnline ? "Sets Saved" : "Sets Saved Offline",
+        description: isOnline ? "Your workout sets have been saved" : "Sets saved locally and will sync when online"
       });
     } catch (error) {
       console.error('Error saving sets:', error);
@@ -165,6 +195,27 @@ export const LogWorkoutScreen: React.FC = () => {
     <div className="min-h-screen bg-brand-charcoal">
       {/* Header */}
       <div className="sticky top-0 z-50 bg-brand-charcoal/80 backdrop-blur-md border-b border-white/10">
+        {/* Offline Banner */}
+        {!isOnline && (
+          <div className="bg-amber-600/90 text-amber-100 px-4 py-2 text-sm flex items-center justify-center gap-2">
+            <WifiOff className="w-4 h-4" />
+            Offline mode: logging locally
+            {pendingCount > 0 && (
+              <span className="bg-amber-500 text-amber-900 px-2 py-1 rounded text-xs ml-2">
+                {pendingCount} pending
+              </span>
+            )}
+          </div>
+        )}
+        
+        {/* Syncing Banner */}
+        {isSyncing && (
+          <div className="bg-blue-600/90 text-blue-100 px-4 py-2 text-sm flex items-center justify-center gap-2">
+            <Wifi className="w-4 h-4 animate-pulse" />
+            Syncing workout data...
+          </div>
+        )}
+        
         <div className="flex items-center justify-between p-4">
           <Button
             variant="ghost"
