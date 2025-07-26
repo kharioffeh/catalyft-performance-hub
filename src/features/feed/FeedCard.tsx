@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { motion } from 'framer-motion';
 
 export interface FeedPost {
   id: string;
@@ -28,11 +29,13 @@ interface FeedCardProps {
 export const FeedCard: React.FC<FeedCardProps> = ({ post, onReactionUpdate }) => {
   const [reactions, setReactions] = useState(post.reactions);
   const [isReacting, setIsReacting] = useState(false);
+  const [previousReactions, setPreviousReactions] = useState(post.reactions);
 
   const handleReaction = async (type: 'like' | 'cheer') => {
     if (isReacting) return;
     
     setIsReacting(true);
+    setPreviousReactions(reactions);
     
     try {
       const { data, error } = await supabase.functions.invoke('reactPost', {
@@ -121,20 +124,38 @@ export const FeedCard: React.FC<FeedCardProps> = ({ post, onReactionUpdate }) =>
 
       {/* Reactions Bar */}
       <div className="flex items-center gap-3">
-        <button
+        <motion.button
+          whileTap={{ scale: 1.3 }}
           onClick={() => handleReaction('like')}
           disabled={isReacting}
           className="bg-white/10 hover:bg-white/20 text-brand-blue px-3 py-1 rounded-full text-sm font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
         >
-          👍 {reactions.like}
-        </button>
-        <button
+          👍 
+          <motion.span 
+            key={reactions.like} 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            transition={{ duration: 0.3 }}
+          >
+            {reactions.like}
+          </motion.span>
+        </motion.button>
+        <motion.button
+          whileTap={{ scale: 1.3 }}
           onClick={() => handleReaction('cheer')}
           disabled={isReacting}
           className="bg-white/10 hover:bg-white/20 text-brand-blue px-3 py-1 rounded-full text-sm font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
         >
-          🎉 {reactions.cheer}
-        </button>
+          🎉 
+          <motion.span 
+            key={reactions.cheer} 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            transition={{ duration: 0.3 }}
+          >
+            {reactions.cheer}
+          </motion.span>
+        </motion.button>
       </div>
     </div>
   );

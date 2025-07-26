@@ -126,6 +126,36 @@ export const SingleCard = () => (
   </div>
 );
 
+export const WithReactions = () => {
+  const [post, setPost] = React.useState({
+    ...mockPosts[0],
+    reactions: { like: 5, cheer: 3 }
+  });
+
+  const handleReactionUpdate = (postId: string, reactions: { like: number; cheer: number }) => {
+    console.log('Reaction updated with animation:', postId, reactions);
+    setPost(prev => ({ ...prev, reactions }));
+  };
+
+  return (
+    <div className="bg-gradient-to-br from-charcoal via-charcoal/95 to-charcoal/90 p-8">
+      <div className="max-w-md mx-auto">
+        <FeedCard
+          post={post}
+          onReactionUpdate={handleReactionUpdate}
+        />
+        <div className="mt-4 p-4 bg-white/5 rounded-lg border border-white/10">
+          <p className="text-white/80 text-sm mb-2">Animation Demo:</p>
+          <p className="text-white/60 text-xs">
+            Click the 👍 or 🎉 buttons to see the tap animation (scale) and count fade-in effect.
+            The buttons will scale to 1.3x on tap and the count numbers will fade in smoothly.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const WithoutMedia = () => (
   <div className="bg-gradient-to-br from-charcoal via-charcoal/95 to-charcoal/90 p-8">
     <div className="max-w-md mx-auto">

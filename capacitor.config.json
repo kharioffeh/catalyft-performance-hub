@@ -1,0 +1,26 @@
+{
+  "appId": "app.lovable.7e30460aa2044958830afea1bffa217a",
+  "appName": "catalyft-performance-hub",
+  "webDir": "dist",
+  "server": {
+    "url": "https://7e30460a-a204-4958-830a-fea1bffa217a.lovableproject.com?forceHideBadge=true",
+    "cleartext": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 3000,
+      "launchAutoHide": true,
+      "backgroundColor": "#070707",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false,
+      "androidSpinnerStyle": "large",
+      "iosSpinnerStyle": "small",
+      "spinnerColor": "#7DF9FF",
+      "splashFullScreen": true,
+      "splashImmersive": true,
+      "layoutName": "launch_screen",
+      "useDialog": true
+    }
+  }
+}
