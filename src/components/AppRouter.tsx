@@ -40,6 +40,7 @@ const StressDetailPage = React.lazy(() => import('../pages/StressDetailPage'));
 const LiveSessionPage = React.lazy(() => import('../pages/LiveSession'));
 const ProfilePage = React.lazy(() => import('../pages/Profile'));
 const FeedPage = React.lazy(() => import('../pages/Feed'));
+const LogWorkoutScreen = React.lazy(() => import('../pages/mobile/LogWorkoutScreen'));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -93,6 +94,7 @@ const AppRouter = () => {
           } />
           <Route path="training" element={<Navigate to="/training-plan" replace />} />
           <Route path="training/live" element={<LiveSessionPage />} />
+          <Route path="training/log-workout" element={<LogWorkoutScreen />} />
           <Route path="nutrition" element={<NutritionPage />} />
           <Route path="nutrition/parse" element={<MealParseScreen />} />
           <Route path="sleep" element={<Navigate to="/analytics" replace />} />
