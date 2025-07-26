@@ -1,17 +1,22 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { 
   View, 
   Text, 
   TouchableOpacity, 
-  FlatList, 
   ScrollView,
   SafeAreaView,
-  ActivityIndicator 
+  ActivityIndicator,
+  Alert 
 } from 'react-native';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, isToday, addWeeks, subWeeks } from 'date-fns';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Dumbbell } from 'lucide-react-native';
+import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
+import * as Haptics from 'expo-haptics';
 import { useCalendar } from '@/hooks/useCalendar';
 import { Session } from '@/types/training';
+import { rescheduleSession } from '@/lib/api/sessions';
+import { toast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface CalendarDay {
   date: Date;
@@ -19,23 +24,36 @@ interface CalendarDay {
   isCurrentMonth: boolean;
 }
 
-interface SessionCardProps {
+interface DraggableSessionData {
   session: Session;
+  date: Date;
+  originalIndex: number;
 }
 
-const SessionCard: React.FC<SessionCardProps> = ({ session }) => {
+interface SessionCardProps {
+  session: Session;
+  onLongPress?: () => void;
+  isActive?: boolean;
+}
+
+const SessionCard: React.FC<SessionCardProps> = ({ session, onLongPress, isActive }) => {
   const startTime = format(new Date(session.start_ts), 'HH:mm');
   
   return (
-    <View style={{
-      marginBottom: 4,
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      borderRadius: 8,
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-      borderWidth: 1,
-      borderColor: 'rgba(255, 255, 255, 0.2)'
-    }}>
+    <TouchableOpacity
+      onLongPress={onLongPress}
+      delayLongPress={500}
+      style={{
+        marginBottom: 4,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
+        backgroundColor: isActive ? 'rgba(91, 175, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)',
+        borderWidth: 1,
+        borderColor: isActive ? '#5BAFFF' : 'rgba(255, 255, 255, 0.2)',
+        transform: [{ scale: isActive ? 1.05 : 1 }]
+      }}
+    >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
         <Dumbbell size={10} />
         <Text style={{ fontSize: 12, color: 'white', fontWeight: '500' }}>
@@ -45,16 +63,17 @@ const SessionCard: React.FC<SessionCardProps> = ({ session }) => {
           {session.type}
         </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
 interface DayCardProps {
   day: CalendarDay;
   isWeekView?: boolean;
+  onSessionLongPress?: (session: Session, date: Date) => void;
 }
 
-const DayCard: React.FC<DayCardProps> = ({ day, isWeekView = false }) => {
+const DayCard: React.FC<DayCardProps> = ({ day, isWeekView = false, onSessionLongPress }) => {
   const isToday_ = isToday(day.date);
   const dayNumber = format(day.date, 'd');
   const weekdayLabel = format(day.date, 'EEE');
@@ -104,7 +123,11 @@ const DayCard: React.FC<DayCardProps> = ({ day, isWeekView = false }) => {
 
       <View style={{ flex: 1 }}>
         {visibleSessions.map((session) => (
-          <SessionCard key={session.id} session={session} />
+          <SessionCard 
+            key={session.id} 
+            session={session} 
+            onLongPress={() => onSessionLongPress?.(session, day.date)}
+          />
         ))}
         
         {extraSessions > 0 && (
@@ -128,10 +151,57 @@ const DayCard: React.FC<DayCardProps> = ({ day, isWeekView = false }) => {
   );
 };
 
+const DraggableSessionItem = ({ 
+  item, 
+  drag, 
+  isActive 
+}: RenderItemParams<DraggableSessionData>) => {
+  const handleLongPress = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    drag();
+  }, [drag]);
+
+  return (
+    <ScaleDecorator>
+      <TouchableOpacity
+        onLongPress={handleLongPress}
+        delayLongPress={300}
+        style={{
+          margin: 4,
+          padding: 12,
+          borderRadius: 12,
+          backgroundColor: isActive ? 'rgba(91, 175, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)',
+          borderWidth: 1,
+          borderColor: isActive ? '#5BAFFF' : 'rgba(255, 255, 255, 0.2)',
+          shadowColor: isActive ? '#5BAFFF' : 'transparent',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: isActive ? 0.3 : 0,
+          shadowRadius: 8,
+          elevation: isActive ? 8 : 2,
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <Dumbbell size={16} />
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 14, color: 'white', fontWeight: '600' }}>
+              {format(new Date(item.session.start_ts), 'HH:mm')} - {item.session.type}
+            </Text>
+            <Text style={{ fontSize: 12, color: 'rgba(255, 255, 255, 0.7)' }}>
+              {format(item.date, 'MMM d, yyyy')}
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    </ScaleDecorator>
+  );
+};
+
 export const CalendarScreen: React.FC = () => {
   const [viewMode, setViewMode] = useState<'month' | 'week'>('month');
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [isDragging, setIsDragging] = useState(false);
   const { sessions, isLoading } = useCalendar();
+  const queryClient = useQueryClient();
 
   const calendarDays = useMemo(() => {
     if (viewMode === 'month') {
@@ -165,6 +235,80 @@ export const CalendarScreen: React.FC = () => {
       }));
     }
   }, [currentDate, sessions, viewMode]);
+
+  // Flatten all sessions for draggable list
+  const draggableSessions = useMemo(() => {
+    const allSessions: DraggableSessionData[] = [];
+    let index = 0;
+    
+    calendarDays.forEach(day => {
+      day.sessions.forEach(session => {
+        allSessions.push({
+          session,
+          date: day.date,
+          originalIndex: index++
+        });
+      });
+    });
+    
+    return allSessions;
+  }, [calendarDays]);
+
+  const handleDragEnd = useCallback(async ({ data, from, to }: { 
+    data: DraggableSessionData[], 
+    from: number, 
+    to: number 
+  }) => {
+    if (from === to) {
+      setIsDragging(false);
+      return;
+    }
+
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      
+      const movedSession = data[to];
+      const targetDate = calendarDays[to % calendarDays.length]?.date || movedSession.date;
+      
+      // Format new date for the API
+      const originalStartTime = new Date(movedSession.session.start_ts);
+      const newStartTime = new Date(targetDate);
+      newStartTime.setHours(originalStartTime.getHours());
+      newStartTime.setMinutes(originalStartTime.getMinutes());
+      
+      // Optimistically update the UI
+      setIsDragging(false);
+      
+      // Call the reschedule API
+      await rescheduleSession(movedSession.session.id, newStartTime.toISOString());
+      
+      // Invalidate and refetch sessions
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      
+      toast({ description: 'Session rescheduled successfully' });
+      
+    } catch (error) {
+      console.error('Failed to reschedule session:', error);
+      toast({ 
+        description: 'Failed to reschedule session. Please try again.',
+        variant: 'destructive'
+      });
+      
+      // Revert the change by invalidating queries
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+    }
+  }, [calendarDays, queryClient]);
+
+  const handleSessionLongPress = useCallback((session: Session, date: Date) => {
+    setIsDragging(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    
+    Alert.alert(
+      'Reschedule Session',
+      'Long press and drag to reschedule this session to another day.',
+      [{ text: 'OK', onPress: () => setIsDragging(false) }]
+    );
+  }, []);
 
   const handlePrevious = () => {
     if (viewMode === 'month') {
@@ -305,7 +449,26 @@ export const CalendarScreen: React.FC = () => {
 
       {/* Calendar Content */}
       <View style={{ flex: 1, padding: 16 }}>
-        {viewMode === 'month' ? (
+        {isDragging && draggableSessions.length > 0 ? (
+          <View style={{ flex: 1 }}>
+            <Text style={{ 
+              color: 'white', 
+              fontSize: 16, 
+              fontWeight: '600', 
+              marginBottom: 16,
+              textAlign: 'center'
+            }}>
+              Drag to reschedule session
+            </Text>
+            <DraggableFlatList
+              data={draggableSessions}
+              onDragEnd={handleDragEnd}
+              keyExtractor={(item) => item.session.id}
+              renderItem={DraggableSessionItem}
+              containerStyle={{ flex: 1 }}
+            />
+          </View>
+        ) : viewMode === 'month' ? (
           <View style={{ flex: 1 }}>
             {/* Weekday Headers */}
             <View style={{ flexDirection: 'row', marginBottom: 8 }}>
@@ -319,13 +482,18 @@ export const CalendarScreen: React.FC = () => {
             </View>
             
             {/* Month Grid */}
-            <FlatList
-              data={calendarDays}
-              renderItem={({ item }) => <DayCard day={item} />}
-              numColumns={7}
-              key="month"
-              showsVerticalScrollIndicator={false}
-            />
+            <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                {calendarDays.map((day, index) => (
+                  <View key={index} style={{ width: '14.28%' }}>
+                    <DayCard 
+                      day={day} 
+                      onSessionLongPress={handleSessionLongPress}
+                    />
+                  </View>
+                ))}
+              </View>
+            </ScrollView>
           </View>
         ) : (
           <ScrollView 
@@ -335,7 +503,12 @@ export const CalendarScreen: React.FC = () => {
           >
             <View style={{ flexDirection: 'row' }}>
               {calendarDays.map((day, index) => (
-                <DayCard key={index} day={day} isWeekView />
+                <DayCard 
+                  key={index} 
+                  day={day} 
+                  isWeekView 
+                  onSessionLongPress={handleSessionLongPress}
+                />
               ))}
             </View>
           </ScrollView>
