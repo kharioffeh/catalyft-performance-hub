@@ -2,7 +2,7 @@
 
 ## Overview
 
-The injury risk assessment system automatically calculates risk scores for athletes based on training load, sleep patterns, and stress levels. When risk scores exceed a threshold of 75, it automatically generates alerts in the notifications system.
+The injury risk assessment system automatically calculates risk scores for users based on training load, sleep patterns, and stress levels. When risk scores exceed a threshold of 75, it automatically generates alerts in the notifications system.
 
 ## Formula
 
@@ -19,10 +19,10 @@ Where:
 
 ### `scripts/injuryRisk.js`
 Main assessment script that:
-- Fetches athlete metrics from the database
+- Fetches user metrics from the database
 - Calculates z-scores for load, sleep deficit, and stress
 - Computes composite risk scores
-- Inserts alerts for high-risk athletes (≥75)
+- Inserts alerts for high-risk users (≥75)
 
 ### Updated Files
 - `package.json` - Added `injury-risk` npm script
@@ -43,7 +43,7 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
 ### Database Tables
 The script uses these existing tables:
-- `muscle_load_daily` - Training load scores per muscle per athlete
+- `muscle_load_daily` - Training load scores per muscle per user
 - `aria_digest_metrics_v` - Sleep hours and readiness scores  
 - `notifications` - Target table for alerts
 
@@ -107,7 +107,7 @@ tail -f logs/injury-risk.log
 Starting injury risk assessment...
 ==================================================
 Fetching athlete metrics for yesterday...
-Found 5 athletes to assess
+Found 5 users to assess
 Calculating injury risk for John Doe...
   Load: 75.5 (z: 1.25)
   Sleep deficit: 2.5 hours (z: 1.00)
@@ -156,7 +156,7 @@ grep -i error logs/injury-risk.log
 
 3. **No Athletes Found**
    ```
-   Found 0 athletes to assess
+   Found 0 users to assess
    ```
    - Check if there's data in `muscle_load_daily` for yesterday
    - Verify `aria_digest_metrics_v` view returns data
@@ -221,7 +221,7 @@ The system integrates with the existing notifications table, so alerts will appe
 
 ## Performance Notes
 
-- Assessment typically completes in <30 seconds for 100 athletes
+- Assessment typically completes in <30 seconds for 100 users
 - Uses efficient queries with proper indexes
 - Minimal database load (read-only operations + single insert per alert)
 - Can be run multiple times safely (no duplicate alert prevention built-in)

@@ -27,7 +27,7 @@ serve(async (req) => {
       return new Response('Unauthorized', { status: 401 });
     }
 
-    const { athlete_uuid, coach_uuid, goal, weeks, available_days, equipment, prompt } = await req.json();
+    const { goal, weeks, available_days, equipment, prompt } = await req.json();
 
     // Try both possible OpenAI API key names
     const OPENAI_ARIA_KEY = Deno.env.get('OPENAI_ARIA_KEY') || Deno.env.get('OPENAI_API_KEY');
@@ -61,13 +61,8 @@ serve(async (req) => {
       return new Response('Profile not found', { status: 404 });
     }
 
-    const isCoach = profile.role === 'coach';
-    const targetAthleteId = athlete_uuid || user.id;
-    const targetCoachId = coach_uuid || (isCoach ? user.id : null);
-
-    if (!targetCoachId) {
-      return new Response('Coach assignment required', { status: 400 });
-    }
+    // Solo-only: user is both athlete and coach
+    const targetUserId = user.id;
 
     // Function to extract goal from descriptive text
     const extractGoalFromText = (text: string): string => {
@@ -163,7 +158,7 @@ serve(async (req) => {
         duration_weeks: weeks,
         goal: extractedGoal, // Use extracted goal
         difficulty: 'intermediate',
-        created_by: targetCoachId,
+        created_by: targetUserId,
         ai_generated: true,
         ai_prompt: promptText,
         ai_response: generatedContent
@@ -184,8 +179,8 @@ serve(async (req) => {
       .from('program_instances')
       .insert({
         template_id: template.id,
-        athlete_id: targetAthleteId,
-        coach_id: targetCoachId,
+        athlete_id: targetUserId,
+        coach_id: targetUserId,
         start_date: new Date().toISOString().split('T')[0],
         status: 'active'
       })

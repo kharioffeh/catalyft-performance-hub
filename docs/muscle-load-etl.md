@@ -112,5 +112,5 @@ supabase db push   # Apply new migration
 The `muscle_load_daily` table is designed to be consumed by:
 - Mobile app muscle heatmap component
 - Training balance analytics
-- Coach insights dashboard
+- User insights dashboard
 - API endpoints for muscle load data

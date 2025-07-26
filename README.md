@@ -63,11 +63,13 @@ This project is built with:
 
 ## API Endpoints
 
-### Athlete Invitation API
+### Program Generation API
 
-The application includes a Supabase Edge Function for inviting athletes to join a coach's roster.
+The application includes a Supabase Edge Function for generating training programs using ARIA AI.
 
-**Note:** Coach functionality has been removed for the solo-only pivot.
+**Endpoint:** `aria-generate-program`
+- Generates personalized training programs for solo users
+- Uses AI to create programs based on goals, duration, and equipment preferences
 
 ## How can I deploy this project?
 
