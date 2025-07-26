@@ -5,10 +5,14 @@ import { useActiveSession } from '@/hooks/useActiveSession';
 import { updateSessionStatus } from '@/lib/api/sessions';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useGlassToast } from '@/components/ui/GlassToastProvider';
+import { ShareSessionModal } from '@/features/session/ShareSessionModal';
+import { Session } from '@/types/training';
 
 export const LiveBanner: React.FC = () => {
   const { data: activeSession } = useActiveSession();
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [completedSession, setCompletedSession] = useState<Session | null>(null);
   const queryClient = useQueryClient();
   const { push: toast } = useGlassToast();
 
@@ -27,9 +31,26 @@ export const LiveBanner: React.FC = () => {
       queryClient.setQueryData(['activeSession'], context?.previousSession);
       toast('error', 'Session End Failed', 'Could not end the session. Please try again.');
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['sessions'] });
       toast('success', 'Session Completed', 'Your training session has been completed.');
+      
+      // Show share modal with completed session data
+      if (activeSession) {
+        const now = new Date().toISOString();
+        setCompletedSession({
+          id: activeSession.id,
+          user_uuid: '', // Will be populated from auth context in modal
+          start_ts: activeSession.start_ts,
+          end_ts: now,
+          type: activeSession.type,
+          status: 'completed' as const,
+          created_at: now,
+          updated_at: now,
+          exercises: [] // Can be populated later if needed
+        });
+        setShowShareModal(true);
+      }
     },
   });
 
@@ -69,28 +90,42 @@ export const LiveBanner: React.FC = () => {
   if (!activeSession) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 bg-blue-600 z-50 shadow-lg">
-      <div className="flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-white text-sm font-semibold">Now</span>
+    <>
+      <div className="fixed top-0 left-0 right-0 bg-blue-600 z-50 shadow-lg">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-white text-sm font-semibold">Now</span>
+            </div>
+            <Clock size={16} className="text-white ml-2" />
+            <span className="text-white text-base font-bold font-mono">
+              {formatTime(elapsedTime)}
+            </span>
           </div>
-          <Clock size={16} className="text-white ml-2" />
-          <span className="text-white text-base font-bold font-mono">
-            {formatTime(elapsedTime)}
-          </span>
+          
+          <button 
+            onClick={handleEndSession}
+            disabled={endSessionMutation.isPending}
+            className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded text-sm font-semibold transition-colors disabled:opacity-50"
+          >
+            <Square size={16} />
+            End
+          </button>
         </div>
-        
-        <button 
-          onClick={handleEndSession}
-          disabled={endSessionMutation.isPending}
-          className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded text-sm font-semibold transition-colors disabled:opacity-50"
-        >
-          <Square size={16} />
-          End
-        </button>
       </div>
-    </div>
+
+      {/* Share Session Modal */}
+      {completedSession && (
+        <ShareSessionModal
+          session={completedSession}
+          visible={showShareModal}
+          onClose={() => {
+            setShowShareModal(false);
+            setCompletedSession(null);
+          }}
+        />
+      )}
+    </>
   );
 };

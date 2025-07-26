@@ -8,6 +8,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Play, Pause, Square, Clock, CheckCircle, Edit3 } from 'lucide-react';
 import { useUpdateSession } from '@/hooks/useSessions';
 import { useToast } from '@/hooks/use-toast';
+import { ShareSessionModal } from '@/features/session/ShareSessionModal';
+import { Session } from '@/types/training';
 
 interface LiveSessionModalProps {
   session: any;
@@ -26,6 +28,8 @@ export const LiveSessionModal: React.FC<LiveSessionModalProps> = ({
   const [completedExercises, setCompletedExercises] = useState<Set<number>>(new Set());
   const [exerciseData, setExerciseData] = useState<any[]>([]);
   const [editingExercise, setEditingExercise] = useState<number | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [completedSession, setCompletedSession] = useState<Session | null>(null);
   
   const updateSession = useUpdateSession();
   const { toast } = useToast();
@@ -89,6 +93,26 @@ export const LiveSessionModal: React.FC<LiveSessionModalProps> = ({
         description: "Great work! Your session has been saved."
       });
 
+      // Show share modal with completed session
+      const now = new Date().toISOString();
+      setCompletedSession({
+        id: session.id,
+        user_uuid: session.user_uuid || '',
+        start_ts: session.start_ts || startTime?.toISOString() || now,
+        end_ts: now,
+        type: session.type || 'workout',
+        status: 'completed' as const,
+        created_at: session.created_at || now,
+        updated_at: now,
+        exercises: exerciseData.map(ex => ({
+          exercise_id: ex.exercise_id || ex.name,
+          sets: ex.actualSets,
+          reps: ex.actualReps,
+          load_kg: ex.actualLoad,
+          completed: true
+        }))
+      });
+      setShowShareModal(true);
       onOpenChange(false);
     } catch (error) {
       toast({
@@ -294,6 +318,18 @@ export const LiveSessionModal: React.FC<LiveSessionModalProps> = ({
           </div>
         </div>
       </DialogContent>
+
+      {/* Share Session Modal */}
+      {completedSession && (
+        <ShareSessionModal
+          session={completedSession}
+          visible={showShareModal}
+          onClose={() => {
+            setShowShareModal(false);
+            setCompletedSession(null);
+          }}
+        />
+      )}
     </Dialog>
   );
 };
