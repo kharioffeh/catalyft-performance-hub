@@ -39,15 +39,12 @@ export const useSessionsData = (profile: Profile | null) => {
       // Map database result to Session interface
       return data.map(session => ({
         ...session,
-        user_uuid: session.athlete_uuid, // Map athlete_uuid to user_uuid
-        created_at: session.created_at,
-        updated_at: session.updated_at,
-        // Add compatibility mappings
+        user_uuid: session.athlete_uuid,
         program_id: session.id,
         planned_at: session.start_ts,
         title: `${session.type} Session`,
         exercises: Array.isArray(session.payload) ? [] : (session.payload as any)?.exercises || []
-      })) as Session[];
+      })) as any[];
     },
   });
 

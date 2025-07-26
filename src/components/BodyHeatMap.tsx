@@ -21,7 +21,7 @@ type MuscleHeatmapEntry = {
 interface BodyHeatMapProps {
   userId: string;
   window_days?: number;
-  // Optional prop to override data for testing/storybook
+  // Optional prop to override data for testing/storybook components
   mockData?: MuscleHeatmapEntry[];
 }
 
