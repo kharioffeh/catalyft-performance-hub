@@ -1,8 +1,6 @@
-import React, { useState, useRef } from 'react';
-import { ArrowLeft, Camera, Play, Loader2, Save, AlertCircle } from 'lucide-react';
+import React, { useState, useRef, useCallback } from 'react';
+import { ArrowLeft, Camera, Play, Loader2, Save, AlertCircle, StopCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Camera as ExpoCamera, CameraView } from 'expo-camera';
-import { Video, ResizeMode } from 'expo-av';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -14,88 +12,148 @@ type RecordingState = 'idle' | 'recording' | 'recorded' | 'analyzing' | 'analyze
 export const VideoCritiqueScreen: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const cameraRef = useRef<CameraView>(null);
-  const videoRef = useRef<Video>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
   
   const [state, setState] = useState<RecordingState>('idle');
-  const [videoUri, setVideoUri] = useState<string>('');
+  const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string>('');
   const [critique, setCritique] = useState<string>('');
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [recordingInterval, setRecordingInterval] = useState<ReturnType<typeof setInterval> | null>(null);
 
   React.useEffect(() => {
-    (async () => {
-      const { status } = await ExpoCamera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
-    })();
+    // Check camera permission on mount
+    checkCameraPermission();
+    
+    return () => {
+      // Cleanup on unmount
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+      if (recordingInterval) {
+        clearInterval(recordingInterval);
+      }
+      if (videoUrl) {
+        URL.revokeObjectURL(videoUrl);
+      }
+    };
   }, []);
 
-  React.useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    if (state === 'recording') {
-      interval = setInterval(() => {
+  const checkCameraPermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' }, 
+        audio: true 
+      });
+      setHasPermission(true);
+      // Stop the test stream
+      stream.getTracks().forEach(track => track.stop());
+    } catch (error) {
+      console.error('Camera permission denied:', error);
+      setHasPermission(false);
+    }
+  };
+
+  const startRecording = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
+        audio: true
+      });
+      
+      streamRef.current = stream;
+      chunksRef.current = [];
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'video/webm;codecs=vp9' // Use WebM format for better web support
+      });
+
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: 'video/webm' });
+        setVideoBlob(blob);
+        const url = URL.createObjectURL(blob);
+        setVideoUrl(url);
+        
+        if (videoRef.current) {
+          videoRef.current.srcObject = null;
+          videoRef.current.src = url;
+        }
+        
+        setState('recorded');
+        setRecordingTime(0);
+        
+        // Stop camera stream
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach(track => track.stop());
+          streamRef.current = null;
+        }
+      };
+
+      mediaRecorder.start();
+      setState('recording');
+
+      // Start recording timer
+      const interval = setInterval(() => {
         setRecordingTime(prev => {
-          if (prev >= 10) {
-            handleStopRecording();
+          if (prev >= 9) { // Stop at 10 seconds (0-9 = 10 seconds)
+            stopRecording();
             return 0;
           }
           return prev + 1;
         });
       }, 1000);
-    } else {
-      setRecordingTime(0);
-    }
-    return () => clearInterval(interval);
-  }, [state]);
-
-  const handleStartRecording = async () => {
-    if (!cameraRef.current) return;
-    
-    try {
-      setState('recording');
-      const video = await cameraRef.current.recordAsync({
-        maxDuration: 10,
-      });
       
-      if (video?.uri) {
-        setVideoUri(video.uri);
-        setState('recorded');
-      }
+      setRecordingInterval(interval);
+
     } catch (error) {
-      console.error('Error recording video:', error);
+      console.error('Error starting recording:', error);
       toast({
         title: "Recording Error",
-        description: "Failed to record video. Please try again.",
+        description: "Failed to access camera. Please check permissions.",
         variant: "destructive"
       });
       setState('idle');
     }
-  };
+  }, [toast]);
 
-  const handleStopRecording = async () => {
-    if (!cameraRef.current) return;
-    
-    try {
-      cameraRef.current.stopRecording();
-    } catch (error) {
-      console.error('Error stopping recording:', error);
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
     }
-  };
+    
+    if (recordingInterval) {
+      clearInterval(recordingInterval);
+      setRecordingInterval(null);
+    }
+  }, [recordingInterval]);
 
   const handleAnalyze = async () => {
-    if (!videoUri) return;
+    if (!videoBlob) return;
 
     setState('analyzing');
     setCritique('');
 
     try {
-      // Convert video URI to blob for upload
-      const response = await fetch(videoUri);
-      const blob = await response.blob();
-      
       // Create FormData for multipart upload
       const formData = new FormData();
-      formData.append('video', blob, 'workout-video.mp4');
+      formData.append('video', videoBlob, 'workout-video.webm');
 
       // Get auth token
       const { data: { session } } = await supabase.auth.getSession();
@@ -146,9 +204,27 @@ export const VideoCritiqueScreen: React.FC = () => {
   };
 
   const handleRetry = () => {
-    setVideoUri('');
+    if (videoUrl) {
+      URL.revokeObjectURL(videoUrl);
+    }
+    setVideoBlob(null);
+    setVideoUrl('');
     setCritique('');
     setState('idle');
+    setRecordingTime(0);
+  };
+
+  const requestPermission = async () => {
+    try {
+      await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      setHasPermission(true);
+    } catch (error) {
+      toast({
+        title: "Permission Denied",
+        description: "Camera access is required to record videos.",
+        variant: "destructive"
+      });
+    }
   };
 
   if (hasPermission === null) {
@@ -181,7 +257,7 @@ export const VideoCritiqueScreen: React.FC = () => {
             We need camera access to record your workout videos for analysis.
           </p>
           <Button 
-            onClick={() => ExpoCamera.requestCameraPermissionsAsync()}
+            onClick={requestPermission}
             className="bg-brand-blue hover:bg-brand-blue/90"
           >
             Grant Permission
@@ -211,30 +287,21 @@ export const VideoCritiqueScreen: React.FC = () => {
         <div className="space-y-6">
           {/* Camera/Video Section */}
           <GlassCard className="aspect-video relative overflow-hidden">
-            {videoUri && (state === 'recorded' || state === 'analyzing' || state === 'analyzed') ? (
-              <Video
-                ref={videoRef}
-                source={{ uri: videoUri }}
-                style={{ width: '100%', height: '100%' }}
-                resizeMode={ResizeMode.COVER}
-                isLooping={false}
-                shouldPlay={false}
-                useNativeControls
-              />
-            ) : (
-              <CameraView
-                ref={cameraRef}
-                style={{ width: '100%', height: '100%' }}
-                facing="back"
-              />
-            )}
+            <video
+              ref={videoRef}
+              className="w-full h-full object-cover"
+              autoPlay={state === 'recording'}
+              muted={state === 'recording'}
+              controls={state === 'recorded' || state === 'analyzed'}
+              playsInline
+            />
             
             {/* Recording Overlay */}
             {state === 'recording' && (
               <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
                 <div className="bg-red-500 text-white px-4 py-2 rounded-full flex items-center gap-2">
                   <div className="w-3 h-3 bg-white rounded-full animate-pulse" />
-                  <span className="font-medium">REC {recordingTime}s</span>
+                  <span className="font-medium">REC {recordingTime + 1}s</span>
                 </div>
               </div>
             )}
@@ -254,7 +321,7 @@ export const VideoCritiqueScreen: React.FC = () => {
           <div className="space-y-4">
             {state === 'idle' && (
               <Button
-                onClick={handleStartRecording}
+                onClick={startRecording}
                 className="w-full bg-brand-blue hover:bg-brand-blue/90 text-white py-6 text-lg"
                 size="lg"
               >
@@ -265,10 +332,11 @@ export const VideoCritiqueScreen: React.FC = () => {
 
             {state === 'recording' && (
               <Button
-                onClick={handleStopRecording}
+                onClick={stopRecording}
                 className="w-full bg-red-500 hover:bg-red-600 text-white py-6 text-lg"
                 size="lg"
               >
+                <StopCircle className="h-6 w-6 mr-2" />
                 Stop Recording
               </Button>
             )}
