@@ -39,7 +39,7 @@ serve(async (req) => {
     const uniqueFreqs = [...new Set(reminderFreqs?.map(r => r.reminder_frequency_minutes) || [60])];
     console.log('Checking reminder frequencies (minutes):', uniqueFreqs);
 
-    let allUpcomingSessions = [];
+    const allUpcomingSessions = [];
 
     // Check for sessions at each frequency interval
     for (const freqMinutes of uniqueFreqs) {
@@ -52,7 +52,7 @@ serve(async (req) => {
 
       console.log(`Looking for sessions in ${freqMinutes} minutes (${startTime.toISOString()} to ${endTime.toISOString()})`);
 
-      // Find sessions for this frequency
+      // Find sessions for this frequency (for solo athletes only)
       const { data: frequencySessions, error: sessionsError } = await supabase
         .from('sessions')
         .select(`
@@ -63,11 +63,10 @@ serve(async (req) => {
             id,
             title,
             athlete_uuid,
-            coach_uuid,
-            athlete:athlete_uuid (
+            athlete_profile:athlete_uuid (
               id,
               device_token,
-              name,
+              full_name,
               email,
               reminder_enabled,
               reminder_frequency_minutes
@@ -83,9 +82,9 @@ serve(async (req) => {
         continue;
       }
 
-      // Filter for athletes with matching reminder frequency and enabled reminders
+      // Filter for solo athletes with matching reminder frequency and enabled reminders
       const filteredSessions = frequencySessions?.filter(session => {
-        const athlete = session.program?.athlete;
+        const athlete = session.program?.athlete_profile;
         return athlete?.reminder_enabled && 
                athlete?.reminder_frequency_minutes === freqMinutes &&
                athlete?.device_token;
@@ -112,11 +111,11 @@ serve(async (req) => {
       );
     }
 
-    // Prepare push messages for athletes with device tokens
+    // Prepare push messages for solo athletes with device tokens
     const pushMessages: PushMessage[] = [];
     
     for (const session of upcomingSessions) {
-      const athlete = session.program?.athlete;
+      const athlete = session.program?.athlete_profile;
       
       if (!athlete?.device_token || !athlete?.reminder_enabled) {
         console.log(`Skipping session ${session.id} - no device token or reminders disabled`);

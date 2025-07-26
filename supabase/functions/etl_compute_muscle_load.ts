@@ -16,11 +16,11 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // 1. Get all recent athlete IDs, last 90d of sessions
-  const { data: athletes, error: athErr } = await supabase.from("athletes").select("id");
-  if (athErr) return new Response("Error reading athletes", { status: 500, headers: corsHeaders });
+  // 1. Get all solo athlete IDs for muscle load computation
+  const { data: athletes, error: athErr } = await supabase.from("profiles").select("id").eq("role", "solo");
+  if (athErr) return new Response("Error reading solo athletes", { status: 500, headers: corsHeaders });
 
-  let upserts = [];
+  const upserts = [];
   // For each athlete, aggregate muscle load for each muscle
   for (const athlete of athletes) {
     // For each day in last 90d

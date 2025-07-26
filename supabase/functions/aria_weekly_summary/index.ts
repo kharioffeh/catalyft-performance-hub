@@ -48,111 +48,12 @@ const handler = async (req: Request): Promise<Response> => {
     const periodStart = lastMonday.toISOString().split('T')[0];
     const periodEnd = lastSunday.toISOString().split('T')[0];
 
-    console.log(`Generating weekly summaries for period: ${periodStart} to ${periodEnd}`);
+    console.log(`Processing weekly summaries for period ${periodStart} to ${periodEnd}`);
 
+    // Coach functionality has been removed - processing solo athletes only
     let processedCount = 0;
     let errorCount = 0;
-
-    // Process coaches
-    const { data: coaches } = await supabase
-      .from('profiles')
-      .select('id, email, full_name, timezone, weekly_summary_opt_in')
-      .eq('role', 'coach')
-      .eq('weekly_summary_opt_in', true);
-
-    if (coaches) {
-      for (const coach of coaches) {
-        try {
-          const coachId = coach.id;
-          
-          // Check if summary already exists for this period
-          const { data: existingSummary } = await supabase
-            .from('weekly_summaries')
-            .select('id')
-            .eq('owner_uuid', coachId)
-            .eq('period_end', periodEnd)
-            .single();
-
-          if (existingSummary) {
-            console.log(`Summary already exists for coach ${coach.email}`);
-            continue;
-          }
-
-          // Get active athletes for this coach
-          const { data: athletes } = await supabase
-            .rpc('get_active_athletes_for_coach', { p_coach_uuid: coachId });
-
-          if (!athletes || athletes.length === 0) {
-            console.log(`No active athletes for coach ${coach.email}`);
-            continue;
-          }
-
-          // Gather metrics for all athletes
-          const athleteMetrics = [];
-          for (const athlete of athletes) {
-            const { data: metrics } = await supabase
-              .rpc('get_weekly_metrics', {
-                p_athlete_uuid: athlete.athlete_uuid,
-                p_start_date: periodStart,
-                p_end_date: periodEnd
-              });
-
-            if (metrics) {
-              athleteMetrics.push({
-                name: athlete.athlete_name,
-                ...metrics as WeeklyMetrics
-              });
-            }
-          }
-
-          if (athleteMetrics.length === 0) {
-            console.log(`No metrics data for coach ${coach.email}`);
-            continue;
-          }
-
-          // Generate AI summary
-          const summaryMarkdown = await generateCoachSummary(athleteMetrics, coach.full_name || coach.email);
-
-          // Save summary to database
-          const { data: savedSummary, error: saveError } = await supabase
-            .from('weekly_summaries')
-            .insert({
-              owner_uuid: coachId,
-              role: 'coach',
-              period_start: periodStart,
-              period_end: periodEnd,
-              summary_md: summaryMarkdown
-            })
-            .select()
-            .single();
-
-          if (saveError) {
-            console.error(`Error saving summary for coach ${coach.email}:`, saveError);
-            errorCount++;
-            continue;
-          }
-
-          // Send email
-          if (!debug) {
-            await sendWeeklySummaryEmail(coach.email, coach.full_name || coach.email, summaryMarkdown, 'coach');
-          }
-
-          // Mark as delivered
-          await supabase
-            .from('weekly_summaries')
-            .update({ delivered: true })
-            .eq('id', savedSummary.id);
-
-          processedCount++;
-          console.log(`Processed coach: ${coach.email}`);
-
-        } catch (error) {
-          console.error(`Error processing coach ${coach.email}:`, error);
-          errorCount++;
-        }
-      }
-    }
-
+    
     // Process solo athletes
     const { data: soloAthletes } = await supabase
       .from('profiles')

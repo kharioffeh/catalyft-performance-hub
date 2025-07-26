@@ -1,5 +1,6 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
+@import './styles/calendar.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -260,5 +261,4 @@ html, body {
   @apply focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-brand-charcoal;
 }
 
-/* Import calendar styles */
-@import './styles/calendar.css';
+

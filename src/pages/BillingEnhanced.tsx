@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CurrencySelector } from '@/components/CurrencySelector';
-import { AthleteManagementCard } from '@/components/AthleteManagementCard';
+
 import { Calendar, CreditCard, Clock, AlertTriangle, CheckCircle, Users, Crown, TrendingUp } from 'lucide-react';
 
 const BillingEnhancedPage: React.FC = () => {
@@ -187,8 +187,7 @@ const BillingEnhancedPage: React.FC = () => {
             </div>
           </GlassCard>
 
-          {/* Athlete Management Card */}
-          <AthleteManagementCard />
+
         </div>
 
         {/* Billing History */}

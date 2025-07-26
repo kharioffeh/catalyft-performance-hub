@@ -6,7 +6,7 @@ import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { AthleteManagementCard } from '@/components/AthleteManagementCard';
+
 import { BillingHistory } from '@/components/BillingHistory';
 import { Users, Crown, Calendar, CreditCard, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
 
@@ -161,8 +161,7 @@ export const EnhancedSubscriptionManagement: React.FC = () => {
           </div>
         </GlassCard>
 
-        {/* Athlete Management Card */}
-        <AthleteManagementCard />
+
       </div>
 
       {/* Billing History */}
