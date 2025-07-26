@@ -46,6 +46,9 @@ verify_jwt = true
 [functions.endWorkout]
 verify_jwt = true
 
+[functions.getAnalytics]
+verify_jwt = true
+
 # Cron job to run session reminders every 15 minutes
 # [functions.sessionReminders.schedule]
 # cron = "*/15 * * * *"
