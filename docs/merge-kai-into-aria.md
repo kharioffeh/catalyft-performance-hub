@@ -48,9 +48,9 @@ For more information or assistance, please consult the [Supabase dashboard](http
 
 ## Program Generator
 
-Catalyft now uses the ARIA Program Generator (OpenAI gpt-4o-mini) for coach-tier S&C plan automation.  
+Catalyft now uses the ARIA Program Generator (OpenAI gpt-4o-mini) for solo user S&C plan automation.  
 To enable, set your OPENAI_KEY_ARIA secret. The function uses:  
-- athlete profile
+- user profile
 - latest testing metrics (if any, via `athlete_testing`)
 - plan goal and duration
 
