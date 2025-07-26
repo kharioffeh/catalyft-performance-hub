@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Dumbbell } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,31 +7,21 @@ import { useProgramTemplates } from '@/hooks/useProgramTemplates';
 import { GenerateProgramDialog } from '@/components/GenerateProgramDialog';
 import { TemplateCard } from '@/components/TemplateCard';
 import { TemplateModal } from '@/components/TemplateModal';
-
 import { useTemplateModal } from '@/store/useTemplateModal';
 
 const TemplatesPage: React.FC = () => {
   const { profile } = useAuth();
-  const { data: templates = [], isLoading, refetch } = useProgramTemplates();
+  const { data: templates = [], isLoading } = useProgramTemplates();
   const [isGenerateOpen, setIsGenerateOpen] = useState(false);
-
   const { tpl, close } = useTemplateModal();
 
-  // Templates page disabled for solo users
-  return (
-    <div className="text-center py-8">
-      <p className="text-gray-500">Program templates are not available for solo users.</p>
-    </div>
-  );
-
-  // Assign functionality removed for solo pivot
-
+  // Solo users can view and generate templates but not assign them
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Dumbbell className="w-8 h-8 text-blue-600" />
-          <h1 className="text-3xl font-bold text-gray-900">KAI (Kinetic Adaptive Instructor)</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Program Templates</h1>
         </div>
         <div className="flex items-center gap-2">
           <Button 
@@ -55,7 +44,7 @@ const TemplatesPage: React.FC = () => {
             <TemplateCard 
               key={template.id} 
               template={template}
-              onAssign={openAssignDialog}
+              onAssign={() => {}} // No assignment for solo users
             />
           ))}
         </div>
@@ -87,11 +76,9 @@ const TemplatesPage: React.FC = () => {
           template={tpl}
           open={!!tpl}
           onOpenChange={(open) => !open && close()}
-          onAssign={openAssignDialog}
+          onAssign={() => {}} // No assignment for solo users
         />
       )}
-
-
     </div>
   );
 };

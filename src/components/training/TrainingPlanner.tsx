@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AgendaList } from '@/components/Calendar/AgendaList';
 import { AgendaHeader } from '@/components/Calendar/AgendaHeader';
-import { CreateSessionDialog } from '@/components/CreateSessionDialog';
+// CreateSessionDialog removed for solo experience
 import { ChevronLeft, ChevronRight, Plus, Calendar } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -232,11 +232,7 @@ export const TrainingPlanner: React.FC<TrainingPlannerProps> = ({
         )}
       </div>
 
-      <CreateSessionDialog
-        open={isCreateOpen}
-        onOpenChange={setIsCreateOpen}
-        queryClient={queryClient}
-      />
+      {/* Session creation dialog removed for solo experience */}
     </>
   );
 };

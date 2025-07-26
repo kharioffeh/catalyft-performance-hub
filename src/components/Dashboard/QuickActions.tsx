@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BarChart3, Calendar, Users } from 'lucide-react';
+import { BarChart3, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface QuickActionsProps {
@@ -19,7 +19,7 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ userRole }) => {
         <CardDescription>Navigate to key areas of your training platform</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2">
           <Button 
             variant="outline" 
             className="flex items-center gap-2 h-12"
@@ -36,17 +36,7 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ userRole }) => {
             <Calendar className="w-5 h-5" />
             Training Calendar
           </Button>
-          {/* Coach actions hidden for solo users */}
-          {false && (
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2 h-12"
-              onClick={() => navigate('/athletes')}
-            >
-              <Users className="w-5 h-5" />
-              Manage Athletes
-            </Button>
-          )}
+          {/* Coach actions removed for solo experience */}
         </div>
       </CardContent>
     </Card>

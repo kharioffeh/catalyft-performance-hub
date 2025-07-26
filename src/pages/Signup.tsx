@@ -229,7 +229,7 @@ const Signup: React.FC = () => {
               <div className="absolute inset-0 z-20 border border-white/30 rounded-xl"></div>
               <button 
                 type="submit" 
-                disabled={loading || !watchedRole}
+                disabled={loading}
                 className="z-30 relative w-full border-none flex gap-2 text-sm font-semibold text-white bg-transparent py-3 px-4 items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span>{loading ? 'Creating account...' : 'Create Account'}</span>

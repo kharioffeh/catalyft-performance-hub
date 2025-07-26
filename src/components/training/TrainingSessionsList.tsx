@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SessionDetailsDialog } from '@/components/SessionDetailsDialog';
-import { CreateSessionDialog } from '@/components/CreateSessionDialog';
+// CreateSessionDialog removed for solo experience
 import { Play, Clock, Users, Plus } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -185,11 +185,7 @@ export const TrainingSessionsList: React.FC<TrainingSessionsListProps> = ({
         canEdit={isCoach}
       />
 
-      <CreateSessionDialog
-        open={isCreateOpen}
-        onOpenChange={setIsCreateOpen}
-        queryClient={queryClient}
-      />
+      {/* Session creation dialog removed for solo experience */}
     </>
   );
 };

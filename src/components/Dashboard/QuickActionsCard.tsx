@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BarChart3, Calendar, Users } from 'lucide-react';
+import { BarChart3, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import GlassCard from '@/components/ui/GlassCard';
 
@@ -41,19 +41,7 @@ export const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ userRole }) 
           </div>
         </button>
         
-        {/* Coach actions hidden for solo users */}
-        {false && (
-          <button 
-            onClick={() => navigate('/athletes')}
-            className="w-full flex items-center gap-3 p-4 rounded-2xl bg-white/10 hover:bg-white/20 transition-all duration-200 text-left"
-          >
-            <Users className="w-5 h-5 flex-shrink-0" />
-            <div>
-              <div className="font-medium">Manage Athletes</div>
-              <div className="text-xs text-white/70">View and manage your team</div>
-            </div>
-          </button>
-        )}
+        {/* Coach actions removed for solo experience */}
       </div>
     </GlassCard>
   );

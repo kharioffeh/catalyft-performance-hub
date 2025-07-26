@@ -2,12 +2,9 @@
 import { 
   BarChart3, 
   Calendar, 
-  Users, 
   MessageSquare, 
   Settings, 
-  Dumbbell,
   BookOpen,
-  AlertTriangle,
   Activity,
 } from 'lucide-react';
 
@@ -40,45 +37,7 @@ export const navigationItems = [
   },
 ];
 
-// Role-specific navigation arrays for backward compatibility
-export const coachNavigation = [
-  {
-    label: 'Dashboard',
-    path: '/dashboard',
-    icon: BarChart3,
-  },
-  {
-    label: 'Analytics',
-    path: '/analytics',
-    icon: BarChart3,
-  },
-  {
-    label: 'Calendar',
-    path: '/calendar',
-    icon: Calendar,
-  },
-  {
-    label: 'Athletes',
-    path: '/athletes',
-    icon: Users,
-  },
-  {
-    label: 'Risk Board',
-    path: '/risk-board',
-    icon: AlertTriangle,
-  },
-  {
-    label: 'Training',
-    path: '/training-plan',
-    icon: BookOpen,
-  },
-  {
-    label: 'Chat',
-    path: '/chat',
-    icon: MessageSquare,
-  },
-];
-
+// Solo-only navigation for clean experience
 export const soloNavigation = [
   {
     label: 'Dashboard',
@@ -91,8 +50,30 @@ export const soloNavigation = [
     icon: Activity,
   },
   {
+    label: 'Training Plan',
+    path: '/training-plan',
+    icon: BookOpen,
+  },
+  {
+    label: 'Calendar',
+    path: '/calendar',
+    icon: Calendar,
+  },
+  {
+    label: 'Analytics',
+    path: '/analytics',
+    icon: BarChart3,
+  },
+  {
     label: 'Chat',
     path: '/chat',
     icon: MessageSquare,
   },
+  {
+    label: 'Settings',
+    path: '/settings',
+    icon: Settings,
+  },
 ];
+
+// Remove duplicate - already defined above

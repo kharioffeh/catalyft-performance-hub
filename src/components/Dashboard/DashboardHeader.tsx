@@ -13,7 +13,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   const getTitle = () => {
     switch (userRole) {
       case 'coach':
-        return 'Coach Dashboard';
+        return 'Dashboard'; // Solo experience only
       case 'solo-athlete':
         return 'My Training Dashboard';
       case 'coached-athlete':
