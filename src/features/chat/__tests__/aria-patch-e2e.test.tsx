@@ -68,8 +68,7 @@ const mockPatch: ProgramPatch = {
   ],
   start_date: '2024-01-15',
   end_date: '2024-04-08',
-  athlete_uuid: 'athlete-456',
-  coach_uuid: 'coach-789'
+  user_uuid: 'user-456'
 };
 
 describe('ARIA Patch E2E Test', () => {

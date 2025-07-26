@@ -5,7 +5,7 @@ import { BodyHeatMap } from "../BodyHeatMap";
 
 describe("BodyHeatMap", () => {
   it("renders with no data", () => {
-    const { container } = render(<BodyHeatMap athleteId="dummy" />);
+    const { container } = render(<BodyHeatMap userId="dummy" />);
     expect(container).toMatchSnapshot();
   });
 });

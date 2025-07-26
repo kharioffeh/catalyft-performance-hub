@@ -4,6 +4,9 @@
 require('dotenv').config({ path: '.env.test', silent: true });
 require('dotenv').config({ path: '.env', silent: true });
 
+// Import testing library matchers
+require('@testing-library/jest-dom');
+
 // Mock environment variables for testing (fallbacks if .env doesn't exist)
 process.env.SUPABASE_URL = process.env.SUPABASE_URL || 'http://localhost:54321';
 process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'mock-service-role-key';

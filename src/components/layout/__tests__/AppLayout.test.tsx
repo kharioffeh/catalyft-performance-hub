@@ -30,7 +30,7 @@ const mockProfile = {
   id: '123',
   email: 'test@example.com',
   full_name: 'Test User',
-  role: 'coach' as const,
+  role: 'solo' as const,
   created_at: '2023-01-01',
   updated_at: '2023-01-01'
 };
@@ -58,38 +58,15 @@ describe('AppLayout', () => {
     jest.clearAllMocks();
   });
 
-  it('renders coach sidebar when user is a coach', () => {
-    mockUseAuth.mockReturnValue({
-      user: { id: '123' } as any,
-      profile: { ...mockProfile, role: 'coach' },
-      loading: false,
-      session: { user: { id: '123' } } as any,
-      signOut: jest.fn()
-    });
+  it('renders solo sidebar when user is authenticated', () => {
+    const { getByLabelText, queryByText } = renderWithRouter(<AppLayout />);
 
-    const { getByText, getByLabelText } = renderWithRouter(<AppLayout />);
-
-    // Should contain coach-specific navigation items
-    expect(getByText('Athletes')).toBeInTheDocument();
-    expect(getByText('Risk Board')).toBeInTheDocument();
-    expect(getByLabelText('coach-sidebar')).toBeInTheDocument();
-  });
-
-  it('renders solo sidebar when user is an athlete', () => {
-    mockUseAuth.mockReturnValue({
-      user: { id: '123' } as any,
-      profile: { ...mockProfile, role: 'athlete' },
-      loading: false,
-      session: { user: { id: '123' } } as any,
-      signOut: jest.fn()
-    });
-
-    const { queryByText, getByLabelText } = renderWithRouter(<AppLayout />);
-
-    // Should NOT contain coach-specific items
+    // Should render solo sidebar
+    expect(getByLabelText('solo-sidebar')).toBeInTheDocument();
+    
+    // Should NOT contain coach-specific items (ensuring cleanup)
     expect(queryByText('Athletes')).not.toBeInTheDocument();
     expect(queryByText('Risk Board')).not.toBeInTheDocument();
-    expect(getByLabelText('solo-sidebar')).toBeInTheDocument();
   });
 
   it('shows loading spinner when auth is loading', () => {

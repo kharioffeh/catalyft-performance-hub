@@ -20,8 +20,7 @@ const mockPatch: ProgramPatch = {
   ],
   start_date: '2024-01-01',
   end_date: '2024-02-26',
-  athlete_uuid: 'athlete-123',
-  coach_uuid: 'coach-456'
+  user_uuid: 'user-123'
 };
 
 test('PatchPrompt renders correctly', () => {
