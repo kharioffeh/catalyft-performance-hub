@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1"
 import { corsHeaders } from "../_shared/cors.ts"
+import { publishEvent } from "../_shared/ably.ts"
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -99,6 +100,10 @@ serve(async (req) => {
     }
 
     console.log(`Successfully joined challenge ${challenge_id}`);
+
+    // Publish event after successful DB operation
+    const uid = user.id;
+    publishEvent(uid, "challengeJoined", { challenge_id });
 
     return new Response(
       JSON.stringify({ 

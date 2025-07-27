@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1"
+import { publishEvent } from "../_shared/ably.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -125,6 +126,10 @@ serve(async (req) => {
     }, { like: 0, cheer: 0 } as Record<string, number>) || { like: 0, cheer: 0 };
 
     console.log(`Reaction ${action}: ${type} for post ${post_id}. New counts:`, reactionCounts);
+
+    // Publish event after successful DB operation
+    const uid = user.id;
+    publishEvent(uid, "postReaction", { post_id, action, reaction_type: type });
 
     return new Response(
       JSON.stringify({ 

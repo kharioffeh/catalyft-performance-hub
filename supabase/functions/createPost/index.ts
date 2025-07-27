@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1"
+import { publishEvent } from "../_shared/ably.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -99,6 +100,10 @@ serve(async (req) => {
     };
 
     console.log(`Successfully created post ${post.id}`);
+
+    // Publish event after successful DB operation
+    const uid = user.id;
+    publishEvent(uid, "postCreated", { post_id: post.id });
 
     return new Response(
       JSON.stringify({ post: formattedPost }),
