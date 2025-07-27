@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Target, User, Dumbbell, Sparkles, Loader2 } from 'lucide-react';
-import { generateProgramWithAria } from '@catalyft/core/api';
+import { generateProgramWithAria } from '@catalyft/core';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
