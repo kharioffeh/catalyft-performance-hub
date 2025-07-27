@@ -62,7 +62,7 @@ export const FinishersCard: React.FC<FinishersCardProps> = ({
     setShowProtocolsSheet(true);
   };
 
-  if (isLoading || !sessionFinisher?.mobility_protocols) {
+  if (isLoading || !sessionFinisher) {
     return (
       <div
         className={cn(
@@ -82,7 +82,26 @@ export const FinishersCard: React.FC<FinishersCardProps> = ({
     );
   }
 
-  const protocol = sessionFinisher.mobility_protocols;
+  const protocol = sessionFinisher?.mobility_protocols;
+  
+  if (!protocol) {
+    return (
+      <div
+        className={cn(
+          "transform transition-all duration-500 ease-out",
+          isVisible 
+            ? "translate-y-0 opacity-100" 
+            : "translate-y-8 opacity-0"
+        )}
+      >
+        <GlassCard accent="primary" className="p-6">
+          <div className="flex items-center justify-center space-x-2">
+            <span className="text-foreground">No finisher protocol found</span>
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
 
   return (
     <>
