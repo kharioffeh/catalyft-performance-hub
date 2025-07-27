@@ -46,6 +46,7 @@ const SorenessScreen = React.lazy(() => import('../pages/mobile/SorenessScreen')
 const ProgramBuilderScreen = React.lazy(() => import('../pages/mobile/ProgramBuilderScreen').then(module => ({ default: module.ProgramBuilderScreen })));
 const AriaChatScreen = React.lazy(() => import('../pages/mobile/AriaChatScreen').then(module => ({ default: module.AriaChatScreen })));
 const VideoCritiqueScreen = React.lazy(() => import('../pages/mobile/VideoCritiqueScreen').then(module => ({ default: module.VideoCritiqueScreen })));
+const ProtocolDetailScreen = React.lazy(() => import('../pages/mobile/ProtocolDetailScreen').then(module => ({ default: module.ProtocolDetailScreen })));
 const ClubsScreen = React.lazy(() => import('../pages/ClubsScreen'));
 const ChallengesScreen = React.lazy(() => import('../pages/ChallengesScreen'));
 const MeetsScreen = React.lazy(() => import('../pages/MeetsScreen'));
@@ -110,6 +111,7 @@ const AppRouter = () => {
           <Route path="mobile/program-builder" element={<ProgramBuilderScreen />} />
           <Route path="mobile/aria-chat" element={<AriaChatScreen />} />
           <Route path="mobile/video-critique" element={<VideoCritiqueScreen />} />
+          <Route path="mobile/protocol-detail" element={<ProtocolDetailScreen />} />
           <Route path="clubs" element={<ClubsScreen />} />
           <Route path="challenges" element={<ChallengesScreen />} />
           <Route path="meets" element={<MeetsScreen />} />

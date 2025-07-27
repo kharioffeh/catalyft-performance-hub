@@ -55,7 +55,15 @@ export const FinishersCard: React.FC<FinishersCardProps> = ({
     if (onStartProtocol) {
       onStartProtocol();
     }
-    // TODO: Navigate to ProtocolDetailScreen
+    
+    // Navigate to ProtocolDetailScreen with protocol and session data
+    if (sessionFinisher?.mobility_protocols) {
+      const params = new URLSearchParams({
+        protocolId: sessionFinisher.mobility_protocols.id,
+        ...(sessionId && { sessionId })
+      });
+      window.location.href = `/mobile/protocol-detail?${params.toString()}`;
+    }
   };
 
   const handleChangeProtocol = () => {

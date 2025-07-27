@@ -41,7 +41,13 @@ export const ProtocolsSheet: React.FC<ProtocolsSheetProps> = ({
     }
     
     onClose();
-    // TODO: Navigate to ProtocolDetailScreen
+    
+    // Navigate to ProtocolDetailScreen
+    const params = new URLSearchParams({
+      protocolId: protocol.id,
+      ...(sessionId && { sessionId })
+    });
+    window.location.href = `/mobile/protocol-detail?${params.toString()}`;
   }, [sessionId, onProtocolSelect, onClose, assignFinisher]);
 
   // Handle backdrop click
