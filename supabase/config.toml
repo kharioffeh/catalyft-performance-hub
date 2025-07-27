@@ -55,6 +55,21 @@ verify_jwt = true
 [functions.getAnalytics]
 verify_jwt = true
 
+[functions.createClub]
+verify_jwt = true
+
+[functions.getClubs]
+verify_jwt = false
+
+[functions.joinClub]
+verify_jwt = true
+
+[functions.leaveClub]
+verify_jwt = true
+
+[functions.getMyClubs]
+verify_jwt = true
+
 # Cron job to run session reminders every 15 minutes
 # [functions.sessionReminders.schedule]
 # cron = "*/15 * * * *"
