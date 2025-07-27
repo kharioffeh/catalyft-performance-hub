@@ -1,31 +1,10 @@
 
-// Generate chart data from raw data
-export const formatChartData = (rawData: any[], xKey: string, yKey: string) => {
-  return rawData.map(item => ({
-    x: item[xKey],
-    y: item[yKey] || 0
-  }));
-};
-
-// Generate chart data with hourly formatting
-export const formatHourlyChartData = (rawData: any[], xKey: string, yKey: string) => {
-  return rawData.map(item => ({
-    x: item[xKey],
-    y: item[yKey] || 0,
-    hour: new Date(item[xKey]).getHours()
-  }));
-};
-
-// Generate sleep chart data with stages
-export const formatSleepChartData = (rawData: any[]) => {
-  return rawData.map(item => ({
-    x: item.day,
-    y: item.total_sleep_hours || 0,
-    deep: (item.deep_minutes || 0) / 60,
-    light: (item.light_minutes || 0) / 60,
-    rem: (item.rem_minutes || 0) / 60
-  }));
-};
+// Import base formatters from core
+export { 
+  formatChartData, 
+  formatHourlyChartData, 
+  formatSleepChartData 
+} from '@catalyft/core';
 
 // Generate hourly sleep chart data
 export const formatHourlySleepChartData = (rawData: any[]) => {
