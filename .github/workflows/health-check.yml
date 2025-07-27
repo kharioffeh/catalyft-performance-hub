@@ -46,9 +46,6 @@ jobs:
       env:
         VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
         VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-        OPENAI_API_KEY: ${{ secrets.OPENAI_KAI_KEY }}
-        ABLY_API_KEY: ${{ secrets.ABLY_API_KEY }}
-        GARMIN_OAUTH_TOKEN: ${{ secrets.GARMIN_OAUTH_TOKEN }}
       run: |
         npx jest --config jest.config.cjs --runInBand tests/api.smoke.test.ts || echo "Smoke tests completed with warnings"
       continue-on-error: true

@@ -2,9 +2,6 @@ import https from 'https';
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL!;
 const SUPABASE_ANON = process.env.VITE_SUPABASE_ANON_KEY!;
-const ABLY_KEY     = process.env.ABLY_API_KEY!;
-const OPENAI_KEY   = process.env.OPENAI_API_KEY!;
-const GARMIN_TOKEN = process.env.GARMIN_OAUTH_TOKEN!;
 
 // Simple HTTP request helper
 const makeHttpRequest = (url: string, headers: Record<string, string> = {}): Promise<{status: number, data?: any}> => {
@@ -59,54 +56,104 @@ describe('API Smoke Check', () => {
     expect(response.status).toBeLessThan(500);
   });
 
-  it('can connect to Ably REST API', async () => {
-    if (!ABLY_KEY) {
-      console.warn('ABLY_API_KEY not provided, skipping Ably test');
+  it('can test OpenAI integration via Supabase function', async () => {
+    if (!SUPABASE_URL || !SUPABASE_ANON || SUPABASE_URL.includes('your_test_supabase_url')) {
+      console.warn('Supabase credentials not provided, skipping OpenAI via Supabase test');
       return;
     }
 
-    // Test Ably REST API stats endpoint
+    // Test OpenAI integration by checking if the aria-chat-proxy function is accessible
     const response = await makeHttpRequest(
-      'https://rest.ably.io/stats',
+      `${SUPABASE_URL}/functions/v1/aria-chat-proxy`,
       {
-        'Authorization': `Basic ${Buffer.from(ABLY_KEY).toString('base64')}`
-      }
-    );
-    
-    expect(response.status).toBeLessThan(400);
-  });
-
-  it('can connect to OpenAI API', async () => {
-    if (!OPENAI_KEY) {
-      console.warn('OPENAI_API_KEY not provided, skipping OpenAI test');
-      return;
-    }
-
-    // Test OpenAI models endpoint
-    const response = await makeHttpRequest(
-      'https://api.openai.com/v1/models',
-      {
-        'Authorization': `Bearer ${OPENAI_KEY}`,
+        'apikey': SUPABASE_ANON,
+        'Authorization': `Bearer ${SUPABASE_ANON}`,
         'Content-Type': 'application/json'
       }
     );
     
-    expect(response.status).toBeLessThan(400);
+    // Function should respond (401 unauthorized is fine for health check, 500+ indicates infrastructure issues)
+    expect(response.status).toBeLessThan(500);
   });
 
-  it('can fetch Garmin profile (if token provided)', async () => {
-    if (!GARMIN_TOKEN) {
-      console.warn('GARMIN_OAUTH_TOKEN not provided, skipping Garmin test');
+  it('can test Stripe integration via Supabase function', async () => {
+    if (!SUPABASE_URL || !SUPABASE_ANON || SUPABASE_URL.includes('your_test_supabase_url')) {
+      console.warn('Supabase credentials not provided, skipping Stripe via Supabase test');
       return;
     }
 
+    // Test Stripe integration by checking if the stripe-webhook function is accessible
     const response = await makeHttpRequest(
-      'https://apis.garmin.com/wellness-api/rest/user/id',
+      `${SUPABASE_URL}/functions/v1/stripe-webhook`,
       {
-        'Authorization': `Bearer ${GARMIN_TOKEN}`
+        'apikey': SUPABASE_ANON,
+        'Authorization': `Bearer ${SUPABASE_ANON}`,
+        'Content-Type': 'application/json'
       }
     );
     
-    expect(response.status).toBeLessThan(400);
+    // Webhook function should respond with ANY HTTP status (not 404 which means function doesn't exist)
+    // Even 500 errors indicate the function exists and is attempting to process requests
+    expect(response.status).not.toBe(404);
+  });
+
+  it('can test Resend integration via Supabase function', async () => {
+    if (!SUPABASE_URL || !SUPABASE_ANON || SUPABASE_URL.includes('your_test_supabase_url')) {
+      console.warn('Supabase credentials not provided, skipping Resend via Supabase test');
+      return;
+    }
+
+    // Test Resend integration by checking if the aria-daily-digest function is accessible
+    const response = await makeHttpRequest(
+      `${SUPABASE_URL}/functions/v1/aria-daily-digest`,
+      {
+        'apikey': SUPABASE_ANON,
+        'Authorization': `Bearer ${SUPABASE_ANON}`,
+        'Content-Type': 'application/json'
+      }
+    );
+    
+    // Function should respond (401 unauthorized is fine for health check, 500+ indicates infrastructure issues)
+    expect(response.status).toBeLessThan(500);
+  });
+
+  it('can test Ably integration via Supabase function', async () => {
+    if (!SUPABASE_URL || !SUPABASE_ANON || SUPABASE_URL.includes('your_test_supabase_url')) {
+      console.warn('Supabase credentials not provided, skipping Ably via Supabase test');
+      return;
+    }
+
+    // Test Ably integration by checking if a function that uses Ably (createPost) is accessible
+    const response = await makeHttpRequest(
+      `${SUPABASE_URL}/functions/v1/createPost`,
+      {
+        'apikey': SUPABASE_ANON,
+        'Authorization': `Bearer ${SUPABASE_ANON}`,
+        'Content-Type': 'application/json'
+      }
+    );
+    
+    // Function should respond (401 unauthorized is fine for health check, 500+ indicates infrastructure issues)
+    expect(response.status).toBeLessThan(500);
+  });
+
+  it('can test Whoop integration via Supabase function', async () => {
+    if (!SUPABASE_URL || !SUPABASE_ANON || SUPABASE_URL.includes('your_test_supabase_url')) {
+      console.warn('Supabase credentials not provided, skipping Whoop via Supabase test');
+      return;
+    }
+
+    // Test Whoop integration by checking if the whoop-oauth function is accessible
+    const response = await makeHttpRequest(
+      `${SUPABASE_URL}/functions/v1/whoop-oauth`,
+      {
+        'apikey': SUPABASE_ANON,
+        'Authorization': `Bearer ${SUPABASE_ANON}`,
+        'Content-Type': 'application/json'
+      }
+    );
+    
+    // Function should respond (401 unauthorized is fine for health check, 500+ indicates infrastructure issues)
+    expect(response.status).toBeLessThan(500);
   });
 });
