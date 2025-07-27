@@ -14,7 +14,8 @@ export const CSP_DIRECTIVES = {
   ],
   'style-src': [
     "'self'",
-    "'unsafe-inline'" // Required for CSS-in-JS and inline styles
+    "'unsafe-inline'", // Required for CSS-in-JS and inline styles
+    "https://fonts.googleapis.com"
   ],
   'img-src': [
     "'self'",
@@ -23,7 +24,8 @@ export const CSP_DIRECTIVES = {
   ],
   'font-src': [
     "'self'",
-    "data:"
+    "data:",
+    "https://fonts.gstatic.com"
   ],
   'connect-src': [
     "'self'",
