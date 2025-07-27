@@ -36,7 +36,7 @@ export const useSessionFinisher = (sessionId: string | null) => {
     queryFn: async () => {
       if (!sessionId) return null;
       
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('session_finishers')
         .select(`
           *,
@@ -58,7 +58,7 @@ export const useAssignFinisher = () => {
   
   return useMutation({
     mutationFn: async ({ sessionId, protocolId }: { sessionId: string; protocolId: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('session_finishers')
         .upsert({
           session_id: sessionId,
