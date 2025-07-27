@@ -1,2 +1,5 @@
-// Type definitions will be exported from here
-export {};
+// Type definitions exports
+export * from './training';
+export * from './workout';
+export * from './ariaProgram';
+export * from './metrics';
