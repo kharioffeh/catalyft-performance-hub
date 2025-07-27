@@ -59,9 +59,11 @@ const PageLoader = () => (
 );
 
 const AppRouter = () => {
+  console.log('🧭 AppRouter component mounting...');
   // Handle hash-based authentication redirects - now inside Router context
   useSupabaseHash();
 
+  console.log('🧭 AppRouter rendering routes...');
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>

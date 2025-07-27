@@ -4,171 +4,189 @@ import { Button } from '@/components/ui/button';
 import { Activity, Shield, Calendar, BarChart3, Zap, Brain } from 'lucide-react';
 
 const Home: React.FC = () => {
-  console.log('Home component rendering...');
+  console.log('🏠 Home component rendering...');
   
   // Vanta background ref - disabled temporarily to fix loading issues
   const vantaRef = useRef<HTMLDivElement>(null);
 
-  return (
-    <div className="relative min-h-screen bg-brand-charcoal text-white font-[Inter]">
-      {/* Background layers - simplified without Vanta */}
-      <div ref={vantaRef} className="absolute inset-0 -z-10 bg-gradient-to-br from-brand-charcoal via-brand-slate to-brand-charcoal" />
-      <div className="absolute top-1/2 left-1/2 w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 bg-brand-blue opacity-10 blur-[120px] rounded-full pointer-events-none" />
+  try {
+    return (
+      <div className="relative min-h-screen bg-brand-charcoal text-white font-[Inter]">
+        {/* Background layers - simplified without Vanta */}
+        <div ref={vantaRef} className="absolute inset-0 -z-10 bg-gradient-to-br from-brand-charcoal via-brand-slate to-brand-charcoal" />
+        <div className="absolute top-1/2 left-1/2 w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 bg-brand-blue opacity-10 blur-[120px] rounded-full pointer-events-none" />
 
-      {/* Navigation */}
-      <nav className="container mx-auto px-6 py-6 flex items-center justify-between">
-        <div className="flex items-center">
-          <Activity className="h-8 w-8 text-brand-blue" />
-          <span className="ml-3 text-xl tracking-tight font-semibold">Catalyft AI</span>
-        </div>
+        {/* Navigation */}
+        <nav className="container mx-auto px-6 py-6 flex items-center justify-between">
+          <div className="flex items-center">
+            <Activity className="h-8 w-8 text-brand-blue" />
+            <span className="ml-3 text-xl tracking-tight font-semibold">Catalyft AI</span>
+          </div>
 
-        <ul className="hidden md:flex space-x-10 text-sm text-gray-300">
-          <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-          <li><a href="#testimonials" className="hover:text-white transition-colors">Testimonials</a></li>
-          <li><Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy</Link></li>
-        </ul>
+          <ul className="hidden md:flex space-x-10 text-sm text-gray-300">
+            <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
+            <li><a href="#testimonials" className="hover:text-white transition-colors">Testimonials</a></li>
+            <li><Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy</Link></li>
+          </ul>
 
-        <Link to="/login">
-          <Button variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-md">
-            Sign In
-          </Button>
-        </Link>
-      </nav>
-
-      {/* Hero Section */}
-      <section id="hero" className="container mx-auto px-6 pt-20 md:pt-28 text-center">
-        <h1 className="text-5xl md:text-6xl lg:text-7xl font-light tracking-tight mb-6 leading-tight">
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">AI-Powered</span>{" "}
-          Performance Coaching
-        </h1>
-        <p className="text-gray-300 text-xl md:text-2xl mb-10 max-w-3xl mx-auto font-light">
-          Optimize your training with intelligent insights from your wearable data, 
-          personalized coaching plans, and advanced analytics.
-        </p>
-
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link to="/signup">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3">
-              Start Free Trial
+          <Link to="/login">
+            <Button variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-md">
+              Sign In
             </Button>
           </Link>
-          <a href="#features" className="flex items-center text-gray-300 hover:text-white transition-colors">
-            Learn more
-            <BarChart3 className="ml-2 h-4 w-4" />
-          </a>
-        </div>
+        </nav>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-24 max-w-4xl mx-auto">
-          {[
-            ["10k+", "Athletes trained"],
-            ["95%", "Performance improvement"],
-            ["24/7", "AI monitoring"],
-            ["100%", "Data-driven insights"],
-          ].map(([num, label]) => (
-            <div key={label} className="text-center">
-              <p className="text-4xl font-light mb-1 tracking-tight text-blue-400">{num}</p>
-              <p className="text-gray-400 font-light">{label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-24">
-        <div className="container mx-auto px-6">
-          {/* Header */}
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-light tracking-tight mb-4">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-                Powerful features
-              </span>{" "}
-              for peak performance
-            </h2>
-            <p className="text-gray-300 text-xl max-w-2xl mx-auto font-light">
-              Everything you need to monitor, analyze, and optimize athletic performance with cutting-edge AI technology.
-            </p>
-          </div>
-
-          {/* Features Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {FEATURE_LIST.map(({ icon: IconComponent, title, desc, color }) => (
-              <div
-                key={title}
-                className="bg-white/5 backdrop-blur-md p-8 rounded-xl border border-white/10 hover:border-blue-500/30 transition-all duration-300 group"
-              >
-                <div className={`w-12 h-12 mb-6 rounded-lg flex items-center justify-center ${color} group-hover:opacity-80 transition-opacity`}>
-                  <IconComponent className="h-6 w-6" />
-                </div>
-                <h3 className="text-xl font-medium mb-3 text-white">{title}</h3>
-                <p className="text-gray-400 font-light leading-relaxed">{desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section id="testimonials" className="py-24 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none select-none">
-          <div className="absolute -top-32 left-1/3 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 right-1/5 w-64 h-64 bg-purple-600/20 rounded-full blur-3xl"></div>
-        </div>
-        
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-light tracking-tight mb-4">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-                What Athletes Say
-              </span>
-            </h2>
-            <p className="text-gray-300 text-xl max-w-2xl mx-auto font-light">
-              Real feedback from athletes and coaches who've transformed their performance
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {TESTIMONIALS.map((testimonial, index) => (
-              <div
-                key={testimonial.name}
-                className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10 hover:border-blue-500/30 transition-all duration-300 flex flex-col items-center text-center"
-              >
-                <img 
-                  src={testimonial.image} 
-                  alt={testimonial.name}
-                  className="w-16 h-16 rounded-full mb-4 border-2 border-blue-400 shadow-lg"
-                />
-                <p className="text-lg text-white mb-4 font-light leading-relaxed">
-                  "{testimonial.quote}"
-                </p>
-                <div className="mt-auto">
-                  <span className="block text-blue-300 font-medium">{testimonial.name}</span>
-                  <span className="block text-gray-400 text-sm">{testimonial.title}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA Section */}
-      <section className="py-16 bg-white/5 backdrop-blur-md border-t border-white/10">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-2xl font-medium text-white mb-4">
-            Ready to optimize your performance?
-          </h2>
-          <p className="text-gray-300 mb-6 font-light">
-            Join the solo training revolution. Get AI-powered programs tailored specifically for you.
+        {/* Hero Section */}
+        <section id="hero" className="container mx-auto px-6 pt-20 md:pt-28 text-center">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-light tracking-tight mb-6 leading-tight">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">AI-Powered</span>{" "}
+            Performance Coaching
+          </h1>
+          <p className="text-gray-300 text-xl md:text-2xl mb-10 max-w-3xl mx-auto font-light">
+            Optimize your training with intelligent insights from your wearable data, 
+            personalized coaching plans, and advanced analytics.
           </p>
-          <Link to="/signup">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-medium">
-              Get Started Today
-            </Button>
-          </Link>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/signup">
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3">
+                Start Free Trial
+              </Button>
+            </Link>
+            <a href="#features" className="flex items-center text-gray-300 hover:text-white transition-colors">
+              Learn more
+              <BarChart3 className="ml-2 h-4 w-4" />
+            </a>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-24 max-w-4xl mx-auto">
+            {[
+              ["10k+", "Athletes trained"],
+              ["95%", "Performance improvement"],
+              ["24/7", "AI monitoring"],
+              ["100%", "Data-driven insights"],
+            ].map(([num, label]) => (
+              <div key={label} className="text-center">
+                <p className="text-4xl font-light mb-1 tracking-tight text-blue-400">{num}</p>
+                <p className="text-gray-400 font-light">{label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section id="features" className="py-24">
+          <div className="container mx-auto px-6">
+            {/* Header */}
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-light tracking-tight mb-4">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                  Powerful features
+                </span>{" "}
+                for peak performance
+              </h2>
+              <p className="text-gray-300 text-xl max-w-2xl mx-auto font-light">
+                Everything you need to monitor, analyze, and optimize athletic performance with cutting-edge AI technology.
+              </p>
+            </div>
+
+            {/* Features Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {FEATURE_LIST.map(({ icon: IconComponent, title, desc, color }) => (
+                <div
+                  key={title}
+                  className="bg-white/5 backdrop-blur-md p-8 rounded-xl border border-white/10 hover:border-blue-500/30 transition-all duration-300 group"
+                >
+                  <div className={`w-12 h-12 mb-6 rounded-lg flex items-center justify-center ${color} group-hover:opacity-80 transition-opacity`}>
+                    <IconComponent className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-xl font-medium mb-3 text-white">{title}</h3>
+                  <p className="text-gray-400 font-light leading-relaxed">{desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials Section */}
+        <section id="testimonials" className="py-24 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-full pointer-events-none select-none">
+            <div className="absolute -top-32 left-1/3 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 right-1/5 w-64 h-64 bg-purple-600/20 rounded-full blur-3xl"></div>
+          </div>
+          
+          <div className="container mx-auto px-6 relative z-10">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-light tracking-tight mb-4">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                  What Athletes Say
+                </span>
+              </h2>
+              <p className="text-gray-300 text-xl max-w-2xl mx-auto font-light">
+                Real feedback from athletes and coaches who've transformed their performance
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {TESTIMONIALS.map((testimonial, index) => (
+                <div
+                  key={testimonial.name}
+                  className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10 hover:border-blue-500/30 transition-all duration-300 flex flex-col items-center text-center"
+                >
+                  <img 
+                    src={testimonial.image} 
+                    alt={testimonial.name}
+                    className="w-16 h-16 rounded-full mb-4 border-2 border-blue-400 shadow-lg"
+                  />
+                  <p className="text-lg text-white mb-4 font-light leading-relaxed">
+                    "{testimonial.quote}"
+                  </p>
+                  <div className="mt-auto">
+                    <span className="block text-blue-300 font-medium">{testimonial.name}</span>
+                    <span className="block text-gray-400 text-sm">{testimonial.title}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Final CTA Section */}
+        <section className="py-16 bg-white/5 backdrop-blur-md border-t border-white/10">
+          <div className="container mx-auto px-6 text-center">
+            <h2 className="text-2xl font-medium text-white mb-4">
+              Ready to optimize your performance?
+            </h2>
+            <p className="text-gray-300 mb-6 font-light">
+              Join the solo training revolution. Get AI-powered programs tailored specifically for you.
+            </p>
+            <Link to="/signup">
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-medium">
+                Get Started Today
+              </Button>
+            </Link>
+          </div>
+        </section>
+      </div>
+    );
+  } catch (error) {
+    console.error('🏠 Error in Home component:', error);
+    return (
+      <div className="min-h-screen bg-brand-charcoal text-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Error loading page</h1>
+          <p className="text-white/70 mb-4">Something went wrong while loading the home page.</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-brand-blue text-brand-charcoal px-4 py-2 rounded-lg"
+          >
+            Reload Page
+          </button>
         </div>
-      </section>
-    </div>
-  );
+      </div>
+    );
+  }
 };
 
 // Feature data with Lucide icons
