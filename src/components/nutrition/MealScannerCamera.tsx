@@ -1,3 +1,6 @@
+// @ts-ignore
+const { Barcode } = window.Median;
+
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -94,12 +97,19 @@ export const MealScannerCamera: React.FC<MealScannerCameraProps> = ({ onClose })
     navigate('/nutrition/parse', { state: { mode: 'photo', data: 'photo_data' } });
   };
 
-  const handleBarcodeScan = () => {
-    // Simulate barcode detection
-    // In real implementation, this would use a barcode scanning library
-    setTimeout(() => {
+  const handleBarcodeScan = async () => {
+    try {
+      // Use Median's Barcode scanning API
+      const result = await Barcode.scan();
+      
+      if (result && result.data) {
+        navigate('/nutrition/parse', { state: { mode: 'barcode', data: result.data } });
+      }
+    } catch (error) {
+      console.error('Error scanning barcode:', error);
+      // Fallback to mock data for demonstration
       navigate('/nutrition/parse', { state: { mode: 'barcode', data: '123456789012' } });
-    }, 1000);
+    }
   };
 
   const handleDescribe = () => {

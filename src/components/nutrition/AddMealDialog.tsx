@@ -40,6 +40,11 @@ export const AddMealDialog: React.FC<AddMealDialogProps> = ({
     date: new Date().toISOString().split('T')[0],
   });
 
+  const handleScan = (result: { data: string }) => {
+    console.log('Barcode scanned:', result.data);
+    // Additional handling can be added here if needed
+  };
+
   const handleScanSuccess = (foodItem: any) => {
     setFormData(prev => ({
       ...prev,
@@ -258,6 +263,7 @@ export const AddMealDialog: React.FC<AddMealDialogProps> = ({
         {/* Barcode Scanner */}
         <BarcodeScanner
           isOpen={scannerOpen}
+          onScan={handleScan}
           onScanSuccess={handleScanSuccess}
           onClose={() => setScannerOpen(false)}
         />
