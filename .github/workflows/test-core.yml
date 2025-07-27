@@ -1,0 +1,29 @@
+name: Test Core
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  test-core:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+        
+      - name: Build core package
+        run: npm run build --workspace @catalyft/core
+        
+      - name: Test core package
+        run: npm test --workspace @catalyft/core
