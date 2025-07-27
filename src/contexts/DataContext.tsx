@@ -1,18 +1,18 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { sqliteService } from '@/services/sqliteService';
+import { datastoreService } from '@/services/datastoreService';
 
 // Ably types - temporary until package is installed
 type AblyRealtime = any;
 
 interface DataContextType {
   ably: AblyRealtime | null;
-  sqliteReady: boolean;
+  datastoreReady: boolean;
   ablyConnected: boolean;
 }
 
 const DataContext = createContext<DataContextType>({
   ably: null,
-  sqliteReady: false,
+  datastoreReady: false,
   ablyConnected: false,
 });
 
@@ -30,18 +30,18 @@ interface DataProviderProps {
 
 export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [ably, setAbly] = useState<AblyRealtime | null>(null);
-  const [sqliteReady, setSqliteReady] = useState(false);
+  const [datastoreReady, setDatastoreReady] = useState(false);
   const [ablyConnected, setAblyConnected] = useState(false);
 
   useEffect(() => {
     const initializeData = async () => {
-      // Initialize SQLite
+      // Initialize Median Datastore
       try {
-        await sqliteService.initializeDB();
-        setSqliteReady(true);
-        console.log('✓ SQLite initialized successfully');
+        await datastoreService.initializeDB();
+        setDatastoreReady(true);
+        console.log('✓ Median Datastore initialized successfully');
       } catch (error) {
-        console.error('Failed to initialize SQLite:', error);
+        console.error('Failed to initialize Median Datastore:', error);
       }
 
       // Initialize Ably (placeholder until package is installed)
@@ -61,7 +61,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       if (ably) {
         ably.close();
       }
-      sqliteService.closeConnection();
+      datastoreService.closeConnection();
     };
   }, []);
 
@@ -69,7 +69,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     <DataContext.Provider
       value={{
         ably,
-        sqliteReady,
+        datastoreReady,
         ablyConnected,
       }}
     >

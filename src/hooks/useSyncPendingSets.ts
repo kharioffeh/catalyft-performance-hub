@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Network } from '@capacitor/network';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { sqliteService, PendingSet } from '@/services/sqliteService';
+import { datastoreService, PendingSet } from '@/services/datastoreService';
 
 export const useSyncPendingSets = () => {
   const [isOnline, setIsOnline] = useState(true);
@@ -11,8 +11,8 @@ export const useSyncPendingSets = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Initialize SQLite
-    initializeSQLite();
+    // Initialize Median Datastore
+    initializeDatastore();
 
     // Monitor network status
     const setupNetworkListener = async () => {
@@ -37,18 +37,18 @@ export const useSyncPendingSets = () => {
     };
   }, []);
 
-  const initializeSQLite = async () => {
+  const initializeDatastore = async () => {
     try {
-      await sqliteService.initializeDB();
+      await datastoreService.initializeDB();
       await updatePendingCount();
     } catch (error) {
-      console.error('Failed to initialize SQLite:', error);
+      console.error('Failed to initialize Median Datastore:', error);
     }
   };
 
   const updatePendingCount = async () => {
     try {
-      const pendingSets = await sqliteService.getPendingSets();
+      const pendingSets = await datastoreService.getPendingSets();
       setPendingCount(pendingSets.length);
     } catch (error) {
       console.error('Failed to get pending count:', error);
@@ -63,7 +63,7 @@ export const useSyncPendingSets = () => {
     };
 
     try {
-      await sqliteService.addPendingSet(pendingSet);
+      await datastoreService.addPendingSet(pendingSet);
       await updatePendingCount();
       
       if (isOnline) {
@@ -81,7 +81,7 @@ export const useSyncPendingSets = () => {
 
     setIsSyncing(true);
     try {
-      const pendingSets = await sqliteService.getPendingSets();
+      const pendingSets = await datastoreService.getPendingSets();
       
       if (pendingSets.length === 0) {
         setIsSyncing(false);
@@ -108,7 +108,7 @@ export const useSyncPendingSets = () => {
           if (error) throw error;
 
           // Remove from local storage on successful sync
-          await sqliteService.removePendingSet(set.id);
+          await datastoreService.removePendingSet(set.id);
           successCount++;
         } catch (error) {
           console.error('Failed to sync set:', set.id, error);
