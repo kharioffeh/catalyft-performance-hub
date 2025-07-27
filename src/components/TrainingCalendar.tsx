@@ -5,10 +5,11 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
-import { getEventColor, handleEventDrop, handleEventResize } from '@/utils/calendarUtils';
+import { getEventColor, handleEventDrop, handleEventResize } from '@catalyft/core';
 import { QueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { SessionDetailsDialog } from '@/components/SessionDetailsDialog';
+import { toast } from 'sonner';
 
 interface Session {
   id: string;
@@ -34,6 +35,25 @@ export const TrainingCalendar = ({ sessions, isLoading, queryClient, isMobile = 
   const { profile } = useAuth();
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+
+  // Wrapper functions to handle errors and show toasts
+  const handleEventDropWithToast = async (info: any) => {
+    try {
+      await handleEventDrop(info, queryClient);
+      toast.success("Session time updated successfully");
+    } catch (error) {
+      toast.error("Failed to update session time");
+    }
+  };
+
+  const handleEventResizeWithToast = async (info: any) => {
+    try {
+      await handleEventResize(info, queryClient);
+      toast.success("Session duration updated successfully");
+    } catch (error) {
+      toast.error("Failed to update session duration");
+    }
+  };
 
   const calendarEvents = sessions.map((session) => ({
     id: session.id,
@@ -78,8 +98,8 @@ export const TrainingCalendar = ({ sessions, isLoading, queryClient, isMobile = 
                   editable={false}
           droppable={false}
         eventClick={handleEventClick}
-        eventDrop={(info) => handleEventDrop(info, queryClient)}
-        eventResize={(info) => handleEventResize(info, queryClient)}
+        eventDrop={handleEventDropWithToast}
+        eventResize={handleEventResizeWithToast}
         height="auto"
         slotMinTime="06:00:00"
         slotMaxTime="22:00:00"

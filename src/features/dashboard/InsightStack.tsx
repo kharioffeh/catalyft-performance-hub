@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import DeckSwiper from 'react-native-deck-swiper';
 import { motion } from 'framer-motion';
 import { useInsights, Insight } from '@/hooks/useInsights';
-import { saveInsight } from '@/lib/api/insights';
+import { saveInsight } from '@catalyft/core/api';
 import { Brain, Target, TrendingUp, Moon, Activity, Dumbbell, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
