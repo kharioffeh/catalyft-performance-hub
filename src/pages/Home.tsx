@@ -1,55 +1,24 @@
-
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
-import * as THREE from "three";
-import NET from "vanta/dist/vanta.net.min";
 import { Button } from '@/components/ui/button';
 import { Activity, Shield, Calendar, BarChart3, Zap, Brain } from 'lucide-react';
 
 const Home: React.FC = () => {
-  // Vanta background effect
+  console.log('Home component rendering...');
+  
+  // Vanta background ref - disabled temporarily to fix loading issues
   const vantaRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!vantaRef.current) return;
-    
-    let vanta: any;
-    try {
-      vanta = NET({
-        el: vantaRef.current,
-        THREE,
-        mouseControls: true,
-        touchControls: true,
-        backgroundColor: 0x070707,
-        color: 0x7DF9FF,
-        points: 8,
-        maxDistance: 25,
-        spacing: 20,
-      });
-    } catch (error) {
-      console.warn('Vanta.js failed to initialize:', error);
-    }
-    
-    return () => {
-      if (vanta) {
-        try {
-          vanta.destroy();
-        } catch (error) {
-          console.warn('Error destroying Vanta effect:', error);
-        }
-      }
-    };
-  }, []);
 
   return (
     <div className="relative min-h-screen bg-brand-charcoal text-white font-[Inter]">
-      {/* Background layers */}
-      <div ref={vantaRef} className="absolute inset-0 -z-10" />
-      <div className="absolute top-1/2 left-1/2 w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 bg-blue-500 opacity-10 blur-[120px] rounded-full pointer-events-none" />
+      {/* Background layers - simplified without Vanta */}
+      <div ref={vantaRef} className="absolute inset-0 -z-10 bg-gradient-to-br from-brand-charcoal via-brand-slate to-brand-charcoal" />
+      <div className="absolute top-1/2 left-1/2 w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 bg-brand-blue opacity-10 blur-[120px] rounded-full pointer-events-none" />
 
       {/* Navigation */}
       <nav className="container mx-auto px-6 py-6 flex items-center justify-between">
         <div className="flex items-center">
-          <Activity className="h-8 w-8 text-blue-400" />
+          <Activity className="h-8 w-8 text-brand-blue" />
           <span className="ml-3 text-xl tracking-tight font-semibold">Catalyft AI</span>
         </div>
 
