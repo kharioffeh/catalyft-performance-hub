@@ -9,17 +9,21 @@ export function useVantaBackground(ref: React.RefObject<HTMLDivElement>) {
   useEffect(() => {
     if (!ref.current) return;
     
-    vantaRef.current = NET({
-      el: ref.current,
-      THREE,
-      mouseControls: true,
-      touchControls: true,
-      backgroundColor: 0x101014,
-      color: 0x5e6ad2,
-      points: 8,
-      maxDistance: 25,
-      spacing: 20,
-    });
+    try {
+      vantaRef.current = NET({
+        el: ref.current,
+        THREE,
+        mouseControls: true,
+        touchControls: true,
+        backgroundColor: 0x070707,
+        color: 0x7DF9FF,
+        points: 8,
+        maxDistance: 25,
+        spacing: 20,
+      });
+    } catch (error) {
+      console.warn('Vanta.js failed to initialize:', error);
+    }
     
     return () => vantaRef.current?.destroy?.();
   }, [ref]);

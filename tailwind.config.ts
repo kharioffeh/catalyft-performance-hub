@@ -44,13 +44,13 @@ const config: Config = {
       colors: {
         // Catalyft Brand tokens
         brand: {
-          bg: brand.bg,
-          blue: brand.blue,
-          charcoal: brand.charcoal,
-          slate: brand.slate,
-          text: brand.text,
-          card: brand.card,
-          border: brand.border,
+          bg: `hsl(${brand.bg})`,
+          blue: `hsl(${brand.blue})`,
+          charcoal: `hsl(${brand.charcoal})`,
+          slate: `hsl(${brand.slate})`,
+          text: `hsl(${brand.text})`,
+          card: `hsl(${brand.card})`,
+          border: `hsl(${brand.border})`,
         },
         'electric-blue': 'hsl(var(--electric-blue))',
         

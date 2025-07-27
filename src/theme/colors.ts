@@ -1,9 +1,9 @@
 export const brand = {
-  bg: "#070707", // Charcoal Black
-  blue: "#7DF9FF", // Electric Blue
-  charcoal: "#070707", // Charcoal Black
-  slate: "#1E2227",
-  text: "#E5E7EB",
-  card: "#16191D",
-  border: "#2A2E33"
+  bg: "0 0% 3%", // Charcoal Black - HSL format
+  blue: "185 100% 73%", // Electric Blue - HSL format
+  charcoal: "0 0% 3%", // Charcoal Black - HSL format
+  slate: "215 13% 13%", // Slate - HSL format
+  text: "0 0% 90%", // Light grey text - HSL format
+  card: "212 21% 10%", // Card background - HSL format
+  border: "214 11% 18%" // Border color - HSL format
 };
