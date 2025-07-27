@@ -1,16 +1,25 @@
 import { assertEquals, assertStringIncludes } from 'https://deno.land/std@0.177.0/testing/asserts.ts'
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 
+// Mock publishEvent function
+const mockPublishEvent = jest.fn();
+jest.mock('../_shared/ably.ts', () => ({
+  publishEvent: mockPublishEvent
+}));
+
 // Mock the handler - in real tests you'd import the actual function
 // For now, this demonstrates the test structure
 
 Deno.test('upsertMetrics - happy path', async () => {
+  // Clear mock calls before test
+  mockPublishEvent.mockClear();
+
   const validPayload = {
-    user_id: '550e8400-e29b-41d4-a716-446655440000',
-    hrv_rmssd: 45.2,
-    hr_rest: 60,
+    userId: '550e8400-e29b-41d4-a716-446655440000',
+    hrvRmssd: 45.2,
+    hrRest: 60,
     steps: 8500,
-    sleep_min: 420,
+    sleepMin: 420,
     strain: 7.1,
     date: '2025-07-14'
   }
@@ -38,6 +47,12 @@ Deno.test('upsertMetrics - happy path', async () => {
   assertEquals(mockResponse.status, 200)
   const responseBody = await mockResponse.json()
   assertEquals(responseBody.status, 'ok')
+
+  // Verify publishEvent was called with correct parameters
+  assertEquals(mockPublishEvent.mock.calls.length, 1)
+  assertEquals(mockPublishEvent.mock.calls[0][0], validPayload.userId)
+  assertEquals(mockPublishEvent.mock.calls[0][1], "metricsUpdated")
+  assertEquals(mockPublishEvent.mock.calls[0][2], { date: validPayload.date })
 })
 
 Deno.test('upsertMetrics - invalid JSON body', async () => {

@@ -2,6 +2,7 @@ import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3'
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'
 import { corsHeaders } from '../_shared/cors.ts'
+import { publishEvent } from "../_shared/ably.ts"
 
 // Health metrics schema (existing)
 const HealthMetricsSchema = z.object({
@@ -197,6 +198,10 @@ serve(async (req) => {
         data: healthData
       }
     }
+
+    // Publish event after successful DB operation
+    const uid = validatedData.userId;
+    publishEvent(uid, "metricsUpdated", { date: validatedData.date });
 
     // Return success response
     return new Response(

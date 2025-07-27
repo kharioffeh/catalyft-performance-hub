@@ -4,12 +4,23 @@
 
 import { createClient } from '@supabase/supabase-js'
 
+// Mock publishEvent function
+const mockPublishEvent = jest.fn();
+jest.mock('../supabase/functions/_shared/ably.ts', () => ({
+  publishEvent: mockPublishEvent
+}));
+
 describe('Generate Finishers API', () => {
   let supabase: any
   let testUserId: string
   let sessionId: string
   let targetingProtocolId: string
   let nonTargetingProtocolId: string
+
+  beforeEach(() => {
+    // Clear mock calls before each test
+    mockPublishEvent.mockClear();
+  });
 
   beforeAll(async () => {
     // Initialize Supabase client for testing
@@ -170,6 +181,14 @@ describe('Generate Finishers API', () => {
       expect(result.protocol_id).toBe(targetingProtocolId)
       expect(result.protocol_id).not.toBe(nonTargetingProtocolId)
 
+      // Verify publishEvent was called with correct parameters
+      expect(mockPublishEvent).toHaveBeenCalledTimes(1)
+      expect(mockPublishEvent).toHaveBeenCalledWith(
+        testUserId, 
+        "finisherAssigned", 
+        { session_id: sessionId, protocol_id: targetingProtocolId }
+      )
+
       // Verify the session_finisher was created correctly
       const { data: sessionFinisher, error: finisherError } = await supabase
         .from('session_finishers')
@@ -292,6 +311,14 @@ describe('Generate Finishers API', () => {
       
       const result = await response.json()
       expect(result.protocol_id).toBe(targetingProtocolId)
+
+      // Verify publishEvent was called with correct parameters
+      expect(mockPublishEvent).toHaveBeenCalledTimes(1)
+      expect(mockPublishEvent).toHaveBeenCalledWith(
+        testUserId, 
+        "finisherAssigned", 
+        { session_id: sessionId, protocol_id: targetingProtocolId }
+      )
 
       // Verify the session_finisher was updated (not duplicated)
       const { data: sessionFinishers, error: finishersError } = await supabase

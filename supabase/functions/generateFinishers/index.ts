@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.193.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
+import { publishEvent } from "../_shared/ably.ts"
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -171,6 +172,10 @@ serve(async (req) => {
         }
       );
     }
+
+    // Publish event after successful DB operation
+    const uid = user.id;
+    publishEvent(uid, "finisherAssigned", { session_id, protocol_id: selectedProtocol.id });
 
     return new Response(
       JSON.stringify({ protocol_id: selectedProtocol.id }),
