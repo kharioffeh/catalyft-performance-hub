@@ -47,6 +47,7 @@ const ProgramBuilderScreen = React.lazy(() => import('../pages/mobile/ProgramBui
 const AriaChatScreen = React.lazy(() => import('../pages/mobile/AriaChatScreen').then(module => ({ default: module.AriaChatScreen })));
 const VideoCritiqueScreen = React.lazy(() => import('../pages/mobile/VideoCritiqueScreen').then(module => ({ default: module.VideoCritiqueScreen })));
 const ClubsScreen = React.lazy(() => import('../pages/ClubsScreen'));
+const ChallengesScreen = React.lazy(() => import('../pages/ChallengesScreen'));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -109,6 +110,7 @@ const AppRouter = () => {
           <Route path="mobile/aria-chat" element={<AriaChatScreen />} />
           <Route path="mobile/video-critique" element={<VideoCritiqueScreen />} />
           <Route path="clubs" element={<ClubsScreen />} />
+          <Route path="challenges" element={<ChallengesScreen />} />
           <Route path="nutrition" element={<NutritionPage />} />
           <Route path="nutrition/parse" element={<MealParseScreen />} />
           <Route path="sleep" element={<Navigate to="/analytics" replace />} />
