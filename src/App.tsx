@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { WorkoutProvider } from '@/contexts/WorkoutContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { DataProvider } from '@/contexts/DataContext';
 import { GlassToastProvider } from '@/components/ui/GlassToastProvider';
 import { Toaster } from '@/components/ui/toaster';
 import AppRouter from '@/components/AppRouter';
@@ -26,20 +27,22 @@ function App() {
   
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AuthProvider>
-          <WorkoutProvider>
-            <GlassToastProvider>
-              <BrowserRouter>
-                <div className="App bg-brand-charcoal min-h-screen">
-                  <Toaster />
-                  <AppRouter />
-                </div>
-              </BrowserRouter>
-            </GlassToastProvider>
-          </WorkoutProvider>
-        </AuthProvider>
-      </ThemeProvider>
+      <DataProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <WorkoutProvider>
+              <GlassToastProvider>
+                <BrowserRouter>
+                  <div className="App bg-brand-charcoal min-h-screen">
+                    <Toaster />
+                    <AppRouter />
+                  </div>
+                </BrowserRouter>
+              </GlassToastProvider>
+            </WorkoutProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </DataProvider>
     </QueryClientProvider>
   );
 }

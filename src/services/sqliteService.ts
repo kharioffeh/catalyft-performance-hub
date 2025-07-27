@@ -16,7 +16,7 @@ export interface PendingSet {
 class SQLiteService {
   private sqlite: SQLiteConnection;
   private db: SQLiteDBConnection | null = null;
-  private readonly DB_NAME = 'workout_cache.db';
+  private readonly DB_NAME = 'catalyft.db';
   private readonly DB_VERSION = 1;
 
   constructor() {
@@ -60,7 +60,7 @@ class SQLiteService {
   private async createTables(): Promise<void> {
     if (!this.db) throw new Error('Database not initialized');
 
-    const createTableSQL = `
+    const createTablesSQL = `
       CREATE TABLE IF NOT EXISTS pending_sets (
         id TEXT PRIMARY KEY,
         session_id TEXT NOT NULL,
@@ -72,9 +72,94 @@ class SQLiteService {
         velocity REAL,
         created_at TEXT NOT NULL
       );
+
+      CREATE TABLE IF NOT EXISTS workout_sessions (
+        id TEXT PRIMARY KEY,
+        athlete_id TEXT NOT NULL,
+        name TEXT,
+        start_time TEXT NOT NULL,
+        end_time TEXT,
+        status TEXT DEFAULT 'active',
+        created_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS workout_sets (
+        id TEXT PRIMARY KEY,
+        session_id TEXT NOT NULL,
+        exercise TEXT NOT NULL,
+        set_number INTEGER NOT NULL,
+        weight REAL,
+        reps INTEGER,
+        rpe INTEGER,
+        tempo TEXT,
+        velocity REAL,
+        created_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS nutrition_logs (
+        id TEXT PRIMARY KEY,
+        athlete_id TEXT NOT NULL,
+        meal_type TEXT,
+        food_item TEXT NOT NULL,
+        calories REAL,
+        protein REAL,
+        carbs REAL,
+        fat REAL,
+        logged_at TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS feed_posts (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        content TEXT,
+        media_url TEXT,
+        session_id TEXT,
+        synced INTEGER DEFAULT 0,
+        created_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS club_memberships (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        club_id TEXT NOT NULL,
+        role TEXT DEFAULT 'member',
+        joined_at TEXT NOT NULL,
+        synced INTEGER DEFAULT 0
+      );
+
+      CREATE TABLE IF NOT EXISTS challenge_participants (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        challenge_id TEXT NOT NULL,
+        progress REAL DEFAULT 0,
+        completed INTEGER DEFAULT 0,
+        joined_at TEXT NOT NULL,
+        synced INTEGER DEFAULT 0
+      );
+
+      CREATE TABLE IF NOT EXISTS meet_rsvps (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        meet_id TEXT NOT NULL,
+        status TEXT DEFAULT 'pending',
+        rsvp_at TEXT NOT NULL,
+        synced INTEGER DEFAULT 0
+      );
+
+      CREATE TABLE IF NOT EXISTS session_finishers (
+        id TEXT PRIMARY KEY,
+        session_id TEXT NOT NULL,
+        protocol_id TEXT NOT NULL,
+        status TEXT DEFAULT 'assigned',
+        completed_at TEXT,
+        synced INTEGER DEFAULT 0,
+        created_at TEXT NOT NULL
+      );
     `;
 
-    await this.db.execute(createTableSQL);
+    await this.db.execute(createTablesSQL);
+    console.log('All tables created successfully');
   }
 
   async addPendingSet(set: PendingSet): Promise<void> {
