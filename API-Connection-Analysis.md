@@ -176,7 +176,7 @@ OPENAI_ARIA_KEY=sk-...
 WHOOP_CLIENT_ID=your_whoop_client_id
 WHOOP_CLIENT_SECRET=your_whoop_secret
 NUTRITIONIX_APP_ID=your_nutritionix_id
-NUTRITIONIX_API_KEY=your_nutritionix_key
+NUTRITIONIX_APP_KEY=your_nutritionix_key
 STRIPE_SECRET_KEY=sk_...
 ```
 
