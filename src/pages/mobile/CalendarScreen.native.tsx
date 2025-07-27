@@ -11,7 +11,8 @@ import {
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, isToday, addWeeks, subWeeks } from 'date-fns';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Dumbbell } from 'lucide-react-native';
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
-import * as Haptics from 'expo-haptics';
+// @ts-ignore
+const { Haptics } = window.Median;
 import { useCalendar } from '@/hooks/useCalendar';
 import { Session } from '@/types/training';
 import { rescheduleSession } from '@/lib/api/sessions';
@@ -227,7 +228,7 @@ const DraggableSessionItem = ({
   isActive 
 }: RenderItemParams<DraggableSessionData>) => {
   const handleLongPress = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    Haptics.impact('medium');
     drag();
   }, [drag]);
 
@@ -335,7 +336,7 @@ export const CalendarScreen: React.FC = () => {
     }
 
     try {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      Haptics.impact('light');
       
       const movedSession = data[to];
       const targetDate = calendarDays[to % calendarDays.length]?.date || movedSession.date;
@@ -371,7 +372,7 @@ export const CalendarScreen: React.FC = () => {
 
   const handleSessionLongPress = useCallback((session: Session, date: Date) => {
     setIsDragging(true);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    Haptics.impact('medium');
     
     Alert.alert(
       'Reschedule Session',
