@@ -1,0 +1,23 @@
+{
+  "name": "median-app",
+  "version": "0.1.0",
+  "description": "Median migration app using @catalyft/core",
+  "main": "index.js",
+  "scripts": {
+    "dev": "median serve",
+    "build": "median build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@catalyft/core": "^0.1.0"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "median",
+    "mobile",
+    "catalyft"
+  ],
+  "author": "CatalyFT Team",
+  "license": "UNLICENSED",
+  "private": true
+}
