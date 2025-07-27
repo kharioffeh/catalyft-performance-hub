@@ -31,6 +31,7 @@
     "@fullcalendar/list": "^6.1.17",
     "@fullcalendar/react": "^6.1.17",
     "@fullcalendar/timegrid": "^6.1.17",
+    "@gorhom/bottom-sheet": "^5.1.8",
     "@headlessui/react": "^2.2.4",
     "@hookform/resolvers": "^3.9.0",
     "@mediapipe/camera_utils": "^0.3.1675466862",

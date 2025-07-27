@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ReadinessBadge } from '@/components/ReadinessBadge';
 import { AvatarDrawer } from '@/components/layout/AvatarDrawer';
@@ -11,11 +11,13 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useSidebarCollapse } from '@/hooks/useSidebarCollapse';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ProtocolsSheet } from '@/components/ProtocolsSheet';
 
 export const TopBar: React.FC = () => {
   const { profile } = useAuth();
   const isMobile = useIsMobile();
   const { isCollapsed, toggle } = useSidebarCollapse();
+  const [protocolsOpen, setProtocolsOpen] = useState(false);
   
   // Initialize timezone detection
   useTimezoneDetection();
@@ -55,6 +57,19 @@ export const TopBar: React.FC = () => {
       </div>
       
       <div className="flex items-center space-x-2 md:space-x-4">
+        {/* Protocols Sheet Toggle */}
+        <button
+          onClick={() => setProtocolsOpen(true)}
+          className={cn(
+            "p-2 rounded-lg transition-colors",
+            "text-brand-blue hover:bg-white/10",
+            "focus:outline-none focus:ring-2 focus:ring-brand-blue/50"
+          )}
+          aria-label="Open mobility protocols"
+        >
+          <span className="text-lg">🧘</span>
+        </button>
+        
         {/* Notification Bell */}
         <NotificationBell />
         
@@ -85,6 +100,16 @@ export const TopBar: React.FC = () => {
           </Avatar>
         </AvatarDrawer>
       </div>
+      
+      {/* Protocols Sheet */}
+      <ProtocolsSheet
+        open={protocolsOpen}
+        onClose={() => setProtocolsOpen(false)}
+        onProtocolSelect={(protocol) => {
+          console.log('Selected protocol:', protocol);
+          // TODO: Navigate to protocol detail screen
+        }}
+      />
     </header>
   );
 };
