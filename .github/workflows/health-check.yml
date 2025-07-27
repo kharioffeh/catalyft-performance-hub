@@ -50,7 +50,7 @@ jobs:
         ABLY_API_KEY: ${{ secrets.ABLY_API_KEY }}
         GARMIN_OAUTH_TOKEN: ${{ secrets.GARMIN_OAUTH_TOKEN }}
       run: |
-        jest --config jest.config.cjs --runInBand tests/api.smoke.test.ts || echo "Smoke tests completed with warnings"
+        npx jest --config jest.config.cjs --runInBand tests/api.smoke.test.ts || echo "Smoke tests completed with warnings"
       continue-on-error: true
       
     - name: Build project
