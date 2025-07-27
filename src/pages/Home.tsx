@@ -11,16 +11,33 @@ const Home: React.FC = () => {
   const vantaRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!vantaRef.current) return;
-    const vanta = NET({
-      el: vantaRef.current,
-      THREE,
-      color: 0x5e6ad2,
-      backgroundColor: 0x101014,
-      points: 8,
-      maxDistance: 25,
-      spacing: 20,
-    });
-    return () => vanta.destroy();
+    
+    let vanta: any;
+    try {
+      vanta = NET({
+        el: vantaRef.current,
+        THREE,
+        mouseControls: true,
+        touchControls: true,
+        backgroundColor: 0x070707,
+        color: 0x7DF9FF,
+        points: 8,
+        maxDistance: 25,
+        spacing: 20,
+      });
+    } catch (error) {
+      console.warn('Vanta.js failed to initialize:', error);
+    }
+    
+    return () => {
+      if (vanta) {
+        try {
+          vanta.destroy();
+        } catch (error) {
+          console.warn('Error destroying Vanta effect:', error);
+        }
+      }
+    };
   }, []);
 
   return (
