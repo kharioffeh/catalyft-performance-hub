@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useProtocols, type Protocol } from '@/hooks/useProtocols';
+import { useAssignFinisher } from '@/hooks/useFinishers';
 import { cn } from '@/lib/utils';
 import { Clock, Target, X } from 'lucide-react';
 
@@ -19,13 +20,17 @@ export const ProtocolsSheet: React.FC<ProtocolsSheetProps> = ({
   const { data: protocols = [], isLoading, error } = useProtocols();
   const [isVisible, setIsVisible] = useState(false);
 
+  const assignFinisher = useAssignFinisher();
+
   // Handle protocol selection
   const handleProtocolPress = useCallback(async (protocol: Protocol) => {
     if (sessionId) {
       try {
-        // Call assignFinisher function
-        // TODO: Implement assignFinisher function call
-        console.log('Assigning finisher:', { session_id: sessionId, protocol_id: protocol.id });
+        await assignFinisher.mutateAsync({
+          sessionId,
+          protocolId: protocol.id
+        });
+        console.log('Finisher assigned successfully');
       } catch (error) {
         console.error('Error assigning finisher:', error);
       }
@@ -37,7 +42,7 @@ export const ProtocolsSheet: React.FC<ProtocolsSheetProps> = ({
     
     onClose();
     // TODO: Navigate to ProtocolDetailScreen
-  }, [sessionId, onProtocolSelect, onClose]);
+  }, [sessionId, onProtocolSelect, onClose, assignFinisher]);
 
   // Handle backdrop click
   const handleBackdropClick = useCallback((e: React.MouseEvent) => {

@@ -8,7 +8,7 @@ interface SessionFinisher {
   protocol_id: string;
   auto_assigned: boolean;
   created_at: string;
-  protocol?: Protocol;
+  mobility_protocols?: Protocol;
 }
 
 export const useGenerateFinishers = () => {
@@ -36,17 +36,17 @@ export const useSessionFinisher = (sessionId: string | null) => {
     queryFn: async () => {
       if (!sessionId) return null;
       
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('session_finishers')
         .select(`
           *,
-          protocol:mobility_protocols(*)
+          mobility_protocols(*)
         `)
         .eq('session_id', sessionId)
         .single();
       
       if (error && error.code !== 'PGRST116') throw error; // PGRST116 is "not found"
-      return data as SessionFinisher | null;
+      return data;
     },
     enabled: !!sessionId,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -58,7 +58,7 @@ export const useAssignFinisher = () => {
   
   return useMutation({
     mutationFn: async ({ sessionId, protocolId }: { sessionId: string; protocolId: string }) => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('session_finishers')
         .upsert({
           session_id: sessionId,

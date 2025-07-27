@@ -890,6 +890,42 @@ export type Database = {
         }
         Relationships: []
       }
+      mobility_protocols: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_min: number
+          id: string
+          instructions: string | null
+          muscle_targets: string[] | null
+          name: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_min: number
+          id?: string
+          instructions?: string | null
+          muscle_targets?: string[] | null
+          name: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_min?: number
+          id?: string
+          instructions?: string | null
+          muscle_targets?: string[] | null
+          name?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
       muscle_load_daily: {
         Row: {
           acute_load: number | null
@@ -1472,6 +1508,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      session_finishers: {
+        Row: {
+          auto_assigned: boolean
+          created_at: string
+          id: string
+          protocol_id: string
+          session_id: string
+          updated_at: string
+        }
+        Insert: {
+          auto_assigned?: boolean
+          created_at?: string
+          id?: string
+          protocol_id: string
+          session_id: string
+          updated_at?: string
+        }
+        Update: {
+          auto_assigned?: boolean
+          created_at?: string
+          id?: string
+          protocol_id?: string
+          session_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       sessions: {
         Row: {
