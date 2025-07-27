@@ -156,4 +156,25 @@ describe('API Smoke Check', () => {
     // Function should respond (401 unauthorized is fine for health check, 500+ indicates infrastructure issues)
     expect(response.status).toBeLessThan(500);
   });
+
+  it('can test Nutritionix integration via Supabase function', async () => {
+    if (!SUPABASE_URL || !SUPABASE_ANON || SUPABASE_URL.includes('your_test_supabase_url')) {
+      console.warn('Supabase credentials not provided, skipping Nutritionix via Supabase test');
+      return;
+    }
+
+    // Test Nutritionix integration by checking if the barcode-lookup function is accessible
+    const response = await makeHttpRequest(
+      `${SUPABASE_URL}/functions/v1/barcode-lookup`,
+      {
+        'apikey': SUPABASE_ANON,
+        'Authorization': `Bearer ${SUPABASE_ANON}`,
+        'Content-Type': 'application/json'
+      }
+    );
+    
+    // Function should respond with ANY HTTP status (not 404 which means function doesn't exist)
+    // Even 500 errors indicate the function exists and is attempting to process requests
+    expect(response.status).not.toBe(404);
+  });
 });
