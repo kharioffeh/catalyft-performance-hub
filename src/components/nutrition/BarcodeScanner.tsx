@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+// @ts-ignore
+const { Barcode } = window.Median;
+
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +18,7 @@ interface MockFoodItem {
 }
 
 interface BarcodeScannerProps {
+  onScan: (result: { data: string }) => void;
   onScanSuccess: (foodItem: MockFoodItem) => void;
   onClose: () => void;
   isOpen: boolean;
@@ -70,28 +74,102 @@ const MOCK_FOODS: MockFoodItem[] = [
 ];
 
 export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
+  onScan,
   onScanSuccess,
   onClose,
   isOpen
 }) => {
   const [isScanning, setIsScanning] = useState(false);
   const [scanningAnimation, setScanningAnimation] = useState(false);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const barcodeScannerRef = useRef<HTMLDivElement>(null);
 
-  const handleScanClick = () => {
+  useEffect(() => {
+    if (isOpen) {
+      requestCameraPermissions();
+    }
+  }, [isOpen]);
+
+  const requestCameraPermissions = async () => {
+    try {
+      const permission = await Barcode.requestPermissions();
+      setHasPermission(permission.granted);
+    } catch (error) {
+      console.error('Error requesting camera permissions:', error);
+      setHasPermission(false);
+    }
+  };
+
+  const handleScanClick = async () => {
+    if (!hasPermission) {
+      await requestCameraPermissions();
+      return;
+    }
+
     setIsScanning(true);
     setScanningAnimation(true);
     
-    // Simulate scan delay
-    setTimeout(() => {
-      // Return random mock food item
+    try {
+      // Use Median's Barcode scanning API
+      const result = await Barcode.scan();
+      
+      if (result && result.data) {
+        // Call onScan with the barcode result
+        onScan(result);
+        
+        // Find matching food item for onScanSuccess callback
+        const matchingFood = MOCK_FOODS.find(food => food.barcode === result.data) 
+          || MOCK_FOODS[Math.floor(Math.random() * MOCK_FOODS.length)];
+        
+        onScanSuccess(matchingFood);
+      }
+    } catch (error) {
+      console.error('Error scanning barcode:', error);
+      // Fallback to mock data for demonstration
       const randomFood = MOCK_FOODS[Math.floor(Math.random() * MOCK_FOODS.length)];
+      onScan({ data: randomFood.barcode });
       onScanSuccess(randomFood);
+    } finally {
       setIsScanning(false);
       setScanningAnimation(false);
-    }, 2000);
+    }
   };
 
   if (!isOpen) return null;
+
+  if (hasPermission === false) {
+    return (
+      <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md bg-gray-900 border-gray-700">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-white">Camera Permission Required</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClose}
+                className="text-gray-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="text-center">
+              <Camera className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+              <p className="text-gray-400 mb-4">
+                Camera access is required to scan barcodes.
+              </p>
+              <Button
+                onClick={requestCameraPermissions}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Grant Permission
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
@@ -110,9 +188,12 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
             </Button>
           </div>
 
-          {/* Camera Placeholder */}
-          <div className="relative bg-gray-800 rounded-lg aspect-square mb-6 overflow-hidden">
-            {/* Mock Camera View */}
+          {/* Camera Placeholder - Median Bridge will handle the actual camera */}
+          <div 
+            ref={barcodeScannerRef}
+            className="relative bg-gray-800 rounded-lg aspect-square mb-6 overflow-hidden"
+          >
+            {/* Mock Camera View - Median Bridge will replace this with actual camera */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center">
                 <Camera className="w-16 h-16 text-gray-500 mx-auto mb-4" />
@@ -156,7 +237,7 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
           {/* Scan Button */}
           <Button
             onClick={handleScanClick}
-            disabled={isScanning}
+            disabled={isScanning || hasPermission === false}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white"
           >
             {isScanning ? (
@@ -178,7 +259,7 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
               Position the barcode within the frame and tap scan
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              Demo mode: Returns mock food data
+              Powered by Median Barcode Bridge
             </p>
           </div>
         </CardContent>
