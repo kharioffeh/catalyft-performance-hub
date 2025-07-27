@@ -4,7 +4,7 @@ import { useInsights } from '@/hooks/useInsights';
 
 // Mock the hooks and APIs
 jest.mock('@/hooks/useInsights');
-jest.mock('@/lib/api/insights');
+jest.mock('../../packages/core/dist/api/insights');
 jest.mock('sonner', () => ({
   toast: {
     success: jest.fn(),

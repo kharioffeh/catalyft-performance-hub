@@ -4,10 +4,10 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SoloWizard } from '../SoloWizard';
 import { AuthProvider } from '@/contexts/AuthContext';
-import * as ariaProgram from '@/lib/api/aria-program';
+import * as ariaProgram from '../../../../packages/core/dist/api/aria-program';
 
 // Mock the API
-jest.mock('@/lib/api/aria-program');
+jest.mock('../../../../packages/core/dist/api/aria-program');
 const mockGenerateProgram = jest.fn();
 (ariaProgram.generateProgramWithAria as jest.Mock) = mockGenerateProgram;
 
