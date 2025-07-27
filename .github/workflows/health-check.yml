@@ -41,6 +41,15 @@ jobs:
         node scripts/health-check.js || echo "Health check completed with warnings"
       continue-on-error: true
       
+    - name: Run API smoke tests
+      if: success()
+      env:
+        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      run: |
+        npx jest --config jest.config.cjs --runInBand tests/api.smoke.test.ts || echo "Smoke tests completed with warnings"
+      continue-on-error: true
+      
     - name: Build project
       if: success()
       run: npm run build

@@ -86,7 +86,7 @@ serve(async (req) => {
         .join('\n\n---\n\n');
     }
 
-    // Step 4: Generate response using GPT-4o-mini
+    // Step 4: Generate response using GPT-4o
     const systemPrompt = `You are ARIA, an elite AI strength and conditioning coach with deep expertise in sports science, load monitoring, injury prevention, and performance optimization.
 
 Your responses should be:
@@ -117,7 +117,7 @@ ${context ? `Current context: The user is viewing ${context} data/metrics.` : ''
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages,
         temperature: 0.2,
         max_tokens: 1000,

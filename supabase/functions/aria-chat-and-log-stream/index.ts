@@ -48,7 +48,7 @@ serve(async (req) => {
 
     // Get OpenAI API key and model from environment
     const OPENAI_API_KEY = Deno.env.get('OPENAI_ARIA_KEY');
-    const ARIA_MODEL = Deno.env.get('ARIA_MODEL') || 'gpt-4o-mini';
+    const ARIA_MODEL = Deno.env.get('ARIA_MODEL') || 'gpt-4o';
 
     if (!OPENAI_API_KEY) {
       console.error('OPENAI_ARIA_KEY not configured');

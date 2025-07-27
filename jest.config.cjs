@@ -31,7 +31,7 @@ module.exports = {
   
   // Transform ES modules from node_modules
   transformIgnorePatterns: [
-    'node_modules/(?!(@supabase|isows)/)',
+    'node_modules/(?!(@supabase|isows|ably|openai)/)',
   ],
   
   // Module name mapping for path aliases
@@ -45,6 +45,11 @@ module.exports = {
   // Test environment variables
   testEnvironmentOptions: {
     NODE_ENV: 'test'
+  },
+
+  // Node environment configuration for API tests
+  globals: {
+    fetch: global.fetch
   },
   
   // Collect coverage

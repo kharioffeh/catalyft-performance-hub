@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders } from "../_shared/cors.ts";
 
 const nutritionixAppId = Deno.env.get('NUTRITIONIX_APP_ID');
-const nutritionixApiKey = Deno.env.get('NUTRITIONIX_API_KEY');
+const nutritionixAppKey = Deno.env.get('NUTRITIONIX_APP_KEY');
 
 interface BarcodeRequest {
   barcode: string;
@@ -51,7 +51,7 @@ serve(async (req) => {
   }
 
   try {
-    if (!nutritionixAppId || !nutritionixApiKey) {
+    if (!nutritionixAppId || !nutritionixAppKey) {
       throw new Error('Nutritionix API credentials not configured');
     }
 
@@ -72,7 +72,7 @@ serve(async (req) => {
         {
           headers: {
             'x-app-id': nutritionixAppId,
-            'x-app-key': nutritionixApiKey,
+            'x-app-key': nutritionixAppKey,
             'Content-Type': 'application/json',
           },
         }
