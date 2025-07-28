@@ -6,7 +6,7 @@ interface Profile {
   id: string
   email: string
   full_name: string | null
-  role: 'coach' | 'athlete' | 'solo'
+  role: 'solo'
   created_at: string
   updated_at: string
   weekly_summary_opt_in?: boolean

@@ -147,7 +147,7 @@ const TrainingObjectsPage: React.FC = () => {
                 <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">No Programs Yet</h3>
                 <p className="text-gray-500 mb-4">
-                  Create templates and assign them to athletes to see program instances here
+                  Create templates to see program instances here
                 </p>
               </CardContent>
             </Card>

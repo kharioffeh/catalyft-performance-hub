@@ -125,9 +125,7 @@ const Workout: React.FC = () => {
           <TabsTrigger value="templates">Legacy Templates</TabsTrigger>
           <TabsTrigger value="exercises">Exercise Library</TabsTrigger>
           <TabsTrigger value="assigned">Assigned Workouts</TabsTrigger>
-          {profile?.role === 'athlete' && (
-            <TabsTrigger value="performance">My Performance</TabsTrigger>
-          )}
+          <TabsTrigger value="performance">My Performance</TabsTrigger>
         </TabsList>
 
         <TabsContent value="templates" className="space-y-4">
@@ -150,11 +148,9 @@ const Workout: React.FC = () => {
           />
         </TabsContent>
 
-        {profile?.role === 'athlete' && (
-          <TabsContent value="performance" className="space-y-4">
-            <PerformanceTab />
-          </TabsContent>
-        )}
+        <TabsContent value="performance" className="space-y-4">
+          <PerformanceTab />
+        </TabsContent>
       </Tabs>
 
       <ProgramBuilder 

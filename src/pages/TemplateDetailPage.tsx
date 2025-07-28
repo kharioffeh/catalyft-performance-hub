@@ -77,7 +77,7 @@ const TemplateDetailPage: React.FC = () => {
               />
               <Button onClick={() => setShowCreateProgramDialog(true)}>
                 <Users className="w-4 h-4 mr-2" />
-                Assign to Athlete
+                Use Template
               </Button>
             </>
           )}

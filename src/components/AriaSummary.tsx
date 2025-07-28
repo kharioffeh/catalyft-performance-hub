@@ -24,7 +24,7 @@ const InsightsContent: React.FC = () => {
   const { data: insights = [] } = useQuery({
     queryKey: ['dailyInsights_unified', profile?.id],
     queryFn: async () => {
-      if (!profile?.id || profile.role !== 'coach') return [];
+      if (!profile?.id) return [];
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);

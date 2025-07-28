@@ -1,7 +1,7 @@
 import React from 'react';
 import { GlassCard } from '@/components/ui';
 import { StressGauge } from '@/components/Dashboard/StressGauge';
-import { useEnhancedMetricsWithAthlete } from '@/hooks/useEnhancedMetricsWithAthlete';
+import { useEnhancedMetrics } from '@/hooks/useEnhancedMetrics';
 import { usePeriod } from '@/lib/hooks/usePeriod';
 
 interface MuscleAnatomyPanelProps {
@@ -201,7 +201,7 @@ export const MuscleAnatomyPanel: React.FC<MuscleAnatomyPanelProps> = ({
   selectedAthleteId
 }) => {
   const { period } = usePeriod();
-  const { loadACWR } = useEnhancedMetricsWithAthlete(selectedAthleteId);
+  const { loadACWR } = useEnhancedMetrics();
 
   // Get latest ACWR and training load
   const latestData = loadACWR[loadACWR.length - 1];

@@ -44,7 +44,7 @@ const Privacy = () => {
                 <h3 className="text-lg font-medium">Personal Information</h3>
                 <ul className="list-disc pl-6 space-y-1 text-gray-700">
                   <li>Name and email address</li>
-                  <li>User role (coach or athlete)</li>
+                  <li>User role</li>
                   <li>Account credentials</li>
                 </ul>
                 
@@ -68,7 +68,7 @@ const Privacy = () => {
               <h2 className="text-2xl font-semibold mb-3">3. How We Use Your Information</h2>
               <ul className="list-disc pl-6 space-y-2 text-gray-700">
                 <li>Provide and maintain our performance coaching services</li>
-                <li>Facilitate coach-athlete relationships and data sharing</li>
+                <li>Provide personalized training and wellness insights</li>
                 <li>Sync and analyze wearable device data for performance insights</li>
                 <li>Send important notifications about your account and services</li>
                 <li>Improve our platform and develop new features</li>
@@ -82,7 +82,7 @@ const Privacy = () => {
                 We do not sell, trade, or rent your personal information to third parties. We may share your information only in the following circumstances:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-gray-700">
-                <li><strong>Coach-Athlete Relationship:</strong> Athletes' data is shared with their designated coaches for performance coaching purposes</li>
+                <li><strong>Personal Training:</strong> Your data is used to provide personalized coaching and performance insights</li>
                 <li><strong>Third-Party Integrations:</strong> With your consent, we integrate with WHOOP and other wearable devices to sync your data</li>
                 <li><strong>Legal Requirements:</strong> When required by law or to protect our rights and safety</li>
                 <li><strong>Service Providers:</strong> With trusted service providers who assist in operating our platform (all bound by confidentiality agreements)</li>

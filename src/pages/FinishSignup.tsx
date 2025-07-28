@@ -35,14 +35,14 @@ const FinishSignup: React.FC = () => {
     }
 
     setIsSubmitting(true);
-    console.log('Completing athlete signup:', { name, userId: session.user.id });
+    console.log('Completing solo signup:', { name, userId: session.user.id });
 
     try {
       const { error } = await supabase
         .from('profiles')
         .update({ 
           full_name: name.trim(),
-          role: 'athlete'
+          role: 'solo'
         })
         .eq('id', session.user.id);
 
@@ -77,7 +77,7 @@ const FinishSignup: React.FC = () => {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <CardTitle className="text-xl font-bold">Welcome! 🎉</CardTitle>
-          <p className="text-gray-600">Your coach has invited you. Finish your profile:</p>
+          <p className="text-gray-600">Finish setting up your profile to get started:</p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>

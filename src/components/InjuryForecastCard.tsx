@@ -25,7 +25,7 @@ export const InjuryForecastCard: React.FC = () => {
   const { data: forecasts = [], isLoading } = useQuery({
     queryKey: ['injuryForecasts', profile?.id],
     queryFn: async () => {
-      if (!profile?.id || profile.role !== 'coach') return [];
+      if (!profile?.id) return [];
 
       const { data, error } = await supabase
         .from('injury_risk_forecast')
@@ -93,9 +93,7 @@ export const InjuryForecastCard: React.FC = () => {
     }
   };
 
-  if (profile?.role !== 'coach') {
-    return null;
-  }
+
 
   return (
     <GlassCard className="p-6 min-h-[220px]">
@@ -113,7 +111,7 @@ export const InjuryForecastCard: React.FC = () => {
         <div className="text-center text-white/50 py-8">
           <Shield className="w-12 h-12 mx-auto mb-4 text-white/30" />
           <p className="text-white/70">No injury risks detected</p>
-          <p className="text-sm text-white/50">Your athletes are looking good</p>
+          <p className="text-sm text-white/50">You're looking good</p>
         </div>
       ) : (
         <div className="space-y-4">
