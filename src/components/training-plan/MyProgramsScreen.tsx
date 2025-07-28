@@ -30,25 +30,23 @@ export const MyProgramsScreen: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-white">My Training Programs</h2>
-          <p className="text-white/70">Your personalized training programs</p>
-        </div>
-        <div className="flex gap-3">
-          <Button 
-            onClick={handleAriaGenerate}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-          >
-            <Sparkles className="w-4 h-4 mr-2" />
-            Generate with AI
-          </Button>
-          <Button onClick={handleCreateProgram} variant="outline" className="border-white/20 text-white hover:bg-white/10">
-            <Plus className="w-4 h-4 mr-2" />
-            Create Program
-          </Button>
-        </div>
+      {/* Quick Actions */}
+      <div className="flex gap-3 justify-center md:justify-end">
+        <Button 
+          onClick={handleAriaGenerate}
+          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+        >
+          <Sparkles className="w-4 h-4 mr-2" />
+          Generate with AI
+        </Button>
+        <Button 
+          onClick={handleCreateProgram} 
+          variant="outline" 
+          className="border-white/20 text-white hover:bg-white/10"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Create Program
+        </Button>
       </div>
 
       {/* Templates Grid */}
@@ -65,6 +63,17 @@ export const MyProgramsScreen: React.FC = () => {
         onOpenChange={setAriaWizardOpen}
         onProgramGenerated={handleProgramGenerated}
       />
+
+      {/* Floating Action Button for mobile */}
+      <div className="fixed bottom-6 right-6 md:hidden">
+        <Button 
+          onClick={handleCreateProgram}
+          size="lg"
+          className="rounded-full w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg"
+        >
+          <Plus className="w-6 h-6" />
+        </Button>
+      </div>
     </div>
   );
 };

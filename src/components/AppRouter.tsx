@@ -50,6 +50,7 @@ const ProtocolDetailScreen = React.lazy(() => import('../pages/mobile/ProtocolDe
 const ClubsScreen = React.lazy(() => import('../pages/ClubsScreen'));
 const ChallengesScreen = React.lazy(() => import('../pages/ChallengesScreen'));
 const MeetsScreen = React.lazy(() => import('../pages/MeetsScreen'));
+const ProgramScreen = React.lazy(() => import('../pages/solo/ProgramScreen').then(module => ({ default: module.ProgramScreen })));
 // Removed Athletes page - not needed for solo user app
 
 // Loading fallback component
@@ -99,6 +100,7 @@ const AppRouter = () => {
           <Route index element={<DashboardPage />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="program/:id" element={<ProgramScreen />} />
           <Route path="program" element={<Navigate to="/training-plan" replace />} />
           <Route path="training" element={<Navigate to="/training-plan" replace />} />
           <Route path="training/live" element={<LiveSessionPage />} />
