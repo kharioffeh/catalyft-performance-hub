@@ -68,12 +68,21 @@ Instead of creating a redundant Navigation.tsx, enhanced the existing system:
 
 **Navigation Items:**
 - ✅ Dashboard (`/dashboard`) - BarChart3 icon
-- ✅ Training Plan (`/training-plan`) - Target icon
+- ✅ Training Plan (`/training-plan`) - Target icon  
+- ✅ My Schedule (`/calendar`) - Calendar icon
 - ✅ Analytics (`/analytics`) - BarChart3 icon
-- ✅ Calendar (`/calendar`) - Calendar icon
-- ✅ Profile (`/profile`) - Users icon (solo user profile)
+- ✅ Nutrition (`/nutrition/my-log`) - Activity icon
+- ✅ Profile (`/profile`) - Users icon
+- ✅ Feed (`/feed`) - Rss icon (social features)
 - ✅ Chat (`/chat`) - MessageSquare icon
 - ✅ Settings (`/settings`) - Settings icon
+
+**Mobile Bottom Tabs (First 5):**
+Dashboard, Training Plan, My Schedule, Analytics, Nutrition
+
+**All Items Available In:**
+- Desktop sidebar (all 9 items)
+- Mobile drawer menu (all 9 items)
 
 #### 6. Technical Implementation ✅
 
@@ -120,7 +129,7 @@ The navigation requirements have been fully met using the existing, well-archite
 1. **Drawer Navigation**: ✅ Desktop sidebar with all links
 2. **Bottom Tabs**: ✅ Mobile bottom navigation for main sections
 3. **Responsive**: ✅ Automatic mobile/desktop switching
-4. **All Required Routes**: ✅ Dashboard, TrainingPlan, Analytics, Calendar, Profile, Chat, Settings
+4. **All Required Routes**: ✅ Dashboard, Training Plan, My Schedule, Analytics, Nutrition, Profile, Feed, Chat, Settings
 5. **Professional UX**: ✅ Smooth animations, proper touch targets, accessibility
 
 The existing system is superior to a basic React Navigation implementation because it:

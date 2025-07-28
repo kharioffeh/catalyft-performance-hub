@@ -52,22 +52,34 @@ const navigationScreens = [
     label: 'Training'
   },
   {
+    name: 'Calendar',
+    path: '/calendar',
+    icon: Calendar,
+    label: 'Schedule'
+  },
+  {
     name: 'Analytics',
     path: '/analytics',
     icon: BarChart,
     label: 'Analytics'
   },
   {
-    name: 'Calendar',
-    path: '/calendar',
-    icon: Calendar,
-    label: 'Calendar'
+    name: 'Nutrition',
+    path: '/nutrition/my-log',
+    icon: BarChart, // Using BarChart as placeholder - Activity icon would be better
+    label: 'Nutrition'
   },
   {
     name: 'Profile',
     path: '/profile',
     icon: Users,
     label: 'Profile'
+  },
+  {
+    name: 'Feed',
+    path: '/feed',
+    icon: Users, // Using Users as placeholder - Rss icon would be better
+    label: 'Feed'
   },
   {
     name: 'Chat',
