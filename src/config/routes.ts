@@ -39,7 +39,7 @@ export const NAV_ROUTES: NavItem[] = [
   },
   {
     label: "Nutrition",
-    path: "/nutrition",
+    path: "/nutrition/my-log",
     icon: Activity
   },
   {

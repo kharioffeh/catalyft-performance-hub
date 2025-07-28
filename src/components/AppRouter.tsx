@@ -111,9 +111,10 @@ const AppRouter = () => {
           <Route path="clubs" element={<ClubsScreen />} />
           <Route path="challenges" element={<ChallengesScreen />} />
           <Route path="meets" element={<MeetsScreen />} />
-          <Route path="nutrition-log" element={<Navigate to="/nutrition" replace />} />
-          <Route path="nutrition" element={<NutritionPage />} />
-          <Route path="nutrition/parse" element={<MealParseScreen />} />
+          <Route path="nutrition-log" element={<Navigate to="/nutrition/my-log" replace />} />
+          <Route path="nutrition" element={<Navigate to="/nutrition/my-log" replace />} />
+          <Route path="nutrition/my-log" element={<NutritionPage />} />
+          <Route path="nutrition/my-parse" element={<MealParseScreen />} />
           <Route path="sleep" element={<Navigate to="/analytics" replace />} />
           <Route path="stress" element={<Navigate to="/analytics" replace />} />
           <Route path="analytics" element={<AnalyticsPage />} />

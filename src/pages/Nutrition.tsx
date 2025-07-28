@@ -60,9 +60,9 @@ const Nutrition: React.FC = () => {
   return (
     <div className={cn("space-y-6 p-4 md:p-8", contentPadding)}>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white mb-2">Nutrition</h1>
+        <h1 className="text-2xl font-bold text-white mb-2">My Nutrition</h1>
         <p className="text-white/70">
-          Track your daily nutrition, log meals, and monitor macro targets
+          Track your personal daily nutrition, log meals, and monitor macro targets
         </p>
       </div>
 

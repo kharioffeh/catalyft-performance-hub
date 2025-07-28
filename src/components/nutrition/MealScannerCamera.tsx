@@ -94,7 +94,7 @@ export const MealScannerCamera: React.FC<MealScannerCameraProps> = ({ onClose })
 
   const capturePhoto = () => {
     // Navigate to meal parse screen with photo mode
-    navigate('/nutrition/parse', { state: { mode: 'photo', data: 'photo_data' } });
+    navigate('/nutrition/my-parse', { state: { mode: 'photo', data: 'photo_data' } });
   };
 
   const handleBarcodeScan = async () => {
@@ -103,18 +103,18 @@ export const MealScannerCamera: React.FC<MealScannerCameraProps> = ({ onClose })
       const result = await Barcode.scan();
       
       if (result && result.data) {
-        navigate('/nutrition/parse', { state: { mode: 'barcode', data: result.data } });
+        navigate('/nutrition/my-parse', { state: { mode: 'barcode', data: result.data } });
       }
     } catch (error) {
       console.error('Error scanning barcode:', error);
       // Fallback to mock data for demonstration
-      navigate('/nutrition/parse', { state: { mode: 'barcode', data: '123456789012' } });
+      navigate('/nutrition/my-parse', { state: { mode: 'barcode', data: '123456789012' } });
     }
   };
 
   const handleDescribe = () => {
     // Navigate to meal parse screen with describe mode
-    navigate('/nutrition/parse', { state: { mode: 'describe', data: null } });
+    navigate('/nutrition/my-parse', { state: { mode: 'describe', data: null } });
   };
 
   const modes = [
