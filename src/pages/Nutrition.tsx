@@ -13,6 +13,10 @@ import { FloatingAddButton } from '@/components/nutrition/FloatingAddButton';
 import { MacroRings } from '@/components/nutrition/MacroRings';
 import { NutritionScoreCard } from '@/components/nutrition/NutritionScoreCard';
 import { useFabPosition } from '@/hooks/useFabPosition';
+import { useCalorieBalance } from '@/hooks/useCalorieBalance';
+import { CalorieBalanceCard } from '@/components/nutrition/CalorieBalanceCard';
+import { CalorieTrendChart } from '@/components/nutrition/CalorieTrendChart';
+import { WearableConnectionBanner } from '@/components/nutrition/WearableConnectionBanner';
 import { cn } from '@/lib/utils';
 import ParseScreen from './ParseScreen';
 
@@ -20,6 +24,7 @@ const Nutrition: React.FC = () => {
   const { meals, addMeal, removeMeal, getTodaysMeals, getTodaysMacros, getMacroTargets, getNutritionScore } = useNutrition();
   const [activeTab, setActiveTab] = useState('log');
   const { contentPadding } = useFabPosition();
+  const { todaysData, weeklyData, isLoading: calorieBalanceLoading } = useCalorieBalance();
 
   const todaysMacros = getTodaysMacros();
   const macroTargets = getMacroTargets();
@@ -85,6 +90,38 @@ const Nutrition: React.FC = () => {
           </TabsList>
 
           <TabsContent value="log" className="mt-0 space-y-6">
+            {/* Wearable Connection Banner */}
+            <WearableConnectionBanner />
+
+            {/* Calorie Balance Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {todaysData ? (
+                <CalorieBalanceCard
+                  caloriesConsumed={todaysData.caloriesConsumed}
+                  caloriesBurned={todaysData.caloriesBurned}
+                  bmr={todaysData.bmr}
+                  totalExpenditure={todaysData.totalExpenditure}
+                  balance={todaysData.balance}
+                  balancePercentage={todaysData.balancePercentage}
+                  isLoading={calorieBalanceLoading}
+                />
+              ) : (
+                <CalorieBalanceCard
+                  caloriesConsumed={0}
+                  caloriesBurned={0}
+                  bmr={0}
+                  totalExpenditure={0}
+                  balance={0}
+                  balancePercentage={0}
+                  isLoading={calorieBalanceLoading}
+                />
+              )}
+              <CalorieTrendChart 
+                weeklyData={weeklyData}
+                isLoading={calorieBalanceLoading}
+              />
+            </div>
+
             {/* Macro Rings and Nutrition Score */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <MacroRings macros={macroData} />
