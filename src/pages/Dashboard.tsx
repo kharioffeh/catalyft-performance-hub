@@ -97,6 +97,56 @@ const TodaysScheduleCard: React.FC<{ sessions: any[] }> = ({ sessions }) => (
   </View>
 );
 
+const SocialFeedCard: React.FC = () => {
+  const navigation = useNavigation();
+  
+  const handleNavigateToFeed = () => {
+    // @ts-ignore - navigation types would be defined in navigation setup
+    navigation.navigate('SocialFeed');
+  };
+
+  // Mock feed posts data
+  const mockPosts = [
+    { id: 1, user: 'Alex M.', action: 'completed a workout', time: '2h ago', type: 'workout' },
+    { id: 2, user: 'Sarah K.', action: 'reached recovery goal', time: '4h ago', type: 'recovery' },
+    { id: 3, user: 'Mike R.', action: 'shared progress', time: '6h ago', type: 'progress' }
+  ];
+
+  return (
+    <TouchableOpacity
+      style={[
+        styles.socialFeedCard,
+        isLandscape && !isTablet ? styles.socialFeedCardLandscape : styles.socialFeedCardPortrait
+      ]}
+      onPress={handleNavigateToFeed}
+      activeOpacity={0.8}
+    >
+      <View style={styles.socialFeedHeader}>
+        <Text style={styles.socialFeedTitle}>Social Feed</Text>
+        <View style={styles.feedIcon}>
+          <Text style={styles.feedIconText}>🔥</Text>
+        </View>
+      </View>
+      
+      <ScrollView style={styles.feedList} showsVerticalScrollIndicator={false}>
+        {mockPosts.map((post) => (
+          <View key={post.id} style={styles.feedItem}>
+            <View style={styles.feedItemContent}>
+              <Text style={styles.feedUserName}>{post.user}</Text>
+              <Text style={styles.feedAction}>{post.action}</Text>
+            </View>
+            <Text style={styles.feedTime}>{post.time}</Text>
+          </View>
+        ))}
+      </ScrollView>
+      
+      <View style={styles.feedFooter}>
+        <Text style={styles.feedFooterText}>Tap to view all activity</Text>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
 const Dashboard: React.FC = () => {
   const { profile } = useAuth();
   const navigation = useNavigation();
@@ -147,65 +197,79 @@ const Dashboard: React.FC = () => {
           <Text style={styles.subtitleText}>Your daily overview</Text>
         </View>
 
-        {/* Main Content Layout */}
-        <View style={[
-          styles.mainLayout,
-          isLandscape && !isTablet ? styles.mainLayoutLandscape : styles.mainLayoutPortrait
-        ]}>
-          {/* Metric Cards Section */}
-          <View style={[
-            styles.metricsSection,
-            isLandscape && !isTablet ? styles.metricsSectionLandscape : styles.metricsSectionPortrait
-          ]}>
-            <View style={styles.metricsGrid}>
-              {/* Recovery Card */}
-              <MetricCard
-                title="Recovery"
-                value={myRecovery?.recovery ? `${Math.round(myRecovery.recovery)}%` : '—'}
-                subtitle="Current recovery score"
-                isLoading={recoveryLoading}
-                onPress={() => handleNavigate('Analytics')}
-              />
+                 {/* Main Content Layout */}
+         <View style={[
+           styles.mainLayout,
+           isLandscape && !isTablet ? styles.mainLayoutLandscape : styles.mainLayoutPortrait
+         ]}>
+           {/* Metric Cards Section */}
+           <View style={[
+             styles.metricsSection,
+             isLandscape && !isTablet ? styles.metricsSectionLandscape : styles.metricsSectionPortrait
+           ]}>
+             <View style={styles.metricsGrid}>
+               {/* Recovery Card */}
+               <MetricCard
+                 title="Recovery"
+                 value={myRecovery?.recovery ? `${Math.round(myRecovery.recovery)}%` : '—'}
+                 subtitle="Current recovery score"
+                 isLoading={recoveryLoading}
+                 onPress={() => handleNavigate('Analytics')}
+               />
 
-              {/* Strain Card */}
-              <MetricCard
-                title="Strain"
-                value={getStrainValue()}
-                subtitle="Today's strain level"
-                onPress={() => handleNavigate('Analytics')}
-              />
+               {/* Strain Card */}
+               <MetricCard
+                 title="Strain"
+                 value={getStrainValue()}
+                 subtitle="Today's strain level"
+                 onPress={() => handleNavigate('Analytics')}
+               />
 
-              {/* Stress Card */}
-              <MetricCard
-                title="Stress"
-                value={getStressValue()}
-                subtitle="Stress indicator"
-                onPress={() => handleNavigate('Analytics')}
-              />
+               {/* Stress Card */}
+               <MetricCard
+                 title="Stress"
+                 value={getStressValue()}
+                 subtitle="Stress indicator"
+                 onPress={() => handleNavigate('Analytics')}
+               />
 
-              {/* Today's Sessions Card */}
-              <MetricCard
-                title="Today's Sessions"
-                value={myCalendar?.upcomingCount || 0}
-                subtitle={
-                  myCalendar?.completedToday && myCalendar.completedToday > 0
-                    ? `${myCalendar.completedToday} completed`
-                    : "Sessions planned"
-                }
-                isLoading={calendarLoading}
-                onPress={() => handleNavigate('Calendar')}
-              />
-            </View>
-          </View>
+               {/* Today's Sessions Card */}
+               <MetricCard
+                 title="Today's Sessions"
+                 value={myCalendar?.upcomingCount || 0}
+                 subtitle={
+                   myCalendar?.completedToday && myCalendar.completedToday > 0
+                     ? `${myCalendar.completedToday} completed`
+                     : "Sessions planned"
+                 }
+                 isLoading={calendarLoading}
+                 onPress={() => handleNavigate('Calendar')}
+               />
+             </View>
+           </View>
 
-          {/* Today's Schedule Section */}
-          <View style={[
-            styles.scheduleSection,
-            isLandscape && !isTablet ? styles.scheduleSectionLandscape : styles.scheduleSectionPortrait
-          ]}>
-            <TodaysScheduleCard sessions={myCalendar?.todaySessions || []} />
-          </View>
-        </View>
+           {/* Cards Row Section */}
+           <View style={[
+             styles.cardsRowSection,
+             isLandscape && !isTablet ? styles.cardsRowSectionLandscape : styles.cardsRowSectionPortrait
+           ]}>
+             {/* Today's Schedule Section */}
+             <View style={[
+               styles.scheduleSection,
+               isLandscape && !isTablet ? styles.scheduleSectionLandscape : styles.scheduleSectionPortrait
+             ]}>
+               <TodaysScheduleCard sessions={myCalendar?.todaySessions || []} />
+             </View>
+
+             {/* Social Feed Section */}
+             <View style={[
+               styles.socialFeedSection,
+               isLandscape && !isTablet ? styles.socialFeedSectionLandscape : styles.socialFeedSectionPortrait
+             ]}>
+               <SocialFeedCard />
+             </View>
+           </View>
+         </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -310,17 +374,34 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: 'rgba(255, 255, 255, 0.6)',
   },
-  loader: {
-    marginVertical: 8,
-  },
-  scheduleSection: {},
-  scheduleSectionPortrait: {
-    flex: 1,
-  },
-  scheduleSectionLandscape: {
-    flex: 1,
-    maxWidth: isTablet ? width * 0.35 : width * 0.3,
-  },
+     loader: {
+     marginVertical: 8,
+   },
+   cardsRowSection: {
+     gap: 12,
+   },
+   cardsRowSectionPortrait: {
+     flexDirection: 'column',
+   },
+   cardsRowSectionLandscape: {
+     flexDirection: 'row',
+   },
+   scheduleSection: {},
+   scheduleSectionPortrait: {
+     flex: 1,
+   },
+   scheduleSectionLandscape: {
+     flex: 1,
+     maxWidth: isTablet ? width * 0.35 : width * 0.3,
+   },
+   socialFeedSection: {},
+   socialFeedSectionPortrait: {
+     flex: 1,
+   },
+   socialFeedSectionLandscape: {
+     flex: 1,
+     maxWidth: isTablet ? width * 0.35 : width * 0.3,
+   },
   scheduleCard: {
     // Glassmorphism styling
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
@@ -395,11 +476,98 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 8,
   },
-  noSessionsSubtext: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.5)',
-    textAlign: 'center',
-  },
-});
-
-export default Dashboard;
+     noSessionsSubtext: {
+     fontSize: 14,
+     color: 'rgba(255, 255, 255, 0.5)',
+     textAlign: 'center',
+   },
+   socialFeedCard: {
+     // Glassmorphism styling
+     backgroundColor: 'rgba(255, 255, 255, 0.08)',
+     borderWidth: 1,
+     borderColor: 'rgba(255, 255, 255, 0.12)',
+     borderRadius: 16,
+     padding: 20,
+     minHeight: 200,
+     // Backdrop blur effect simulation
+     shadowColor: '#000',
+     shadowOffset: {
+       width: 0,
+       height: 4,
+     },
+     shadowOpacity: 0.3,
+     shadowRadius: 8,
+     elevation: 8,
+   },
+   socialFeedCardPortrait: {
+     width: '100%',
+   },
+   socialFeedCardLandscape: {
+     width: '100%',
+     height: 280,
+   },
+   socialFeedHeader: {
+     flexDirection: 'row',
+     justifyContent: 'space-between',
+     alignItems: 'center',
+     marginBottom: 16,
+   },
+   socialFeedTitle: {
+     fontSize: 18,
+     fontWeight: '600',
+     color: '#ffffff',
+   },
+   feedIcon: {
+     width: 24,
+     height: 24,
+     justifyContent: 'center',
+     alignItems: 'center',
+   },
+   feedIconText: {
+     fontSize: 16,
+   },
+   feedList: {
+     flex: 1,
+     maxHeight: 150,
+   },
+   feedItem: {
+     flexDirection: 'row',
+     justifyContent: 'space-between',
+     alignItems: 'flex-start',
+     paddingVertical: 8,
+     borderBottomWidth: 1,
+     borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+   },
+   feedItemContent: {
+     flex: 1,
+     marginRight: 8,
+   },
+   feedUserName: {
+     fontSize: 14,
+     fontWeight: '600',
+     color: '#ffffff',
+     marginBottom: 2,
+   },
+   feedAction: {
+     fontSize: 12,
+     color: 'rgba(255, 255, 255, 0.7)',
+   },
+   feedTime: {
+     fontSize: 11,
+     color: 'rgba(255, 255, 255, 0.5)',
+   },
+   feedFooter: {
+     marginTop: 12,
+     paddingTop: 12,
+     borderTopWidth: 1,
+     borderTopColor: 'rgba(255, 255, 255, 0.1)',
+     alignItems: 'center',
+   },
+   feedFooterText: {
+     fontSize: 12,
+     color: 'rgba(255, 255, 255, 0.6)',
+     fontStyle: 'italic',
+   },
+ });
+ 
+ export default Dashboard;
