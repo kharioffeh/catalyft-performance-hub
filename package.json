@@ -139,6 +139,7 @@
     "three": "^0.177.0",
     "vanta": "^0.5.24",
     "vaul": "^0.9.3",
+    "victory": "^37.3.6",
     "vite-bundle-analyzer": "^1.0.0",
     "vite-plugin-pwa": "^1.0.0",
     "wcag-contrast": "^3.0.0",
