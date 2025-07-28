@@ -50,7 +50,7 @@ export const AllChartCards: StoryObj = {
         <TonnageCard data={mockTonnageData} />
         <E1RMCard data={mockE1RMData} />
         <VelocityFatigueCard data={mockVelocityData} />
-        <MuscleLoadCard data={mockMuscleLoadData} selectedAthleteId="demo-athlete-12345" />
+        <MuscleLoadCard data={mockMuscleLoadData} />
       </div>
     </div>
   ),
@@ -82,8 +82,8 @@ export const VelocityFatigueOnly: StoryObj = {
 
 export const MuscleLoadOnly: StoryObj = {
   render: () => (
-    <div className="bg-brand-charcoal p-8">
-      <MuscleLoadCard data={mockMuscleLoadData} selectedAthleteId="demo-athlete-12345" />
+    <div className="p-6 bg-slate-900">
+      <MuscleLoadCard data={mockMuscleLoadData} />
     </div>
-  ),
+  )
 };

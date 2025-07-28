@@ -4,8 +4,9 @@ import { StressGauge } from '@/components/Dashboard/StressGauge';
 import { useEnhancedMetrics } from '@/hooks/useEnhancedMetrics';
 import { usePeriod } from '@/lib/hooks/usePeriod';
 
+// Remove selectedAthleteId since this is now solo-focused
 interface MuscleAnatomyPanelProps {
-  selectedAthleteId: string;
+  // No props needed for solo athlete
 }
 
 // Simple anatomical diagram component
@@ -198,7 +199,7 @@ const TrainingLoadGauge: React.FC<{ value: number }> = ({ value }) => {
 };
 
 export const MuscleAnatomyPanel: React.FC<MuscleAnatomyPanelProps> = ({
-  selectedAthleteId
+  // No props needed for solo athlete
 }) => {
   const { period } = usePeriod();
   const { loadACWR } = useEnhancedMetrics();
@@ -215,8 +216,8 @@ export const MuscleAnatomyPanel: React.FC<MuscleAnatomyPanelProps> = ({
         <GlassCard className="p-6 h-full min-h-[380px]">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-lg font-display font-semibold text-white">Muscle Training Load</h3>
-              <p className="text-white/60 text-sm">Recent training stress by muscle group</p>
+              <h3 className="text-lg font-display font-semibold text-white">My Muscle Training Load</h3>
+              <p className="text-white/60 text-sm">Your recent training stress by muscle group</p>
             </div>
           </div>
           
@@ -253,7 +254,7 @@ export const MuscleAnatomyPanel: React.FC<MuscleAnatomyPanelProps> = ({
       {/* Training Load & ACWR Gauges - 40% width on desktop, full width on mobile */}
       <div className="col-span-12 lg:col-span-5">
         <GlassCard className="p-6 h-full">
-          <h3 className="text-lg font-semibold text-white mb-6">Training Metrics</h3>
+          <h3 className="text-lg font-semibold text-white mb-6">My Training Metrics</h3>
           
           <div className="space-y-8">
             {/* Training Load Gauge */}
