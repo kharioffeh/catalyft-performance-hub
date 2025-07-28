@@ -31,7 +31,24 @@ const SessionCard: React.FC<SessionCardProps> = ({ session }) => {
     return loadText + prText;
   };
 
-  const borderColor = session.isPR ? 'border-electric-blue' : '';
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'border-green-500';
+      case 'completed': return 'border-gray-500';
+      default: return 'border-blue-500';
+    }
+  };
+
+  const handleSessionClick = () => {
+    if (session.status === 'planned' || session.status === 'active') {
+      // In a real app, you would navigate to the ActiveSessionScreen
+      // For web, you might open a modal or navigate to a session page
+      console.log('Navigate to session:', session.id);
+      // Example: router.push(`/session/${session.id}`);
+    }
+  };
+
+  const borderColor = session.isPR ? 'border-electric-blue' : getStatusColor(session.status);
   const customBorderColor = !session.isPR ? getLoadBorderColor(session.loadPercent) : '';
   
   return (
@@ -40,9 +57,11 @@ const SessionCard: React.FC<SessionCardProps> = ({ session }) => {
         mb-1 px-2 py-1 rounded-lg bg-white/10 border-2 relative
         ${borderColor || 'border-white/20'}
         hover:bg-white/15 transition-colors cursor-pointer
+        ${(session.status === 'planned' || session.status === 'active') ? 'hover:scale-105' : ''}
       `}
       style={customBorderColor !== 'border-white/20' ? { borderColor: customBorderColor } : {}}
       title={getLoadInfo(session)}
+      onClick={handleSessionClick}
     >
       <div className="flex items-center gap-1 relative">
         <Dumbbell size={10} className="text-electric-blue" />
@@ -53,11 +72,27 @@ const SessionCard: React.FC<SessionCardProps> = ({ session }) => {
           {session.type}
         </span>
         
+        {/* Status indicator */}
+        {session.status === 'active' && (
+          <span className="absolute -top-1 -right-1 text-xs">🟢</span>
+        )}
+        {session.status === 'planned' && (
+          <span className="absolute -top-1 -right-1 text-xs">▶️</span>
+        )}
+        
         {/* PR Badge */}
         {session.isPR && (
           <span className="absolute -top-1 -right-1 text-sm">🏅</span>
         )}
       </div>
+      
+      {/* Session hint */}
+      {session.status === 'planned' && (
+        <div className="text-xs text-blue-300 mt-1">Tap to start</div>
+      )}
+      {session.status === 'active' && (
+        <div className="text-xs text-green-300 mt-1">In progress</div>
+      )}
     </div>
   );
 };
