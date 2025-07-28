@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FeedCard, FeedPost } from '@/features/feed/FeedCard';
+import { FeedSolo } from '@/components/feed/FeedSolo';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 const Feed: React.FC = () => {
   const [posts, setPosts] = useState<FeedPost[]>([]);
@@ -9,6 +12,7 @@ const Feed: React.FC = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [cursor, setCursor] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'feed' | 'solo'>('feed');
 
   const fetchPosts = useCallback(async (loadMore = false) => {
     try {
@@ -62,13 +66,17 @@ const Feed: React.FC = () => {
     }
   }, [cursor]);
 
-  // Initial load
+  // Initial load - only fetch posts when feed tab is active
   useEffect(() => {
-    fetchPosts();
-  }, []);
+    if (activeTab === 'feed') {
+      fetchPosts();
+    }
+  }, [activeTab]);
 
-  // Infinite scroll handler
+  // Infinite scroll handler - only for feed tab
   useEffect(() => {
+    if (activeTab !== 'feed') return;
+
     const handleScroll = () => {
       if (
         window.innerHeight + document.documentElement.scrollTop >=
@@ -82,7 +90,7 @@ const Feed: React.FC = () => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [fetchPosts, loadingMore, hasMore]);
+  }, [fetchPosts, loadingMore, hasMore, activeTab]);
 
   const handleReactionUpdate = (postId: string, reactions: { like: number; cheer: number }) => {
     setPosts(prev =>
@@ -92,12 +100,36 @@ const Feed: React.FC = () => {
     );
   };
 
-  if (loading) {
+  if (activeTab === 'feed' && loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-charcoal via-charcoal/95 to-charcoal/90">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto">
             <h1 className="text-3xl font-bold text-white mb-8">Feed</h1>
+            
+            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'feed' | 'solo')} className="w-full mb-8">
+              <TabsList className="grid w-full grid-cols-2 bg-white/10">
+                <TabsTrigger 
+                  value="feed"
+                  className={cn(
+                    "data-[state=active]:bg-brand-blue data-[state=active]:text-brand-charcoal",
+                    "text-white/70 hover:text-white"
+                  )}
+                >
+                  Social Feed
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="solo"
+                  className={cn(
+                    "data-[state=active]:bg-brand-blue data-[state=active]:text-brand-charcoal",
+                    "text-white/70 hover:text-white"
+                  )}
+                >
+                  Solo
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
             <div className="space-y-6">
               {[...Array(5)].map((_, i) => (
                 <div
@@ -132,47 +164,76 @@ const Feed: React.FC = () => {
         <div className="max-w-2xl mx-auto">
           <h1 className="text-3xl font-bold text-white mb-8">Feed</h1>
           
-          {posts.length === 0 ? (
-            <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
-              <div className="text-6xl mb-4">📱</div>
-              <h2 className="text-xl font-semibold text-white mb-2">No posts yet</h2>
-              <p className="text-white/60">Be the first to share your workout!</p>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {posts.map((post) => (
-                <FeedCard
-                  key={post.id}
-                  post={post}
-                  onReactionUpdate={handleReactionUpdate}
-                />
-              ))}
-              
-              {loadingMore && (
-                <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-4 drop-shadow-lg animate-pulse">
-                  <div className="flex items-center mb-3">
-                    <div className="w-8 h-8 rounded-full bg-white/20 mr-3"></div>
-                    <div className="flex-1">
-                      <div className="h-4 bg-white/20 rounded mb-1"></div>
-                      <div className="h-3 bg-white/10 rounded w-20"></div>
-                    </div>
-                  </div>
-                  <div className="h-32 bg-white/10 rounded-xl mb-3"></div>
-                  <div className="h-4 bg-white/10 rounded mb-4"></div>
-                  <div className="flex gap-3">
-                    <div className="h-8 bg-white/10 rounded-full w-16"></div>
-                    <div className="h-8 bg-white/10 rounded-full w-16"></div>
-                  </div>
-                </div>
-              )}
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'feed' | 'solo')} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 bg-white/10 mb-8">
+              <TabsTrigger 
+                value="feed"
+                className={cn(
+                  "data-[state=active]:bg-brand-blue data-[state=active]:text-brand-charcoal",
+                  "text-white/70 hover:text-white"
+                )}
+              >
+                Social Feed
+              </TabsTrigger>
+              <TabsTrigger 
+                value="solo"
+                className={cn(
+                  "data-[state=active]:bg-brand-blue data-[state=active]:text-brand-charcoal",
+                  "text-white/70 hover:text-white"
+                )}
+              >
+                Solo
+              </TabsTrigger>
+            </TabsList>
 
-              {!hasMore && posts.length > 0 && (
-                <div className="text-center py-8">
-                  <p className="text-white/60">You've reached the end of the feed!</p>
+            <TabsContent value="feed" className="mt-0">
+              {posts.length === 0 ? (
+                <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
+                  <div className="text-6xl mb-4">📱</div>
+                  <h2 className="text-xl font-semibold text-white mb-2">No posts yet</h2>
+                  <p className="text-white/60">Be the first to share your workout!</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {posts.map((post) => (
+                    <FeedCard
+                      key={post.id}
+                      post={post}
+                      onReactionUpdate={handleReactionUpdate}
+                    />
+                  ))}
+                  
+                  {loadingMore && (
+                    <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-4 drop-shadow-lg animate-pulse">
+                      <div className="flex items-center mb-3">
+                        <div className="w-8 h-8 rounded-full bg-white/20 mr-3"></div>
+                        <div className="flex-1">
+                          <div className="h-4 bg-white/20 rounded mb-1"></div>
+                          <div className="h-3 bg-white/10 rounded w-20"></div>
+                        </div>
+                      </div>
+                      <div className="h-32 bg-white/10 rounded-xl mb-3"></div>
+                      <div className="h-4 bg-white/10 rounded mb-4"></div>
+                      <div className="flex gap-3">
+                        <div className="h-8 bg-white/10 rounded-full w-16"></div>
+                        <div className="h-8 bg-white/10 rounded-full w-16"></div>
+                      </div>
+                    </div>
+                  )}
+
+                  {!hasMore && posts.length > 0 && (
+                    <div className="text-center py-8">
+                      <p className="text-white/60">You've reached the end of the feed!</p>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
-          )}
+            </TabsContent>
+
+            <TabsContent value="solo" className="mt-0">
+              <FeedSolo />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
