@@ -3,7 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "workspaces": ["packages/*", "apps/*"],
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -18,12 +21,12 @@
     "postinstall": "npm --prefix packages/core run build"
   },
   "dependencies": {
-    "@catalyft/core": "file:packages/core",
     "@capacitor/android": "^7.4.2",
     "@capacitor/cli": "^7.4.2",
     "@capacitor/core": "^7.4.2",
     "@capacitor/ios": "^7.4.2",
     "@capacitor/network": "^7.0.1",
+    "@catalyft/core": "file:packages/core",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -67,6 +70,9 @@
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.4",
     "@react-native-community/slider": "^4.5.7",
+    "@react-navigation/bottom-tabs": "^7.4.4",
+    "@react-navigation/drawer": "^7.5.5",
+    "@react-navigation/native": "^7.1.16",
     "@react-spring/web": "^10.0.1",
     "@supabase/supabase-js": "^2.49.8",
     "@tailwindcss/forms": "^0.5.10",
@@ -114,6 +120,8 @@
     "react-native-mmkv": "^3.3.0",
     "react-native-modal": "^14.0.0-rc.1",
     "react-native-reanimated": "^3.18.0",
+    "react-native-safe-area-context": "^5.5.2",
+    "react-native-screens": "^4.13.1",
     "react-native-stopwatch-timer": "^0.0.21",
     "react-native-web": "^0.20.0",
     "react-resizable-panels": "^2.1.3",
