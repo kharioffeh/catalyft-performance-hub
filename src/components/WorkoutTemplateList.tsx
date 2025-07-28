@@ -80,7 +80,7 @@ export const WorkoutTemplateList: React.FC<WorkoutTemplateListProps> = ({
                 size="sm"
               >
                 <Users className="w-4 h-4 mr-2" />
-                Assign to Athlete
+                Use Template
               </Button>
             )}
           </CardContent>

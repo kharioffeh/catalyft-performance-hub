@@ -33,12 +33,12 @@ const AppLayout: React.FC = () => {
   // Use global hash handler
   useSupabaseHash();
 
-  // Handle role-based redirects
+  // Handle home page redirects
   useEffect(() => {
     if (!loading && session && profile) {
       const currentPath = location.pathname;
       if (currentPath === '/' || currentPath === '/home') {
-        // All users redirect to dashboard (solo role)
+        // All users redirect to dashboard
         console.log('Redirecting user to dashboard from:', currentPath);
         navigate('/dashboard', { replace: true });
       }
@@ -73,17 +73,10 @@ const AppLayout: React.FC = () => {
     return <ProfileError variant={getLayoutVariant()} />;
   }
 
-  // Check onboarding completion for new solo users
-  if (profile.role === 'solo' && profile.has_completed_onboarding === false) {
-    console.log('AppLayout: Solo user needs onboarding, redirecting to wizard');
+  // Check onboarding completion for new users
+  if (profile.has_completed_onboarding === false) {
+    console.log('AppLayout: User needs onboarding, redirecting to wizard');
     navigate('/onboarding/solo', { replace: true });
-    return null;
-  }
-
-  // Legacy role validation for non-solo users (should not occur in solo pivot)
-  if (!profile.role) {
-    console.log('AppLayout: No role found - should not happen in solo experience');
-    navigate('/dashboard', { replace: true });
     return null;
   }
 

@@ -8,7 +8,7 @@ import { EnhancedSleepChart } from '@/components/EnhancedSleepChart';
 import { EnhancedTrainingLoadChart } from '@/components/EnhancedTrainingLoadChart';
 import { StressChart } from '@/components/Analytics/StressChart';
 import { PeriodProvider, usePeriod, periodToDays } from '@/lib/hooks/usePeriod';
-import { useEnhancedMetricsWithAthlete } from '@/hooks/useEnhancedMetricsWithAthlete';
+import { useEnhancedMetrics } from '@/hooks/useEnhancedMetrics';
 import { ShareUIProvider } from '@/context/ShareUIContext';
 import { ShareSheet } from '@/components/ShareSheet';
 import { AnalyticsControls } from '@/components/Analytics/AnalyticsControls';
@@ -37,19 +37,16 @@ const SAMPLE_INSIGHTS = [
 ];
 
 const AnalyticsPageContent: React.FC = () => {
-  const demoAthleteId = 'demo-athlete-12345';
-  const [selectedAthleteId, setSelectedAthleteId] = useState<string>(demoAthleteId);
   const [ariaInput, setAriaInput] = useState('');
   const [showConnectModal, setShowConnectModal] = useState(false);
   const { period } = usePeriod();
-
-  console.log('Analytics: selectedAthleteId =', selectedAthleteId);
+  const { profile } = useAuth();
 
   // Convert period to days for existing hooks
   const periodDays = periodToDays(period);
 
-  // Get enhanced metrics for the selected athlete
-  const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetricsWithAthlete(selectedAthleteId);
+  // Get enhanced metrics for the current user
+  const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetrics();
   
   // Get analytics data for the new chart cards
   const { data: analyticsData, isLoading: analyticsLoading } = useAnalyticsData();
@@ -107,7 +104,7 @@ const AnalyticsPageContent: React.FC = () => {
 
   const sleepData = sleepDaily.length > 0 ? sleepDaily : [
     {
-      athlete_uuid: selectedAthleteId,
+      athlete_uuid: profile?.id || 'demo-user',
       day: '2024-01-01',
       total_sleep_hours: 7.5,
       sleep_efficiency: 85,
@@ -115,7 +112,7 @@ const AnalyticsPageContent: React.FC = () => {
       hrv_rmssd: 42
     },
     {
-      athlete_uuid: selectedAthleteId,
+      athlete_uuid: profile?.id || 'demo-user',
       day: '2024-01-02',
       total_sleep_hours: 8.2,
       sleep_efficiency: 92,
@@ -123,7 +120,7 @@ const AnalyticsPageContent: React.FC = () => {
       hrv_rmssd: 45
     },
     {
-      athlete_uuid: selectedAthleteId,
+      athlete_uuid: profile?.id || 'demo-user',
       day: '2024-01-03',
       total_sleep_hours: 6.8,
       sleep_efficiency: 78,
@@ -134,7 +131,7 @@ const AnalyticsPageContent: React.FC = () => {
 
   const loadData = loadACWR.length > 0 ? loadACWR : [
     {
-      athlete_uuid: selectedAthleteId,
+      athlete_uuid: profile?.id || 'demo-user',
       day: '2024-01-01',
       daily_load: 450,
       acute_7d: 420,
@@ -142,7 +139,7 @@ const AnalyticsPageContent: React.FC = () => {
       acwr_7_28: 1.1
     },
     {
-      athlete_uuid: selectedAthleteId,
+      athlete_uuid: profile?.id || 'demo-user',
       day: '2024-01-02',
       daily_load: 520,
       acute_7d: 435,
@@ -150,7 +147,7 @@ const AnalyticsPageContent: React.FC = () => {
       acwr_7_28: 1.13
     },
     {
-      athlete_uuid: selectedAthleteId,
+      athlete_uuid: profile?.id || 'demo-user',
       day: '2024-01-03',
       daily_load: 380,
       acute_7d: 425,
@@ -212,7 +209,7 @@ const AnalyticsPageContent: React.FC = () => {
               <VelocityFatigueCard data={analyticsData.velocityFatigue} />
               <MuscleLoadCard 
                 data={analyticsData.muscleLoad} 
-                selectedAthleteId={selectedAthleteId} 
+                selectedAthleteId={profile?.id || 'demo-user'} 
               />
             </div>
           </div>
@@ -222,7 +219,7 @@ const AnalyticsPageContent: React.FC = () => {
         <AriaSpotlight />
 
         {/* Muscle Anatomy Panel with Training Load & ACWR Gauges */}
-        <MuscleAnatomyPanel selectedAthleteId={selectedAthleteId} />
+        <MuscleAnatomyPanel selectedAthleteId={profile?.id || 'demo-user'} />
 
         {/* ARIA Input Section - Full width */}
         <ARIAInputSection

@@ -29,7 +29,7 @@ const HomePage = React.lazy(() => import('../pages/Home'));
 const PrivacyPolicyPage = React.lazy(() => import('../pages/PrivacyPolicy'));
 const OAuthCallback = React.lazy(() => import('../pages/OAuthCallback'));
 const SoloWizard = React.lazy(() => import('../pages/onboarding/SoloWizard').then(module => ({ default: module.SoloWizard })));
-const SoloProgramPage = React.lazy(() => import('../pages/solo/ProgramPage'));
+// Removed SoloProgramPage - functionality merged into main pages
 const TemplateDetailPage = React.lazy(() => import('@/pages/TemplateDetailPage'));
 const TrainingPlan = React.lazy(() => import('@/pages/TrainingPlan'));
 
@@ -98,11 +98,7 @@ const AppRouter = () => {
           <Route index element={<DashboardPage />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="profile" element={<ProfilePage />} />
-          <Route path="program" element={
-            <ProtectedRoute roles={['solo']}>
-              <SoloProgramPage />
-            </ProtectedRoute>
-          } />
+          <Route path="program" element={<Navigate to="/training-plan" replace />} />
           <Route path="training" element={<Navigate to="/training-plan" replace />} />
           <Route path="training/live" element={<LiveSessionPage />} />
           <Route path="training/log-workout" element={<LogWorkoutScreen />} />

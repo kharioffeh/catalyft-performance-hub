@@ -14,26 +14,21 @@ export const navigationItems = [
     title: 'Dashboard',
     href: '/dashboard',
     icon: BarChart3,
-    roles: ['coach', 'athlete', 'solo'],
   },
   {
-    title: 'Program',
-    href: '/program',
+    title: 'Training Plan',
+    href: '/training-plan',
     icon: Activity,
-    roles: ['solo'],
   },
-
   {
-    title: 'Chat (KAI)',
+    title: 'Chat',
     href: '/chat',
     icon: MessageSquare,
-    roles: ['coach', 'athlete', 'solo'],
   },
   {
     title: 'Settings',
     href: '/settings',
     icon: Settings,
-    roles: ['coach', 'athlete', 'solo'],
   },
 ];
 
@@ -45,17 +40,12 @@ export const soloNavigation = [
     icon: BarChart3,
   },
   {
-    label: 'Program',
-    path: '/program',
+    label: 'Training Plan',
+    path: '/training-plan',
     icon: Activity,
   },
   {
-    label: 'Training Plan',
-    path: '/training-plan',
-    icon: BookOpen,
-  },
-  {
-    label: 'Calendar',
+    label: 'My Schedule',
     path: '/calendar',
     icon: Calendar,
   },
@@ -63,6 +53,16 @@ export const soloNavigation = [
     label: 'Analytics',
     path: '/analytics',
     icon: BarChart3,
+  },
+  {
+    label: 'Nutrition',
+    path: '/nutrition',
+    icon: BookOpen,
+  },
+  {
+    label: 'Feed',
+    path: '/feed',
+    icon: MessageSquare,
   },
   {
     label: 'Chat',

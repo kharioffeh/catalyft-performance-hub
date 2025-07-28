@@ -6,7 +6,7 @@ import { InsightStrip } from '@/components/Analytics/InsightStrip';
 import { SegmentedControl } from '@/components/Analytics/SegmentedControl';
 import { AnalyticsHeroSection } from '@/components/Analytics/AnalyticsHeroSection';
 import { useMetricData } from '@/hooks/useMetricData';
-import { useEnhancedMetricsWithAthlete } from '@/hooks/useEnhancedMetricsWithAthlete';
+import { useEnhancedMetrics } from '@/hooks/useEnhancedMetrics';
 import { Activity } from 'lucide-react';
 
 // Lazy load segment components
@@ -34,7 +34,7 @@ export default function ReadinessDetailPage() {
   const { data, isLoading, error } = useMetricData("readiness", period);
 
   // Get enhanced metrics for InsightStrip
-  const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetricsWithAthlete(profile?.id);
+  const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetrics();
 
   // Extract values for InsightStrip
   const latestReadiness = readinessRolling[readinessRolling.length - 1]?.readiness_score ?? null;

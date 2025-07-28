@@ -43,7 +43,7 @@ export const TableView: React.FC<TableViewProps> = ({ data, period, isLoading })
 
       {/* ARIA Insights */}
       <section className="card">
-        <h2 className="text-lg font-semibold mb-2">Coach ARIA Load Insights</h2>
+        <h2 className="text-lg font-semibold mb-2">ARIA Load Insights</h2>
         <p className="text-sm text-gray-600 mb-4">
           AI-generated insights about your training load and injury risk
         </p>

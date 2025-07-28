@@ -17,11 +17,6 @@ export const NAV_ROUTES: NavItem[] = [
     path: "/dashboard", 
     icon: BarChart3 
   },
-  { 
-    label: "Program", 
-    path: "/program", 
-    icon: Activity
-  },
   {
     label: "Training Plan",
     path: "/training-plan",
@@ -33,19 +28,24 @@ export const NAV_ROUTES: NavItem[] = [
     ]
   },
   {
-    label: "Calendar",
+    label: "My Schedule",
     path: "/calendar", 
     icon: Calendar
-  },
-  {
-    label: "Feed",
-    path: "/feed", 
-    icon: Users
   },
   {
     label: "Analytics",
     path: "/analytics",
     icon: BarChart3
+  },
+  {
+    label: "Nutrition",
+    path: "/nutrition",
+    icon: Activity
+  },
+  {
+    label: "Feed",
+    path: "/feed", 
+    icon: Users
   },
   { 
     label: "Chat", 

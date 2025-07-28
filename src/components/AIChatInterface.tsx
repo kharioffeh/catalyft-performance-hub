@@ -39,7 +39,7 @@ export const AIChatInterface: React.FC = () => {
           <div className="flex items-center space-x-2">
             <Brain className="w-6 h-6 text-blue-600" />
             <div>
-              <CardTitle>Coach ARIA</CardTitle>
+              <CardTitle>ARIA</CardTitle>
               <CardDescription>
                 Ask questions about your training data and get intelligent insights
               </CardDescription>

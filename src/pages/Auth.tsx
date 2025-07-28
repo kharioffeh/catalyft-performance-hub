@@ -194,8 +194,7 @@ const Auth = () => {
                       <SelectValue placeholder="Select your role" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="athlete">Athlete</SelectItem>
-                      <SelectItem value="coach">Coach</SelectItem>
+                      <SelectItem value="solo">Individual User</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

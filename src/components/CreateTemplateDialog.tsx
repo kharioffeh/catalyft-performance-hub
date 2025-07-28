@@ -128,7 +128,7 @@ export const CreateTemplateDialog: React.FC<CreateTemplateDialogProps> = ({
               className="rounded border-gray-300"
             />
             <Label htmlFor="is_public" className="text-sm">
-              Make this template public for other coaches
+              Make this template public for other users
             </Label>
           </div>
 

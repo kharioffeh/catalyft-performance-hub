@@ -26,8 +26,8 @@ jest.mock('@/hooks/useMetricData', () => ({
   useMetricData: () => ({ data: [], isLoading: false, error: null })
 }));
 
-jest.mock('@/hooks/useEnhancedMetricsWithAthlete', () => ({
-  useEnhancedMetricsWithAthlete: () => ({
+jest.mock('@/hooks/useEnhancedMetrics', () => ({
+  useEnhancedMetrics: () => ({
     readinessRolling: [{ readiness_score: 85 }],
     sleepDaily: [{ total_sleep_hours: 8 }],
     loadACWR: [{ acwr_7_28: 1.2 }],

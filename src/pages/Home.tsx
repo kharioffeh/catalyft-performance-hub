@@ -62,7 +62,7 @@ const Home: React.FC = () => {
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-24 max-w-4xl mx-auto">
             {[
-              ["10k+", "Athletes trained"],
+              ["10k+", "Users trained"],
               ["95%", "Performance improvement"],
               ["24/7", "AI monitoring"],
               ["100%", "Data-driven insights"],
@@ -120,11 +120,11 @@ const Home: React.FC = () => {
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-light tracking-tight mb-4">
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-                  What Athletes Say
+                  What Users Say
                 </span>
               </h2>
               <p className="text-gray-300 text-xl max-w-2xl mx-auto font-light">
-                Real feedback from athletes and coaches who've transformed their performance
+                Real feedback from users who've transformed their performance
               </p>
             </div>
 
@@ -205,7 +205,7 @@ const FEATURE_LIST = [
   },
   {
     title: "Smart Scheduling",
-    desc: "Optimize training schedules based on recovery data, performance goals, and athlete availability.",
+    desc: "Optimize training schedules based on recovery data, performance goals, and your availability.",
     color: "bg-green-500/10 text-green-400",
     icon: Calendar,
   },
@@ -245,7 +245,7 @@ const TESTIMONIALS = [
   },
   {
     name: "Alex Thompson",
-    title: "Solo Athlete",
+    title: "Individual Trainer",
     quote: "Perfect for independent training. The AI creates programs that actually match my equipment and schedule constraints.",
     image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
   }

@@ -5,7 +5,7 @@ import { InsightStrip } from '@/components/Analytics/InsightStrip';
 import { SegmentedControl } from '@/components/Analytics/SegmentedControl';
 import { AnalyticsHeroSection } from '@/components/Analytics/AnalyticsHeroSection';
 import { useStress } from '@/hooks/useStress';
-import { useEnhancedMetricsWithAthlete } from '@/hooks/useEnhancedMetricsWithAthlete';
+import { useEnhancedMetrics } from '@/hooks/useEnhancedMetrics';
 import { Brain } from 'lucide-react';
 
 // Lazy load segment components for stress analysis
@@ -33,7 +33,7 @@ export default function StressDetailPage() {
   const { data: stressData, isLoading, error } = useStress();
 
   // Get enhanced metrics for InsightStrip
-  const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetricsWithAthlete(profile?.id);
+  const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetrics();
 
   // Extract values for InsightStrip
   const latestReadiness = readinessRolling[readinessRolling.length - 1]?.readiness_score ?? null;
