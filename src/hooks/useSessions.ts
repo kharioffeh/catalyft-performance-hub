@@ -1,18 +1,23 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, SetLog, SessionExercise } from '@/types/training';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const useSessions = (athleteUuid?: string) => {
+  const { profile } = useAuth();
+  
   return useQuery({
-    queryKey: ['sessions', athleteUuid],
+    queryKey: ['sessions', athleteUuid || profile?.id],
     queryFn: async () => {
       let query = supabase
         .from('sessions')
         .select('*')
         .order('start_ts', { ascending: true });
 
-      if (athleteUuid) {
-        query = query.eq('athlete_uuid', athleteUuid);
+      // Filter by current user or provided athleteUuid
+      const targetUuid = athleteUuid || profile?.id;
+      if (targetUuid) {
+        query = query.eq('athlete_uuid', targetUuid);
       }
 
       const { data, error } = await query;
@@ -25,11 +30,30 @@ export const useSessions = (athleteUuid?: string) => {
         user_uuid: session.athlete_uuid,
         program_id: session.id,
         planned_at: session.start_ts,
-        title: `${session.type} Session`,
+        title: getSessionTitle(session.type),
         exercises: Array.isArray(session.payload) ? [] : (session.payload as any)?.exercises || []
       })) as Session[];
     },
+    enabled: !!(athleteUuid || profile?.id), // Only run query if we have a user
   });
+};
+
+// Helper function to generate "My Workout" style titles
+const getSessionTitle = (type: string): string => {
+  switch (type.toLowerCase()) {
+    case 'strength':
+      return 'My Strength Workout';
+    case 'conditioning':
+      return 'My Conditioning Workout';
+    case 'recovery':
+      return 'My Recovery Session';
+    case 'technical':
+      return 'My Technical Session';
+    case 'assessment':
+      return 'My Assessment';
+    default:
+      return 'My Workout';
+  }
 };
 
 export const useSession = (id: string) => {
@@ -50,7 +74,7 @@ export const useSession = (id: string) => {
         user_uuid: data.athlete_uuid,
         program_id: data.id,
         planned_at: data.start_ts,
-        title: `${data.type} Session`,
+        title: getSessionTitle(data.type),
         exercises: Array.isArray(data.payload) ? [] : (data.payload as any)?.exercises || []
       } as Session;
     },
@@ -88,7 +112,7 @@ export const useCreateSession = () => {
         user_uuid: data.athlete_uuid,
         program_id: data.id,
         planned_at: data.start_ts,
-        title: `${data.type} Session`,
+        title: getSessionTitle(data.type),
         exercises: Array.isArray(data.payload) ? [] : (data.payload as any)?.exercises || []
       } as Session;
     },
@@ -128,7 +152,7 @@ export const useUpdateSession = () => {
         user_uuid: data.athlete_uuid,
         program_id: data.id,
         planned_at: data.start_ts,
-        title: `${data.type} Session`,
+        title: getSessionTitle(data.type),
         exercises: Array.isArray(data.payload) ? [] : (data.payload as any)?.exercises || []
       } as Session;
     },

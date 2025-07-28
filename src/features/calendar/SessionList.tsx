@@ -1,64 +1,25 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist';
+import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { Activity } from 'lucide-react';
 import { useCalendar } from '@/hooks/useCalendar';
 import { Session } from '@/types/training';
-import { rescheduleSession } from '@/lib/api/sessions';
 import { useGlassToast } from '@/hooks/useGlassToast';
 import { SessionCard as NewSessionCard } from '@/features/calendar/SessionCard';
 
-interface DraggableSessionCardProps extends RenderItemParams<Session> {}
+interface SessionCardProps {
+  session: Session;
+}
 
-const DraggableSessionCard: React.FC<DraggableSessionCardProps> = ({ item: session, drag, isActive }) => {
+const SessionCardWrapper: React.FC<SessionCardProps> = ({ session }) => {
   return (
-    <View 
-      style={[
-        styles.sessionWrapper,
-        isActive && styles.activeWrapper
-      ]}
-      onTouchStart={drag}
-    >
+    <View style={styles.sessionWrapper}>
       <NewSessionCard session={session} />
     </View>
   );
 };
 
 const SessionList: React.FC = () => {
-  const { sessions, isLoading, queryClient } = useCalendar();
-  const [sessionList, setSessionList] = useState<Session[]>(sessions);
-  const toast = useGlassToast();
-
-  // Update local state when sessions change
-  React.useEffect(() => {
-    setSessionList(sessions);
-  }, [sessions]);
-
-  const handleDragEnd = async ({ data, from, to }: { data: Session[], from: number, to: number }) => {
-    // Optimistic update
-    setSessionList(data);
-
-    try {
-      // Calculate new date based on position change
-      const movedSession = data[to];
-      const targetSession = sessions[to];
-      
-      if (targetSession && movedSession.id !== targetSession.id) {
-        const newDate = new Date(targetSession.start_ts);
-        await rescheduleSession(movedSession.id, newDate.toISOString());
-        
-        // Invalidate queries to refetch fresh data
-        queryClient?.invalidateQueries({ queryKey: ['sessions'] });
-        
-        toast.success("Session Rescheduled", "Session has been moved successfully");
-      }
-    } catch (error) {
-      console.error('Error rescheduling session:', error);
-      // Revert optimistic update on error
-      setSessionList(sessions);
-      toast.error("Reschedule Failed", "Could not move the session. Please try again.");
-    }
-  };
+  const { sessions, isLoading } = useCalendar();
 
   if (isLoading) {
     return (
@@ -68,7 +29,7 @@ const SessionList: React.FC = () => {
     );
   }
 
-  if (sessionList.length === 0) {
+  if (sessions.length === 0) {
     return (
       <View style={styles.emptyContainer}>
         <Activity size={48} color="#ccc" />
@@ -80,11 +41,10 @@ const SessionList: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <DraggableFlatList
-        data={sessionList}
-        onDragEnd={handleDragEnd}
+      <FlatList
+        data={sessions}
         keyExtractor={(item) => item.id}
-        renderItem={(props) => <DraggableSessionCard {...props} />}
+        renderItem={({ item }) => <SessionCardWrapper session={item} />}
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
       />
@@ -102,10 +62,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   sessionWrapper: {
-    marginBottom: 0, // Remove margin since SessionCard handles it
-  },
-  activeWrapper: {
-    transform: [{ scale: 1.02 }],
+    marginBottom: 12,
   },
   loadingContainer: {
     flex: 1,

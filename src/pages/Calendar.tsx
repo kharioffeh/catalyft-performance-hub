@@ -12,21 +12,29 @@ import { CalendarView } from '@/components/calendar/CalendarView';
 
 const Calendar: React.FC = () => {
   const { profile } = useAuth();
-  const { data: sessions = [], isLoading, refetch } = useSessions();
+  const { data: allSessions = [], isLoading, refetch } = useSessions();
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const updateSession = useUpdateSession();
 
+  // Filter sessions to only show current user's sessions
+  const mySessions = allSessions.filter(session => 
+    profile && session.user_uuid === profile.id
+  );
+
   const handleSessionClick = (session: Session) => {
-    setSelectedSession(session);
-    setIsDrawerOpen(true);
+    // Only allow clicking on user's own sessions
+    if (profile && session.user_uuid === profile.id) {
+      setSelectedSession(session);
+      setIsDrawerOpen(true);
+    }
   };
 
   return (
     <GlassLayout variant="dashboard">
       <GlassContainer className="min-h-screen">
         <CalendarView
-          sessions={sessions}
+          sessions={mySessions}
           onSessionClick={handleSessionClick}
           isLoading={isLoading}
         />
