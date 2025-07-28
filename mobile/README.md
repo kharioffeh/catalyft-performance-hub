@@ -8,6 +8,10 @@ A React Native mobile application built with Expo, TypeScript, ESLint, and Prett
 # Install dependencies
 npm install
 
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your actual API keys
+
 # Start the development server
 npm start
 
@@ -15,6 +19,24 @@ npm start
 npm run android
 npm run ios
 npm run web
+```
+
+## 🔧 Environment Setup
+
+This app requires several API keys to function properly. Copy `.env.example` to `.env` and fill in your actual values:
+
+- **SUPABASE_URL** & **SUPABASE_ANON_KEY**: From your Supabase project dashboard
+- **ABLY_API_KEY**: From your Ably account dashboard  
+- **OPENAI_API_KEY** & **OPENAI_ARIA_KEY**: From your OpenAI account
+
+The app uses `react-native-config` to manage environment variables. You can import them in your code:
+
+```typescript
+import { config } from './src/config';
+
+// Use config values
+console.log(config.supabase.url);
+console.log(config.ably.apiKey);
 ```
 
 ## 🛠 Tech Stack
