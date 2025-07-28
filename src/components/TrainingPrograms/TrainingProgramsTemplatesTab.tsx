@@ -6,7 +6,6 @@ import { TemplateCard } from '@/components/training-plan/TemplateCard';
 
 interface TrainingProgramsTemplatesTabProps {
   templates: any[];
-  isCoach: boolean;
   isSolo: boolean;
   deleteLoading: boolean;
   onView: (templateId: string) => void;
@@ -18,7 +17,6 @@ interface TrainingProgramsTemplatesTabProps {
 
 export const TrainingProgramsTemplatesTab: React.FC<TrainingProgramsTemplatesTabProps> = ({
   templates,
-  isCoach,
   isSolo,
   deleteLoading,
   onView,
@@ -36,8 +34,52 @@ export const TrainingProgramsTemplatesTab: React.FC<TrainingProgramsTemplatesTab
           <h3 className="text-xl font-semibold text-white">Training Programs</h3>
           <p className="text-white/60">Multi-week periodized training programs</p>
         </div>
-        {isCoach && (
-          <div className="flex gap-2">
+        <div className="flex gap-2">
+          <Button
+            onClick={onCreateProgram}
+            className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Create Program
+          </Button>
+        </div>
+      </div>
+
+      {/* Templates Grid */}
+      {templates.length > 0 ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {templates.map((template) => (
+            <TemplateCard
+              key={template.id}
+              template={{
+                id: template.id,
+                title: template.title,
+                goal: template.goal,
+                weeks: template.weeks,
+                visibility: template.visibility,
+                created_at: template.created_at,
+                owner_uuid: template.owner_uuid,
+              }}
+              onView={onView}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              deleteLoading={deleteLoading}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <Sparkles className="w-16 h-16 text-white/40 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-white mb-2">
+            {isSolo ? 'No training programs yet' : 'No templates available'}
+          </h3>
+          <p className="text-white/60 max-w-md mx-auto mb-6">
+            {isSolo 
+              ? 'Create your first training program to get started with structured periodized training.'
+              : 'Create templates that can be used to generate personalized training programs for your athletes.'
+            }
+          </p>
+          <div className="flex gap-2 justify-center">
             <Button
               onClick={onCreateProgram}
               className="bg-white/10 hover:bg-white/20 text-white border-white/20"
@@ -46,47 +88,6 @@ export const TrainingProgramsTemplatesTab: React.FC<TrainingProgramsTemplatesTab
               Create Program
             </Button>
           </div>
-        )}
-      </div>
-
-      {/* Programs Grid */}
-      {templates.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {templates.map((template) => (
-            <TemplateCard
-              key={template.id}
-              template={{
-                id: template.id,
-                title: template.name,
-                goal: 'strength', // TODO: Extract from block_json
-                weeks: 4, // TODO: Extract from block_json
-                visibility: 'private',
-                created_at: template.created_at,
-                owner_uuid: template.coach_uuid,
-                sessions_count: 0 // Calculate from block_json if needed
-               }}
-               onEdit={onEdit}
-              onDelete={onDelete}
-              onView={onView}
-              deleteLoading={deleteLoading}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12 bg-white/5 rounded-2xl border border-white/10">
-          <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Sparkles className="w-8 h-8 text-white/40" />
-          </div>
-          <h3 className="text-lg font-medium text-white mb-2">No Programs Created</h3>
-          <p className="text-white/60 mb-6">
-            Create your first training program with our intuitive builder
-          </p>
-          {isCoach && (
-            <Button onClick={onCreateProgram} className="bg-indigo-600 hover:bg-indigo-500">
-              <Plus className="w-4 h-4 mr-2" />
-              Create Your First Program
-            </Button>
-          )}
         </div>
       )}
     </div>

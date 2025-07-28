@@ -6,13 +6,12 @@ import { format, parseISO, isSameDay, addDays, startOfDay } from 'date-fns';
 
 interface Session {
   id: string;
-  athlete_uuid: string;
-  coach_uuid: string;
+  user_uuid: string;
   type: string;
   start_ts: string;
   end_ts: string;
   notes?: string;
-  athletes?: {
+  user?: {
     name: string;
   };
 }
@@ -50,48 +49,48 @@ export const AgendaList: React.FC<AgendaListProps> = ({
     return groups;
   }, [sessions, selectedDate]);
 
-  const formatDateHeader = (dateString: string) => {
-    const date = parseISO(dateString);
-    const today = new Date();
-    
-    if (isSameDay(date, today)) {
-      return 'Today';
-    } else if (isSameDay(date, addDays(today, 1))) {
-      return 'Tomorrow';
-    } else {
-      return format(date, 'EEEE, MMMM d');
-    }
-  };
-
   return (
-    <div className="space-y-4">
-      {Object.entries(groupedSessions).map(([dateString, dateSessions]) => (
-        <GlassContainer key={dateString}>
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-              {formatDateHeader(dateString)}
-            </h3>
+    <GlassContainer className="h-full">
+      <div className="p-6">
+        <h3 className="text-lg font-semibold text-white mb-4">
+          Upcoming Sessions
+        </h3>
+        
+        <div className="space-y-4 max-h-96 overflow-y-auto">
+          {Object.entries(groupedSessions).map(([dateKey, dateSessions]) => {
+            if (dateSessions.length === 0) return null;
             
-            {dateSessions.length > 0 ? (
-              <div className="space-y-3">
-                {dateSessions
-                  .sort((a, b) => new Date(a.start_ts).getTime() - new Date(b.start_ts).getTime())
-                  .map(session => (
-                    <SessionChip
-                      key={session.id}
-                      session={session}
-                      onClick={() => onSessionClick(session)}
-                    />
-                  ))}
+            const date = parseISO(dateKey);
+            const isToday = isSameDay(date, new Date());
+            const isSelected = isSameDay(date, selectedDate);
+            
+            return (
+              <div key={dateKey} className="space-y-2">
+                <div className={`text-sm font-medium ${
+                  isToday ? 'text-blue-400' : 
+                  isSelected ? 'text-white' : 'text-white/60'
+                }`}>
+                  {isToday ? 'Today' : format(date, 'EEEE, MMM d')}
+                </div>
+                
+                {dateSessions.map((session) => (
+                  <SessionChip
+                    key={session.id}
+                    session={session}
+                    onClick={() => onSessionClick(session)}
+                  />
+                ))}
               </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                <p className="text-sm">No sessions scheduled</p>
-              </div>
-            )}
-          </div>
-        </GlassContainer>
-      ))}
-    </div>
+            );
+          })}
+          
+          {sessions.length === 0 && (
+            <div className="text-center py-8 text-white/60">
+              No upcoming sessions scheduled
+            </div>
+          )}
+        </div>
+      </div>
+    </GlassContainer>
   );
 };

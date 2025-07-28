@@ -20,7 +20,6 @@ export interface Exercise {
 
 export interface WorkoutTemplate {
   id: string;
-  coach_uuid: string;
   name: string;
   description?: string;
   category?: string;
@@ -53,8 +52,7 @@ export interface WorkoutTemplateExercise {
 export interface AssignedWorkout {
   id: string;
   template_id: string;
-  athlete_uuid: string;
-  coach_uuid: string;
+  user_uuid: string;
   assigned_date: string;
   due_date?: string;
   status: 'assigned' | 'in_progress' | 'completed' | 'skipped';
@@ -62,7 +60,7 @@ export interface AssignedWorkout {
   created_at: string;
   updated_at: string;
   template?: WorkoutTemplate;
-  athlete?: {
+  user?: {
     name: string;
   };
 }

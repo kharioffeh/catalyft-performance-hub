@@ -10,7 +10,6 @@ interface TrainingProgramsTabsProps {
   setActiveTab: (tab: string) => void;
   templates: any[];
   workoutTemplates: any[];
-  isCoach: boolean;
   isSolo: boolean;
   deleteLoading: boolean;
   onView: (templateId: string) => void;
@@ -26,7 +25,6 @@ export const TrainingProgramsTabs: React.FC<TrainingProgramsTabsProps> = ({
   setActiveTab,
   templates,
   workoutTemplates,
-  isCoach,
   isSolo,
   deleteLoading,
   onView,
@@ -48,37 +46,48 @@ export const TrainingProgramsTabs: React.FC<TrainingProgramsTabsProps> = ({
         <TabsTrigger value="performance" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10">
           Performance
         </TabsTrigger>
-        <TabsTrigger value="analytics" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10">
-          Analytics
+        <TabsTrigger value="workouts" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10">
+          Workouts
         </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="programs" className="space-y-6 mt-6">
-        <TrainingProgramsPager
-          templates={templates}
-          workoutTemplates={workoutTemplates}
-          isCoach={isCoach}
+      <TabsContent value="programs" className="mt-6">
+        <TrainingProgramsPager 
+          templates={templates} 
+          isSolo={isSolo}
           deleteLoading={deleteLoading}
           onView={onView}
           onEdit={onEdit}
           onDelete={onDelete}
-          onAssignTemplate={onAssignTemplate}
           onCreateTemplate={onCreateTemplate}
           onCreateProgram={onCreateProgram}
         />
       </TabsContent>
 
-      <TabsContent value="exercises" className="space-y-6 mt-6">
+      <TabsContent value="exercises" className="mt-6">
         <ExerciseLibrary />
       </TabsContent>
 
-      <TabsContent value="performance" className="space-y-6 mt-6">
+      <TabsContent value="performance" className="mt-6">
         <PerformanceTab />
       </TabsContent>
 
-      <TabsContent value="analytics" className="space-y-6 mt-6">
-        <div className="text-center py-12 text-white/60">
-          Analytics coming soon
+      <TabsContent value="workouts" className="mt-6">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {workoutTemplates.map((template) => (
+            <div
+              key={template.id}
+              className="bg-white/5 border border-white/10 rounded-lg p-6 hover:bg-white/10 transition-colors cursor-pointer"
+              onClick={() => onAssignTemplate(template)}
+            >
+              <h3 className="text-lg font-semibold text-white mb-2">{template.name}</h3>
+              <p className="text-white/60 text-sm mb-4">{template.description}</p>
+              <div className="flex items-center justify-between text-sm text-white/50">
+                <span>{template.estimated_duration || 'N/A'} min</span>
+                <span>Level {template.difficulty_level || 1}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </TabsContent>
     </Tabs>
