@@ -70,12 +70,6 @@ const navigationScreens = [
     label: 'Nutrition'
   },
   {
-    name: 'Profile',
-    path: '/profile',
-    icon: Users,
-    label: 'Profile'
-  },
-  {
     name: 'Feed',
     path: '/feed',
     icon: Users, // Using Users as placeholder - Rss icon would be better

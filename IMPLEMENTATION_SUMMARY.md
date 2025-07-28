@@ -30,19 +30,15 @@ Upon investigation, found that the project already has a comprehensive, well-arc
 #### 3. Enhanced Existing System ✅
 Instead of creating a redundant Navigation.tsx, enhanced the existing system:
 
-**Corrected Navigation for Solo Users:**
-- Replaced "Athletes" with "Profile" since this is a solo user app, not athlete management
-- Updated navigation configuration to use existing Profile route
-- Removed unnecessary Athletes page that didn't fit the solo user model
+**Optimized Navigation for Solo Users:**
+- Removed "Athletes" page (not needed for solo user app)
+- Consolidated "Profile" into "Settings" (profile options are part of settings)
+- Streamlined navigation to essential features only
 
 **Navigation Updates:**
 ```typescript
-// Updated navigation configuration for solo users
-{
-  label: "Profile",
-  path: "/profile", 
-  icon: Users
-}
+// Removed redundant Profile navigation - profile options are in Settings
+// More logical user experience with consolidated settings
 ```
 
 #### 4. Created Comprehensive Documentation ✅
@@ -72,17 +68,22 @@ Instead of creating a redundant Navigation.tsx, enhanced the existing system:
 - ✅ My Schedule (`/calendar`) - Calendar icon
 - ✅ Analytics (`/analytics`) - BarChart3 icon
 - ✅ Nutrition (`/nutrition/my-log`) - Activity icon
-- ✅ Profile (`/profile`) - Users icon
 - ✅ Feed (`/feed`) - Rss icon (social features)
 - ✅ Chat (`/chat`) - MessageSquare icon
-- ✅ Settings (`/settings`) - Settings icon
+- ✅ Settings (`/settings`) - Settings icon (includes profile options)
 
 **Mobile Bottom Tabs (First 5):**
 Dashboard, Training Plan, My Schedule, Analytics, Nutrition
 
 **All Items Available In:**
-- Desktop sidebar (all 9 items)
-- Mobile drawer menu (all 9 items)
+- Desktop sidebar (all 8 items)
+- Mobile drawer menu (all 8 items)
+
+**Profile Options Located In Settings:**
+- Personal information (name, email)
+- Account preferences
+- Connected devices
+- Privacy settings
 
 #### 6. Technical Implementation ✅
 
@@ -129,7 +130,7 @@ The navigation requirements have been fully met using the existing, well-archite
 1. **Drawer Navigation**: ✅ Desktop sidebar with all links
 2. **Bottom Tabs**: ✅ Mobile bottom navigation for main sections
 3. **Responsive**: ✅ Automatic mobile/desktop switching
-4. **All Required Routes**: ✅ Dashboard, Training Plan, My Schedule, Analytics, Nutrition, Profile, Feed, Chat, Settings
+4. **All Required Routes**: ✅ Dashboard, Training Plan, My Schedule, Analytics, Nutrition, Feed, Chat, Settings (with profile)
 5. **Professional UX**: ✅ Smooth animations, proper touch targets, accessibility
 
 The existing system is superior to a basic React Navigation implementation because it:
