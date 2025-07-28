@@ -5,7 +5,6 @@ export interface ExerciseLibrary {
   primary_muscle: string;
   secondary_muscle: string[];
   video_url?: string;
-  coach_uuid?: string;
   created_at: string;
 }
 

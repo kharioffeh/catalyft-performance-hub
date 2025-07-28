@@ -4,21 +4,21 @@ import { supabase } from '@/integrations/supabase/client';
 import { AssignedWorkout } from '@/types/workout';
 import { toast } from '@/hooks/use-toast';
 
-export const useAssignedWorkouts = (athleteUuid?: string) => {
+export const useAssignedWorkouts = (userUuid?: string) => {
   return useQuery({
-    queryKey: ['assigned-workouts', athleteUuid],
+    queryKey: ['assigned-workouts', userUuid],
     queryFn: async () => {
       let query = supabase
         .from('assigned_workouts')
         .select(`
           *,
           workout_templates (*),
-          athletes (name)
+          users (name)
         `)
         .order('assigned_date', { ascending: false });
 
-      if (athleteUuid) {
-        query = query.eq('athlete_uuid', athleteUuid);
+      if (userUuid) {
+        query = query.eq('user_uuid', userUuid);
       }
 
       const { data, error } = await query;

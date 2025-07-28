@@ -5,13 +5,12 @@ import { cn } from '@/lib/utils';
 
 interface Session {
   id: string;
-  athlete_uuid: string;
-  coach_uuid: string;
+  user_uuid: string;
   type: string;
   start_ts: string;
   end_ts: string;
   notes?: string;
-  athletes?: {
+  user?: {
     name: string;
   };
 }
@@ -66,9 +65,9 @@ export const SessionChip: React.FC<SessionChipProps> = ({ session, onClick }) =>
             <span className="text-gray-400">•</span>
             <span className="capitalize">{session.type}</span>
           </div>
-          {session.athletes?.name && (
+          {session.notes && (
             <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-              {session.athletes.name}
+              {session.notes}
             </div>
           )}
         </div>

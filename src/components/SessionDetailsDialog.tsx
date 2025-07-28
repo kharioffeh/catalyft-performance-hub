@@ -27,13 +27,12 @@ import { format } from 'date-fns';
 
 interface Session {
   id: string;
-  athlete_uuid: string;
-  coach_uuid: string;
+  user_uuid: string;
   type: string;
   start_ts: string;
   end_ts: string;
   notes?: string;
-  athletes?: {
+  user?: {
     name: string;
   };
 }
@@ -51,32 +50,23 @@ export const SessionDetailsDialog: React.FC<SessionDetailsDialogProps> = ({
   open,
   onOpenChange,
   queryClient,
-  canEdit = false,
+  canEdit = true,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [editData, setEditData] = useState({
-    type: '',
-    date: '',
-    start_time: '',
-    end_time: '',
-    notes: '',
-  });
+  const [editedSession, setEditedSession] = useState<Partial<Session>>({});
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   React.useEffect(() => {
-    if (session && isEditing) {
-      const startDate = new Date(session.start_ts);
-      const endDate = new Date(session.end_ts);
-      
-      setEditData({
+    if (session) {
+      setEditedSession({
         type: session.type,
-        date: format(startDate, 'yyyy-MM-dd'),
-        start_time: format(startDate, 'HH:mm'),
-        end_time: format(endDate, 'HH:mm'),
+        start_ts: session.start_ts,
+        end_ts: session.end_ts,
         notes: session.notes || '',
       });
     }
-  }, [session, isEditing]);
+  }, [session]);
 
   const getSessionTypeColor = (type: string) => {
     switch (type) {
@@ -96,61 +86,44 @@ export const SessionDetailsDialog: React.FC<SessionDetailsDialogProps> = ({
   };
 
   const handleSave = async () => {
-    if (!session) return;
-
-    setLoading(true);
+    if (!session?.id) return;
+    
+    setIsSaving(true);
     try {
-      const startDateTime = new Date(`${editData.date}T${editData.start_time}`);
-      const endDateTime = new Date(`${editData.date}T${editData.end_time}`);
-
-      if (endDateTime <= startDateTime) {
-        toast({
-          title: "Error",
-          description: "End time must be after start time",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
       const { error } = await supabase
         .from('sessions')
         .update({
-          type: editData.type,
-          start_ts: startDateTime.toISOString(),
-          end_ts: endDateTime.toISOString(),
-          notes: editData.notes || null,
+          type: editedSession.type,
+          start_ts: editedSession.start_ts,
+          end_ts: editedSession.end_ts,
+          notes: editedSession.notes,
         })
         .eq('id', session.id);
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Session updated successfully",
-      });
-
-      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      await queryClient.invalidateQueries({ queryKey: ['sessions'] });
       setIsEditing(false);
+      toast({
+        title: "Session updated",
+        description: "Your training session has been updated successfully.",
+      });
     } catch (error) {
       console.error('Error updating session:', error);
       toast({
         title: "Error",
-        description: "Failed to update session",
+        description: "Failed to update session. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!session) return;
-
-    const confirmed = window.confirm('Are you sure you want to delete this session?');
-    if (!confirmed) return;
-
-    setLoading(true);
+    if (!session?.id) return;
+    
+    setIsDeleting(true);
     try {
       const { error } = await supabase
         .from('sessions')
@@ -159,22 +132,21 @@ export const SessionDetailsDialog: React.FC<SessionDetailsDialogProps> = ({
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Session deleted successfully",
-      });
-
-      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      await queryClient.invalidateQueries({ queryKey: ['sessions'] });
       onOpenChange(false);
+      toast({
+        title: "Session deleted",
+        description: "Your training session has been deleted successfully.",
+      });
     } catch (error) {
       console.error('Error deleting session:', error);
       toast({
         title: "Error",
-        description: "Failed to delete session",
+        description: "Failed to delete session. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsDeleting(false);
     }
   };
 
@@ -205,7 +177,7 @@ export const SessionDetailsDialog: React.FC<SessionDetailsDialogProps> = ({
                   variant="outline"
                   size="sm"
                   onClick={handleDelete}
-                  disabled={loading}
+                  disabled={isDeleting}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -220,7 +192,7 @@ export const SessionDetailsDialog: React.FC<SessionDetailsDialogProps> = ({
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4 text-gray-500" />
-                <span className="font-medium">{session.athletes?.name}</span>
+                <span className="font-medium">{session.user?.name}</span>
               </div>
 
               <div className="flex items-center gap-2">
@@ -261,8 +233,8 @@ export const SessionDetailsDialog: React.FC<SessionDetailsDialogProps> = ({
                   Session Type
                 </Label>
                 <Select 
-                  value={editData.type} 
-                  onValueChange={(value) => setEditData(prev => ({ ...prev, type: value }))}
+                  value={editedSession.type} 
+                  onValueChange={(value) => setEditedSession(prev => ({ ...prev, type: value }))}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -285,8 +257,15 @@ export const SessionDetailsDialog: React.FC<SessionDetailsDialogProps> = ({
                 <Input
                   id="edit_date"
                   type="date"
-                  value={editData.date}
-                  onChange={(e) => setEditData(prev => ({ ...prev, date: e.target.value }))}
+                  value={format(startDate, 'yyyy-MM-dd')}
+                  onChange={(e) => {
+                    const newDate = new Date(e.target.value);
+                    setEditedSession(prev => ({
+                      ...prev,
+                      start_ts: newDate.toISOString(),
+                      end_ts: new Date(newDate.getTime() + (endDate.getTime() - startDate.getTime())).toISOString(),
+                    }));
+                  }}
                 />
               </div>
 
@@ -299,8 +278,16 @@ export const SessionDetailsDialog: React.FC<SessionDetailsDialogProps> = ({
                   <Input
                     id="edit_start_time"
                     type="time"
-                    value={editData.start_time}
-                    onChange={(e) => setEditData(prev => ({ ...prev, start_time: e.target.value }))}
+                    value={format(startDate, 'HH:mm')}
+                    onChange={(e) => {
+                      const newDate = new Date(editedSession.start_ts || '');
+                      newDate.setHours(parseInt(e.target.value.split(':')[0], 10));
+                      newDate.setMinutes(parseInt(e.target.value.split(':')[1], 10));
+                      setEditedSession(prev => ({
+                        ...prev,
+                        start_ts: newDate.toISOString(),
+                      }));
+                    }}
                   />
                 </div>
                 <div>
@@ -311,8 +298,16 @@ export const SessionDetailsDialog: React.FC<SessionDetailsDialogProps> = ({
                   <Input
                     id="edit_end_time"
                     type="time"
-                    value={editData.end_time}
-                    onChange={(e) => setEditData(prev => ({ ...prev, end_time: e.target.value }))}
+                    value={format(endDate, 'HH:mm')}
+                    onChange={(e) => {
+                      const newDate = new Date(editedSession.start_ts || '');
+                      newDate.setHours(parseInt(e.target.value.split(':')[0], 10));
+                      newDate.setMinutes(parseInt(e.target.value.split(':')[1], 10));
+                      setEditedSession(prev => ({
+                        ...prev,
+                        end_ts: newDate.toISOString(),
+                      }));
+                    }}
                   />
                 </div>
               </div>
@@ -321,8 +316,8 @@ export const SessionDetailsDialog: React.FC<SessionDetailsDialogProps> = ({
                 <Label htmlFor="edit_notes">Session Notes</Label>
                 <Textarea
                   id="edit_notes"
-                  value={editData.notes}
-                  onChange={(e) => setEditData(prev => ({ ...prev, notes: e.target.value }))}
+                  value={editedSession.notes}
+                  onChange={(e) => setEditedSession(prev => ({ ...prev, notes: e.target.value }))}
                   rows={3}
                 />
               </div>
@@ -331,14 +326,14 @@ export const SessionDetailsDialog: React.FC<SessionDetailsDialogProps> = ({
                 <Button 
                   variant="outline" 
                   onClick={() => setIsEditing(false)}
-                  disabled={loading}
+                  disabled={isSaving}
                 >
                   <X className="w-4 h-4 mr-2" />
                   Cancel
                 </Button>
-                <Button onClick={handleSave} disabled={loading}>
+                <Button onClick={handleSave} disabled={isSaving}>
                   <Save className="w-4 h-4 mr-2" />
-                  {loading ? 'Saving...' : 'Save Changes'}
+                  {isSaving ? 'Saving...' : 'Save Changes'}
                 </Button>
               </div>
             </div>

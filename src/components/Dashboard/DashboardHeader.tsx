@@ -3,29 +3,15 @@ import { Button } from '@/components/ui/button';
 import { BarChart3, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-interface DashboardHeaderProps {
-  userRole?: string;
-}
-export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
-  userRole
-}) => {
+
+export const DashboardHeader: React.FC = () => {
   const navigate = useNavigate();
-  const getTitle = () => {
-    switch (userRole) {
-      case 'coach':
-        return 'Dashboard'; // Solo experience only
-      case 'solo-athlete':
-        return 'My Training Dashboard';
-      case 'coached-athlete':
-        return 'Athlete Dashboard';
-      default:
-        return 'Dashboard';
-    }
-  };
-  return <div className="flex items-center justify-between">
+
+  return (
+    <div className="flex items-center justify-between">
       <div>
         <h1 className="text-3xl font-display font-bold text-slate-50">
-          {getTitle()}
+          My Training Dashboard
         </h1>
         <p className="text-slate-50">
           {format(new Date(), 'EEEE, MMMM do, yyyy')}
@@ -41,5 +27,6 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           Schedule
         </Button>
       </div>
-    </div>;
+    </div>
+  );
 };

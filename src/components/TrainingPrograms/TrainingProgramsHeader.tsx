@@ -4,12 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Plus, BookOpen } from 'lucide-react';
 
 interface TrainingProgramsHeaderProps {
-  isCoach: boolean;
   onCreateTemplate: () => void;
 }
 
 export const TrainingProgramsHeader: React.FC<TrainingProgramsHeaderProps> = ({
-  isCoach,
   onCreateTemplate,
 }) => {
   return (
@@ -21,15 +19,13 @@ export const TrainingProgramsHeader: React.FC<TrainingProgramsHeaderProps> = ({
           <p className="text-white/70">Advanced program and workout management system</p>
         </div>
       </div>
-      {isCoach && (
-        <Button 
-          onClick={onCreateTemplate} 
-          className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white border-white/20"
-        >
-          <Plus className="w-4 h-4" />
-          Create Program
-        </Button>
-      )}
+      <Button 
+        onClick={onCreateTemplate} 
+        className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white border-white/20"
+      >
+        <Plus className="w-4 h-4" />
+        Create Program
+      </Button>
     </div>
   );
 };

@@ -7,14 +7,12 @@ import { WorkoutTemplate } from '@/types/workout';
 interface WorkoutTemplatesProps {
   templates: WorkoutTemplate[];
   isLoading: boolean;
-  isCoach: boolean;
   onAssignTemplate: (template: WorkoutTemplate) => void;
 }
 
 export const WorkoutTemplates: React.FC<WorkoutTemplatesProps> = ({
   templates,
   isLoading,
-  isCoach,
   onAssignTemplate
 }) => {
   return (
@@ -33,7 +31,7 @@ export const WorkoutTemplates: React.FC<WorkoutTemplatesProps> = ({
               <TemplateCard
                 key={template.id}
                 template={template}
-                onAssign={isCoach ? onAssignTemplate : () => {}}
+                onAssign={onAssignTemplate}
               />
             ))}
           </div>
