@@ -64,10 +64,10 @@ const navigationScreens = [
     label: 'Calendar'
   },
   {
-    name: 'Athletes',
-    path: '/athletes',
+    name: 'Profile',
+    path: '/profile',
     icon: Users,
-    label: 'Athletes'
+    label: 'Profile'
   },
   {
     name: 'Chat',

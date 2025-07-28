@@ -43,8 +43,8 @@ export const NAV_ROUTES: NavItem[] = [
     icon: Activity
   },
   {
-    label: "Athletes",
-    path: "/athletes", 
+    label: "Profile",
+    path: "/profile", 
     icon: Users
   },
   {
