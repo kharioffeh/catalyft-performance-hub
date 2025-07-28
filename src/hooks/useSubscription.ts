@@ -14,6 +14,7 @@ interface SubscriptionData {
   tier: SubscriptionTier;
   trial_end: string | null;
   subscription_end: string | null;
+  auto_subscription_opted_out: boolean | null;
   created_at: string;
   updated_at: string;
 }
@@ -22,31 +23,33 @@ interface SubscriptionData {
 export const TIER_FEATURES = {
   free: {
     name: 'Free',
-    price: '$0',
+    price: 'Free',
     features: [
       'Basic workout tracking',
-      'Limited analytics (7 days)',
       'Basic calendar view',
       'Community access'
     ],
     limitations: {
-      maxWorkouts: 3,
-      analyticsHistoryDays: 7,
-      aiChatMessages: 0,
-      nutritionLogging: false,
-      advancedAnalytics: false,
-      customPrograms: false
+      maxWorkouts: Infinity, // Basic workout tracking allowed
+      analyticsHistoryDays: 0, // No analytics
+      aiChatMessages: 0, // No AI features
+      nutritionLogging: false, // No nutrition
+      advancedAnalytics: false, // No analytics
+      customPrograms: false, // No custom programs
+      wearableIntegration: false, // No wearable features
+      prioritySupport: false
     }
   },
   pro: {
     name: 'Pro',
-    price: '$14.99/month',
+    price: '$13.99/month',
     features: [
       'Unlimited workout tracking',
       'Full analytics & insights',
       'AI-powered chat assistant',
       'Nutrition logging & tracking',
       'Custom training programs',
+      'Wearable device integration',
       'Advanced progress analytics',
       'Priority support'
     ],
@@ -56,7 +59,9 @@ export const TIER_FEATURES = {
       aiChatMessages: Infinity,
       nutritionLogging: true,
       advancedAnalytics: true,
-      customPrograms: true
+      customPrograms: true,
+      wearableIntegration: true,
+      prioritySupport: true
     }
   }
 };
@@ -198,6 +203,33 @@ export const useSubscription = () => {
     },
   });
 
+  // Opt out of auto-subscription
+  const optOutAutoSubscriptionMutation = useMutation({
+    mutationFn: async (optOut: boolean) => {
+      const { data, error } = await supabase.functions.invoke('opt-out-auto-subscription', {
+        body: { optOut }
+      });
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      toast({
+        title: data.optedOut ? "Auto-subscription disabled" : "Auto-subscription enabled",
+        description: data.message,
+      });
+      queryClient.invalidateQueries({ queryKey: ['subscription', user?.id] });
+    },
+    onError: (error) => {
+      console.error('Opt-out error:', error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update auto-subscription preference. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Helper functions
   const isTrialing = subscription?.plan_status === 'trialing';
   const isActive = subscription?.plan_status === 'active';
@@ -210,6 +242,7 @@ export const useSubscription = () => {
     Math.max(0, Math.ceil((new Date(subscription.trial_end).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))) : 0;
 
   const subscriptionEndsAt = subscription?.subscription_end ? new Date(subscription.subscription_end) : null;
+  const hasOptedOutAutoSubscription = subscription?.auto_subscription_opted_out === true;
 
   // Check if user can access a feature
   const canAccess = (feature: keyof typeof TIER_FEATURES.pro.limitations) => {
@@ -243,6 +276,7 @@ export const useSubscription = () => {
     isPro,
     trialDaysLeft,
     subscriptionEndsAt,
+    hasOptedOutAutoSubscription,
     
     // Feature access
     canAccess,
@@ -254,6 +288,7 @@ export const useSubscription = () => {
     cancelSubscription: () => cancelSubscriptionMutation.mutate(),
     reactivateSubscription: () => reactivateSubscriptionMutation.mutate(),
     manageSubscription: () => manageSubscriptionMutation.mutate(),
+    setAutoSubscription: (optOut: boolean) => optOutAutoSubscriptionMutation.mutate(optOut),
     refreshSubscription,
     
     // Loading states
@@ -261,5 +296,6 @@ export const useSubscription = () => {
     isCanceling: cancelSubscriptionMutation.isPending,
     isReactivating: reactivateSubscriptionMutation.isPending,
     isManaging: manageSubscriptionMutation.isPending,
+    isUpdatingAutoSubscription: optOutAutoSubscriptionMutation.isPending,
   };
 };

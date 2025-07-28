@@ -14,7 +14,7 @@ import {
 import { cn } from '@/lib/utils';
 
 interface FeatureGateProps {
-  feature: 'nutritionLogging' | 'aiChatMessages' | 'advancedAnalytics' | 'customPrograms';
+  feature: 'nutritionLogging' | 'aiChatMessages' | 'advancedAnalytics' | 'customPrograms' | 'wearableIntegration' | 'prioritySupport';
   children: React.ReactNode;
   fallback?: React.ReactNode;
   className?: string;
@@ -24,14 +24,18 @@ const FEATURE_NAMES = {
   nutritionLogging: 'Nutrition Logging',
   aiChatMessages: 'AI Chat Assistant',
   advancedAnalytics: 'Advanced Analytics',
-  customPrograms: 'Custom Programs'
+  customPrograms: 'Custom Programs',
+  wearableIntegration: 'Wearable Integration',
+  prioritySupport: 'Priority Support'
 };
 
 const FEATURE_DESCRIPTIONS = {
   nutritionLogging: 'Track your nutrition, log meals, and get detailed macro insights.',
   aiChatMessages: 'Get personalized workout advice and fitness guidance from our AI assistant.',
   advancedAnalytics: 'Access detailed performance analytics with unlimited history.',
-  customPrograms: 'Create and customize your own training programs.'
+  customPrograms: 'Create and customize your own training programs.',
+  wearableIntegration: 'Connect and sync data from your fitness wearables and smart devices.',
+  prioritySupport: 'Get priority customer support with faster response times.'
 };
 
 export const FeatureGate: React.FC<FeatureGateProps> = ({
@@ -77,10 +81,6 @@ export const FeatureGate: React.FC<FeatureGateProps> = ({
           <ul className="space-y-2 text-sm text-gray-600">
             <li className="flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-              Unlimited workout tracking
-            </li>
-            <li className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
               AI-powered chat assistant
             </li>
             <li className="flex items-center gap-2">
@@ -89,7 +89,11 @@ export const FeatureGate: React.FC<FeatureGateProps> = ({
             </li>
             <li className="flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-              Custom training programs
+              Nutrition logging & tracking
+            </li>
+            <li className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+              Wearable device integration
             </li>
           </ul>
         </div>
@@ -106,7 +110,7 @@ export const FeatureGate: React.FC<FeatureGateProps> = ({
             ) : (
               <Zap className="w-5 h-5 mr-2" />
             )}
-            Upgrade to Pro - $14.99/month
+                         Upgrade to Pro - $13.99/month
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
           
@@ -167,6 +171,8 @@ export const useFeatureAccess = () => {
     canUseAI: canAccess('aiChatMessages'),
     canUseAdvancedAnalytics: canAccess('advancedAnalytics'),
     canCreatePrograms: canAccess('customPrograms'),
+    canUseWearables: canAccess('wearableIntegration'),
+    hasPrioritySupport: canAccess('prioritySupport'),
     // Limits
     maxWorkouts: getLimit('maxWorkouts'),
     analyticsHistoryDays: getLimit('analyticsHistoryDays'),

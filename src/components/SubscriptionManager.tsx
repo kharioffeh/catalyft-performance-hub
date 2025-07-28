@@ -40,15 +40,18 @@ export const SubscriptionManager: React.FC = () => {
     isPro,
     trialDaysLeft,
     subscriptionEndsAt,
+    hasOptedOutAutoSubscription,
     tierFeatures,
     startCheckout,
     cancelSubscription,
     reactivateSubscription,
     manageSubscription,
+    setAutoSubscription,
     isStartingCheckout,
     isCanceling,
     isReactivating,
     isManaging,
+    isUpdatingAutoSubscription,
   } = useSubscription();
 
   const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -140,17 +143,71 @@ export const SubscriptionManager: React.FC = () => {
           {getStatusBadge()}
         </div>
 
-        {/* Trial Warning */}
-        {isTrialing && trialDaysLeft <= 3 && (
-          <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-4">
-            <div className="flex items-center gap-2 text-orange-600 mb-2">
-              <AlertTriangle className="w-4 h-4" />
-              <span className="font-medium">Trial Ending Soon</span>
+        {/* Trial Auto-subscription Notice */}
+        {isTrialing && (
+          <div className={cn(
+            "border rounded-lg p-4",
+            hasOptedOutAutoSubscription 
+              ? "bg-blue-500/10 border-blue-500/20" 
+              : "bg-orange-500/10 border-orange-500/20"
+          )}>
+            <div className="flex items-center gap-2 mb-3">
+              <AlertTriangle className={cn(
+                "w-4 h-4", 
+                hasOptedOutAutoSubscription ? "text-blue-600" : "text-orange-600"
+              )} />
+              <span className={cn(
+                "font-medium",
+                hasOptedOutAutoSubscription ? "text-blue-600" : "text-orange-600"
+              )}>
+                {hasOptedOutAutoSubscription ? "Trial will end without billing" : "Auto-subscription enabled"}
+              </span>
             </div>
-            <p className="text-sm text-orange-700">
-              Your trial ends in {trialDaysLeft} day{trialDaysLeft !== 1 ? 's' : ''}. 
-              Subscribe now to continue using Pro features.
+            
+            <p className={cn(
+              "text-sm mb-3",
+              hasOptedOutAutoSubscription ? "text-blue-700" : "text-orange-700"
+            )}>
+              {hasOptedOutAutoSubscription 
+                ? `Your trial ends in ${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''} and you'll be moved to the Free tier. You can opt back in to auto-subscription anytime.`
+                : `Your trial ends in ${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''} and you'll be automatically subscribed to Pro ($13.99/month) unless you opt out.`
+              }
             </p>
+
+            <div className="flex gap-3">
+              <Button
+                size="sm"
+                variant={hasOptedOutAutoSubscription ? "default" : "outline"}
+                onClick={() => setAutoSubscription(!hasOptedOutAutoSubscription)}
+                disabled={isUpdatingAutoSubscription}
+                className={cn(
+                  hasOptedOutAutoSubscription 
+                    ? "bg-green-600 hover:bg-green-700 text-white" 
+                    : "border-orange-300 text-orange-700 hover:bg-orange-50"
+                )}
+              >
+                {isUpdatingAutoSubscription ? (
+                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                ) : null}
+                {hasOptedOutAutoSubscription ? "Enable Auto-subscription" : "Opt out of Auto-subscription"}
+              </Button>
+              
+              {!hasOptedOutAutoSubscription && (
+                <Button 
+                  size="sm"
+                  onClick={() => startCheckout('monthly')}
+                  disabled={isStartingCheckout}
+                  className="bg-orange-600 hover:bg-orange-700"
+                >
+                  {isStartingCheckout ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  ) : (
+                    <Zap className="w-4 h-4 mr-2" />
+                  )}
+                  Subscribe Now
+                </Button>
+              )}
+            </div>
           </div>
         )}
 

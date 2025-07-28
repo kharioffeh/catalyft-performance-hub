@@ -17,17 +17,17 @@ Built a comprehensive subscription management system that replaces account delet
 **Tier System:**
 ```typescript
 Free Tier:
-- Basic workout tracking (max 3 workouts)
-- Limited analytics (7 days history)
+- Basic workout tracking (unlimited basic tracking)
 - Basic calendar view
 - Community access
-- No AI chat, nutrition logging, or custom programs
+- No AI features, wearables, analytics, or nutrition
 
-Pro Tier ($14.99/month):
+Pro Tier ($13.99/month | £9.99):
 - Unlimited workout tracking
-- Full analytics & insights
 - AI-powered chat assistant
+- Full analytics & insights
 - Nutrition logging & tracking
+- Wearable device integration
 - Custom training programs
 - Advanced progress analytics
 - Priority support
@@ -107,12 +107,15 @@ const { canUseNutrition, canUseAI } = useFeatureAccess();
 ## 🔄 **User Journey**
 
 ### New User Journey:
-1. **Sign Up** → 7-day Pro trial
-2. **Trial Expires** → Moved to Free tier (no forced action)
-3. **Free User** → Can use basic features, sees upgrade prompts
-4. **Upgrade** → Stripe checkout → Pro features unlocked
-5. **Cancel** → Continues Pro until period end → Moves to Free tier
-6. **Resubscribe** → Click upgrade → Back to Pro
+1. **Sign Up** → 7-day Pro trial (auto-subscription enabled by default)
+2. **During Trial** → User can opt out of auto-subscription anytime
+3. **Trial Expires** → 
+   - If opted out: Move to Free tier
+   - If not opted out: Auto-subscribe to Pro ($13.99/month)
+4. **Free User** → Can use basic features, sees upgrade prompts
+5. **Upgrade** → Stripe checkout → Pro features unlocked
+6. **Cancel** → Continues Pro until period end → Moves to Free tier
+7. **Resubscribe** → Click upgrade → Back to Pro
 
 ### Subscription States:
 - **Trialing** - Full Pro access during trial
