@@ -7,11 +7,10 @@ import { HeatMapCard } from '@/components/cards/HeatMapCard';
 import { ConnectWearableModal } from '@/components/ConnectWearableModal';
 import { MobileKpiGrid } from '@/components/Dashboard/MobileKpiGrid';
 import { RecoveryCard } from '@/components/Dashboard/RecoveryCard';
-import { StrainCard } from '@/components/Dashboard/StrainCard';
-import { StressCard } from '@/components/Dashboard/StressCard';
 import { InsightToastContainer } from '@/components/ui/InsightToastContainer';
-import { useMetrics } from '@/hooks/useMetrics';
-import { useAriaInsights } from '@/hooks/useAriaInsights';
+import { useMyRecovery } from '@/hooks/useMyRecovery';
+import { useMyCalendar } from '@/hooks/useMyCalendar';
+import { useMyInsights } from '@/hooks/useMyInsights';
 import { useWearableStatus } from '@/hooks/useWearableStatus';
 import { useIsPhone } from '@/hooks/useBreakpoint';
 import { SkeletonCard } from '@/components/skeleton/SkeletonCard';
@@ -25,8 +24,9 @@ import { Activity, Zap, Target, Smartphone } from 'lucide-react';
 const Dashboard: React.FC = () => {
   const { profile } = useAuth();
   const { data: wearableStatus } = useWearableStatus(profile?.id);
-  const { data: insights } = useAriaInsights();
-  const { data: metricsData, isLoading: metricsLoading } = useMetrics();
+  const { data: myInsights } = useMyInsights();
+  const { data: myRecovery, isLoading: recoveryLoading } = useMyRecovery();
+  const { data: myCalendar } = useMyCalendar();
   const isPhone = useIsPhone();
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -44,27 +44,26 @@ const Dashboard: React.FC = () => {
     {
       id: 'recovery',
       title: 'Recovery',
-      value: metricsData?.recovery ? `${Math.round(metricsData.recovery)}%` : '—',
+      value: myRecovery?.recovery ? `${Math.round(myRecovery.recovery)}%` : '—',
       icon: Activity,
       color: 'text-green-400',
-      trend: metricsData?.recoveryTrend,
-      isLoading: metricsLoading
+      trend: myRecovery?.trend,
+      isLoading: recoveryLoading
     },
     {
-      id: 'strain',
-      title: 'Strain',
-      value: metricsData?.strain ? (Math.round(metricsData.strain * 10) / 10).toString() : '—',
+      id: 'sessions',
+      title: 'My Sessions',
+      value: myCalendar?.upcomingCount?.toString() || '—',
       icon: Zap,
-      color: 'text-red-400',
-      trend: metricsData?.strainTrend,
-      isLoading: metricsLoading
+      color: 'text-blue-400',
+      isLoading: false
     },
     {
-      id: 'stress',
-      title: 'Stress',
-      value: '45', // Mock value - this would come from useStress hook
+      id: 'insights',
+      title: 'AI Insights',
+      value: myInsights?.count?.toString() || '—',
       icon: Target,
-      color: 'text-blue-400',
+      color: 'text-purple-400',
       isLoading: false
     }
   ];
@@ -83,7 +82,7 @@ const Dashboard: React.FC = () => {
         {/* Page Header */}
         <AnimatedCard>
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">Welcome back, {profile?.full_name || 'User'}</h1>
             <p className="text-white/70">Your daily overview</p>
           </div>
         </AnimatedCard>
@@ -129,26 +128,46 @@ const Dashboard: React.FC = () => {
             <AnimatedCard delay={0.2}>
               <SuspenseWrapper fallback={<SkeletonCard className="bg-green-500/10 border-green-400/30" />}>
                 <RecoveryCard 
-                  recovery={metricsData?.recovery ?? null}
-                  trend={metricsData?.recoveryTrend}
+                  recovery={myRecovery?.recovery ?? null}
+                  trend={myRecovery?.trend}
                 />
               </SuspenseWrapper>
             </AnimatedCard>
 
-            {/* Strain Card */}
+            {/* My Sessions Card */}
             <AnimatedCard delay={0.3}>
-              <SuspenseWrapper fallback={<SkeletonCard className="bg-red-500/10 border-red-400/30" />}>
-                <StrainCard 
-                  strain={metricsData?.strain ?? null}
-                  trend={metricsData?.strainTrend}
-                />
+              <SuspenseWrapper fallback={<SkeletonCard className="bg-blue-500/10 border-blue-400/30" />}>
+                <GlassCard className="bg-blue-500/10 border-blue-400/30 p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium text-white">My Sessions</h3>
+                    <Activity className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div className="text-2xl font-bold text-white mb-2">
+                    {myCalendar?.upcomingCount || 0}
+                  </div>
+                  <p className="text-sm text-white/70">Today's sessions</p>
+                  {myCalendar?.completedToday && myCalendar.completedToday > 0 && (
+                    <p className="text-xs text-green-400 mt-1">
+                      {myCalendar.completedToday} completed
+                    </p>
+                  )}
+                </GlassCard>
               </SuspenseWrapper>
             </AnimatedCard>
 
-            {/* Stress Card - Enhanced with gauge */}
+            {/* AI Insights Card */}
             <AnimatedCard delay={0.4}>
-              <SuspenseWrapper fallback={<SkeletonChart className="bg-blue-500/10 border-blue-400/30 h-80" showAxes={false} />}>
-                <StressCard />
+              <SuspenseWrapper fallback={<SkeletonCard className="bg-purple-500/10 border-purple-400/30" />}>
+                <GlassCard className="bg-purple-500/10 border-purple-400/30 p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium text-white">AI Insights</h3>
+                    <Target className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <div className="text-2xl font-bold text-white mb-2">
+                    {myInsights?.count || 0}
+                  </div>
+                  <p className="text-sm text-white/70">New insights today</p>
+                </GlassCard>
               </SuspenseWrapper>
             </AnimatedCard>
           </div>
@@ -159,7 +178,7 @@ const Dashboard: React.FC = () => {
           {/* ARIA Insights Card */}
           <AnimatedCard delay={0.5}>
             <SuspenseWrapper fallback={<SkeletonCard contentLines={4} />}>
-              <AriaInsightsCard data={insights} loading={false} />
+              <AriaInsightsCard data={myInsights?.insights?.join(' ') || ''} loading={false} />
             </SuspenseWrapper>
           </AnimatedCard>
 

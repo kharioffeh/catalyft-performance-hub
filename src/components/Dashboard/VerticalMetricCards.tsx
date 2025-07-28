@@ -91,7 +91,7 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
     },
     {
       id: 'sessions',
-      title: "Today's Sessions",
+      title: "My Sessions",
       value: getSessionsValue(),
       icon: Calendar,
       color: 'text-blue-600'
@@ -130,7 +130,7 @@ export const VerticalMetricCards: React.FC<VerticalMetricCardsProps> = ({
       onClick: () => setModalMetric('load')
     },
     {
-      title: "Today's Sessions",
+      title: "My Sessions",
       value: getSessionsValue(),
       icon: Calendar,
     },
