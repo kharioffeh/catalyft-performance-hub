@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BodyHeatMap } from '@/components/BodyHeatMap';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface MuscleLoadData {
   user_id: string;
@@ -11,11 +12,14 @@ interface MuscleLoadData {
 
 interface MuscleLoadCardProps {
   data: MuscleLoadData[];
-  selectedAthleteId: string;
 }
 
-export const MuscleLoadCard: React.FC<MuscleLoadCardProps> = ({ data, selectedAthleteId }) => {
+export const MuscleLoadCard: React.FC<MuscleLoadCardProps> = ({ data }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { profile } = useAuth();
+  
+  // Use current user ID
+  const userId = profile?.id || 'demo-user';
 
   // Transform muscle load data to format expected by BodyHeatMap
   const muscleHeatmapData = data.map(item => ({
@@ -36,7 +40,7 @@ export const MuscleLoadCard: React.FC<MuscleLoadCardProps> = ({ data, selectedAt
         onClick={() => setIsModalOpen(true)}
       >
         <h3 className="font-display font-semibold text-lg text-slate-50 mb-2">
-          Muscle Load Heatmap
+          My Muscle Load Heatmap
         </h3>
         
         <div className="text-xs text-muted-foreground mb-2">
@@ -46,7 +50,7 @@ export const MuscleLoadCard: React.FC<MuscleLoadCardProps> = ({ data, selectedAt
         <div className="flex-1 flex items-center justify-center">
           <div className="w-full h-full">
             <BodyHeatMap 
-              userId={selectedAthleteId}
+              userId={userId}
               window_days={7}
               mockData={muscleHeatmapData}
             />
@@ -58,13 +62,13 @@ export const MuscleLoadCard: React.FC<MuscleLoadCardProps> = ({ data, selectedAt
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle className="text-xl font-display">
-              Muscle Load Distribution - Last 7 Days
+              My Muscle Load Distribution - Last 7 Days
             </DialogTitle>
           </DialogHeader>
           
           <div className="flex-1 p-4">
             <BodyHeatMap 
-              userId={selectedAthleteId}
+              userId={userId}
               window_days={7}
               mockData={muscleHeatmapData}
             />

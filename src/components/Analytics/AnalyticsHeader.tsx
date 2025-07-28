@@ -20,10 +20,10 @@ export const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({
           <div className="p-2 bg-blue-100 rounded-lg">
             <TrendingUp className="w-6 h-6 text-blue-600" />
           </div>
-          <h1 className="text-3xl font-display font-bold text-slate-50">Performance Analytics</h1>
+          <h1 className="text-3xl font-display font-bold text-slate-50">My Analytics</h1>
         </div>
         <p className="text-slate-50">
-          Your comprehensive performance insights and data trends
+          Your personal readiness, sleep, load, and stress insights
           {isHourlyView && " - 24 Hour View"}
         </p>
       </div>

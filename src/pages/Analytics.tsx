@@ -9,6 +9,7 @@ import { EnhancedTrainingLoadChart } from '@/components/EnhancedTrainingLoadChar
 import { StressChart } from '@/components/Analytics/StressChart';
 import { PeriodProvider, usePeriod, periodToDays } from '@/lib/hooks/usePeriod';
 import { useEnhancedMetrics } from '@/hooks/useEnhancedMetrics';
+import { useAuth } from '@/contexts/AuthContext';
 import { ShareUIProvider } from '@/context/ShareUIContext';
 import { ShareSheet } from '@/components/ShareSheet';
 import { AnalyticsControls } from '@/components/Analytics/AnalyticsControls';
@@ -196,10 +197,10 @@ const AnalyticsPageContent: React.FC = () => {
           </MetricCarousel>
         </div>
 
-        {/* Performance Analytics Chart Cards */}
+        {/* Personal Training Analytics Chart Cards */}
         <div className="space-y-4">
           <h2 className="text-xl font-display font-semibold text-slate-50">
-            Performance Analytics
+            Personal Training Analytics
           </h2>
           
           <div className="overflow-x-auto">
@@ -209,7 +210,6 @@ const AnalyticsPageContent: React.FC = () => {
               <VelocityFatigueCard data={analyticsData.velocityFatigue} />
               <MuscleLoadCard 
                 data={analyticsData.muscleLoad} 
-                selectedAthleteId={profile?.id || 'demo-user'} 
               />
             </div>
           </div>
@@ -219,7 +219,7 @@ const AnalyticsPageContent: React.FC = () => {
         <AriaSpotlight />
 
         {/* Muscle Anatomy Panel with Training Load & ACWR Gauges */}
-        <MuscleAnatomyPanel selectedAthleteId={profile?.id || 'demo-user'} />
+        <MuscleAnatomyPanel />
 
         {/* ARIA Input Section - Full width */}
         <ARIAInputSection
