@@ -1,251 +1,573 @@
 
-import React, { useState, Suspense } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  ActivityIndicator,
+  SafeAreaView,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '@/contexts/AuthContext';
-import { GlassCard } from '@/components/ui';
-import { AriaInsightsCard } from '@/components/cards/AriaInsightsCard';
-import { HeatMapCard } from '@/components/cards/HeatMapCard';
-import { ConnectWearableModal } from '@/components/ConnectWearableModal';
-import { MobileKpiGrid } from '@/components/Dashboard/MobileKpiGrid';
-import { RecoveryCard } from '@/components/Dashboard/RecoveryCard';
-import { InsightToastContainer } from '@/components/ui/InsightToastContainer';
 import { useMyRecovery } from '@/hooks/useMyRecovery';
 import { useMyCalendar } from '@/hooks/useMyCalendar';
 import { useMyInsights } from '@/hooks/useMyInsights';
 import { useWearableStatus } from '@/hooks/useWearableStatus';
-import { useIsPhone } from '@/hooks/useBreakpoint';
-import { SkeletonCard } from '@/components/skeleton/SkeletonCard';
-import { SkeletonBox } from '@/components/skeleton/SkeletonBox';
-import { SkeletonChart } from '@/components/skeleton/SkeletonChart';
-import { SuspenseWrapper } from '@/components/ui/SuspenseWrapper';
-import { AnimatedCard } from '@/components/ui/AnimatedCard';
-import { LoadingButton } from '@/components/ui/LoadingButton';
-import { Activity, Zap, Target, Smartphone, Rss, Calendar, BarChart3 } from 'lucide-react';
+
+const { width, height } = Dimensions.get('window');
+const isTablet = width > 768;
+const isLandscape = width > height;
+
+interface MetricCardProps {
+  title: string;
+  value: string | number;
+  subtitle?: string;
+  isLoading?: boolean;
+  onPress?: () => void;
+}
+
+const MetricCard: React.FC<MetricCardProps> = ({
+  title,
+  value,
+  subtitle,
+  isLoading,
+  onPress,
+}) => (
+  <TouchableOpacity
+    style={[
+      styles.metricCard,
+      isLandscape && !isTablet ? styles.metricCardLandscape : styles.metricCardPortrait
+    ]}
+    onPress={onPress}
+    activeOpacity={0.8}
+  >
+    <View style={styles.metricCardContent}>
+      <Text style={styles.metricTitle}>{title}</Text>
+      {isLoading ? (
+        <ActivityIndicator size="small" color="#ffffff" style={styles.loader} />
+      ) : (
+        <Text style={styles.metricValue}>{value}</Text>
+      )}
+      {subtitle && <Text style={styles.metricSubtitle}>{subtitle}</Text>}
+    </View>
+  </TouchableOpacity>
+);
+
+interface ScheduleItem {
+  id: string;
+  title: string;
+  time: string;
+  type: string;
+}
+
+const TodaysScheduleCard: React.FC<{ sessions: any[] }> = ({ sessions }) => (
+  <View style={[
+    styles.scheduleCard,
+    isLandscape && !isTablet ? styles.scheduleCardLandscape : styles.scheduleCardPortrait
+  ]}>
+    <Text style={styles.scheduleTitle}>Today's Schedule</Text>
+    {sessions && sessions.length > 0 ? (
+      <ScrollView style={styles.sessionsList} showsVerticalScrollIndicator={false}>
+        {sessions.map((session, index) => (
+          <View key={index} style={styles.sessionItem}>
+            <View style={styles.sessionDot} />
+            <View style={styles.sessionDetails}>
+              <Text style={styles.sessionTitle}>
+                {session.name || 'Workout Session'}
+              </Text>
+              <Text style={styles.sessionTime}>
+                {new Date(session.scheduled_for).toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </Text>
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+    ) : (
+      <View style={styles.noSessionsContainer}>
+        <Text style={styles.noSessionsText}>No sessions scheduled</Text>
+        <Text style={styles.noSessionsSubtext}>Enjoy your rest day!</Text>
+      </View>
+    )}
+  </View>
+);
+
+const SocialFeedCard: React.FC = () => {
+  const navigation = useNavigation();
+  
+  const handleNavigateToFeed = () => {
+    // @ts-ignore - navigation types would be defined in navigation setup
+    navigation.navigate('SocialFeed');
+  };
+
+  // Mock feed posts data
+  const mockPosts = [
+    { id: 1, user: 'Alex M.', action: 'completed a workout', time: '2h ago', type: 'workout' },
+    { id: 2, user: 'Sarah K.', action: 'reached recovery goal', time: '4h ago', type: 'recovery' },
+    { id: 3, user: 'Mike R.', action: 'shared progress', time: '6h ago', type: 'progress' }
+  ];
+
+  return (
+    <TouchableOpacity
+      style={[
+        styles.socialFeedCard,
+        isLandscape && !isTablet ? styles.socialFeedCardLandscape : styles.socialFeedCardPortrait
+      ]}
+      onPress={handleNavigateToFeed}
+      activeOpacity={0.8}
+    >
+      <View style={styles.socialFeedHeader}>
+        <Text style={styles.socialFeedTitle}>Social Feed</Text>
+        <View style={styles.feedIcon}>
+          <Text style={styles.feedIconText}>🔥</Text>
+        </View>
+      </View>
+      
+      <ScrollView style={styles.feedList} showsVerticalScrollIndicator={false}>
+        {mockPosts.map((post) => (
+          <View key={post.id} style={styles.feedItem}>
+            <View style={styles.feedItemContent}>
+              <Text style={styles.feedUserName}>{post.user}</Text>
+              <Text style={styles.feedAction}>{post.action}</Text>
+            </View>
+            <Text style={styles.feedTime}>{post.time}</Text>
+          </View>
+        ))}
+      </ScrollView>
+      
+      <View style={styles.feedFooter}>
+        <Text style={styles.feedFooterText}>Tap to view all activity</Text>
+      </View>
+    </TouchableOpacity>
+  );
+};
 
 const Dashboard: React.FC = () => {
   const { profile } = useAuth();
-  const navigate = useNavigate();
+  const navigation = useNavigation();
   const { data: wearableStatus } = useWearableStatus(profile?.id);
-  const { data: myInsights } = useMyInsights();
+  const { data: myInsights, isLoading: insightsLoading } = useMyInsights();
   const { data: myRecovery, isLoading: recoveryLoading } = useMyRecovery();
-  const { data: myCalendar } = useMyCalendar();
-  const isPhone = useIsPhone();
-  const [showConnectModal, setShowConnectModal] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
+  const { data: myCalendar, isLoading: calendarLoading } = useMyCalendar();
 
-  const handleWearableConnected = async () => {
-    setIsConnecting(true);
-    // Simulate connection process
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsConnecting(false);
-    window.location.reload();
+  const handleNavigate = (screen: string) => {
+    // @ts-ignore - navigation types would be defined in navigation setup
+    navigation.navigate(screen);
   };
 
-  // Mobile KPI data for phones only (≤414px)
-  const mobileKpiData = [
-    {
-      id: 'recovery',
-      title: 'Recovery',
-      value: myRecovery?.recovery ? `${Math.round(myRecovery.recovery)}%` : '—',
-      icon: Activity,
-      color: 'text-green-400',
-      trend: myRecovery?.trend,
-      isLoading: recoveryLoading,
-      onClick: () => navigate('/analytics')
-    },
-    {
-      id: 'sessions',
-      title: 'My Sessions',
-      value: myCalendar?.upcomingCount?.toString() || '—',
-      icon: Calendar,
-      color: 'text-blue-400',
-      isLoading: false,
-      onClick: () => navigate('/calendar')
-    },
-    {
-      id: 'insights',
-      title: 'AI Insights',
-      value: myInsights?.count?.toString() || '—',
-      icon: Target,
-      color: 'text-purple-400',
-      isLoading: false,
-      onClick: () => navigate('/chat')
-    },
-    {
-      id: 'feed',
-      title: 'Community Feed',
-      value: '—', // Could be post count if you have that data
-      icon: Rss,
-      color: 'text-orange-400',
-      isLoading: false,
-      onClick: () => navigate('/feed')
-    }
-  ];
+  const getStressValue = () => {
+    // Mock stress calculation based on recovery
+    if (!myRecovery?.recovery) return '—';
+    const stress = Math.max(0, 100 - myRecovery.recovery);
+    return `${Math.round(stress)}%`;
+  };
+
+  const getStrainValue = () => {
+    // Mock strain calculation
+    return myRecovery?.recovery ? `${Math.round(myRecovery.recovery * 0.8)}` : '—';
+  };
 
   if (!profile?.id) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <SkeletonBox width={200} height={32} />
-      </div>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#ffffff" />
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <div className="min-h-screen bg-brand-charcoal p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Page Header */}
-        <AnimatedCard>
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Welcome back, {profile?.full_name || 'User'}</h1>
-            <p className="text-white/70">Your daily overview</p>
-          </div>
-        </AnimatedCard>
+    <SafeAreaView style={styles.container}>
+      <ScrollView 
+        style={styles.scrollView} 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.welcomeText}>
+            Welcome back, {profile?.full_name || 'User'}
+          </Text>
+          <Text style={styles.subtitleText}>Your daily overview</Text>
+        </View>
 
-        {/* Wearable Connection Banner */}
-        {!wearableStatus?.wearable_connected && (
-          <AnimatedCard delay={0.1}>
-            <GlassCard className="flex items-center justify-between p-6 mb-6 bg-indigo-500/10 border-indigo-400/30">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-indigo-500/20 rounded-lg">
-                  <Smartphone className="w-6 h-6 text-indigo-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium text-white">Connect your wearable</h3>
-                  <p className="text-sm text-white/70">
-                    Link Whoop or Apple Health so ARIA can personalise your program.
-                  </p>
-                </div>
-              </div>
-              <LoadingButton 
-                loading={isConnecting}
-                loadingText="Connecting..."
-                onClick={() => setShowConnectModal(true)}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white"
-              >
-                Connect Device
-              </LoadingButton>
-            </GlassCard>
-          </AnimatedCard>
-        )}
+                 {/* Main Content Layout */}
+         <View style={[
+           styles.mainLayout,
+           isLandscape && !isTablet ? styles.mainLayoutLandscape : styles.mainLayoutPortrait
+         ]}>
+           {/* Metric Cards Section */}
+           <View style={[
+             styles.metricsSection,
+             isLandscape && !isTablet ? styles.metricsSectionLandscape : styles.metricsSectionPortrait
+           ]}>
+             <View style={styles.metricsGrid}>
+               {/* Recovery Card */}
+               <MetricCard
+                 title="Recovery"
+                 value={myRecovery?.recovery ? `${Math.round(myRecovery.recovery)}%` : '—'}
+                 subtitle="Current recovery score"
+                 isLoading={recoveryLoading}
+                 onPress={() => handleNavigate('Analytics')}
+               />
 
-        {/* KPI Section - Phone vs Desktop/Tablet */}
-        {isPhone ? (
-          <AnimatedCard delay={0.2}>
-            <SuspenseWrapper fallback={<SkeletonCard className="h-96" />}>
-              <MobileKpiGrid data={mobileKpiData} />
-            </SuspenseWrapper>
-          </AnimatedCard>
-        ) : (
-          /* Desktop/Tablet Grid (>414px) */
-          <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-4 auto-rows-[minmax(120px,auto)] mb-8">
-            {/* Recovery Card */}
-            <AnimatedCard delay={0.2}>
-              <SuspenseWrapper fallback={<SkeletonCard className="bg-green-500/10 border-green-400/30" />}>
-                <div onClick={() => navigate('/analytics')} className="cursor-pointer transition-transform hover:scale-105">
-                  <RecoveryCard 
-                    recovery={myRecovery?.recovery ?? null}
-                    trend={myRecovery?.trend}
-                  />
-                </div>
-              </SuspenseWrapper>
-            </AnimatedCard>
+               {/* Strain Card */}
+               <MetricCard
+                 title="Strain"
+                 value={getStrainValue()}
+                 subtitle="Today's strain level"
+                 onPress={() => handleNavigate('Analytics')}
+               />
 
-            {/* My Sessions Card */}
-            <AnimatedCard delay={0.3}>
-              <SuspenseWrapper fallback={<SkeletonCard className="bg-blue-500/10 border-blue-400/30" />}>
-                <GlassCard 
-                  className="bg-blue-500/10 border-blue-400/30 p-6 cursor-pointer transition-transform hover:scale-105"
-                  onClick={() => navigate('/calendar')}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium text-white">My Sessions</h3>
-                    <Calendar className="w-5 h-5 text-blue-400" />
-                  </div>
-                  <div className="text-2xl font-bold text-white mb-2">
-                    {myCalendar?.upcomingCount || 0}
-                  </div>
-                  <p className="text-sm text-white/70">Today's sessions</p>
-                  {myCalendar?.completedToday && myCalendar.completedToday > 0 && (
-                    <p className="text-xs text-green-400 mt-1">
-                      {myCalendar.completedToday} completed
-                    </p>
-                  )}
-                </GlassCard>
-              </SuspenseWrapper>
-            </AnimatedCard>
+               {/* Stress Card */}
+               <MetricCard
+                 title="Stress"
+                 value={getStressValue()}
+                 subtitle="Stress indicator"
+                 onPress={() => handleNavigate('Analytics')}
+               />
 
-            {/* AI Insights Card */}
-            <AnimatedCard delay={0.4}>
-              <SuspenseWrapper fallback={<SkeletonCard className="bg-purple-500/10 border-purple-400/30" />}>
-                <GlassCard 
-                  className="bg-purple-500/10 border-purple-400/30 p-6 cursor-pointer transition-transform hover:scale-105"
-                  onClick={() => navigate('/chat')}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium text-white">AI Insights</h3>
-                    <Target className="w-5 h-5 text-purple-400" />
-                  </div>
-                  <div className="text-2xl font-bold text-white mb-2">
-                    {myInsights?.count || 0}
-                  </div>
-                  <p className="text-sm text-white/70">New insights today</p>
-                </GlassCard>
-              </SuspenseWrapper>
-            </AnimatedCard>
+               {/* Today's Sessions Card */}
+               <MetricCard
+                 title="Today's Sessions"
+                 value={myCalendar?.upcomingCount || 0}
+                 subtitle={
+                   myCalendar?.completedToday && myCalendar.completedToday > 0
+                     ? `${myCalendar.completedToday} completed`
+                     : "Sessions planned"
+                 }
+                 isLoading={calendarLoading}
+                 onPress={() => handleNavigate('Calendar')}
+               />
+             </View>
+           </View>
 
-            {/* Community Feed Card */}
-            <AnimatedCard delay={0.5}>
-              <SuspenseWrapper fallback={<SkeletonCard className="bg-orange-500/10 border-orange-400/30" />}>
-                <GlassCard 
-                  className="bg-orange-500/10 border-orange-400/30 p-6 cursor-pointer transition-transform hover:scale-105"
-                  onClick={() => navigate('/feed')}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium text-white">Community Feed</h3>
-                    <Rss className="w-5 h-5 text-orange-400" />
-                  </div>
-                  <div className="text-2xl font-bold text-white mb-2">
-                    —
-                  </div>
-                  <p className="text-sm text-white/70">Latest updates</p>
-                  <p className="text-xs text-orange-400 mt-1">
-                    Connect with others
-                  </p>
-                </GlassCard>
-              </SuspenseWrapper>
-            </AnimatedCard>
-          </div>
-        )}
+           {/* Cards Row Section */}
+           <View style={[
+             styles.cardsRowSection,
+             isLandscape && !isTablet ? styles.cardsRowSectionLandscape : styles.cardsRowSectionPortrait
+           ]}>
+             {/* Today's Schedule Section */}
+             <View style={[
+               styles.scheduleSection,
+               isLandscape && !isTablet ? styles.scheduleSectionLandscape : styles.scheduleSectionPortrait
+             ]}>
+               <TodaysScheduleCard sessions={myCalendar?.todaySessions || []} />
+             </View>
 
-        {/* Bottom Content Grid */}
-        <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 auto-rows-[minmax(120px,auto)]">
-          {/* ARIA Insights Card */}
-          <AnimatedCard delay={0.6}>
-            <SuspenseWrapper fallback={<SkeletonCard contentLines={4} />}>
-              <AriaInsightsCard data={myInsights?.insights?.join(' ') || ''} loading={false} />
-            </SuspenseWrapper>
-          </AnimatedCard>
-
-          {/* Heat Map Card - spans 2 rows on large screens */}
-          <AnimatedCard delay={0.7} className="lg:col-span-1">
-            <SuspenseWrapper fallback={<SkeletonChart className="h-64" showAxes={false} />}>
-              <HeatMapCard athleteId={profile.id} />
-            </SuspenseWrapper>
-          </AnimatedCard>
-        </div>
-
-        {/* Connect Wearable Modal */}
-        <ConnectWearableModal
-          open={showConnectModal}
-          onClose={() => setShowConnectModal(false)}
-          onSuccess={handleWearableConnected}
-        />
-      </div>
-
-      {/* Insight Toast Container */}
-      <InsightToastContainer />
-    </div>
+             {/* Social Feed Section */}
+             <View style={[
+               styles.socialFeedSection,
+               isLandscape && !isTablet ? styles.socialFeedSectionLandscape : styles.socialFeedSectionPortrait
+             ]}>
+               <SocialFeedCard />
+             </View>
+           </View>
+         </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
-export default Dashboard;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#1F2937', // brand-charcoal equivalent
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    padding: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  header: {
+    marginBottom: 24,
+  },
+  welcomeText: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    marginBottom: 8,
+  },
+  subtitleText: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
+  mainLayout: {
+    flex: 1,
+  },
+  mainLayoutPortrait: {
+    flexDirection: 'column',
+  },
+  mainLayoutLandscape: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  metricsSection: {
+    marginBottom: 24,
+  },
+  metricsSectionPortrait: {
+    flex: 1,
+  },
+  metricsSectionLandscape: {
+    flex: 2,
+    marginBottom: 0,
+  },
+  metricsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  metricCard: {
+    // Glassmorphism styling
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderRadius: 16,
+    padding: 20,
+    minHeight: 120,
+    // Backdrop blur effect simulation
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  metricCardPortrait: {
+    width: (width - 44) / 2, // Two columns with gap
+  },
+  metricCardLandscape: {
+    width: isTablet ? (width * 0.6 - 44) / 2 : (width * 0.65 - 44) / 2,
+  },
+  metricCardContent: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  metricTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
+    marginBottom: 12,
+  },
+  metricValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    marginBottom: 8,
+  },
+  metricSubtitle: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.6)',
+  },
+     loader: {
+     marginVertical: 8,
+   },
+   cardsRowSection: {
+     gap: 12,
+   },
+   cardsRowSectionPortrait: {
+     flexDirection: 'column',
+   },
+   cardsRowSectionLandscape: {
+     flexDirection: 'row',
+   },
+   scheduleSection: {},
+   scheduleSectionPortrait: {
+     flex: 1,
+   },
+   scheduleSectionLandscape: {
+     flex: 1,
+     maxWidth: isTablet ? width * 0.35 : width * 0.3,
+   },
+   socialFeedSection: {},
+   socialFeedSectionPortrait: {
+     flex: 1,
+   },
+   socialFeedSectionLandscape: {
+     flex: 1,
+     maxWidth: isTablet ? width * 0.35 : width * 0.3,
+   },
+  scheduleCard: {
+    // Glassmorphism styling
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderRadius: 16,
+    padding: 20,
+    minHeight: 200,
+    // Backdrop blur effect simulation
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  scheduleCardPortrait: {
+    width: '100%',
+  },
+  scheduleCardLandscape: {
+    width: '100%',
+    height: 280,
+  },
+  scheduleTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#ffffff',
+    marginBottom: 16,
+  },
+  sessionsList: {
+    flex: 1,
+  },
+  sessionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  sessionDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#60A5FA',
+    marginRight: 12,
+  },
+  sessionDetails: {
+    flex: 1,
+  },
+  sessionTitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#ffffff',
+    marginBottom: 2,
+  },
+  sessionTime: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.6)',
+  },
+  noSessionsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  noSessionsText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.8)',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+     noSessionsSubtext: {
+     fontSize: 14,
+     color: 'rgba(255, 255, 255, 0.5)',
+     textAlign: 'center',
+   },
+   socialFeedCard: {
+     // Glassmorphism styling
+     backgroundColor: 'rgba(255, 255, 255, 0.08)',
+     borderWidth: 1,
+     borderColor: 'rgba(255, 255, 255, 0.12)',
+     borderRadius: 16,
+     padding: 20,
+     minHeight: 200,
+     // Backdrop blur effect simulation
+     shadowColor: '#000',
+     shadowOffset: {
+       width: 0,
+       height: 4,
+     },
+     shadowOpacity: 0.3,
+     shadowRadius: 8,
+     elevation: 8,
+   },
+   socialFeedCardPortrait: {
+     width: '100%',
+   },
+   socialFeedCardLandscape: {
+     width: '100%',
+     height: 280,
+   },
+   socialFeedHeader: {
+     flexDirection: 'row',
+     justifyContent: 'space-between',
+     alignItems: 'center',
+     marginBottom: 16,
+   },
+   socialFeedTitle: {
+     fontSize: 18,
+     fontWeight: '600',
+     color: '#ffffff',
+   },
+   feedIcon: {
+     width: 24,
+     height: 24,
+     justifyContent: 'center',
+     alignItems: 'center',
+   },
+   feedIconText: {
+     fontSize: 16,
+   },
+   feedList: {
+     flex: 1,
+     maxHeight: 150,
+   },
+   feedItem: {
+     flexDirection: 'row',
+     justifyContent: 'space-between',
+     alignItems: 'flex-start',
+     paddingVertical: 8,
+     borderBottomWidth: 1,
+     borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+   },
+   feedItemContent: {
+     flex: 1,
+     marginRight: 8,
+   },
+   feedUserName: {
+     fontSize: 14,
+     fontWeight: '600',
+     color: '#ffffff',
+     marginBottom: 2,
+   },
+   feedAction: {
+     fontSize: 12,
+     color: 'rgba(255, 255, 255, 0.7)',
+   },
+   feedTime: {
+     fontSize: 11,
+     color: 'rgba(255, 255, 255, 0.5)',
+   },
+   feedFooter: {
+     marginTop: 12,
+     paddingTop: 12,
+     borderTopWidth: 1,
+     borderTopColor: 'rgba(255, 255, 255, 0.1)',
+     alignItems: 'center',
+   },
+   feedFooterText: {
+     fontSize: 12,
+     color: 'rgba(255, 255, 255, 0.6)',
+     fontStyle: 'italic',
+   },
+ });
+ 
+ export default Dashboard;
