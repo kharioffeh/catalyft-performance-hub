@@ -1,14 +1,14 @@
 
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useBilling } from '@/hooks/useBilling';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface ProtectAppGateProps {
   children: React.ReactNode;
 }
 
 const ProtectAppGate: React.FC<ProtectAppGateProps> = ({ children }) => {
-  const { billing, isLoading, needsUpgrade } = useBilling();
+  const { subscription, isLoading, isFree, isPastDue } = useSubscription();
   const location = useLocation();
 
   // Don't block while loading
@@ -23,16 +23,13 @@ const ProtectAppGate: React.FC<ProtectAppGateProps> = ({ children }) => {
     );
   }
 
-  // Allow access to billing page even if upgrade needed
-  if (location.pathname === '/billing') {
+  // Allow access to settings page (where subscription management is)
+  if (location.pathname === '/settings') {
     return <>{children}</>;
   }
 
-  // Redirect to billing if upgrade needed
-  if (needsUpgrade) {
-    return <Navigate to="/billing" replace />;
-  }
-
+  // Free tier users can access the app but with limited features
+  // No need to redirect - feature gates will handle restrictions
   return <>{children}</>;
 };
 
