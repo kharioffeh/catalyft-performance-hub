@@ -56,7 +56,7 @@ export const soloNavigation = [
   },
   {
     label: 'Nutrition',
-    path: '/nutrition',
+    path: '/nutrition/my-log',
     icon: BookOpen,
   },
   {

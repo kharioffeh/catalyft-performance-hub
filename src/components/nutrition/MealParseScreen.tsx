@@ -128,7 +128,7 @@ export const MealParseScreen: React.FC = () => {
       };
 
       await addMeal(mealEntry);
-      navigate('/nutrition', { state: { tab: 'meals' } });
+      navigate('/nutrition/my-log', { state: { tab: 'meals' } });
     } catch (err) {
       console.error('Error saving meal:', err);
       setError('Failed to save meal');
@@ -196,7 +196,7 @@ export const MealParseScreen: React.FC = () => {
           {/* Header */}
           <div className="flex items-center gap-4 mb-6">
             <Button
-              onClick={() => navigate('/nutrition')}
+              onClick={() => navigate('/nutrition/my-log')}
               variant="ghost"
               size="icon"
               className="text-white hover:bg-white/20"
@@ -231,7 +231,7 @@ export const MealParseScreen: React.FC = () => {
           {/* Header */}
           <div className="flex items-center gap-4 mb-6">
             <Button
-              onClick={() => navigate('/nutrition')}
+              onClick={() => navigate('/nutrition/my-log')}
               variant="ghost"
               size="icon"
               className="text-white hover:bg-white/20"
@@ -280,7 +280,7 @@ export const MealParseScreen: React.FC = () => {
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
           <Button
-            onClick={() => navigate('/nutrition')}
+            onClick={() => navigate('/nutrition/my-log')}
             variant="ghost"
             size="icon"
             className="text-white hover:bg-white/20"
