@@ -14,11 +14,11 @@ import { ProgramPatch } from "@/types/programPatch";
 import { useIsMobile } from "@/hooks/useBreakpoint";
 
 const SUGGESTED_PROMPTS = [
-  "How can I improve my training?",
-  "What does my data suggest?",
-  "Am I overtraining?",
-  "Should I rest today?",
-  "Analyze my performance trends"
+  "How can I improve my personal training?",
+  "What does my personal data suggest?",
+  "Am I personally overtraining?",
+  "Should I rest today based on my data?",
+  "Analyze my personal performance trends"
 ];
 
 export const ChatThread = React.memo(() => {

@@ -30,6 +30,7 @@ import {
 import { useFabPosition } from '@/hooks/useFabPosition';
 import { cn } from '@/lib/utils';
 
+// Solo-only settings - No athlete management or coach features
 const SettingsErrorFallback = ({ error, resetErrorBoundary }: any) => (
   <div className="min-h-screen flex items-center justify-center p-4">
     <div className="text-center space-y-4">

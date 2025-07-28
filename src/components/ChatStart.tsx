@@ -35,35 +35,35 @@ export const ChatStart = React.memo(() => {
   const suggestedQuestions = [
     {
       title: "How has my sleep improved this week?",
-      description: "Summarize my sleep data, highlight improvements and regressions.",
+      description: "Analyze my personal sleep data and highlight improvements.",
     },
     {
       title: "What is my training load trend?",
-      description: "Tell me how my recent load compares to previous weeks.",
+      description: "Review how my recent training load compares to previous weeks.",
     },
     {
       title: "Am I at risk of overtraining?",
-      description: "Spot any overreaching or injury risk from my sessions.",
+      description: "Assess my personal overreaching or injury risk from recent sessions.",
     },
     {
       title: "Which day was my best recovery?",
-      description: "Find my optimal readiness score this week.",
+      description: "Find my optimal personal readiness score this week.",
     },
     {
       title: "How does my strain compare to last month?",
-      description: "Break down my workout strain over time.",
+      description: "Break down my personal workout strain over time.",
     },
     {
       title: "Can you summarize my recent performance metrics?",
-      description: "Provide a readable summary from the main metrics.",
+      description: "Provide a personalized summary of my training metrics.",
     },
     {
       title: "Which habit should I focus on to improve readiness?",
-      description: "Analyze habits affecting my sleep & recovery.",
+      description: "Analyze my personal habits affecting sleep & recovery.",
     },
     {
       title: "Any patterns in my sleep or HRV?",
-      description: "Look for correlations in sleep and HRV trends.",
+      description: "Look for correlations in my personal sleep and HRV trends.",
     },
   ];
 
@@ -119,7 +119,7 @@ export const ChatStart = React.memo(() => {
           </svg>
           <h1 className="text-2xl font-bold mb-2 font-sans">How can I help you today?</h1>
           <p className="text-muted-foreground max-w-md mx-auto">
-            Get tailored performance insights, or select a prompt to explore your training data.
+            Get personalized coaching insights and analyze your training data with ARIA.
           </p>
         </div>
 
