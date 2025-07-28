@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useSubscription } from '@/hooks/useSubscription';
+import { useSubscription, getTierFeatures } from '@/hooks/useSubscription';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -45,6 +45,7 @@ export const FeatureGate: React.FC<FeatureGateProps> = ({
   className
 }) => {
   const { canAccess, isPro, startCheckout, isStartingCheckout } = useSubscription();
+  const tierFeatures = getTierFeatures();
 
   // If user can access the feature, show the content
   if (canAccess(feature)) {
@@ -110,7 +111,7 @@ export const FeatureGate: React.FC<FeatureGateProps> = ({
             ) : (
               <Zap className="w-5 h-5 mr-2" />
             )}
-                         Upgrade to Pro - $13.99/month
+                         Upgrade to Pro - {tierFeatures.pro.price}
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
           

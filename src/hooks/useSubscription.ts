@@ -6,6 +6,26 @@ import { toast } from '@/hooks/use-toast';
 export type SubscriptionStatus = 'trialing' | 'active' | 'past_due' | 'canceled' | 'free';
 export type SubscriptionTier = 'free' | 'pro';
 
+// Helper function to detect user's country/currency
+const getUserCurrency = (): { currency: string; symbol: string; price: string } => {
+  try {
+    // Try to get user's locale from browser
+    const userLocale = navigator.language || 'en-US';
+    const country = userLocale.split('-')[1]?.toUpperCase();
+    
+    // UK users get GBP pricing
+    if (country === 'GB' || userLocale.toLowerCase().includes('gb')) {
+      return { currency: 'GBP', symbol: '£', price: '9.99' };
+    }
+    
+    // Everyone else gets USD pricing
+    return { currency: 'USD', symbol: '$', price: '13.99' };
+  } catch {
+    // Fallback to USD if detection fails
+    return { currency: 'USD', symbol: '$', price: '13.99' };
+  }
+};
+
 interface SubscriptionData {
   id: string;
   stripe_customer_id: string | null;
@@ -19,52 +39,62 @@ interface SubscriptionData {
   updated_at: string;
 }
 
-// Pro tier features
-export const TIER_FEATURES = {
-  free: {
-    name: 'Free',
-    price: 'Free',
-    features: [
-      'Basic workout tracking',
-      'Basic calendar view',
-      'Community access'
-    ],
-    limitations: {
-      maxWorkouts: Infinity, // Basic workout tracking allowed
-      analyticsHistoryDays: 0, // No analytics
-      aiChatMessages: 0, // No AI features
-      nutritionLogging: false, // No nutrition
-      advancedAnalytics: false, // No analytics
-      customPrograms: false, // No custom programs
-      wearableIntegration: false, // No wearable features
-      prioritySupport: false
+// Pro tier features - dynamic pricing based on user location
+export const getTierFeatures = () => {
+  const { currency, symbol, price } = getUserCurrency();
+  
+  return {
+    free: {
+      name: 'Free',
+      price: 'Free',
+      currency: currency,
+      features: [
+        'Basic workout tracking',
+        'Basic calendar view',
+        'Community access'
+      ],
+      limitations: {
+        maxWorkouts: Infinity, // Basic workout tracking allowed
+        analyticsHistoryDays: 0, // No analytics
+        aiChatMessages: 0, // No AI features
+        nutritionLogging: false, // No nutrition
+        advancedAnalytics: false, // No analytics
+        customPrograms: false, // No custom programs
+        wearableIntegration: false, // No wearable features
+        prioritySupport: false
+      }
+    },
+    pro: {
+      name: 'Pro',
+      price: `${symbol}${price}/month`,
+      currency: currency,
+      priceAmount: price,
+      features: [
+        'Unlimited workout tracking',
+        'Full analytics & insights',
+        'AI-powered chat assistant',
+        'Nutrition logging & tracking',
+        'Custom training programs',
+        'Wearable device integration',
+        'Advanced progress analytics',
+        'Priority support'
+      ],
+      limitations: {
+        maxWorkouts: Infinity,
+        analyticsHistoryDays: Infinity,
+        aiChatMessages: Infinity,
+        nutritionLogging: true,
+        advancedAnalytics: true,
+        customPrograms: true,
+        wearableIntegration: true,
+        prioritySupport: true
+      }
     }
-  },
-  pro: {
-    name: 'Pro',
-    price: '$13.99/month',
-    features: [
-      'Unlimited workout tracking',
-      'Full analytics & insights',
-      'AI-powered chat assistant',
-      'Nutrition logging & tracking',
-      'Custom training programs',
-      'Wearable device integration',
-      'Advanced progress analytics',
-      'Priority support'
-    ],
-    limitations: {
-      maxWorkouts: Infinity,
-      analyticsHistoryDays: Infinity,
-      aiChatMessages: Infinity,
-      nutritionLogging: true,
-      advancedAnalytics: true,
-      customPrograms: true,
-      wearableIntegration: true,
-      prioritySupport: true
-    }
-  }
+  };
 };
+
+// Legacy export for backwards compatibility
+export const TIER_FEATURES = getTierFeatures();
 
 export const useSubscription = () => {
   const { user } = useAuth();
@@ -102,8 +132,9 @@ export const useSubscription = () => {
   // Start subscription checkout
   const startCheckoutMutation = useMutation({
     mutationFn: async (plan: 'monthly' | 'yearly') => {
+      const { currency } = getUserCurrency();
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan }
+        body: { plan, currency }
       });
 
       if (error) throw error;
@@ -244,18 +275,21 @@ export const useSubscription = () => {
   const subscriptionEndsAt = subscription?.subscription_end ? new Date(subscription.subscription_end) : null;
   const hasOptedOutAutoSubscription = subscription?.auto_subscription_opted_out === true;
 
+  // Get dynamic tier features based on user location
+  const tierFeatures = getTierFeatures();
+
   // Check if user can access a feature
-  const canAccess = (feature: keyof typeof TIER_FEATURES.pro.limitations) => {
-    if (!subscription) return false;
-    const tier = subscription.tier;
-    const limit = TIER_FEATURES[tier].limitations[feature];
+      const canAccess = (feature: keyof typeof tierFeatures.pro.limitations) => {
+      if (!subscription) return false;
+      const tier = subscription.tier;
+      const limit = tierFeatures[tier].limitations[feature];
     return typeof limit === 'boolean' ? limit : limit > 0;
   };
 
   // Get feature limit
-  const getLimit = (feature: keyof typeof TIER_FEATURES.pro.limitations) => {
-    if (!subscription) return TIER_FEATURES.free.limitations[feature];
-    return TIER_FEATURES[subscription.tier].limitations[feature];
+  const getLimit = (feature: keyof typeof tierFeatures.pro.limitations) => {
+    if (!subscription) return tierFeatures.free.limitations[feature];
+    return tierFeatures[subscription.tier].limitations[feature];
   };
 
   const refreshSubscription = () => {
@@ -281,7 +315,7 @@ export const useSubscription = () => {
     // Feature access
     canAccess,
     getLimit,
-    tierFeatures: subscription ? TIER_FEATURES[subscription.tier] : TIER_FEATURES.free,
+    tierFeatures: subscription ? tierFeatures[subscription.tier] : tierFeatures.free,
     
     // Actions
     startCheckout: (plan: 'monthly' | 'yearly') => startCheckoutMutation.mutate(plan),

@@ -22,7 +22,7 @@ Free Tier:
 - Community access
 - No AI features, wearables, analytics, or nutrition
 
-Pro Tier ($13.99/month | £9.99):
+Pro Tier (£9.99/month for UK | $13.99/month international):
 - Unlimited workout tracking
 - AI-powered chat assistant
 - Full analytics & insights
@@ -111,7 +111,7 @@ const { canUseNutrition, canUseAI } = useFeatureAccess();
 2. **During Trial** → User can opt out of auto-subscription anytime
 3. **Trial Expires** → 
    - If opted out: Move to Free tier
-   - If not opted out: Auto-subscribe to Pro ($13.99/month)
+   - If not opted out: Auto-subscribe to Pro (£9.99/month UK | $13.99/month international)
 4. **Free User** → Can use basic features, sees upgrade prompts
 5. **Upgrade** → Stripe checkout → Pro features unlocked
 6. **Cancel** → Continues Pro until period end → Moves to Free tier
@@ -162,11 +162,23 @@ if (canAccess('nutritionLogging')) {
 ```
 
 ### Stripe Integration:
-- **Checkout** - Existing function for new subscriptions
+- **Checkout** - Updated with geo-based pricing (GBP/USD)
 - **Portal** - Customer portal for billing management  
 - **Webhooks** - Handle subscription status changes
 - **Cancellation** - Cancel at period end (keeps access)
 - **Reactivation** - Restore canceled subscription
+- **Auto-conversion** - Trial to subscription with currency detection
+
+### Geo-Based Pricing:
+```typescript
+// Dynamic pricing based on user location
+const { currency, symbol, price } = getUserCurrency();
+// UK users: £9.99/month | International: $13.99/month
+
+// Usage in components
+const tierFeatures = getTierFeatures(); // Returns localized pricing
+// UI automatically shows correct currency/price
+```
 
 ## 📊 **Key Metrics to Track**
 

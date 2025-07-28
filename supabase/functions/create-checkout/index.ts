@@ -21,7 +21,7 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    const { plan } = await req.json();
+    const { plan, currency } = await req.json();
     if (!plan || (plan !== 'monthly' && plan !== 'yearly')) {
       throw new Error("plan is required and must be 'monthly' or 'yearly'");
     }
@@ -31,14 +31,26 @@ serve(async (req) => {
       throw new Error("STRIPE_SECRET_KEY is not set");
     }
 
-    // Get the appropriate price ID for solo Pro plan
-    const priceId = plan === 'yearly'
-      ? Deno.env.get("STRIPE_PRICE_SOLO_YEARLY")
-      : Deno.env.get("STRIPE_PRICE_SOLO_MONTHLY");
+    // Determine currency and price ID based on user location
+    let priceId: string;
+    
+    if (currency === 'GBP') {
+      // UK pricing - £9.99
+      priceId = plan === 'yearly'
+        ? Deno.env.get("STRIPE_PRICE_SOLO_YEARLY_GBP") || ''
+        : Deno.env.get("STRIPE_PRICE_SOLO_MONTHLY_GBP") || '';
+    } else {
+      // International pricing - $13.99
+      priceId = plan === 'yearly'
+        ? Deno.env.get("STRIPE_PRICE_SOLO_YEARLY_USD") || ''
+        : Deno.env.get("STRIPE_PRICE_SOLO_MONTHLY_USD") || '';
+    }
 
     if (!priceId) {
-      throw new Error(`Missing Stripe price ID for ${plan} plan`);
+      throw new Error(`Missing Stripe price ID for ${plan} plan in ${currency || 'USD'}`);
     }
+
+    logStep("Price selected", { plan, currency: currency || 'USD', priceId });
 
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",

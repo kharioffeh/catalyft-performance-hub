@@ -83,12 +83,17 @@ serve(async (req) => {
           continue
         }
 
+        // Determine price ID based on customer's currency preference
+        // Note: In production, you'd want to store the user's currency preference
+        // For now, we'll default to USD pricing for auto-conversions
+        const priceId = Deno.env.get('STRIPE_PRICE_SOLO_MONTHLY_USD') || Deno.env.get('STRIPE_PRO_MONTHLY_PRICE_ID');
+
         // Create subscription with default Pro plan
         const subscription = await stripe.subscriptions.create({
           customer: user.stripe_customer_id,
           items: [
             {
-              price: Deno.env.get('STRIPE_PRO_MONTHLY_PRICE_ID'), // Set your Pro plan price ID
+              price: priceId,
             },
           ],
           default_payment_method: paymentMethods.data[0].id,

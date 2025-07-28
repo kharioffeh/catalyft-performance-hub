@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSubscription, TIER_FEATURES } from '@/hooks/useSubscription';
+import { useSubscription, getTierFeatures } from '@/hooks/useSubscription';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -54,6 +54,7 @@ export const SubscriptionManager: React.FC = () => {
     isUpdatingAutoSubscription,
   } = useSubscription();
 
+  const dynamicTierFeatures = getTierFeatures();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   if (isLoading) {
@@ -170,7 +171,7 @@ export const SubscriptionManager: React.FC = () => {
             )}>
               {hasOptedOutAutoSubscription 
                 ? `Your trial ends in ${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''} and you'll be moved to the Free tier. You can opt back in to auto-subscription anytime.`
-                : `Your trial ends in ${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''} and you'll be automatically subscribed to Pro ($13.99/month) unless you opt out.`
+                : `Your trial ends in ${trialDaysLeft} day${trialDaysLeft !== 1 ? 's' : ''} and you'll be automatically subscribed to Pro (${dynamicTierFeatures.pro.price}) unless you opt out.`
               }
             </p>
 
