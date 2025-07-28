@@ -1,5 +1,6 @@
 
 import React, { useState, Suspense } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { GlassCard } from '@/components/ui';
 import { AriaInsightsCard } from '@/components/cards/AriaInsightsCard';
@@ -19,10 +20,11 @@ import { SkeletonChart } from '@/components/skeleton/SkeletonChart';
 import { SuspenseWrapper } from '@/components/ui/SuspenseWrapper';
 import { AnimatedCard } from '@/components/ui/AnimatedCard';
 import { LoadingButton } from '@/components/ui/LoadingButton';
-import { Activity, Zap, Target, Smartphone } from 'lucide-react';
+import { Activity, Zap, Target, Smartphone, Rss, Calendar, BarChart3 } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const { data: wearableStatus } = useWearableStatus(profile?.id);
   const { data: myInsights } = useMyInsights();
   const { data: myRecovery, isLoading: recoveryLoading } = useMyRecovery();
@@ -48,15 +50,17 @@ const Dashboard: React.FC = () => {
       icon: Activity,
       color: 'text-green-400',
       trend: myRecovery?.trend,
-      isLoading: recoveryLoading
+      isLoading: recoveryLoading,
+      onClick: () => navigate('/analytics')
     },
     {
       id: 'sessions',
       title: 'My Sessions',
       value: myCalendar?.upcomingCount?.toString() || '—',
-      icon: Zap,
+      icon: Calendar,
       color: 'text-blue-400',
-      isLoading: false
+      isLoading: false,
+      onClick: () => navigate('/calendar')
     },
     {
       id: 'insights',
@@ -64,7 +68,17 @@ const Dashboard: React.FC = () => {
       value: myInsights?.count?.toString() || '—',
       icon: Target,
       color: 'text-purple-400',
-      isLoading: false
+      isLoading: false,
+      onClick: () => navigate('/chat')
+    },
+    {
+      id: 'feed',
+      title: 'Community Feed',
+      value: '—', // Could be post count if you have that data
+      icon: Rss,
+      color: 'text-orange-400',
+      isLoading: false,
+      onClick: () => navigate('/feed')
     }
   ];
 
@@ -123,24 +137,29 @@ const Dashboard: React.FC = () => {
           </AnimatedCard>
         ) : (
           /* Desktop/Tablet Grid (>414px) */
-          <div className="grid gap-6 grid-cols-1 lg:grid-cols-3 auto-rows-[minmax(120px,auto)] mb-8">
+          <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-4 auto-rows-[minmax(120px,auto)] mb-8">
             {/* Recovery Card */}
             <AnimatedCard delay={0.2}>
               <SuspenseWrapper fallback={<SkeletonCard className="bg-green-500/10 border-green-400/30" />}>
-                <RecoveryCard 
-                  recovery={myRecovery?.recovery ?? null}
-                  trend={myRecovery?.trend}
-                />
+                <div onClick={() => navigate('/analytics')} className="cursor-pointer transition-transform hover:scale-105">
+                  <RecoveryCard 
+                    recovery={myRecovery?.recovery ?? null}
+                    trend={myRecovery?.trend}
+                  />
+                </div>
               </SuspenseWrapper>
             </AnimatedCard>
 
             {/* My Sessions Card */}
             <AnimatedCard delay={0.3}>
               <SuspenseWrapper fallback={<SkeletonCard className="bg-blue-500/10 border-blue-400/30" />}>
-                <GlassCard className="bg-blue-500/10 border-blue-400/30 p-6">
+                <GlassCard 
+                  className="bg-blue-500/10 border-blue-400/30 p-6 cursor-pointer transition-transform hover:scale-105"
+                  onClick={() => navigate('/calendar')}
+                >
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-medium text-white">My Sessions</h3>
-                    <Activity className="w-5 h-5 text-blue-400" />
+                    <Calendar className="w-5 h-5 text-blue-400" />
                   </div>
                   <div className="text-2xl font-bold text-white mb-2">
                     {myCalendar?.upcomingCount || 0}
@@ -158,7 +177,10 @@ const Dashboard: React.FC = () => {
             {/* AI Insights Card */}
             <AnimatedCard delay={0.4}>
               <SuspenseWrapper fallback={<SkeletonCard className="bg-purple-500/10 border-purple-400/30" />}>
-                <GlassCard className="bg-purple-500/10 border-purple-400/30 p-6">
+                <GlassCard 
+                  className="bg-purple-500/10 border-purple-400/30 p-6 cursor-pointer transition-transform hover:scale-105"
+                  onClick={() => navigate('/chat')}
+                >
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-medium text-white">AI Insights</h3>
                     <Target className="w-5 h-5 text-purple-400" />
@@ -170,20 +192,42 @@ const Dashboard: React.FC = () => {
                 </GlassCard>
               </SuspenseWrapper>
             </AnimatedCard>
+
+            {/* Community Feed Card */}
+            <AnimatedCard delay={0.5}>
+              <SuspenseWrapper fallback={<SkeletonCard className="bg-orange-500/10 border-orange-400/30" />}>
+                <GlassCard 
+                  className="bg-orange-500/10 border-orange-400/30 p-6 cursor-pointer transition-transform hover:scale-105"
+                  onClick={() => navigate('/feed')}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium text-white">Community Feed</h3>
+                    <Rss className="w-5 h-5 text-orange-400" />
+                  </div>
+                  <div className="text-2xl font-bold text-white mb-2">
+                    —
+                  </div>
+                  <p className="text-sm text-white/70">Latest updates</p>
+                  <p className="text-xs text-orange-400 mt-1">
+                    Connect with others
+                  </p>
+                </GlassCard>
+              </SuspenseWrapper>
+            </AnimatedCard>
           </div>
         )}
 
         {/* Bottom Content Grid */}
         <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 auto-rows-[minmax(120px,auto)]">
           {/* ARIA Insights Card */}
-          <AnimatedCard delay={0.5}>
+          <AnimatedCard delay={0.6}>
             <SuspenseWrapper fallback={<SkeletonCard contentLines={4} />}>
               <AriaInsightsCard data={myInsights?.insights?.join(' ') || ''} loading={false} />
             </SuspenseWrapper>
           </AnimatedCard>
 
           {/* Heat Map Card - spans 2 rows on large screens */}
-          <AnimatedCard delay={0.6} className="lg:col-span-1">
+          <AnimatedCard delay={0.7} className="lg:col-span-1">
             <SuspenseWrapper fallback={<SkeletonChart className="h-64" showAxes={false} />}>
               <HeatMapCard athleteId={profile.id} />
             </SuspenseWrapper>

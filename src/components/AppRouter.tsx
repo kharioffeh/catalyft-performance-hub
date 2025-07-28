@@ -50,6 +50,7 @@ const ProtocolDetailScreen = React.lazy(() => import('../pages/mobile/ProtocolDe
 const ClubsScreen = React.lazy(() => import('../pages/ClubsScreen'));
 const ChallengesScreen = React.lazy(() => import('../pages/ChallengesScreen'));
 const MeetsScreen = React.lazy(() => import('../pages/MeetsScreen'));
+// Removed Athletes page - not needed for solo user app
 
 // Loading fallback component
 const PageLoader = () => (
@@ -111,6 +112,7 @@ const AppRouter = () => {
           <Route path="clubs" element={<ClubsScreen />} />
           <Route path="challenges" element={<ChallengesScreen />} />
           <Route path="meets" element={<MeetsScreen />} />
+          {/* Profile route already exists */}
           <Route path="nutrition-log" element={<Navigate to="/nutrition/my-log" replace />} />
           <Route path="nutrition" element={<Navigate to="/nutrition/my-log" replace />} />
           <Route path="nutrition/my-log" element={<NutritionPage />} />

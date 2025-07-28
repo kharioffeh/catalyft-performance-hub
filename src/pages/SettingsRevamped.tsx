@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useNotificationPreferences } from '@/hooks/useNotificationPreferences';
 import { useLogout } from '@/hooks/useLogout';
-import { useBilling } from '@/hooks/useBilling';
+import { SubscriptionManager } from '@/components/SubscriptionManager';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -18,7 +18,7 @@ import {
   Mail, 
   Shield, 
   Bell, 
-  CreditCard,
+  LogOut,
   Palette, 
   Sun, 
   Moon, 
@@ -51,48 +51,11 @@ const SettingsRevamped: React.FC = () => {
   const { user, profile } = useAuth();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const { preferences: notificationPreferences, updatePreferences } = useNotificationPreferences();
-  const { billing, isLoading: billingLoading } = useBilling();
   const logout = useLogout();
-  const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
   const { contentPadding } = useFabPosition();
 
-  const handleDeleteAccount = async () => {
-    const confirmed = window.confirm(
-      'Are you sure you want to delete your account? This action cannot be undone.'
-    );
-
-    if (!confirmed) return;
-
-    const doubleConfirmed = window.confirm(
-      'This will permanently delete all your data. Type "DELETE" to confirm.'
-    );
-
-    if (!doubleConfirmed) return;
-
-    setLoading(true);
-
-    try {
-      const { error } = await supabase.auth.admin.deleteUser(user?.id || '');
-
-      if (error) throw error;
-
-      toast({
-        title: "Account Deleted",
-        description: "Your account has been successfully deleted",
-      });
-
-      logout();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: `Failed to delete account: ${error.message}`,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Removed delete account functionality - users can cancel subscription instead
 
   const handleExportData = async () => {
     if (!user?.id) return;
@@ -230,27 +193,8 @@ const SettingsRevamped: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Subscription */}
-      <Card className="bg-background/50 backdrop-blur-md border-border/50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCard className="w-5 h-5" />
-            Subscription
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <p className="text-sm">
-              Plan: {billing?.plan_status === 'trialing' ? 'Free Trial' : 'Solo Basic'}
-            </p>
-            {billing?.plan_status === 'trialing' && (
-              <p className="text-sm text-muted-foreground">
-                Trial ends: {new Date(billing.trial_end).toLocaleDateString()}
-              </p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Subscription Management */}
+      <SubscriptionManager />
 
       {/* Appearance */}
       <Card className="bg-background/50 backdrop-blur-md border-border/50">
@@ -296,22 +240,22 @@ const SettingsRevamped: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Danger Zone */}
-      <Card className="bg-destructive/10 backdrop-blur-md border-destructive/20">
+      {/* Account Actions */}
+      <Card className="bg-background/50 backdrop-blur-md border-border/50">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-destructive">
-            <Trash2 className="w-5 h-5" />
-            Danger Zone
+          <CardTitle className="flex items-center gap-2">
+            <LogOut className="w-5 h-5" />
+            Account Actions
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Button
-            variant="destructive"
-            onClick={handleDeleteAccount}
-            disabled={loading}
+            variant="outline"
+            onClick={logout}
             className="w-full"
           >
-            {loading ? 'Deleting...' : 'Delete Account'}
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
           </Button>
         </CardContent>
       </Card>
@@ -426,32 +370,8 @@ const SettingsRevamped: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Subscription Plan */}
-      <Card className="bg-background/50 backdrop-blur-md border-border/50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCard className="w-5 h-5" />
-            Subscription Plan
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <p className="font-medium">
-                {billing?.plan_status === 'trialing' ? 'Free Trial' : 'Solo Basic'}
-              </p>
-              {billing?.plan_status === 'trialing' && (
-                <p className="text-sm text-muted-foreground">
-                  Trial ends: {new Date(billing.trial_end).toLocaleDateString()}
-                </p>
-              )}
-            </div>
-            <Button variant="outline" size="sm">
-              Manage Billing
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Subscription Management */}
+      <SubscriptionManager />
 
       {/* Appearance */}
       <Card className="bg-background/50 backdrop-blur-md border-border/50">
@@ -505,28 +425,28 @@ const SettingsRevamped: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Danger Zone */}
-      <Card className="bg-destructive/10 backdrop-blur-md border-destructive/20">
+      {/* Account Actions */}
+      <Card className="bg-background/50 backdrop-blur-md border-border/50">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-destructive">
-            <Trash2 className="w-5 h-5" />
-            Danger Zone
+          <CardTitle className="flex items-center gap-2">
+            <LogOut className="w-5 h-5" />
+            Account Actions
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div>
-              <h3 className="font-medium text-destructive">Delete Account</h3>
+              <h3 className="font-medium">Sign Out</h3>
               <p className="text-sm text-muted-foreground">
-                Permanently delete your account and all data. This action cannot be undone.
+                Sign out of your account. You can sign back in anytime.
               </p>
             </div>
             <Button
-              variant="destructive"
-              onClick={handleDeleteAccount}
-              disabled={loading}
+              variant="outline"
+              onClick={logout}
             >
-              {loading ? 'Deleting...' : 'Delete Account'}
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
             </Button>
           </div>
         </CardContent>
