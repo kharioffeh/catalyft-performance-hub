@@ -2,18 +2,14 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { TrainingPlanLayout } from '@/components/training-plan/TrainingPlanLayout';
-import { ProgramsTab } from '@/components/training-plan/ProgramsTab';
-import { ProgramInstancesTab } from '@/components/training-plan/ProgramInstancesTab';
-import { LibraryTab } from '@/components/training-plan/LibraryTab';
+import { MyProgramsScreen } from '@/components/training-plan/MyProgramsScreen';
 
 const TrainingPlan: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<TrainingPlanLayout />}>
         <Route index element={<Navigate to="programs" replace />} />
-        <Route path="programs" element={<ProgramsTab />} />
-        <Route path="instances" element={<ProgramInstancesTab />} />
-        <Route path="library" element={<LibraryTab />} />
+        <Route path="programs" element={<MyProgramsScreen />} />
       </Route>
     </Routes>
   );

@@ -8,7 +8,7 @@ import { EnhancedProgramBuilder } from '@/components/program-builder/EnhancedPro
 import { AriaGenerateWizard } from './AriaGenerateWizard';
 import { useNavigate } from 'react-router-dom';
 
-export const ProgramsTab: React.FC = () => {
+export const MyProgramsScreen: React.FC = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const [builderOpen, setBuilderOpen] = useState(false);
@@ -33,8 +33,8 @@ export const ProgramsTab: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white">Training Programs</h2>
-          <p className="text-white/70">Create and manage your training programs</p>
+          <h2 className="text-2xl font-bold text-white">My Training Programs</h2>
+          <p className="text-white/70">Your personalized training programs</p>
         </div>
         <div className="flex gap-3">
           <Button 

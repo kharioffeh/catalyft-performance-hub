@@ -17,26 +17,13 @@ export const TrainingPlanTabs: React.FC = () => {
   return (
     <div className="mb-6">
       <Tabs value={currentTab} onValueChange={handleTabChange}>
-        <TabsList className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-1 grid w-full grid-cols-3">
+        <TabsList className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-1 grid w-full grid-cols-1">
           <TabsTrigger 
             value="programs" 
             className="text-white/70 data-[state=active]:bg-indigo-500/20 data-[state=active]:text-indigo-200 data-[state=active]:rounded-xl transition-all duration-200"
             data-variant="programs"
           >
-            Programs
-          </TabsTrigger>
-          <TabsTrigger 
-            value="instances" 
-            className="text-white/70 data-[state=active]:bg-indigo-500/20 data-[state=active]:text-indigo-200 data-[state=active]:rounded-xl transition-all duration-200"
-            data-variant="history"
-          >
-            History
-          </TabsTrigger>
-          <TabsTrigger 
-            value="library" 
-            className="text-white/70 data-[state=active]:bg-indigo-500/20 data-[state=active]:text-indigo-200 data-[state=active]:rounded-xl transition-all duration-200"
-          >
-            Library
+            My Programs
           </TabsTrigger>
         </TabsList>
       </Tabs>

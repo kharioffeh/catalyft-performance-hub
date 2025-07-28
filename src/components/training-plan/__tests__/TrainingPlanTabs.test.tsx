@@ -34,42 +34,33 @@ describe('TrainingPlanTabs', () => {
     mockNavigate.mockClear();
   });
 
-  it('should render all tab labels correctly', () => {
+  it('should render the My Programs tab label correctly', () => {
     renderWithProviders(<TrainingPlanTabs />);
     
-    expect(screen.getByText('Programs')).toBeInTheDocument();
-    expect(screen.getByText('History')).toBeInTheDocument();
-    expect(screen.getByText('Library')).toBeInTheDocument();
+    expect(screen.getByText('My Programs')).toBeInTheDocument();
   });
 
-  it('should have correct data attributes for tabs', () => {
+  it('should have correct data attributes for the Programs tab', () => {
     renderWithProviders(<TrainingPlanTabs />);
     
-    const programsTab = screen.getByText('Programs').closest('button');
-    const historyTab = screen.getByText('History').closest('button');
+    const programsTab = screen.getByText('My Programs').closest('button');
     
     expect(programsTab).toHaveAttribute('data-variant', 'programs');
-    expect(historyTab).toHaveAttribute('data-variant', 'history');
   });
 
-  it('should navigate to correct routes when tabs are clicked', async () => {
+  it('should show My Programs tab as active by default', () => {
     renderWithProviders(<TrainingPlanTabs />);
     
-    fireEvent.click(screen.getByText('History'));
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/training-plan/instances');
-    });
-
-    fireEvent.click(screen.getByText('Library'));
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/training-plan/library');
-    });
-  });
-
-  it('should show Programs tab as active by default', () => {
-    renderWithProviders(<TrainingPlanTabs />);
-    
-    const programsTab = screen.getByText('Programs').closest('button');
+    const programsTab = screen.getByText('My Programs').closest('button');
     expect(programsTab).toHaveAttribute('data-state', 'active');
+  });
+
+  it('should navigate to programs route when tab is clicked', async () => {
+    renderWithProviders(<TrainingPlanTabs />);
+    
+    fireEvent.click(screen.getByText('My Programs'));
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/training-plan/programs');
+    });
   });
 });
