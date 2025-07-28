@@ -7,10 +7,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { format, differenceInSeconds } from 'date-fns';
 import { Session } from '@/types/training';
 import { useMetrics } from '@/hooks/useMetrics';
+import { useWearableData } from '@/hooks/useWearableData';
+import { useEnhancedStrainCalculation } from '@/hooks/useEnhancedStrainCalculation';
 import { StrainDial } from './components/StrainDial';
 import { SessionTimer } from './components/SessionTimer';
 import { ExerciseTracker } from './components/ExerciseTracker';
 import { SessionControls } from './components/SessionControls';
+import { WearableConnectionPanel } from './components/WearableConnectionPanel';
 import { supabase } from '@/integrations/supabase/client';
 import { useGlassToast } from '@/hooks/useGlassToast';
 
@@ -39,9 +42,34 @@ export const ActiveSessionScreen: React.FC = () => {
   const { session: initialSession } = route.params;
   const { data: metricsData } = useMetrics();
   
+  // Enhanced strain calculation with wearable integration
+  const {
+    connectedDevices,
+    isMonitoring: isWearableMonitoring,
+    currentHeartRate,
+    realTimeMetrics,
+    biometricProfile,
+    startRealTimeMonitoring,
+    stopRealTimeMonitoring,
+    connectDevice,
+  } = useWearableData();
+
+  const {
+    strainComponents,
+    strainZone,
+    addExerciseData,
+    getStrainRecommendations,
+    getStrainPrediction,
+  } = useEnhancedStrainCalculation({
+    sessionType: initialSession.type as any,
+    targetStrain: getTargetStrain(initialSession.type),
+    sessionDuration: 0, // Will be updated with actual duration
+    fitnessLevel: biometricProfile?.fitness_level || 'intermediate',
+  });
+  
   const [sessionState, setSessionState] = useState<SessionState>({
     status: initialSession.status || 'planned',
-    currentStrain: metricsData?.strain || 8,
+    currentStrain: strainComponents.overallStrain || 8,
     targetStrain: getTargetStrain(initialSession.type),
     rpe: initialSession.rpe,
     notes: initialSession.notes,
@@ -86,13 +114,23 @@ export const ActiveSessionScreen: React.FC = () => {
   });
 
   // Start session
-  const handleStartSession = () => {
+  const handleStartSession = async () => {
     const now = new Date();
     setSessionState(prev => ({
       ...prev,
       status: 'active',
       startTime: now,
     }));
+
+    // Start wearable monitoring if devices are connected
+    if (connectedDevices.length > 0) {
+      try {
+        await startRealTimeMonitoring();
+        toast.info('Wearable Monitoring', 'Heart rate monitoring started');
+      } catch (error) {
+        console.error('Failed to start wearable monitoring:', error);
+      }
+    }
 
     updateSessionMutation.mutate({
       status: 'active',
@@ -142,10 +180,15 @@ export const ActiveSessionScreen: React.FC = () => {
               status: 'completed',
             }));
 
+            // Stop wearable monitoring
+            if (isWearableMonitoring) {
+              stopRealTimeMonitoring();
+            }
+
             updateSessionMutation.mutate({
               status: 'completed',
               end_ts: now.toISOString(),
-              strain: sessionState.currentStrain,
+              strain: strainComponents.overallStrain,
               rpe: sessionState.rpe,
               notes: sessionState.notes,
             });
@@ -234,20 +277,38 @@ export const ActiveSessionScreen: React.FC = () => {
           )}
         </View>
 
+        {/* Wearable Connection Panel */}
+        {connectedDevices.length === 0 && (
+          <WearableConnectionPanel
+            onConnectDevice={connectDevice}
+          />
+        )}
+
         {/* Strain Dial */}
         <View style={styles.strainSection}>
-          <Text style={styles.sectionTitle}>Strain Monitor</Text>
+          <View style={styles.strainHeader}>
+            <Text style={styles.sectionTitle}>Strain Monitor</Text>
+            {currentHeartRate && (
+              <View style={styles.heartRateIndicator}>
+                <Heart size={16} color="#ef4444" />
+                <Text style={styles.heartRateText}>{currentHeartRate} BPM</Text>
+              </View>
+            )}
+          </View>
+          
           <StrainDial
-            currentStrain={sessionState.currentStrain}
+            currentStrain={strainComponents.overallStrain}
             targetStrain={sessionState.targetStrain}
             sessionType={session.type}
+            strainZone={strainZone}
+            realTimeMetrics={realTimeMetrics}
           />
           
           <View style={styles.strainInfo}>
             <View style={styles.strainItem}>
               <Heart size={16} color="#ef4444" />
-              <Text style={styles.strainLabel}>Current</Text>
-              <Text style={styles.strainValue}>{sessionState.currentStrain.toFixed(1)}</Text>
+              <Text style={styles.strainLabel}>Overall</Text>
+              <Text style={styles.strainValue}>{strainComponents.overallStrain.toFixed(1)}</Text>
             </View>
             <View style={styles.strainItem}>
               <Target size={16} color="#22c55e" />
@@ -256,11 +317,34 @@ export const ActiveSessionScreen: React.FC = () => {
             </View>
             <View style={styles.strainItem}>
               <TrendingUp size={16} color="#3b82f6" />
-              <Text style={styles.strainLabel}>Optimal Zone</Text>
+              <Text style={styles.strainLabel}>CV / Mechanical</Text>
               <Text style={styles.strainValue}>
-                {(sessionState.targetStrain - 2).toFixed(1)}-{(sessionState.targetStrain + 2).toFixed(1)}
+                {strainComponents.cardiovascularStrain.toFixed(1)} / {strainComponents.mechanicalStrain.toFixed(1)}
               </Text>
             </View>
+          </View>
+
+          {/* Heart Rate Zones */}
+          {realTimeMetrics && (
+            <View style={styles.heartRateZones}>
+              <Text style={styles.zonesTitle}>Heart Rate Zones</Text>
+              <View style={styles.zonesGrid}>
+                {Object.entries(realTimeMetrics.timeInZones).map(([zone, time]) => (
+                  <View key={zone} style={styles.zoneItem}>
+                    <Text style={styles.zoneLabel}>{zone.toUpperCase()}</Text>
+                    <Text style={styles.zoneTime}>{Math.floor(time / 60)}m</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Strain Recommendations */}
+          <View style={styles.recommendationsSection}>
+            <Text style={styles.recommendationsTitle}>Recommendations</Text>
+            {getStrainRecommendations.slice(0, 2).map((rec, index) => (
+              <Text key={index} style={styles.recommendationText}>• {rec}</Text>
+            ))}
           </View>
         </View>
 
@@ -431,6 +515,81 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#fff',
+  },
+  strainHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  heartRateIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  heartRateText: {
+    fontSize: 12,
+    color: '#ef4444',
+    fontWeight: '600',
+  },
+  heartRateZones: {
+    marginTop: 20,
+    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: 8,
+  },
+  zonesTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: 8,
+  },
+  zonesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  zoneItem: {
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 6,
+    minWidth: 50,
+  },
+  zoneLabel: {
+    fontSize: 10,
+    color: '#888',
+    fontWeight: '500',
+  },
+  zoneTime: {
+    fontSize: 12,
+    color: '#fff',
+    fontWeight: '600',
+  },
+  recommendationsSection: {
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.2)',
+  },
+  recommendationsTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#3b82f6',
+    marginBottom: 8,
+  },
+  recommendationText: {
+    fontSize: 12,
+    color: '#93c5fd',
+    lineHeight: 16,
+    marginBottom: 4,
   },
 });
 
