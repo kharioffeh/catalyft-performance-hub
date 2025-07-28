@@ -4,6 +4,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { ChatStart } from "../components/ChatStart";
 import { ChatThread } from "../components/ChatThread";
 
+// Personal coaching chat with ARIA - Solo users only, no coach/athlete management
 // Error fallback component
 const ChatErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) => (
   <div className="min-h-screen flex items-center justify-center bg-brand-charcoal text-white-90">

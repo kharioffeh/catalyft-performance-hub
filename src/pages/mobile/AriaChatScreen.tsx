@@ -28,7 +28,7 @@ export const AriaChatScreen: React.FC = () => {
     {
       id: 'welcome',
       role: 'assistant',
-      content: "Hi! I'm ARIA, your AI coaching assistant. I can help you analyze your training data, suggest recovery strategies, and optimize your performance. What would you like to know?"
+      content: "Hi! I'm ARIA, your personal AI coaching assistant. I can help you analyze your training data, suggest recovery strategies, and optimize your personal performance. What would you like to know?"
     }
   ]);
   const [inputText, setInputText] = useState('');
