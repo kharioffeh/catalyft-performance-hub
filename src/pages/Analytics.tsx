@@ -9,6 +9,8 @@ import { EnhancedTrainingLoadChart } from '@/components/EnhancedTrainingLoadChar
 import { StressChart } from '@/components/Analytics/StressChart';
 import { PeriodProvider, usePeriod, periodToDays } from '@/lib/hooks/usePeriod';
 import { useEnhancedMetrics } from '@/hooks/useEnhancedMetrics';
+import { useSleep } from '@/hooks/useSleep';
+import { useStress } from '@/hooks/useStress';
 import { useAuth } from '@/contexts/AuthContext';
 import { ShareUIProvider } from '@/context/ShareUIContext';
 import { ShareSheet } from '@/components/ShareSheet';
@@ -46,8 +48,14 @@ const AnalyticsPageContent: React.FC = () => {
   // Convert period to days for existing hooks
   const periodDays = periodToDays(period);
 
-  // Get enhanced metrics for the current user
+  // Reuse readiness, sleep, load, stress hooks as specified
   const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetrics();
+  const { 
+    sessions: sleepSessions, 
+    getSleepScore, 
+    getAverageSleepHours 
+  } = useSleep();
+  const { data: stressData } = useStress();
   
   // Get analytics data for the new chart cards
   const { data: analyticsData, isLoading: analyticsLoading } = useAnalyticsData();
@@ -56,14 +64,17 @@ const AnalyticsPageContent: React.FC = () => {
     readinessCount: readinessRolling.length, 
     sleepCount: sleepDaily.length, 
     loadCount: loadACWR.length,
-    hasStrain: !!latestStrain 
+    hasStrain: !!latestStrain,
+    sleepSessionsCount: sleepSessions.length,
+    stressLevel: stressData?.level
   });
 
-  // Extract values for InsightStrip
+  // Extract values for InsightStrip using the hooks
   const latestReadiness = readinessRolling[readinessRolling.length - 1]?.readiness_score ?? null;
-  const latestSleepHours = sleepDaily[sleepDaily.length - 1]?.total_sleep_hours ?? null;
+  const latestSleepHours = getAverageSleepHours(1); // Get last night's sleep
   const latestACWR = loadACWR[loadACWR.length - 1]?.acwr_7_28 ?? null;
   const latestStrainValue = latestStrain?.value ?? null;
+  const currentStress = stressData?.current ?? 45;
   
   const handleAriaPrompt = (suggestion: string) => {
     setAriaInput(suggestion);
@@ -166,7 +177,7 @@ const AnalyticsPageContent: React.FC = () => {
       <InsightStrip
         readiness={latestReadiness}
         sleepHours={latestSleepHours}
-        stress={45}
+        stress={currentStress}
         strain={latestStrainValue}
       />
 
@@ -197,20 +208,28 @@ const AnalyticsPageContent: React.FC = () => {
           </MetricCarousel>
         </div>
 
-        {/* Personal Training Analytics Chart Cards */}
+        {/* Personal Training Analytics Chart Cards - Horizontal ScrollView */}
         <div className="space-y-4">
           <h2 className="text-xl font-display font-semibold text-slate-50">
             Personal Training Analytics
           </h2>
           
-          <div className="overflow-x-auto">
-            <div className="flex space-x-6 pb-4">
-              <TonnageCard data={analyticsData.tonnage} />
-              <E1RMCard data={analyticsData.e1rmCurve} />
-              <VelocityFatigueCard data={analyticsData.velocityFatigue} />
-              <MuscleLoadCard 
-                data={analyticsData.muscleLoad} 
-              />
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className="flex space-x-6 pb-4 min-w-max">
+              <div className="w-96 flex-shrink-0">
+                <TonnageCard data={analyticsData.tonnage} />
+              </div>
+              <div className="w-96 flex-shrink-0">
+                <E1RMCard data={analyticsData.e1rmCurve} />
+              </div>
+              <div className="w-96 flex-shrink-0">
+                <VelocityFatigueCard data={analyticsData.velocityFatigue} />
+              </div>
+              <div className="w-96 flex-shrink-0">
+                <MuscleLoadCard 
+                  data={analyticsData.muscleLoad} 
+                />
+              </div>
             </div>
           </div>
         </div>
