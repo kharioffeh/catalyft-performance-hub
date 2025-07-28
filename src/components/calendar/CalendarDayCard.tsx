@@ -75,7 +75,7 @@ export const CalendarDayCard: React.FC<CalendarDayCardProps> = ({
               <div className="flex items-center gap-1 mb-1">
                 <Activity className="h-3 w-3" />
                 <span className="font-medium truncate">
-                  {session.title || 'Training Session'}
+                  {session.title || 'My Workout'}
                 </span>
               </div>
               {session.status && (
