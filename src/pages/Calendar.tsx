@@ -1,88 +1,153 @@
 
 import React, { useState, useMemo } from 'react';
-import { View, ScrollView, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Calendar, LocaleConfig } from 'react-native-calendars';
-import DraggableFlatList, { ScaleDecorator, RenderItemParams } from 'react-native-draggable-flatlist';
+import Calendar from 'react-calendar';
+import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableItem } from '@/components/ui/sortable-item';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSessions, useUpdateSession } from '@/hooks/useSessions';
 import { SessionDrawer } from '@/components/SessionDrawer';
 import { Session } from '@/types/training';
 import { GlassLayout } from '@/components/Glass/GlassLayout';
 import { GlassContainer } from '@/components/Glass/GlassContainer';
-import { CalendarSessionCard } from '@/components/calendar/CalendarSessionCard.native';
+import { Badge } from '@/components/ui/badge';
+import { Clock, Trophy } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import 'react-calendar/dist/Calendar.css';
 
-// Configure locale for calendar
-LocaleConfig.locales.en = LocaleConfig.locales[''];
-LocaleConfig.defaultLocale = 'en';
+type ValuePiece = Date | null;
+type Value = ValuePiece | [ValuePiece, ValuePiece];
 
-interface MarkedDates {
-  [date: string]: {
-    marked?: boolean;
-    dotColor?: string;
-    selected?: boolean;
-    selectedColor?: string;
-    customStyles?: {
-      container?: object;
-      text?: object;
-    };
-  };
+interface SessionCardProps {
+  session: Session;
+  onClick: () => void;
 }
+
+const SessionCard: React.FC<SessionCardProps> = ({ session, onClick }) => {
+  const startTime = new Date(session.start_ts).toLocaleTimeString('en-US', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: false 
+  });
+
+  const getLoadBorderColor = (loadPercent?: number): string => {
+    if (loadPercent === undefined) return 'rgba(255, 255, 255, 0.2)';
+    
+    // Color gradient from green (low load) to red (high load)
+    const hue = Math.max(0, 120 - (120 * loadPercent) / 100);
+    return `hsl(${hue}, 70%, 50%)`;
+  };
+
+  return (
+    <div
+      onClick={onClick}
+      className={cn(
+        "p-4 rounded-lg border cursor-pointer transition-all duration-200",
+        "bg-white/5 backdrop-blur-md border-white/10 hover:bg-white/10",
+        "hover:scale-[1.02] hover:shadow-lg"
+      )}
+      style={{
+        borderLeftColor: session.isPR ? '#FFD700' : getLoadBorderColor(session.loadPercent),
+        borderLeftWidth: '4px'
+      }}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-blue-400" />
+            <span className="text-sm font-medium text-white">{startTime}</span>
+          </div>
+          <Badge variant="secondary" className="text-xs">
+            {session.type}
+          </Badge>
+        </div>
+        
+        {session.isPR && (
+          <div className="flex items-center gap-1">
+            <Trophy className="w-4 h-4 text-yellow-400" />
+            <span className="text-xs text-yellow-400 font-medium">PR</span>
+          </div>
+        )}
+      </div>
+      
+      {session.notes && (
+        <p className="text-sm text-gray-300 mt-2 truncate">{session.notes}</p>
+      )}
+      
+      {session.loadPercent !== undefined && (
+        <div className="mt-2">
+          <div className="flex justify-between text-xs text-gray-400">
+            <span>Load</span>
+            <span>{session.loadPercent}%</span>
+          </div>
+          <div className="w-full bg-gray-700 rounded-full h-1 mt-1">
+            <div 
+              className="h-1 rounded-full transition-all duration-300"
+              style={{ 
+                width: `${session.loadPercent}%`,
+                backgroundColor: getLoadBorderColor(session.loadPercent)
+              }}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const CalendarPage: React.FC = () => {
   const { profile } = useAuth();
   const { data: allSessions = [], isLoading, refetch } = useSessions();
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
-  );
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const updateSession = useUpdateSession();
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
+
   // Filter sessions to only show current user's sessions
-  const mySessions = allSessions.filter(session => 
-    profile && session.user_uuid === profile.id
+  const mySessions = useMemo(() => 
+    allSessions.filter(session => 
+      profile && session.user_uuid === profile.id
+    ), [allSessions, profile]
   );
 
   // Get sessions for the selected date
   const selectedDateSessions = useMemo(() => {
+    const selectedDateString = selectedDate.toISOString().split('T')[0];
     return mySessions.filter(session => {
       const sessionDate = new Date(session.start_ts).toISOString().split('T')[0];
-      return sessionDate === selectedDate;
-    });
+      return sessionDate === selectedDateString;
+    }).sort((a, b) => new Date(a.start_ts).getTime() - new Date(b.start_ts).getTime());
   }, [mySessions, selectedDate]);
 
-  // Create marked dates for calendar
-  const markedDates = useMemo(() => {
-    const marked: MarkedDates = {};
-    
+  // Get dates that have sessions for calendar tile styling
+  const datesWithSessions = useMemo(() => {
+    const dates = new Set<string>();
     mySessions.forEach(session => {
       const date = new Date(session.start_ts).toISOString().split('T')[0];
-      const isPR = session.isPR;
-      
-      if (!marked[date]) {
-        marked[date] = {
-          marked: true,
-          dotColor: isPR ? '#FFD700' : '#5BAFFF', // Gold for PR days, blue for normal sessions
-        };
-      } else if (isPR && marked[date].dotColor !== '#FFD700') {
-        // If there's a PR on this date, prioritize the gold color
-        marked[date].dotColor = '#FFD700';
+      dates.add(date);
+    });
+    return dates;
+  }, [mySessions]);
+
+  // Get dates with PR sessions
+  const datesWithPR = useMemo(() => {
+    const dates = new Set<string>();
+    mySessions.forEach(session => {
+      if (session.isPR) {
+        const date = new Date(session.start_ts).toISOString().split('T')[0];
+        dates.add(date);
       }
     });
-
-    // Mark selected date
-    if (marked[selectedDate]) {
-      marked[selectedDate].selected = true;
-      marked[selectedDate].selectedColor = '#5BAFFF';
-    } else {
-      marked[selectedDate] = {
-        selected: true,
-        selectedColor: '#5BAFFF',
-      };
-    }
-
-    return marked;
-  }, [mySessions, selectedDate]);
+    return dates;
+  }, [mySessions]);
 
   const handleSessionClick = (session: Session) => {
     if (profile && session.user_uuid === profile.id) {
@@ -91,63 +156,85 @@ const CalendarPage: React.FC = () => {
     }
   };
 
-  const handleDateSelect = (date: string) => {
-    setSelectedDate(date);
-  };
-
-  const handleSessionReorder = async ({ data }: { data: Session[] }) => {
-    try {
-      // Update each session with new timing based on order
-      const baseDate = new Date(selectedDate);
-      const promises = data.map(async (session, index) => {
-        // Space sessions 2 hours apart starting from 8 AM
-        const newStartTime = new Date(baseDate);
-        newStartTime.setHours(8 + (index * 2), 0, 0, 0);
-        
-        const newEndTime = new Date(newStartTime);
-        newEndTime.setHours(newStartTime.getHours() + 1); // 1 hour sessions
-        
-        return updateSession.mutateAsync({
-          id: session.id,
-          start_ts: newStartTime.toISOString(),
-          end_ts: newEndTime.toISOString(),
-        });
-      });
-      
-      await Promise.all(promises);
-      await refetch();
-    } catch (error) {
-      console.error('Failed to reorder sessions:', error);
+  const handleDateChange = (value: Value) => {
+    if (value instanceof Date) {
+      setSelectedDate(value);
     }
   };
 
-  const renderSessionItem = ({ item, drag, isActive }: RenderItemParams<Session>) => (
-    <ScaleDecorator>
-      <TouchableOpacity
-        onLongPress={drag}
-        onPress={() => handleSessionClick(item)}
-        style={[
-          styles.sessionItem,
-          isActive && styles.activeSessionItem,
-        ]}
-        disabled={isActive}
-      >
-        <CalendarSessionCard
-          session={item}
-          onLongPress={drag}
-          isActive={isActive}
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const oldIndex = selectedDateSessions.findIndex(session => session.id === active.id);
+      const newIndex = selectedDateSessions.findIndex(session => session.id === over?.id);
+      
+      const reorderedSessions = arrayMove(selectedDateSessions, oldIndex, newIndex);
+      
+      try {
+        // Update each session with new timing based on order
+        const baseDate = new Date(selectedDate);
+        const promises = reorderedSessions.map(async (session, index) => {
+          // Space sessions 2 hours apart starting from 8 AM
+          const newStartTime = new Date(baseDate);
+          newStartTime.setHours(8 + (index * 2), 0, 0, 0);
+          
+          const newEndTime = new Date(newStartTime);
+          newEndTime.setHours(newStartTime.getHours() + 1); // 1 hour sessions
+          
+          return updateSession.mutateAsync({
+            id: session.id,
+            start_ts: newStartTime.toISOString(),
+            end_ts: newEndTime.toISOString(),
+          });
+        });
+        
+        await Promise.all(promises);
+        await refetch();
+      } catch (error) {
+        console.error('Failed to reorder sessions:', error);
+      }
+    }
+  };
+
+  const tileContent = ({ date }: { date: Date }) => {
+    const dateString = date.toISOString().split('T')[0];
+    const hasSessions = datesWithSessions.has(dateString);
+    const hasPR = datesWithPR.has(dateString);
+
+    if (!hasSessions) return null;
+
+    return (
+      <div className="flex justify-center mt-1">
+        <div 
+          className={cn(
+            "w-2 h-2 rounded-full",
+            hasPR ? "bg-yellow-400" : "bg-blue-400"
+          )}
         />
-      </TouchableOpacity>
-    </ScaleDecorator>
-  );
+      </div>
+    );
+  };
+
+  const tileClassName = ({ date }: { date: Date }) => {
+    const dateString = date.toISOString().split('T')[0];
+    const selectedDateString = selectedDate.toISOString().split('T')[0];
+    const hasSessions = datesWithSessions.has(dateString);
+    
+    return cn(
+      "calendar-tile",
+      hasSessions && "has-sessions",
+      dateString === selectedDateString && "selected"
+    );
+  };
 
   if (isLoading) {
     return (
       <GlassLayout variant="dashboard">
         <GlassContainer className="min-h-screen">
-          <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>Loading calendar...</Text>
-          </View>
+          <div className="flex items-center justify-center h-64">
+            <div className="text-white text-lg">Loading calendar...</div>
+          </div>
         </GlassContainer>
       </GlassLayout>
     );
@@ -156,85 +243,75 @@ const CalendarPage: React.FC = () => {
   return (
     <GlassLayout variant="dashboard">
       <GlassContainer className="min-h-screen">
-        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        <div className="p-6 space-y-6">
           {/* Calendar */}
-          <View style={styles.calendarContainer}>
-            <Calendar
-              current={selectedDate}
-              onDayPress={(day) => handleDateSelect(day.dateString)}
-              markedDates={markedDates}
-              theme={{
-                backgroundColor: 'transparent',
-                calendarBackground: 'rgba(255, 255, 255, 0.1)',
-                textSectionTitleColor: '#ffffff',
-                textSectionTitleDisabledColor: '#d9e1e8',
-                selectedDayBackgroundColor: '#5BAFFF',
-                selectedDayTextColor: '#ffffff',
-                todayTextColor: '#5BAFFF',
-                dayTextColor: '#ffffff',
-                textDisabledColor: 'rgba(255, 255, 255, 0.3)',
-                dotColor: '#5BAFFF',
-                selectedDotColor: '#ffffff',
-                arrowColor: '#5BAFFF',
-                disabledArrowColor: '#d9e1e8',
-                monthTextColor: '#ffffff',
-                indicatorColor: '#5BAFFF',
-                textDayFontFamily: 'System',
-                textMonthFontFamily: 'System',
-                textDayHeaderFontFamily: 'System',
-                textDayFontWeight: '500',
-                textMonthFontWeight: '600',
-                textDayHeaderFontWeight: '600',
-                textDayFontSize: 16,
-                textMonthFontSize: 18,
-                textDayHeaderFontSize: 14,
-              }}
-              style={styles.calendar}
-            />
-          </View>
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6">
+            <h2 className="text-2xl font-semibold text-white mb-4">Training Calendar</h2>
+            
+            <div className="calendar-container">
+              <Calendar
+                onChange={handleDateChange}
+                value={selectedDate}
+                tileContent={tileContent}
+                tileClassName={tileClassName}
+                className="custom-calendar"
+              />
+            </div>
 
-          {/* Legend */}
-          <View style={styles.legendContainer}>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#5BAFFF' }]} />
-              <Text style={styles.legendText}>Normal Session</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#FFD700' }]} />
-              <Text style={styles.legendText}>PR Day</Text>
-            </View>
-          </View>
+            {/* Legend */}
+            <div className="flex justify-center gap-6 mt-4">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-blue-400" />
+                <span className="text-sm text-white">Normal Session</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                <span className="text-sm text-white">PR Day</span>
+              </div>
+            </div>
+          </div>
 
           {/* Selected Date Sessions */}
-          <View style={styles.sessionsContainer}>
-            <Text style={styles.sectionTitle}>
-              Sessions for {new Date(selectedDate).toLocaleDateString('en-US', { 
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6">
+            <h3 className="text-xl font-semibold text-white mb-4">
+              Sessions for {selectedDate.toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 month: 'long', 
                 day: 'numeric' 
               })}
-            </Text>
+            </h3>
             
             {selectedDateSessions.length > 0 ? (
-              <View style={styles.draggableContainer}>
-                <Text style={styles.instructionText}>
-                  Long press and drag to reorder sessions
-                </Text>
-                <DraggableFlatList
-                  data={selectedDateSessions}
-                  renderItem={renderSessionItem}
-                  keyExtractor={(item) => item.id}
-                  onDragEnd={handleSessionReorder}
-                  contentContainerStyle={styles.flatListContent}
-                />
-              </View>
+              <div className="space-y-4">
+                <p className="text-sm text-gray-400 italic">
+                  Drag and drop to reorder sessions
+                </p>
+                
+                <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+                  <SortableContext 
+                    items={selectedDateSessions.map(s => s.id)} 
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="space-y-3">
+                      {selectedDateSessions.map(session => (
+                        <SortableItem key={session.id} id={session.id}>
+                          <SessionCard 
+                            session={session} 
+                            onClick={() => handleSessionClick(session)}
+                          />
+                        </SortableItem>
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              </div>
             ) : (
-              <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>No sessions scheduled for this date</Text>
-              </View>
+              <div className="text-center py-8">
+                <p className="text-gray-400">No sessions scheduled for this date</p>
+              </div>
             )}
-          </View>
-        </ScrollView>
+          </div>
+        </div>
 
         {/* Session Drawer */}
         <SessionDrawer
@@ -242,106 +319,68 @@ const CalendarPage: React.FC = () => {
           open={isDrawerOpen}
           onOpenChange={setIsDrawerOpen}
         />
+
+        <style jsx>{`
+          .custom-calendar {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: white;
+          }
+          
+          .custom-calendar .react-calendar__navigation {
+            margin-bottom: 1rem;
+          }
+          
+          .custom-calendar .react-calendar__navigation button {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            margin: 0 0.25rem;
+          }
+          
+          .custom-calendar .react-calendar__navigation button:hover {
+            background: rgba(255, 255, 255, 0.2);
+          }
+          
+          .custom-calendar .react-calendar__month-view__weekdays {
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            font-size: 0.875rem;
+          }
+          
+          .custom-calendar .react-calendar__tile {
+            color: white;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.75rem 0.5rem;
+            position: relative;
+            border-radius: 0.5rem;
+            margin: 0.125rem;
+          }
+          
+          .custom-calendar .react-calendar__tile:hover {
+            background: rgba(255, 255, 255, 0.1);
+          }
+          
+          .custom-calendar .react-calendar__tile--active {
+            background: rgba(91, 175, 255, 0.3) !important;
+            border-color: #5BAFFF;
+          }
+          
+          .custom-calendar .react-calendar__tile--now {
+            background: rgba(91, 175, 255, 0.2);
+          }
+          
+          .custom-calendar .react-calendar__tile.has-sessions {
+            border-color: rgba(91, 175, 255, 0.5);
+          }
+        `}</style>
       </GlassContainer>
     </GlassLayout>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    color: '#ffffff',
-    fontSize: 18,
-    fontWeight: '500',
-  },
-  calendarContainer: {
-    marginBottom: 20,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  calendar: {
-    borderRadius: 12,
-  },
-  legendContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 20,
-    gap: 20,
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  legendDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-  },
-  legendText: {
-    color: '#ffffff',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  sessionsContainer: {
-    flex: 1,
-    minHeight: 200,
-  },
-  sectionTitle: {
-    color: '#ffffff',
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  draggableContainer: {
-    flex: 1,
-  },
-  instructionText: {
-    color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 16,
-    fontStyle: 'italic',
-  },
-  flatListContent: {
-    paddingBottom: 20,
-  },
-  sessionItem: {
-    marginBottom: 8,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    padding: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  activeSessionItem: {
-    backgroundColor: 'rgba(91, 175, 255, 0.2)',
-    borderColor: '#5BAFFF',
-    transform: [{ scale: 1.02 }],
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: 120,
-  },
-  emptyText: {
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontSize: 16,
-    textAlign: 'center',
-  },
-});
 
 export default CalendarPage;
