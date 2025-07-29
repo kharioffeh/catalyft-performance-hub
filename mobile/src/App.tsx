@@ -2,6 +2,13 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import ExampleComponent from 'src/components/ExampleComponent';
 import Config from 'react-native-config';
+import * as Sentry from '@sentry/react-native';
+
+// Initialize Sentry
+Sentry.init({
+  dsn: Config.SENTRY_DSN,
+  environment: Config.NODE_ENV,
+});
 
 export default function App() {
   // Example: Access environment variables (remove these logs in production)
