@@ -7,8 +7,8 @@ interface ExampleComponentProps {
 
 const ExampleComponent: React.FC<ExampleComponentProps> = ({ title }) => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
+    <View style={styles.container} testID="exampleComponent">
+      <Text style={styles.title} testID="exampleTitle">{title}</Text>
     </View>
   );
 };
