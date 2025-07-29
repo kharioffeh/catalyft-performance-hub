@@ -8,12 +8,12 @@ export default function App() {
   console.log('Config.SUPABASE_URL:', Config.SUPABASE_URL);
   
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Catalyft Mobile App</Text>
-      <Text style={styles.subtitle}>
+    <View style={styles.container} testID="appContainer">
+      <Text style={styles.title} testID="appTitle">Catalyft Mobile App</Text>
+      <Text style={styles.subtitle} testID="appSubtitle">
         React Native with TypeScript, ESLint, and Prettier
       </Text>
-      <Text style={styles.envText}>
+      <Text style={styles.envText} testID="envStatus">
         Environment: {Config.SUPABASE_URL ? 'Configured' : 'Not configured'}
       </Text>
       <ExampleComponent title="Welcome to Catalyft!" />
