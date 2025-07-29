@@ -12,8 +12,10 @@ Sentry.init({
   environment: Config.NODE_ENV,
 });
 
-// Initialize Amplitude
-Amplitude.init(Config.AMPLITUDE_KEY);
+// Initialize Amplitude for EU servers
+Amplitude.init(Config.AMPLITUDE_KEY, undefined, {
+  serverZone: 'EU'
+});
 
 export default function App() {
   // Track app launch on mount
