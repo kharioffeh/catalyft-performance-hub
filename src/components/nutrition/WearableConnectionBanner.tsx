@@ -8,7 +8,8 @@ import {
   Activity, 
   Plus,
   CheckCircle,
-  AlertTriangle
+  AlertTriangle,
+  Play
 } from 'lucide-react';
 import { useWearableData } from '@/hooks/useWearableData';
 import { useUnifiedWearableData } from '@/hooks/useUnifiedWearableData';
@@ -22,9 +23,9 @@ export const WearableConnectionBanner: React.FC = () => {
     device.capabilities.some(cap => cap.type === 'calories')
   );
   
-  const { hasWhoop, hasHealthKit, primarySource } = connectionStatus;
+  const { hasWhoop, hasHealthKit, hasGoogleFit, primarySource } = connectionStatus;
 
-  if (hasWhoop || hasHealthKit || hasWearableWithCalories) {
+  if (hasWhoop || hasHealthKit || hasGoogleFit || hasWearableWithCalories) {
     let deviceName = 'Unknown';
     let deviceDetails = '';
     
@@ -34,6 +35,9 @@ export const WearableConnectionBanner: React.FC = () => {
     } else if (hasHealthKit) {
       deviceName = 'Apple Watch';
       deviceDetails = ' (activity rings & workouts)';
+    } else if (hasGoogleFit) {
+      deviceName = 'Google Fit';
+      deviceDetails = ' (activity & fitness tracking)';
     } else if (hasWearableWithCalories) {
       deviceName = connectedDevices[0]?.name || 'Wearable';
     }
@@ -100,12 +104,12 @@ export const WearableConnectionBanner: React.FC = () => {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => connectDevice('apple_watch')}
+                onClick={() => connectDevice('google_fit')}
                 disabled={isConnecting}
                 className="text-yellow-300 border-yellow-500/30 hover:bg-yellow-500/20 text-xs h-7"
               >
-                <Watch className="w-3 h-3 mr-1" />
-                Apple Watch
+                <Play className="w-3 h-3 mr-1" />
+                Google Fit
               </Button>
               <Button
                 size="sm"

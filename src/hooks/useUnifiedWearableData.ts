@@ -5,8 +5,8 @@ import { useAuth } from '@/contexts/AuthContext';
 interface DailyCalorieData {
   date: string;
   caloriesBurned: number;
-  dataSource: 'whoop' | 'healthkit' | 'estimated' | 'none';
-  
+  dataSource: 'whoop' | 'healthkit' | 'google_fit' | 'estimated' | 'none';
+
   // Detailed breakdown
   whoopCycleCalories?: number;
   whoopWorkoutCalories?: number;
@@ -14,7 +14,10 @@ interface DailyCalorieData {
   healthkitActiveCalories?: number;
   healthkitWorkoutCalories?: number;
   healthkitTotalCalories?: number;
-  
+  googleFitDailyCalories?: number;
+  googleFitWorkoutCalories?: number;
+  googleFitTotalCalories?: number;
+
   // Additional metrics (when available)
   strain?: number; // WHOOP
   activityRingProgress?: {
@@ -22,6 +25,11 @@ interface DailyCalorieData {
     exercisePercentage: number;
     standPercentage: number;
   }; // HealthKit
+  googleFitMetrics?: {
+    steps: number;
+    distanceMeters: number;
+    activeMinutes: number;
+  }; // Google Fit
   heartRateData?: {
     resting?: number;
     average?: number;
@@ -33,9 +41,11 @@ interface DailyCalorieData {
 interface WearableConnectionStatus {
   hasWhoop: boolean;
   hasHealthKit: boolean;
-  primarySource: 'whoop' | 'healthkit' | 'none';
+  hasGoogleFit: boolean;
+  primarySource: 'whoop' | 'healthkit' | 'google_fit' | 'none';
   lastSyncWhoop?: string;
   lastSyncHealthKit?: string;
+  lastSyncGoogleFit?: string;
 }
 
 interface UnifiedWearableDataReturn {
@@ -126,26 +136,50 @@ export const useUnifiedWearableData = (days: number = 30): UnifiedWearableDataRe
     enabled: !!profile?.id,
   });
 
+  // Check Google Fit connection status
+  const { data: googleFitStatus } = useQuery({
+    queryKey: ['google-fit-status', profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return null;
+      
+      const { data, error } = await supabase
+        .from('google_fit_connections')
+        .select('expires_at, last_sync_at')
+        .eq('user_id', profile.id)
+        .gt('expires_at', new Date().toISOString())
+        .single();
+      
+      if (error) return null;
+      return data;
+    },
+    enabled: !!profile?.id,
+  });
+
   // Transform the raw data into our format
   const processedData: DailyCalorieData[] = (calorieData || []).map(row => {
     const hasWhoopData = row.whoop_total_calories > 0;
     const hasHealthKitData = row.healthkit_total_calories > 0;
+    const hasGoogleFitData = row.google_fit_total_calories > 0;
     
     let dataSource: DailyCalorieData['dataSource'] = 'none';
     let caloriesBurned = 0;
     
+    // Priority: WHOOP > HealthKit > Google Fit > Estimated
     if (hasWhoopData) {
       dataSource = 'whoop';
       caloriesBurned = row.whoop_total_calories;
     } else if (hasHealthKitData) {
       dataSource = 'healthkit';
       caloriesBurned = row.healthkit_total_calories;
+    } else if (hasGoogleFitData) {
+      dataSource = 'google_fit';
+      caloriesBurned = row.google_fit_total_calories;
     } else if (row.final_calories_burned > 0) {
       dataSource = 'estimated';
       caloriesBurned = row.final_calories_burned;
     }
 
-    return {
+    const dailyData: DailyCalorieData = {
       date: row.date,
       caloriesBurned,
       dataSource,
@@ -155,7 +189,21 @@ export const useUnifiedWearableData = (days: number = 30): UnifiedWearableDataRe
       healthkitActiveCalories: row.healthkit_active_calories,
       healthkitWorkoutCalories: row.healthkit_workout_calories,
       healthkitTotalCalories: row.healthkit_total_calories,
+      googleFitDailyCalories: row.google_fit_daily_calories,
+      googleFitWorkoutCalories: row.google_fit_workout_calories,
+      googleFitTotalCalories: row.google_fit_total_calories,
     };
+
+    // Add Google Fit specific metrics if this is Google Fit data
+    if (dataSource === 'google_fit') {
+      dailyData.googleFitMetrics = {
+        steps: row.google_fit_steps || 0,
+        distanceMeters: row.google_fit_distance_meters || 0,
+        activeMinutes: row.google_fit_active_minutes || 0,
+      };
+    }
+
+    return dailyData;
   });
 
   // Get today's data
@@ -165,20 +213,25 @@ export const useUnifiedWearableData = (days: number = 30): UnifiedWearableDataRe
   // Determine connection status
   const hasWhoop = !!whoopStatus;
   const hasHealthKit = !!healthkitStatus;
+  const hasGoogleFit = !!googleFitStatus;
   
   let primarySource: WearableConnectionStatus['primarySource'] = 'none';
   if (hasWhoop) {
     primarySource = 'whoop';
   } else if (hasHealthKit) {
     primarySource = 'healthkit';
+  } else if (hasGoogleFit) {
+    primarySource = 'google_fit';
   }
 
   const connectionStatus: WearableConnectionStatus = {
     hasWhoop,
     hasHealthKit,
+    hasGoogleFit,
     primarySource,
     lastSyncWhoop: whoopStatus?.expires_at,
     lastSyncHealthKit: healthkitStatus?.sync_timestamp,
+    lastSyncGoogleFit: googleFitStatus?.last_sync_at,
   };
 
   return {

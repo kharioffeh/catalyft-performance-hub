@@ -7,7 +7,9 @@ import {
   TrendingDown, 
   Target,
   Activity,
-  Utensils
+  Utensils,
+  Watch,
+  Play
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -18,7 +20,7 @@ interface CalorieBalanceProps {
   totalExpenditure: number;
   balance: number;
   balancePercentage: number;
-  dataSource?: 'whoop' | 'healthkit' | 'estimated' | 'none';
+  dataSource?: 'whoop' | 'healthkit' | 'google_fit' | 'estimated' | 'none';
   isLoading?: boolean;
 }
 
@@ -42,7 +44,9 @@ export const CalorieBalanceCard: React.FC<CalorieBalanceProps> = ({
       case 'whoop':
         return { label: 'WHOOP', color: 'text-purple-400', icon: Activity };
       case 'healthkit':
-        return { label: 'Apple Watch', color: 'text-blue-400', icon: Activity };
+        return { label: 'Apple Watch', color: 'text-blue-400', icon: Watch };
+      case 'google_fit':
+        return { label: 'Google Fit', color: 'text-green-400', icon: Play };
       case 'estimated':
         return { label: 'Estimated', color: 'text-yellow-400', icon: Target };
       default:
