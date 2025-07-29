@@ -11,6 +11,13 @@ export const ABLY_API_KEY = Config.ABLY_API_KEY || '';
 export const OPENAI_API_KEY = Config.OPENAI_API_KEY || '';
 export const OPENAI_ARIA_KEY = Config.OPENAI_ARIA_KEY || '';
 
+// Nutritionix configuration
+export const NUTRITIONIX_APP_ID = Config.NUTRITIONIX_APP_ID || '';
+export const NUTRITIONIX_API_KEY = Config.NUTRITIONIX_API_KEY || '';
+
+// Google Fit configuration
+export const GOOGLE_FIT_CLIENT_ID = Config.GOOGLE_FIT_CLIENT_ID || '';
+
 // Validation function to check if all required environment variables are set
 export const validateConfig = () => {
   const requiredVars = {
@@ -19,6 +26,9 @@ export const validateConfig = () => {
     ABLY_API_KEY,
     OPENAI_API_KEY,
     OPENAI_ARIA_KEY,
+    NUTRITIONIX_APP_ID,
+    NUTRITIONIX_API_KEY,
+    GOOGLE_FIT_CLIENT_ID,
   };
 
   const missingVars = Object.entries(requiredVars)
@@ -47,6 +57,13 @@ export const config = {
   openai: {
     apiKey: OPENAI_API_KEY,
     ariaKey: OPENAI_ARIA_KEY,
+  },
+  nutritionix: {
+    appId: NUTRITIONIX_APP_ID,
+    apiKey: NUTRITIONIX_API_KEY,
+  },
+  googleFit: {
+    clientId: GOOGLE_FIT_CLIENT_ID,
   },
   validateConfig,
 };
