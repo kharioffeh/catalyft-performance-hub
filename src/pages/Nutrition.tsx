@@ -17,6 +17,7 @@ import { useCalorieBalance } from '@/hooks/useCalorieBalance';
 import { CalorieBalanceCard } from '@/components/nutrition/CalorieBalanceCard';
 import { CalorieTrendChart } from '@/components/nutrition/CalorieTrendChart';
 import { WearableConnectionBanner } from '@/components/nutrition/WearableConnectionBanner';
+import { WearableDeviceSelector } from '@/components/nutrition/WearableDeviceSelector';
 import { cn } from '@/lib/utils';
 import ParseScreen from './ParseScreen';
 
@@ -92,7 +93,10 @@ const Nutrition: React.FC = () => {
           <TabsContent value="log" className="mt-0 space-y-6">
             {/* Wearable Connection Banner */}
             <WearableConnectionBanner />
-
+            
+            {/* Add Device Selector for user choice */}
+            <WearableDeviceSelector className="mb-6" />
+            
             {/* Calorie Balance Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {todaysData ? (
