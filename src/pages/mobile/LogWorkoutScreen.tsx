@@ -11,6 +11,7 @@ import { useSyncPendingSets } from '@/hooks/useSyncPendingSets';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { SetRow } from './components/SetRow';
+import * as Amplitude from '@amplitude/react-native';
 
 interface WorkoutSet {
   id: string;
@@ -173,6 +174,9 @@ export const LogWorkoutScreen: React.FC = () => {
       });
 
       if (error) throw error;
+
+      // Track workout completion
+      Amplitude.track('Workout Completed', { sessionId });
 
       toast({
         title: "Workout Ended",

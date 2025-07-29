@@ -3,6 +3,8 @@ import { StyleSheet, Text, View, Button, Alert } from 'react-native';
 import ExampleComponent from 'src/components/ExampleComponent';
 import Config from 'react-native-config';
 import * as Sentry from '@sentry/react-native';
+import * as Amplitude from '@amplitude/react-native';
+import { useEffect } from 'react';
 
 // Initialize Sentry
 Sentry.init({
@@ -10,7 +12,15 @@ Sentry.init({
   environment: Config.NODE_ENV,
 });
 
+// Initialize Amplitude
+Amplitude.init(Config.AMPLITUDE_KEY);
+
 export default function App() {
+  // Track app launch on mount
+  useEffect(() => {
+    Amplitude.track('App Launched');
+  }, []);
+
   // Example: Access environment variables (remove these logs in production)
   console.log('Config.SUPABASE_URL:', Config.SUPABASE_URL);
   console.log('🔍 Sentry DSN:', Config.SENTRY_DSN ? 'Configured ✅' : 'Not configured ❌');
