@@ -8,7 +8,7 @@ Your Google Fit API integration is now fully implemented and ready for productio
 - ✅ **OAuth 2.0 Flow** - Secure Google account linking using your credentials
 - ✅ **Database Schema** - 3 new tables + updated unified view
 - ✅ **API Functions** - 2 Supabase Edge Functions for auth and sync
-- ✅ **Data Priority** - Smart system: WHOOP > HealthKit > Google Fit > Estimates
+- ✅ **User Choice** - Users select their preferred device (no automatic priority)
 
 ### ✅ **Frontend Components**
 - ✅ **React Service** - Complete Google Fit service integration
@@ -75,11 +75,11 @@ Google Fit → OAuth → Token Storage → Background Sync → Database → Unif
    📱         🔐         💾             ⚡            💾         📊           📱
 ```
 
-### **Priority System**
-1. 🥇 **WHOOP** - Professional accuracy (highest priority)
-2. 🥈 **Apple Watch** - Consumer reliability 
-3. 🥉 **Google Fit** - Cross-platform accessibility
-4. 📊 **Estimates** - BMR calculations (fallback)
+### **User Choice System**
+- 🎛️ **User Selects** - Full control over which device to use
+- 🔌 **Connect Multiple** - Users can connect multiple devices
+- 🎯 **Choose One** - Only their selected device is used for calculations
+- 📊 **Manual Fallback** - BMR calculations when device has no data
 
 ---
 

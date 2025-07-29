@@ -10,7 +10,7 @@ This document outlines the complete Google Fit integration for our React Native 
 - **OAuth 2.0 Authentication** - Secure Google account linking
 - **Activity Data Sync** - Daily calories, steps, distance, active minutes
 - **Workout Detection** - Individual exercise sessions with calorie burn
-- **Smart Data Priority** - WHOOP > HealthKit > Google Fit > Estimates
+- **User Device Choice** - Users select their preferred wearable device
 - **Cross-Platform Support** - Android and Web browsers
 - **Background Sync** - Automatic data updates
 
@@ -159,39 +159,46 @@ const sessionsUrl = `https://www.googleapis.com/fitness/v1/users/me/sessions?` +
   `endTime=${endTime.toISOString()}`;
 ```
 
-## Data Priority System
+## User Device Choice System
 
-### 🥇 Priority Hierarchy
+### 🎛️ User Control Philosophy
 
-1. **WHOOP** (Professional-grade accuracy)
-   - Strain-based calorie calculations
-   - Professional athlete validation
-   - Highest data quality
+Users have **full control** over which device they want to use for calorie tracking. There is **NO automatic priority** between wearable devices - users choose their preferred source.
 
-2. **HealthKit/Apple Watch** (Consumer-grade reliability)
-   - iOS ecosystem integration
-   - Activity ring tracking
-   - Good accuracy for general users
+### 🏆 Available Device Options
 
-3. **Google Fit** (Cross-platform accessibility)
-   - Android device integration
-   - Multiple data source aggregation
-   - Broad device compatibility
+1. **WHOOP** - Professional strain & recovery tracking
+   - Best for: Athletes and fitness enthusiasts
+   - Accuracy: Professional-grade strain-based calculations
+   - Platform: All (web-based connection)
 
-4. **Estimated** (BMR + activity factors)
-   - Mifflin-St Jeor equation
-   - Activity level multipliers
-   - Fallback when no wearable data
+2. **Apple Watch** - iOS ecosystem integration  
+   - Best for: iPhone users with Apple Watch
+   - Accuracy: Consumer-grade activity ring tracking
+   - Platform: iOS only (HealthKit)
+
+3. **Google Fit** - Cross-platform accessibility
+   - Best for: Android users and cross-platform compatibility
+   - Accuracy: Multi-source aggregated data
+   - Platform: Android and Web
+
+4. **Manual Calculation** - BMR + activity estimates
+   - Best for: Users without wearables or preferring manual control
+   - Accuracy: Estimated based on user profile and activity level
+   - Platform: All
 
 ### 📈 Data Selection Logic
 
 ```sql
--- Unified view with priority system
+-- User choice system (not automatic priority)
 CASE
-  WHEN whoop_total_calories > 0 THEN whoop_total_calories
-  WHEN healthkit_total_calories > 0 THEN healthkit_total_calories  
-  WHEN google_fit_total_calories > 0 THEN google_fit_total_calories
-  ELSE estimated_calories
+  WHEN user_preferred_device = 'whoop' AND whoop_data_available 
+    THEN whoop_total_calories
+  WHEN user_preferred_device = 'healthkit' AND healthkit_data_available 
+    THEN healthkit_total_calories  
+  WHEN user_preferred_device = 'google_fit' AND google_fit_data_available 
+    THEN google_fit_total_calories
+  ELSE 0  -- Falls back to manual calculation
 END as final_calories_burned
 ```
 

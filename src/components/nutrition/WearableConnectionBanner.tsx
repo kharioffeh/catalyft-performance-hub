@@ -13,34 +13,29 @@ import {
 } from 'lucide-react';
 import { useWearableData } from '@/hooks/useWearableData';
 import { useUnifiedWearableData } from '@/hooks/useUnifiedWearableData';
+import { useWearablePreferences } from '@/hooks/useWearablePreferences';
 
 export const WearableConnectionBanner: React.FC = () => {
   const { connectedDevices, connectDevice, isConnecting, connectionError } = useWearableData();
   const { connectionStatus } = useUnifiedWearableData(7); // Check last 7 days
+  const { selectedDevice, availableDevices } = useWearablePreferences();
   
   const hasConnectedDevice = connectedDevices.length > 0;
   const hasWearableWithCalories = connectedDevices.some(device => 
     device.capabilities.some(cap => cap.type === 'calories')
   );
   
-  const { hasWhoop, hasHealthKit, hasGoogleFit, primarySource } = connectionStatus;
+  const { hasWhoop, hasHealthKit, hasGoogleFit } = connectionStatus;
+  
+  // Get the user's selected device info
+  const selectedDeviceInfo = availableDevices.find(d => d.id === selectedDevice);
+  const hasSelectedWearable = selectedDevice !== 'manual' && selectedDeviceInfo?.isConnected;
 
-  if (hasWhoop || hasHealthKit || hasGoogleFit || hasWearableWithCalories) {
-    let deviceName = 'Unknown';
-    let deviceDetails = '';
-    
-    if (hasWhoop) {
-      deviceName = 'WHOOP';
-      deviceDetails = ' (strain & workouts)';
-    } else if (hasHealthKit) {
-      deviceName = 'Apple Watch';
-      deviceDetails = ' (activity rings & workouts)';
-    } else if (hasGoogleFit) {
-      deviceName = 'Google Fit';
-      deviceDetails = ' (activity & fitness tracking)';
-    } else if (hasWearableWithCalories) {
-      deviceName = connectedDevices[0]?.name || 'Wearable';
-    }
+  if (hasSelectedWearable) {
+    // User has selected a wearable device and it's connected
+    const deviceName = selectedDeviceInfo?.name || 'Wearable Device';
+    const deviceDetails = ` (${selectedDeviceInfo?.description.toLowerCase() || 'fitness tracking'})`;
+    const isUserChoice = true;
     
     return (
       <Card className="bg-green-500/10 border-green-500/20">
@@ -49,11 +44,10 @@ export const WearableConnectionBanner: React.FC = () => {
             <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
             <div className="flex-1">
               <div className="font-medium text-green-300 text-sm">
-                {deviceName} Connected
+                {deviceName} Selected
               </div>
               <div className="text-xs text-green-400/70">
-                Getting accurate calorie burn data from {deviceName}{deviceDetails}
-                {primarySource !== 'none' && ` (primary: ${primarySource})`}
+                Using {deviceName} for calorie tracking{deviceDetails}
               </div>
             </div>
             <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
@@ -72,10 +66,10 @@ export const WearableConnectionBanner: React.FC = () => {
           <AlertTriangle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <div className="font-medium text-yellow-300 text-sm mb-1">
-              Connect a Wearable for Better Tracking
+              Choose Your Fitness Device
             </div>
             <div className="text-xs text-yellow-400/70 mb-3">
-              Get accurate calorie burn data instead of estimates. Connect your smartwatch or fitness tracker.
+              Connect a wearable device for accurate calorie tracking, or use manual calculations. You choose which device to use.
             </div>
             <div className="flex flex-wrap gap-2">
               <Button
