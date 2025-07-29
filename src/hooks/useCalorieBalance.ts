@@ -102,30 +102,70 @@ export const useCalorieBalance = (): CalorieBalanceReturn => {
     enabled: !!profile?.id,
   });
 
-  // Get wearable calorie data if available
-  const { data: wearableCalories, isLoading: wearableLoading } = useQuery({
-    queryKey: ['wearable-calories', profile?.id],
+  // Get WHOOP calorie data if available
+  const { data: whoopCalories, isLoading: whoopLoading } = useQuery({
+    queryKey: ['whoop-calories', profile?.id],
     queryFn: async () => {
-      if (!profile?.id || connectedDevices.length === 0) return [];
+      if (!profile?.id) return [];
       
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       
-      // Check if there's a wearable_data table for calorie information
-      const { data, error } = await supabase
-        .from('wearable_data')
-        .select('date, calories_burned, active_calories')
+      // Get WHOOP cycles data (daily activity calories)
+      const { data: cycles, error: cyclesError } = await supabase
+        .from('whoop_cycles')
+        .select('cycle_date, calories, kilojoules, strain')
         .eq('user_id', profile.id)
-        .gte('date', thirtyDaysAgo.toISOString().split('T')[0])
-        .order('date', { ascending: false });
+        .gte('cycle_date', thirtyDaysAgo.toISOString().split('T')[0])
+        .order('cycle_date', { ascending: false });
       
-      if (error && error.code !== 'PGRST116') { // Table might not exist
-        console.warn('Wearable data table not found, using estimated calories');
-        return [];
+      // Get WHOOP workouts data (additional exercise calories)
+      const { data: workouts, error: workoutsError } = await supabase
+        .from('whoop_workouts')
+        .select('workout_date, calories, kilojoules, sport_name')
+        .eq('user_id', profile.id)
+        .gte('workout_date', thirtyDaysAgo.toISOString().split('T')[0])
+        .order('workout_date', { ascending: false });
+      
+      if (cyclesError && cyclesError.code !== 'PGRST116') {
+        console.warn('WHOOP cycles table not found:', cyclesError);
       }
-      return data || [];
+      if (workoutsError && workoutsError.code !== 'PGRST116') {
+        console.warn('WHOOP workouts table not found:', workoutsError);
+      }
+      
+      // Combine cycle and workout data by date
+      const combinedData = new Map();
+      
+      // Add cycle data (baseline daily calories)
+      (cycles || []).forEach(cycle => {
+        combinedData.set(cycle.cycle_date, {
+          date: cycle.cycle_date,
+          cycle_calories: cycle.calories || 0,
+          workout_calories: 0,
+          total_calories: cycle.calories || 0
+        });
+      });
+      
+      // Add workout data (additional exercise calories)
+      (workouts || []).forEach(workout => {
+        const existing = combinedData.get(workout.workout_date);
+        if (existing) {
+          existing.workout_calories += workout.calories || 0;
+          existing.total_calories = existing.cycle_calories + existing.workout_calories;
+        } else {
+          combinedData.set(workout.workout_date, {
+            date: workout.workout_date,
+            cycle_calories: 0,
+            workout_calories: workout.calories || 0,
+            total_calories: workout.calories || 0
+          });
+        }
+      });
+      
+      return Array.from(combinedData.values());
     },
-    enabled: !!profile?.id && connectedDevices.length > 0,
+    enabled: !!profile?.id,
   });
 
   // Get nutrition data for the same period
@@ -198,11 +238,11 @@ export const useCalorieBalance = (): CalorieBalanceReturn => {
     dailyMetrics.forEach(entry => {
       const existing = dataMap.get(entry.date);
       if (existing) {
-        const wearableEntry = wearableCalories?.find(w => w.date === entry.date);
+        const whoopEntry = whoopCalories?.find(w => w.date === entry.date);
         
-        if (wearableEntry) {
-          // Use actual wearable data
-          existing.caloriesBurned = wearableEntry.calories_burned || wearableEntry.active_calories || 0;
+        if (whoopEntry) {
+          // Use actual WHOOP data
+          existing.caloriesBurned = whoopEntry.total_calories || 0;
         } else {
           // Estimate from steps and strain
           existing.caloriesBurned = calculateActivityCalories(entry.steps || 0, entry.strain);
@@ -219,7 +259,7 @@ export const useCalorieBalance = (): CalorieBalanceReturn => {
     return Array.from(dataMap.values()).sort((a, b) => 
       new Date(b.date).getTime() - new Date(a.date).getTime()
     );
-  }, [dailyMetrics, nutritionData, wearableCalories, bmr, userProfile, calculateActivityCalories]);
+  }, [dailyMetrics, nutritionData, whoopCalories, bmr, userProfile, calculateActivityCalories]);
 
   // Get today's calories consumed from current nutrition hook
   const todaysMacros = getTodaysMacros();
@@ -249,7 +289,7 @@ export const useCalorieBalance = (): CalorieBalanceReturn => {
   const weeklyData = processedData.slice(0, 7);
   const monthlyData = processedData;
 
-  const isLoading = metricsLoading || nutritionLoading || wearableLoading;
+  const isLoading = metricsLoading || nutritionLoading || whoopLoading;
 
   // Fallback to demo data if no real data is available (for testing/demo purposes)
   const shouldUseDemoData = !isLoading && (!processedData.length || !userProfile);
