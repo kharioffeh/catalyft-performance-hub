@@ -17,7 +17,7 @@ import { useExercises } from '@/hooks/useExercises';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { SetRowNative } from './components/SetRow.native';
-import * as Amplitude from '@amplitude/react-native';
+import { track } from '@/utils/amplitude';
 
 interface WorkoutSet {
   id: string;
@@ -139,7 +139,7 @@ export const LogWorkoutScreen: React.FC = () => {
       if (error) throw error;
 
       // Track workout completion
-      Amplitude.track('Workout Completed', { sessionId });
+      track('Workout Completed', { sessionId });
 
       Alert.alert("Workout Ended", "Your workout has been completed");
       navigate('/');
