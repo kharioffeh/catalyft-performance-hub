@@ -103,6 +103,7 @@ const Nutrition: React.FC = () => {
                   totalExpenditure={todaysData.totalExpenditure}
                   balance={todaysData.balance}
                   balancePercentage={todaysData.balancePercentage}
+                  dataSource={todaysData.dataSource}
                   isLoading={calorieBalanceLoading}
                 />
               ) : (
@@ -113,6 +114,7 @@ const Nutrition: React.FC = () => {
                   totalExpenditure={0}
                   balance={0}
                   balancePercentage={0}
+                  dataSource="none"
                   isLoading={calorieBalanceLoading}
                 />
               )}

@@ -18,6 +18,7 @@ interface CalorieBalanceProps {
   totalExpenditure: number;
   balance: number;
   balancePercentage: number;
+  dataSource?: 'whoop' | 'healthkit' | 'estimated' | 'none';
   isLoading?: boolean;
 }
 
@@ -28,11 +29,28 @@ export const CalorieBalanceCard: React.FC<CalorieBalanceProps> = ({
   totalExpenditure,
   balance,
   balancePercentage,
+  dataSource = 'none',
   isLoading = false
 }) => {
   const isDeficit = balance < 0;
   const isSurplus = balance > 0;
   const isBalanced = Math.abs(balance) <= 50; // Within 50 calories is considered balanced
+  
+  // Data source indicator
+  const getDataSourceInfo = () => {
+    switch (dataSource) {
+      case 'whoop':
+        return { label: 'WHOOP', color: 'text-purple-400', icon: Activity };
+      case 'healthkit':
+        return { label: 'Apple Watch', color: 'text-blue-400', icon: Activity };
+      case 'estimated':
+        return { label: 'Estimated', color: 'text-yellow-400', icon: Target };
+      default:
+        return { label: 'No Data', color: 'text-gray-400', icon: Target };
+    }
+  };
+  
+  const sourceInfo = getDataSourceInfo();
 
   const getBalanceColor = () => {
     if (isBalanced) return 'text-blue-400';
@@ -89,10 +107,16 @@ export const CalorieBalanceCard: React.FC<CalorieBalanceProps> = ({
             <Flame className="w-5 h-5" />
             Calorie Balance
           </CardTitle>
-          <Badge className={cn("border", getBalanceBadgeColor())}>
-            {getBalanceIcon()}
-            <span className="ml-1">{getBalanceMessage()}</span>
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge className={cn("border text-xs", sourceInfo.color.replace('text-', 'border-').replace('-400', '-500/30'), sourceInfo.color.replace('text-', 'bg-').replace('-400', '-500/20'))}>
+              <sourceInfo.icon className="w-3 h-3 mr-1" />
+              {sourceInfo.label}
+            </Badge>
+            <Badge className={cn("border", getBalanceBadgeColor())}>
+              {getBalanceIcon()}
+              <span className="ml-1">{getBalanceMessage()}</span>
+            </Badge>
+          </div>
         </div>
       </CardHeader>
       

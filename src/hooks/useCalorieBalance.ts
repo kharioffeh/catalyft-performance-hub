@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { useWearableData } from './useWearableData';
+import { useUnifiedWearableData } from './useUnifiedWearableData';
 import { useNutrition } from './useNutrition';
 import { generateDemoCalorieData, getDemoTodaysData } from '@/utils/demoCalorieData';
 
@@ -14,6 +14,7 @@ interface DailyCalorieData {
   totalExpenditure: number; // BMR + Activity calories
   balance: number; // Consumed - Expenditure (negative = deficit, positive = surplus)
   balancePercentage: number; // Balance as percentage of expenditure
+  dataSource?: 'whoop' | 'healthkit' | 'estimated' | 'none';
 }
 
 interface CalorieBalanceReturn {
@@ -29,7 +30,7 @@ interface CalorieBalanceReturn {
 export const useCalorieBalance = (): CalorieBalanceReturn => {
   const { profile } = useAuth();
   const { getTodaysMacros } = useNutrition();
-  const { connectedDevices } = useWearableData();
+  const { dailyCalories, todaysData: unifiedTodaysData, connectionStatus, isLoading: wearableLoading } = useUnifiedWearableData(30);
   const [error, setError] = useState<string | null>(null);
 
   // Get user profile data for BMR calculation
@@ -102,71 +103,8 @@ export const useCalorieBalance = (): CalorieBalanceReturn => {
     enabled: !!profile?.id,
   });
 
-  // Get WHOOP calorie data if available
-  const { data: whoopCalories, isLoading: whoopLoading } = useQuery({
-    queryKey: ['whoop-calories', profile?.id],
-    queryFn: async () => {
-      if (!profile?.id) return [];
-      
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      
-      // Get WHOOP cycles data (daily activity calories)
-      const { data: cycles, error: cyclesError } = await supabase
-        .from('whoop_cycles')
-        .select('cycle_date, calories, kilojoules, strain')
-        .eq('user_id', profile.id)
-        .gte('cycle_date', thirtyDaysAgo.toISOString().split('T')[0])
-        .order('cycle_date', { ascending: false });
-      
-      // Get WHOOP workouts data (additional exercise calories)
-      const { data: workouts, error: workoutsError } = await supabase
-        .from('whoop_workouts')
-        .select('workout_date, calories, kilojoules, sport_name')
-        .eq('user_id', profile.id)
-        .gte('workout_date', thirtyDaysAgo.toISOString().split('T')[0])
-        .order('workout_date', { ascending: false });
-      
-      if (cyclesError && cyclesError.code !== 'PGRST116') {
-        console.warn('WHOOP cycles table not found:', cyclesError);
-      }
-      if (workoutsError && workoutsError.code !== 'PGRST116') {
-        console.warn('WHOOP workouts table not found:', workoutsError);
-      }
-      
-      // Combine cycle and workout data by date
-      const combinedData = new Map();
-      
-      // Add cycle data (baseline daily calories)
-      (cycles || []).forEach(cycle => {
-        combinedData.set(cycle.cycle_date, {
-          date: cycle.cycle_date,
-          cycle_calories: cycle.calories || 0,
-          workout_calories: 0,
-          total_calories: cycle.calories || 0
-        });
-      });
-      
-      // Add workout data (additional exercise calories)
-      (workouts || []).forEach(workout => {
-        const existing = combinedData.get(workout.workout_date);
-        if (existing) {
-          existing.workout_calories += workout.calories || 0;
-          existing.total_calories = existing.cycle_calories + existing.workout_calories;
-        } else {
-          combinedData.set(workout.workout_date, {
-            date: workout.workout_date,
-            cycle_calories: 0,
-            workout_calories: workout.calories || 0,
-            total_calories: workout.calories || 0
-          });
-        }
-      });
-      
-      return Array.from(combinedData.values());
-    },
-    enabled: !!profile?.id,
-  });
+  // Simplified - we now use the unified wearable data hook
+  // The complex WHOOP/HealthKit logic is handled in useUnifiedWearableData
 
   // Get nutrition data for the same period
   const { data: nutritionData, isLoading: nutritionLoading } = useQuery({
@@ -202,9 +140,9 @@ export const useCalorieBalance = (): CalorieBalanceReturn => {
     return Math.round(stepCalories + strainCalories);
   }, [userProfile?.weight]);
 
-  // Process and combine data
+  // Process and combine data using unified wearable data
   const processedData = useMemo(() => {
-    if (!dailyMetrics || !nutritionData) return [];
+    if (!nutritionData) return [];
 
     const dataMap = new Map<string, DailyCalorieData>();
 
@@ -223,6 +161,7 @@ export const useCalorieBalance = (): CalorieBalanceReturn => {
         totalExpenditure: bmr,
         balance: -bmr,
         balancePercentage: -100,
+        dataSource: 'none',
       });
     }
 
@@ -234,20 +173,12 @@ export const useCalorieBalance = (): CalorieBalanceReturn => {
       }
     });
 
-    // Add activity/wearable data
-    dailyMetrics.forEach(entry => {
-      const existing = dataMap.get(entry.date);
+    // Add unified wearable calorie data
+    dailyCalories.forEach(wearableDay => {
+      const existing = dataMap.get(wearableDay.date);
       if (existing) {
-        const whoopEntry = whoopCalories?.find(w => w.date === entry.date);
-        
-        if (whoopEntry) {
-          // Use actual WHOOP data
-          existing.caloriesBurned = whoopEntry.total_calories || 0;
-        } else {
-          // Estimate from steps and strain
-          existing.caloriesBurned = calculateActivityCalories(entry.steps || 0, entry.strain);
-        }
-        
+        existing.caloriesBurned = wearableDay.caloriesBurned;
+        existing.dataSource = wearableDay.dataSource;
         existing.totalExpenditure = existing.bmr + existing.caloriesBurned;
         existing.balance = existing.caloriesConsumed - existing.totalExpenditure;
         existing.balancePercentage = existing.totalExpenditure > 0 
@@ -259,7 +190,7 @@ export const useCalorieBalance = (): CalorieBalanceReturn => {
     return Array.from(dataMap.values()).sort((a, b) => 
       new Date(b.date).getTime() - new Date(a.date).getTime()
     );
-  }, [dailyMetrics, nutritionData, whoopCalories, bmr, userProfile, calculateActivityCalories]);
+  }, [nutritionData, dailyCalories, bmr]);
 
   // Get today's calories consumed from current nutrition hook
   const todaysMacros = getTodaysMacros();
@@ -289,7 +220,7 @@ export const useCalorieBalance = (): CalorieBalanceReturn => {
   const weeklyData = processedData.slice(0, 7);
   const monthlyData = processedData;
 
-  const isLoading = metricsLoading || nutritionLoading || whoopLoading;
+  const isLoading = metricsLoading || nutritionLoading || wearableLoading;
 
   // Fallback to demo data if no real data is available (for testing/demo purposes)
   const shouldUseDemoData = !isLoading && (!processedData.length || !userProfile);

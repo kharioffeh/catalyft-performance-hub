@@ -11,40 +11,33 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { useWearableData } from '@/hooks/useWearableData';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUnifiedWearableData } from '@/hooks/useUnifiedWearableData';
 
 export const WearableConnectionBanner: React.FC = () => {
-  const { profile } = useAuth();
   const { connectedDevices, connectDevice, isConnecting, connectionError } = useWearableData();
-  
-  // Check if user has WHOOP connected
-  const { data: whoopToken } = useQuery({
-    queryKey: ['whoop-token', profile?.id],
-    queryFn: async () => {
-      if (!profile?.id) return null;
-      
-      const { data, error } = await supabase
-        .from('whoop_tokens')
-        .select('expires_at')
-        .eq('user_id', profile.id)
-        .gt('expires_at', new Date().toISOString())
-        .single();
-      
-      return error ? null : data;
-    },
-    enabled: !!profile?.id,
-  });
+  const { connectionStatus } = useUnifiedWearableData(7); // Check last 7 days
   
   const hasConnectedDevice = connectedDevices.length > 0;
   const hasWearableWithCalories = connectedDevices.some(device => 
     device.capabilities.some(cap => cap.type === 'calories')
   );
-  const hasWhoopConnected = !!whoopToken;
+  
+  const { hasWhoop, hasHealthKit, primarySource } = connectionStatus;
 
-  if (hasWhoopConnected || hasWearableWithCalories) {
-    const deviceName = hasWhoopConnected ? 'WHOOP' : connectedDevices[0]?.name;
+  if (hasWhoop || hasHealthKit || hasWearableWithCalories) {
+    let deviceName = 'Unknown';
+    let deviceDetails = '';
+    
+    if (hasWhoop) {
+      deviceName = 'WHOOP';
+      deviceDetails = ' (strain & workouts)';
+    } else if (hasHealthKit) {
+      deviceName = 'Apple Watch';
+      deviceDetails = ' (activity rings & workouts)';
+    } else if (hasWearableWithCalories) {
+      deviceName = connectedDevices[0]?.name || 'Wearable';
+    }
+    
     return (
       <Card className="bg-green-500/10 border-green-500/20">
         <CardContent className="p-4">
@@ -52,11 +45,11 @@ export const WearableConnectionBanner: React.FC = () => {
             <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
             <div className="flex-1">
               <div className="font-medium text-green-300 text-sm">
-                {hasWhoopConnected ? 'WHOOP Connected' : 'Wearable Connected'}
+                {deviceName} Connected
               </div>
               <div className="text-xs text-green-400/70">
-                Getting accurate calorie burn data from {deviceName}
-                {hasWhoopConnected && ' (including strain & workouts)'}
+                Getting accurate calorie burn data from {deviceName}{deviceDetails}
+                {primarySource !== 'none' && ` (primary: ${primarySource})`}
               </div>
             </div>
             <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
@@ -90,6 +83,19 @@ export const WearableConnectionBanner: React.FC = () => {
               >
                 <Activity className="w-3 h-3 mr-1" />
                 WHOOP
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  // This would trigger the iOS app to request HealthKit permissions
+                  alert('To connect Apple Watch:\n\n1. Open the iOS app\n2. Go to Health integration\n3. Grant HealthKit permissions');
+                }}
+                disabled={isConnecting}
+                className="text-yellow-300 border-yellow-500/30 hover:bg-yellow-500/20 text-xs h-7"
+              >
+                <Watch className="w-3 h-3 mr-1" />
+                Apple Watch
               </Button>
               <Button
                 size="sm"
