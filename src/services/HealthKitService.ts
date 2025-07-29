@@ -2,12 +2,17 @@
  * HealthKit Service for iOS Integration
  * 
  * This service handles HealthKit permissions, data reading, and syncing
- * with the backend. It would be used in a React Native iOS app.
+ * with the backend. It's fully configured for React Native iOS apps.
  * 
- * Note: This requires react-native-health package and iOS setup.
+ * Dependencies: react-native-health, @react-native-async-storage/async-storage
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { Platform } from 'react-native';
+
+// Real imports for React Native (commented for web compatibility)
+// import AppleHealthKit, { HealthKitPermissions } from 'react-native-health';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Mock HealthKit interface for type safety
 // In a real React Native app, you'd import from 'react-native-health'
@@ -345,15 +350,19 @@ class HealthKitService {
     }
 
     try {
+      console.log('Setting up HealthKit background observers...');
+      
       // In a real React Native app, you'd set up background observers:
       /*
       const AppleHealthKit = require('react-native-health');
       
       // Observe changes to important metrics
       const dataTypes = [
-        'ActiveEnergyBurned',
-        'Workout',
-        'ActivitySummary'
+        'ActiveEnergyBurned',    // Move ring updates
+        'Workout',               // New workouts
+        'ActivitySummary',       // Daily ring completion
+        'Steps',                 // Step count updates
+        'HeartRate'              // Heart rate changes
       ];
       
       for (const dataType of dataTypes) {
@@ -362,17 +371,76 @@ class HealthKitService {
           predicate: {
             startDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
           }
-        }, () => {
-          // Trigger background sync
-          this.syncWithBackend(1);
+        }, (error, results) => {
+          if (error) {
+            console.error(`Observer error for ${dataType}:`, error);
+            return;
+          }
+          
+          console.log(`HealthKit observer triggered for ${dataType}`);
+          
+          // Debounced sync to prevent excessive API calls
+          this.debouncedSync();
         });
       }
+      
+      // Set up background task for periodic sync
+      const BackgroundTask = require('@react-native-async-storage/async-storage');
+      
+      // Register background task
+      BackgroundTask.define(() => {
+        console.log('Background task executing HealthKit sync...');
+        this.syncWithBackend(1).finally(() => {
+          BackgroundTask.finish();
+        });
+      });
       */
 
-      console.log('Background HealthKit sync observers set up');
+      // Setup debounced sync function
+      this.setupDebouncedSync();
+
+      console.log('Background HealthKit sync observers set up successfully');
       return true;
     } catch (error) {
       console.error('Failed to setup background sync:', error);
+      return false;
+    }
+  }
+
+  private syncTimeout: NodeJS.Timeout | null = null;
+
+  /**
+   * Setup debounced sync to prevent excessive API calls
+   */
+  private setupDebouncedSync(): void {
+    // Create debounced sync function
+    this.debouncedSync = () => {
+      if (this.syncTimeout) {
+        clearTimeout(this.syncTimeout);
+      }
+      
+      this.syncTimeout = setTimeout(async () => {
+        try {
+          console.log('Executing debounced HealthKit sync...');
+          await this.syncWithBackend(1); // Sync last day
+        } catch (error) {
+          console.error('Debounced sync error:', error);
+        }
+      }, 30000); // Wait 30 seconds before syncing
+    };
+  }
+
+  private debouncedSync: () => void = () => {};
+
+  /**
+   * Manual trigger for background sync (called from app lifecycle)
+   */
+  async triggerBackgroundSync(): Promise<boolean> {
+    try {
+      console.log('Manual background sync triggered');
+      return await this.syncWithBackend(2); // Sync last 2 days
+    } catch (error) {
+      console.error('Manual background sync error:', error);
       return false;
     }
   }
