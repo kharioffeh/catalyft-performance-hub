@@ -18,6 +18,10 @@ export const NUTRITIONIX_API_KEY = Config.NUTRITIONIX_API_KEY || '';
 // Google Fit configuration
 export const GOOGLE_FIT_CLIENT_ID = Config.GOOGLE_FIT_CLIENT_ID || '';
 
+// Sentry configuration
+export const SENTRY_DSN = Config.SENTRY_DSN || '';
+export const NODE_ENV = Config.NODE_ENV || 'development';
+
 // Validation function to check if all required environment variables are set
 export const validateConfig = () => {
   const requiredVars = {
@@ -64,6 +68,10 @@ export const config = {
   },
   googleFit: {
     clientId: GOOGLE_FIT_CLIENT_ID,
+  },
+  sentry: {
+    dsn: SENTRY_DSN,
+    environment: NODE_ENV,
   },
   validateConfig,
 };
