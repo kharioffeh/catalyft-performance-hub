@@ -7,4 +7,7 @@ config.resolver.alias = {
   src: path.resolve(__dirname, 'src'),
 };
 
+// Add support for react-native-config
+config.resolver.platforms = ['ios', 'android', 'native', 'web'];
+
 module.exports = config;

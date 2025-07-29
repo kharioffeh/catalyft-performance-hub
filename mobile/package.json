@@ -4,9 +4,17 @@
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
+    "start:staging": "NODE_ENV=staging expo start",
+    "start:production": "NODE_ENV=production expo start",
     "android": "expo start --android",
+    "android:staging": "NODE_ENV=staging expo start --android",
+    "android:production": "NODE_ENV=production expo start --android",
     "ios": "expo start --ios",
+    "ios:staging": "NODE_ENV=staging expo start --ios",
+    "ios:production": "NODE_ENV=production expo start --ios",
     "web": "expo start --web",
+    "build:staging": "NODE_ENV=staging expo build",
+    "build:production": "NODE_ENV=production expo build",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
@@ -35,6 +43,7 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-native": "^4.1.0",
     "prettier": "^3.4.2",
+    "react-native-dotenv": "^3.4.11",
     "typescript": "~5.8.3"
   },
   "private": true

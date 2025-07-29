@@ -1,13 +1,20 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import ExampleComponent from 'src/components/ExampleComponent';
+import Config from 'react-native-config';
 
 export default function App() {
+  // Example: Access environment variables (remove these logs in production)
+  console.log('Config.SUPABASE_URL:', Config.SUPABASE_URL);
+  
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Catalyft Mobile App</Text>
       <Text style={styles.subtitle}>
         React Native with TypeScript, ESLint, and Prettier
+      </Text>
+      <Text style={styles.envText}>
+        Environment: {Config.SUPABASE_URL ? 'Configured' : 'Not configured'}
       </Text>
       <ExampleComponent title="Welcome to Catalyft!" />
       <StatusBar style="auto" />
@@ -33,6 +40,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 20,
     color: '#666',
+    textAlign: 'center',
+  },
+  envText: {
+    fontSize: 14,
+    marginBottom: 20,
+    color: '#444',
     textAlign: 'center',
   },
 });
