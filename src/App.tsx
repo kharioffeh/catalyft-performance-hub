@@ -1,50 +1,34 @@
+/**
+ * Main App Component
+ * 
+ * This is the root component for the React web app.
+ */
 
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { WorkoutProvider } from '@/contexts/WorkoutContext';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { DataProvider } from '@/contexts/DataContext';
-import { GlassToastProvider } from '@/components/ui/GlassToastProvider';
-import { Toaster } from '@/components/ui/toaster';
 import AppRouter from '@/components/AppRouter';
-// Temporarily remove security headers hook to test if it's causing issues
-// import { useSecurityHeaders } from '@/hooks/useSecurityHeaders';
 
-// Create QueryClient instance with proper configuration
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      cacheTime: 1000 * 60 * 30, // 30 minutes
     },
   },
 });
 
-function App() {
-  
+const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <DataProvider>
-        <ThemeProvider>
-          <AuthProvider>
-            <WorkoutProvider>
-              <GlassToastProvider>
-                <BrowserRouter>
-                  <div className="App bg-brand-charcoal min-h-screen">
-                    <Toaster />
-                    <AppRouter />
-                  </div>
-                </BrowserRouter>
-              </GlassToastProvider>
-            </WorkoutProvider>
-          </AuthProvider>
-        </ThemeProvider>
-      </DataProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppRouter />
+        </BrowserRouter>
+      </AuthProvider>
     </QueryClientProvider>
   );
-}
+};
 
 export default App;

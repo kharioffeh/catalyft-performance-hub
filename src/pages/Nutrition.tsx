@@ -12,15 +12,20 @@ import { MealLogList } from '@/components/nutrition/MealLogList';
 import { FloatingAddButton } from '@/components/nutrition/FloatingAddButton';
 import { MacroRings } from '@/components/nutrition/MacroRings';
 import { NutritionScoreCard } from '@/components/nutrition/NutritionScoreCard';
-import { MealScannerCamera } from '@/components/nutrition/MealScannerCamera';
 import { useFabPosition } from '@/hooks/useFabPosition';
+import { useCalorieBalance } from '@/hooks/useCalorieBalance';
+import { CalorieBalanceCard } from '@/components/nutrition/CalorieBalanceCard';
+import { CalorieTrendChart } from '@/components/nutrition/CalorieTrendChart';
+import { WearableConnectionBanner } from '@/components/nutrition/WearableConnectionBanner';
+import { WearableDeviceSelector } from '@/components/nutrition/WearableDeviceSelector';
 import { cn } from '@/lib/utils';
+import ParseScreen from './ParseScreen';
 
 const Nutrition: React.FC = () => {
   const { meals, addMeal, removeMeal, getTodaysMeals, getTodaysMacros, getMacroTargets, getNutritionScore } = useNutrition();
-  const [activeTab, setActiveTab] = useState('overview');
-  const [showScanner, setShowScanner] = useState(false);
+  const [activeTab, setActiveTab] = useState('log');
   const { contentPadding } = useFabPosition();
+  const { todaysData, weeklyData, isLoading: calorieBalanceLoading } = useCalorieBalance();
 
   const todaysMacros = getTodaysMacros();
   const macroTargets = getMacroTargets();
@@ -68,31 +73,61 @@ const Nutrition: React.FC = () => {
 
       <GlassCard className="p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-white/5 mb-6">
+          <TabsList className="grid w-full grid-cols-2 bg-white/5 mb-6">
             <TabsTrigger
-              value="overview"
-              className="flex items-center gap-2 data-[state=active]:bg-white/10 data-[state=active]:text-white"
-            >
-              <TrendingUp className="w-4 h-4" />
-              <span className="hidden sm:inline">Overview</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="meals"
+              value="log"
               className="flex items-center gap-2 data-[state=active]:bg-white/10 data-[state=active]:text-white"
             >
               <Utensils className="w-4 h-4" />
-              <span className="hidden sm:inline">Meals</span>
+              <span>Log</span>
             </TabsTrigger>
             <TabsTrigger
-              value="goals"
+              value="parse"
               className="flex items-center gap-2 data-[state=active]:bg-white/10 data-[state=active]:text-white"
             >
-              <Target className="w-4 h-4" />
-              <span className="hidden sm:inline">Goals</span>
+              <Scan className="w-4 h-4" />
+              <span>Parse</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="mt-0 space-y-6">
+          <TabsContent value="log" className="mt-0 space-y-6">
+            {/* Wearable Connection Banner */}
+            <WearableConnectionBanner />
+            
+            {/* Add Device Selector for user choice */}
+            <WearableDeviceSelector className="mb-6" />
+            
+            {/* Calorie Balance Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {todaysData ? (
+                <CalorieBalanceCard
+                  caloriesConsumed={todaysData.caloriesConsumed}
+                  caloriesBurned={todaysData.caloriesBurned}
+                  bmr={todaysData.bmr}
+                  totalExpenditure={todaysData.totalExpenditure}
+                  balance={todaysData.balance}
+                  balancePercentage={todaysData.balancePercentage}
+                  dataSource={todaysData.dataSource}
+                  isLoading={calorieBalanceLoading}
+                />
+              ) : (
+                <CalorieBalanceCard
+                  caloriesConsumed={0}
+                  caloriesBurned={0}
+                  bmr={0}
+                  totalExpenditure={0}
+                  balance={0}
+                  balancePercentage={0}
+                  dataSource="none"
+                  isLoading={calorieBalanceLoading}
+                />
+              )}
+              <CalorieTrendChart 
+                weeklyData={weeklyData}
+                isLoading={calorieBalanceLoading}
+              />
+            </div>
+
             {/* Macro Rings and Nutrition Score */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <MacroRings macros={macroData} />
@@ -207,20 +242,11 @@ const Nutrition: React.FC = () => {
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
 
-          <TabsContent value="meals" className="mt-0 space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <h3 className="text-lg font-semibold text-white">Today's Meals</h3>
-              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                <Button 
-                  onClick={() => setShowScanner(true)}
-                  className="bg-green-600 hover:bg-green-700 text-white flex-1 sm:flex-none"
-                >
-                  <Scan className="w-4 h-4 mr-2" />
-                  <span className="hidden sm:inline">Scan Meal</span>
-                  <span className="sm:hidden">Scan</span>
-                </Button>
+            {/* Today's Meals Section */}
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <h3 className="text-lg font-semibold text-white">Today's Meals</h3>
                 <AddMealDialog 
                   onAddMeal={addMeal}
                   trigger={
@@ -232,28 +258,17 @@ const Nutrition: React.FC = () => {
                   }
                 />
               </div>
-            </div>
 
-            <MealLogList 
-              meals={todaysMeals} 
-              onDeleteMeal={removeMeal}
-            />
+              <MealLogList 
+                meals={todaysMeals} 
+                onDeleteMeal={removeMeal}
+              />
+            </div>
           </TabsContent>
 
-          <TabsContent value="goals" className="mt-0">
-            <div className="flex flex-col items-center justify-center h-[400px] text-center">
-              <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4">
-                <Target className="w-8 h-8 text-white/70" />
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Set Your Goals</h3>
-              <p className="text-white/70 mb-4">Define your nutrition targets and preferences</p>
-              <Button
-                onClick={() => console.log('Set nutrition goals')}
-                className="bg-white/10 hover:bg-white/20 text-white border-white/20"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Set Goals
-              </Button>
+          <TabsContent value="parse" className="mt-0">
+            <div className="bg-white/5 rounded-lg overflow-hidden min-h-[600px]">
+              <ParseScreen />
             </div>
           </TabsContent>
         </Tabs>
@@ -261,11 +276,6 @@ const Nutrition: React.FC = () => {
 
       {/* Floating Add Button for Mobile */}
       <FloatingAddButton onAddMeal={addMeal} />
-
-      {/* Meal Scanner Camera */}
-      {showScanner && (
-        <MealScannerCamera onClose={() => setShowScanner(false)} />
-      )}
     </div>
   );
 };

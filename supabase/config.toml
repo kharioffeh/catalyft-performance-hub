@@ -1,8 +1,8 @@
 
 project_id = "xeugyryfvilanoiethum"
 
-[functions.env]
-ABLY_API_KEY = "<your-ably-rest-key>"
+# [functions.env]
+# ABLY_API_KEY = "<your-ably-rest-key>"
 
 [functions.aria-generate-program]
 verify_jwt = true
