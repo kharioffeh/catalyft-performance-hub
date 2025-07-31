@@ -4,6 +4,7 @@
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
+    "start:expo-go": "expo start --go",
     "start:staging": "NODE_ENV=staging expo start",
     "start:production": "NODE_ENV=production expo start",
     "android": "expo start --android",
@@ -26,16 +27,13 @@
     "build:e2e:android": "detox build --configuration android.emu.debug"
   },
   "dependencies": {
-    "@sentry/react-native": "^6.19.0",
     "@supabase/supabase-js": "^2.53.0",
     "ably": "^2.10.1",
     "expo": "~53.0.20",
-    "expo-dev-client": "^5.2.4",
     "expo-secure-store": "^14.2.3",
     "expo-status-bar": "~2.2.3",
     "react": "19.0.0",
-    "react-native": "0.79.5",
-    "react-native-config": "^1.5.5"
+    "react-native": "0.79.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
