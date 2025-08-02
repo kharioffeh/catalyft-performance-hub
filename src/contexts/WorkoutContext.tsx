@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Exercise } from '@/types/exercise';
+import { useAnalytics } from '@/context/AnalyticsContext';
 
 export interface WorkoutSet {
   id: string;
@@ -67,6 +68,7 @@ interface WorkoutProviderProps {
 
 export const WorkoutProvider: React.FC<WorkoutProviderProps> = ({ children }) => {
   const [activeWorkout, setActiveWorkout] = useState<ActiveWorkout | null>(null);
+  const analytics = useAnalytics();
 
   const generateWorkoutId = () => `workout_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   const generateSetId = () => `set_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -97,6 +99,13 @@ export const WorkoutProvider: React.FC<WorkoutProviderProps> = ({ children }) =>
     };
 
     setActiveWorkout(workout);
+
+    // Track workout started event
+    analytics.trackWorkoutStarted({
+      session_id: workout.id,
+      workout_type: workoutName,
+      sets_completed: 0,
+    });
   };
 
   const addExerciseToWorkout = (exercise: Exercise, targetSets = 3) => {
@@ -150,12 +159,16 @@ export const WorkoutProvider: React.FC<WorkoutProviderProps> = ({ children }) =>
             return set;
           });
 
-          const allSetsCompleted = updatedSets.every(set => set.completed);
+          // Track set logged event
+          analytics.trackSetLogged(
+            prev.id,
+            exercise.exercise.name,
+            setIndex + 1
+          );
 
           return {
             ...exercise,
             sets: updatedSets,
-            completed: allSetsCompleted,
           };
         }
         return exercise;
@@ -261,6 +274,25 @@ export const WorkoutProvider: React.FC<WorkoutProviderProps> = ({ children }) =>
   };
 
   const endWorkout = () => {
+    if (!activeWorkout) return;
+
+    // Calculate completion rate and other metrics
+    const totalSets = activeWorkout.exercises.reduce((acc, exercise) => acc + exercise.sets.length, 0);
+    const completedSets = activeWorkout.exercises.reduce((acc, exercise) => 
+      acc + exercise.sets.filter(set => set.completed).length, 0
+    );
+    const completionRate = totalSets > 0 ? (completedSets / totalSets) * 100 : 0;
+    const durationMinutes = Math.floor(activeWorkout.totalDuration / 60);
+
+    // Track workout completed event
+    analytics.trackWorkoutCompleted({
+      session_id: activeWorkout.id,
+      workout_type: activeWorkout.name,
+      session_duration_minutes: durationMinutes,
+      sets_completed: completedSets,
+      completion_rate: completionRate,
+    });
+
     // Here you could save workout data to database
     setActiveWorkout(null);
   };

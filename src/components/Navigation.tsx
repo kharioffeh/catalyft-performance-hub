@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAnalytics } from '@/context/AnalyticsContext';
+import { useAnalyticsNavigation } from '@/hooks/useAnalyticsNavigation';
 import { 
   Home, 
   Calendar, 
@@ -95,7 +97,7 @@ interface BottomTabNavigatorProps {
 }
 
 function BottomTabNavigator({ className }: BottomTabNavigatorProps) {
-  const navigate = useNavigate();
+  const navigate = useAnalyticsNavigation();
   const location = useLocation();
 
   // Only show first 5 items in bottom tabs
@@ -115,7 +117,7 @@ function BottomTabNavigator({ className }: BottomTabNavigatorProps) {
           return (
             <button
               key={screen.name}
-              onClick={() => navigate(screen.path)}
+              onClick={() => navigate(screen.path, { method: 'tab' })}
               className={cn(
                 "flex flex-col items-center justify-center p-2 rounded-lg transition-colors min-w-[60px]",
                 isActive ? "text-indigo-500" : "text-gray-500 hover:text-gray-300"
@@ -145,7 +147,7 @@ interface DrawerNavigatorProps {
 }
 
 function DrawerNavigator({ isOpen, onClose, className }: DrawerNavigatorProps) {
-  const navigate = useNavigate();
+  const navigate = useAnalyticsNavigation();
   const location = useLocation();
   const { width } = useWindowDimensions();
   const isMobile = width < 768;

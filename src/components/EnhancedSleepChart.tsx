@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAnalyticsNavigation } from '@/hooks/useAnalyticsNavigation';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { GlassCard } from '@/components/ui';
 import { SleepGauge } from '@/components/Dashboard/SleepGauge';
@@ -32,7 +33,7 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
   variant = 'default',
   onConnectWearable 
 }) => {
-  const navigate = useNavigate();
+  const navigate = useAnalyticsNavigation();
 
   if (!data || data.length === 0) {
     return (
@@ -63,7 +64,7 @@ export const EnhancedSleepChart: React.FC<EnhancedSleepChartProps> = ({
   };
 
   const handleViewDetails = () => {
-    navigate('/analytics');
+    navigate('/analytics/sleep', { method: 'button' });
   };
 
   // Generate sleep phase data from total sleep hours

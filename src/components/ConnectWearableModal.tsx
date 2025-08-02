@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAnalytics } from '@/context/AnalyticsContext';
 import { Loader2, Smartphone, Watch } from 'lucide-react';
 
 interface ConnectWearableModalProps {
@@ -48,11 +49,13 @@ export const ConnectWearableModal: React.FC<ConnectWearableModalProps> = ({
   const [appleFile, setAppleFile] = useState<File | null>(null);
   const { profile } = useAuth();
   const { toast } = useToast();
+  const analytics = useAnalytics();
 
   const handleWhoopConnect = () => {
     const clientId = import.meta.env.VITE_WHOOP_CLIENT_ID;
     
     if (!clientId) {
+      analytics.trackError('wearable_config_error', 'Whoop client ID not configured');
       toast({
         title: "Configuration Error",
         description: "Whoop integration is not configured. Please contact support.",
@@ -60,6 +63,13 @@ export const ConnectWearableModal: React.FC<ConnectWearableModalProps> = ({
       });
       return;
     }
+    
+    // Track wearable connection attempt
+    analytics.trackFeatureUsed({
+      feature_name: 'wearable_connection',
+      feature_category: 'integrations',
+      success: true,
+    });
     
     const redirectUri = encodeURIComponent('https://xeugyryfvilanoiethum.supabase.co/functions/v1/solo-link-wearable/whoop-callback');
     const scope = encodeURIComponent('read:recovery read:sleep read:workout');
@@ -90,6 +100,9 @@ export const ConnectWearableModal: React.FC<ConnectWearableModalProps> = ({
         throw new Error(response.error.message);
       }
 
+      // Track successful wearable connection
+      analytics.trackWearableConnected('apple_watch');
+
       toast({
         title: 'Apple Health Connected',
         description: 'Your health data has been imported successfully! 💫',
@@ -99,6 +112,13 @@ export const ConnectWearableModal: React.FC<ConnectWearableModalProps> = ({
       onClose();
     } catch (error) {
       console.error('Apple Health connection error:', error);
+      
+      // Track connection error
+      analytics.trackError('wearable_connection_failed', 
+        error instanceof Error ? error.message : 'Unknown error', 
+        { provider: 'apple' }
+      );
+      
       toast({
         title: 'Connection Failed',
         description: 'Failed to import Apple Health data. Please try again.',

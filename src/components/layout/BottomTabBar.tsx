@@ -2,6 +2,7 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAnalyticsNavigation } from '@/hooks/useAnalyticsNavigation';
 import { getNavigationForRole } from '@/config/routes';
 import { cn } from '@/lib/utils';
 
@@ -14,7 +15,7 @@ interface TabItem {
 
 export const BottomTabBar: React.FC = () => {
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigate = useAnalyticsNavigation();
   const { profile } = useAuth();
 
   // Get navigation items based on user role and take first 5 for bottom bar
@@ -37,7 +38,7 @@ export const BottomTabBar: React.FC = () => {
 
   const handleTabPress = (path: string) => {
     console.log('BottomTabBar: Navigating to:', path);
-    navigate(path);
+    navigate(path, { method: 'tab' });
   };
 
   return (
