@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { InsightStrip } from '@/components/Analytics/InsightStrip';
 import { MetricCarousel } from '@/components/Analytics/MetricCarousel';
 import { AriaSpotlight } from '@/components/Analytics/AriaSpotlight';
@@ -21,6 +21,7 @@ import { ConnectWearableModal } from '@/components/Analytics/ConnectWearableModa
 import { MuscleAnatomyPanel } from '@/components/Analytics/MuscleAnatomyPanel';
 import { TonnageCard, E1RMCard, VelocityFatigueCard, MuscleLoadCard } from '@/components/Analytics/ChartCards';
 import { useAnalyticsData } from '@/hooks/useAnalyticsData';
+import { useAnalytics } from '@/context/AnalyticsContext';
 
 const ARIA_SUGGESTIONS = [
   "How can I improve recovery this week?",
@@ -44,9 +45,20 @@ const AnalyticsPageContent: React.FC = () => {
   const [showConnectModal, setShowConnectModal] = useState(false);
   const { period } = usePeriod();
   const { profile } = useAuth();
+  const analytics = useAnalytics();
 
   // Convert period to days for existing hooks
   const periodDays = periodToDays(period);
+
+  // Track analytics page view when component mounts
+  useEffect(() => {
+    analytics.trackAnalyticsPageViewed('overview', period);
+  }, [analytics, period]);
+
+  // Track period changes
+  useEffect(() => {
+    analytics.trackAnalyticsPageViewed('overview', period);
+  }, [analytics, period]);
 
   // Reuse readiness, sleep, load, stress hooks as specified
   const { readinessRolling, sleepDaily, loadACWR, latestStrain } = useEnhancedMetrics();
@@ -78,6 +90,8 @@ const AnalyticsPageContent: React.FC = () => {
   
   const handleAriaPrompt = (suggestion: string) => {
     setAriaInput(suggestion);
+    // Track ARIA interaction
+    analytics.trackAriaInteraction('insights');
     // Focus the textarea after state update
     setTimeout(() => {
       document.getElementById('aria-input')?.focus();
@@ -87,6 +101,8 @@ const AnalyticsPageContent: React.FC = () => {
   // Placeholder send handler (integrate with POST /api/aria/insights logic)
   const sendInsight = (e: React.FormEvent) => {
     e.preventDefault();
+    // Track ARIA chat interaction
+    analytics.trackAriaInteraction('chat');
     // TODO: POST to /api/aria/insights
     setAriaInput('');
   };
