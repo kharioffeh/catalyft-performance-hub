@@ -1,17 +1,28 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAnalyticsNavigation } from '@/hooks/useAnalyticsNavigation';
+import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { getNavigationForRole } from '@/config/routes';
 import { MobileNavigation } from './MobileNavigation';
 import { DesktopNavigation } from './DesktopNavigation';
 
-export default function Sidebar() {
-  const { profile } = useAuth();
-  const navigate = useNavigate();
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
-  // Get navigation items based on user role
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+  const navigate = useAnalyticsNavigation();
+  const { profile } = useAuth();
+
   const navigationItems = getNavigationForRole(profile?.role);
+
+  const handleNavigation = (path: string) => {
+    navigate(path, { method: 'menu' });
+    onClose();
+  };
 
   return (
     <>

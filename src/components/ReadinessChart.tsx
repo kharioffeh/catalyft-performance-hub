@@ -5,6 +5,7 @@ import { GlassCard } from '@/components/ui';
 import { ReadinessGauge } from '@/components/Dashboard/ReadinessGauge';
 import { Button } from '@/components/ui/button';
 import { Activity } from 'lucide-react';
+import { useAnalyticsNavigation } from '@/hooks/useAnalyticsNavigation';
 
 interface ReadinessData {
   date: string;
@@ -22,7 +23,7 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
   variant = 'default',
   onConnectWearable 
 }) => {
-  const navigate = useNavigate();
+  const navigate = useAnalyticsNavigation();
 
   if (!data || data.length === 0) {
     return (
@@ -53,6 +54,10 @@ export const ReadinessChart: React.FC<ReadinessChartProps> = ({
 
   const handleViewDetails = () => {
     navigate('/analytics/readiness');
+  };
+
+  const handleChartClick = () => {
+    navigate('/analytics/readiness', { method: 'button' });
   };
 
   return (
