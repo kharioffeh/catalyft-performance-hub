@@ -6,7 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
     "scheme": "catalyft",
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -46,24 +45,6 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
-    "plugins": [
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/notification-icon.png",
-          "color": "#3B82F6",
-          "defaultChannel": "default"
-        }
-      ],
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "Allow Catalyft to access your camera to scan food labels and barcodes."
-        }
-      ]
-    ],
-    "experiments": {
-      "typedRoutes": true
-    }
+    "plugins": []
   }
 }
