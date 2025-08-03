@@ -247,7 +247,7 @@ const SettingsScreen: React.FC = () => {
       disabled={item.type === 'switch'}
     >
       <View style={styles.settingsItemLeft}>
-        <View style={[styles.settingsIcon, item.color && { backgroundColor: item.color }]}>
+        <View style={[styles.settingsIcon, item.color ? { backgroundColor: item.color } : undefined]}>
           <Ionicons name={item.icon as any} size={20} color="#fff" />
         </View>
         <View style={styles.settingsItemContent}>

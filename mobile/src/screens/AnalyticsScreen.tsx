@@ -333,6 +333,8 @@ const AnalyticsScreen: React.FC = () => {
             }}
             width={width - 40}
             height={220}
+            yAxisLabel=""
+            yAxisSuffix="%"
             chartConfig={{
               ...chartConfig,
               color: (opacity = 1) => `rgba(16, 185, 129, ${opacity})`,

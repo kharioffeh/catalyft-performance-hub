@@ -222,7 +222,7 @@ function AppNavigator() {
                 iconName = focused ? 'settings' : 'settings-outline';
                 break;
               default:
-                iconName = 'circle';
+                iconName = 'radio-button-off';
             }
 
             return <Ionicons name={iconName} size={size} color={color} />;
