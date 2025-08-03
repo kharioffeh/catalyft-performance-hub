@@ -12,6 +12,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import { openaiService } from '../services/openaiService';
+import { wearableService } from '../services/wearableService';
 
 const { width } = Dimensions.get('window');
 
@@ -41,6 +43,7 @@ const TrainingScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const [refreshing, setRefreshing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<'All' | 'Strength' | 'Cardio' | 'HIIT' | 'Yoga'>('All');
+  const [workoutRecommendation, setWorkoutRecommendation] = useState<string>('');
   
   const [programs, setPrograms] = useState<WorkoutProgram[]>([
     {
@@ -123,11 +126,48 @@ const TrainingScreen: React.FC = () => {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // Simulate data refresh
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 2000);
+    
+    try {
+      // Get latest device data
+      const deviceData = await wearableService.getCombinedHealthData();
+      
+      // Generate AI workout recommendation
+      const userMetrics = {
+        strain: deviceData.strain || 8.2,
+        recovery: deviceData.recovery || 76,
+        sleep: deviceData.sleep || 7.3,
+        hrv: deviceData.hrv || 45,
+        recentWorkouts: recentWorkouts
+      };
+      
+      const recommendation = await openaiService.generateWorkoutRecommendation(userMetrics);
+      setWorkoutRecommendation(recommendation);
+      
+      console.log('Training data refreshed:', { deviceData, recommendation });
+    } catch (error) {
+      console.error('Training refresh error:', error);
+    }
+    
+    setRefreshing(false);
   };
+
+  // Load AI recommendation on component mount
+  useEffect(() => {
+    const loadRecommendation = async () => {
+      const userMetrics = {
+        strain: 8.2,
+        recovery: 76,
+        sleep: 7.3,
+        hrv: 45,
+        recentWorkouts: recentWorkouts
+      };
+      
+      const recommendation = await openaiService.generateWorkoutRecommendation(userMetrics);
+      setWorkoutRecommendation(recommendation);
+    };
+    
+    loadRecommendation();
+  }, []);
 
   const filteredPrograms = selectedCategory === 'All' 
     ? programs 
@@ -315,9 +355,9 @@ const TrainingScreen: React.FC = () => {
             <Ionicons name="bulb" size={24} color="#F59E0B" />
           </View>
           <View style={styles.recommendationContent}>
-            <Text style={styles.recommendationTitle}>Active Recovery</Text>
+            <Text style={styles.recommendationTitle}>AI Recommendation</Text>
             <Text style={styles.recommendationText}>
-              Based on your recent strain, consider light cardio or yoga today.
+              {workoutRecommendation || 'Loading personalized recommendation...'}
             </Text>
             <TouchableOpacity style={styles.recommendationButton}>
               <Text style={styles.recommendationButtonText}>View Options</Text>

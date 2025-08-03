@@ -12,6 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import { wearableService } from '../services/wearableService';
 
 const { width } = Dimensions.get('window');
 
@@ -56,11 +57,41 @@ const DashboardScreen: React.FC = () => {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // Simulate data refresh
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 2000);
+    
+    try {
+      // Sync with wearable devices
+      const deviceData = await wearableService.syncDeviceData();
+      
+      if (deviceData) {
+        // Update health metrics with real device data
+        setHealthMetrics(prev => ({
+          ...prev,
+          strain: deviceData.strain || prev.strain,
+          recovery: deviceData.recovery || prev.recovery,
+          sleep: deviceData.sleep || prev.sleep,
+          hrv: deviceData.hrv || prev.hrv
+        }));
+
+        // Update today's stats with device data
+        setTodayStats(prev => ({
+          ...prev,
+          caloriesBurned: Math.round(deviceData.calories || prev.caloriesBurned),
+          stepsTaken: Math.round(deviceData.steps || prev.stepsTaken)
+        }));
+
+        console.log('Dashboard data synced:', deviceData);
+      }
+    } catch (error) {
+      console.error('Dashboard refresh error:', error);
+    }
+    
+    setRefreshing(false);
   };
+
+  // Auto-sync on component mount
+  useEffect(() => {
+    onRefresh();
+  }, []);
 
   const getStrainColor = (strain: number) => {
     if (strain < 5) return '#22c55e'; // Green

@@ -11,6 +11,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { LineChart, BarChart } from 'react-native-chart-kit';
+import { openaiService } from '../services/openaiService';
+import { wearableService } from '../services/wearableService';
 
 const { width } = Dimensions.get('window');
 
@@ -36,6 +38,7 @@ const AnalyticsScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const [refreshing, setRefreshing] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '90d'>('7d');
+  const [aiInsights, setAiInsights] = useState<any[]>([]);
   
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
     strain: [6.2, 8.1, 7.5, 9.2, 6.8, 7.9, 8.3],
@@ -86,11 +89,48 @@ const AnalyticsScreen: React.FC = () => {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // Simulate data refresh
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 2000);
+    
+    try {
+      // Sync wearable data
+      const deviceData = await wearableService.syncDeviceData();
+      
+      // Generate AI insights based on current data
+      const userMetrics = {
+        strain: analyticsData.strain[analyticsData.strain.length - 1] || 8.2,
+        recovery: trends[1].current,
+        sleep: trends[2].current, 
+        hrv: trends[3].current,
+        recentWorkouts: []
+      };
+      
+      const insights = await openaiService.generateHealthInsights(userMetrics);
+      setAiInsights(insights);
+      
+      console.log('Data refreshed:', { deviceData, insights });
+    } catch (error) {
+      console.error('Refresh error:', error);
+    }
+    
+    setRefreshing(false);
   };
+
+  // Load AI insights on component mount
+  useEffect(() => {
+    const loadInsights = async () => {
+      const userMetrics = {
+        strain: 8.2,
+        recovery: 72,
+        sleep: 7.4,
+        hrv: 43,
+        recentWorkouts: []
+      };
+      
+      const insights = await openaiService.generateHealthInsights(userMetrics);
+      setAiInsights(insights);
+    };
+    
+    loadInsights();
+  }, []);
 
   const chartConfig = {
     backgroundColor: '#1F2937',
@@ -331,33 +371,38 @@ const AnalyticsScreen: React.FC = () => {
         </View>
       </View>
 
-      {/* Insights */}
+      {/* AI Insights */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>AI Insights</Text>
         <View style={styles.insightsContainer}>
-          <View style={styles.insightCard}>
-            <View style={styles.insightIcon}>
-              <Ionicons name="bulb" size={20} color="#F59E0B" />
-            </View>
-            <View style={styles.insightContent}>
-              <Text style={styles.insightTitle}>Recovery Recommendation</Text>
-              <Text style={styles.insightText}>
-                Your strain has been consistently high. Consider taking a rest day to improve recovery.
-              </Text>
-            </View>
-          </View>
-          
-          <View style={styles.insightCard}>
-            <View style={styles.insightIcon}>
-              <Ionicons name="trending-up" size={20} color="#10B981" />
-            </View>
-            <View style={styles.insightContent}>
-              <Text style={styles.insightTitle}>Sleep Pattern</Text>
-              <Text style={styles.insightText}>
-                Great job! Your sleep duration has improved by 12% this week.
-              </Text>
-            </View>
-          </View>
+          {aiInsights.length > 0 ? (
+            aiInsights.map((insight, index) => (
+              <View key={insight.id || index} style={styles.insightCard}>
+                <View style={styles.insightIcon}>
+                  <Ionicons name={insight.icon as any} size={20} color={insight.color} />
+                </View>
+                <View style={styles.insightContent}>
+                  <Text style={styles.insightTitle}>{insight.title}</Text>
+                  <Text style={styles.insightText}>{insight.content}</Text>
+                </View>
+              </View>
+            ))
+          ) : (
+            // Fallback content while AI insights load
+            <>
+              <View style={styles.insightCard}>
+                <View style={styles.insightIcon}>
+                  <Ionicons name="bulb" size={20} color="#F59E0B" />
+                </View>
+                <View style={styles.insightContent}>
+                  <Text style={styles.insightTitle}>Loading AI Insights...</Text>
+                  <Text style={styles.insightText}>
+                    Analyzing your data to provide personalized recommendations.
+                  </Text>
+                </View>
+              </View>
+            </>
+          )}
         </View>
       </View>
 

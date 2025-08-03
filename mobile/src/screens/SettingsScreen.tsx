@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import ConnectionTester from '../components/ConnectionTester';
 
 interface SettingsItem {
   id: string;
@@ -278,6 +279,9 @@ const SettingsScreen: React.FC = () => {
       <View style={styles.header}>
         <Text style={styles.title}>Settings</Text>
       </View>
+
+      {/* Connection Tester */}
+      <ConnectionTester />
 
       {/* User Profile Card */}
       <View style={styles.section}>

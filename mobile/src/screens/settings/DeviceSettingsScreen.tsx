@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { wearableService } from '../../services/wearableService';
 
 interface Device {
   id: string;
@@ -22,32 +23,28 @@ interface Device {
 
 const DeviceSettingsScreen: React.FC = () => {
   const navigation = useNavigation();
-  
-  const [devices, setDevices] = useState<Device[]>([
-    {
-      id: '1',
-      name: 'WHOOP 4.0',
-      type: 'whoop',
-      connected: true,
-      battery: 85,
-      lastSync: '2 minutes ago'
-    },
-    {
-      id: '2',
-      name: 'Apple Watch Series 9',
-      type: 'apple',
-      connected: true,
-      battery: 92,
-      lastSync: '1 hour ago'
-    },
-    {
-      id: '3',
-      name: 'Garmin Forerunner 955',
-      type: 'garmin',
-      connected: false,
-      lastSync: '2 days ago'
-    }
-  ]);
+  const [devices, setDevices] = useState<Device[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load devices from wearable service
+  useEffect(() => {
+    const loadDevices = async () => {
+      const serviceDevices = wearableService.getAllDevices();
+      const mappedDevices = serviceDevices.map(device => ({
+        id: device.id,
+        name: device.name,
+        type: device.type,
+        connected: device.connected,
+        battery: device.data?.battery,
+        lastSync: device.data?.lastSync
+      }));
+      
+      setDevices(mappedDevices);
+      setIsLoading(false);
+    };
+
+    loadDevices();
+  }, []);
 
   const getDeviceIcon = (type: string) => {
     switch (type) {
@@ -69,14 +66,65 @@ const DeviceSettingsScreen: React.FC = () => {
     }
   };
 
-  const handleDeviceToggle = (deviceId: string, connected: boolean) => {
-    setDevices(prev => 
-      prev.map(device => 
-        device.id === deviceId 
-          ? { ...device, connected, lastSync: connected ? 'Just now' : device.lastSync }
-          : device
-      )
-    );
+  const handleDeviceToggle = async (deviceId: string, connected: boolean) => {
+    try {
+      const device = devices.find(d => d.id === deviceId);
+      if (!device) return;
+
+      if (connected) {
+        const success = await wearableService.connectDevice(device.type);
+        if (success) {
+          Alert.alert('Success', `${device.name} connected successfully!`);
+        } else {
+          Alert.alert('Error', `Failed to connect to ${device.name}`);
+          return;
+        }
+      } else {
+        await wearableService.disconnectDevice(device.type);
+        Alert.alert('Disconnected', `${device.name} has been disconnected`);
+      }
+
+      // Update UI
+      setDevices(prev => 
+        prev.map(d => 
+          d.id === deviceId 
+            ? { ...d, connected, lastSync: connected ? 'Just now' : d.lastSync }
+            : d
+        )
+      );
+    } catch (error) {
+      console.error('Device toggle error:', error);
+      Alert.alert('Error', 'Failed to toggle device connection');
+    }
+  };
+
+  const handleManualSync = async (deviceType: 'whoop' | 'apple' | 'garmin' | 'fitbit') => {
+    try {
+      const device = devices.find(d => d.type === deviceType);
+      if (!device?.connected) {
+        Alert.alert('Error', 'Device is not connected');
+        return;
+      }
+
+      const data = await wearableService.syncDeviceData(deviceType);
+      if (data) {
+        Alert.alert('Success', 'Device synced successfully!');
+        
+        // Update last sync time
+        setDevices(prev => 
+          prev.map(d => 
+            d.type === deviceType 
+              ? { ...d, lastSync: 'Just now' }
+              : d
+          )
+        );
+      } else {
+        Alert.alert('Error', 'Failed to sync device data');
+      }
+    } catch (error) {
+      console.error('Manual sync error:', error);
+      Alert.alert('Error', 'Sync failed');
+    }
   };
 
   const addNewDevice = () => {
@@ -85,10 +133,10 @@ const DeviceSettingsScreen: React.FC = () => {
       'Choose device type to connect:',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'WHOOP', onPress: () => Alert.alert('WHOOP', 'Device pairing coming soon!') },
-        { text: 'Apple Watch', onPress: () => Alert.alert('Apple Watch', 'HealthKit integration coming soon!') },
-        { text: 'Garmin', onPress: () => Alert.alert('Garmin', 'Garmin Connect integration coming soon!') },
-        { text: 'Fitbit', onPress: () => Alert.alert('Fitbit', 'Fitbit API integration coming soon!') }
+        { text: 'WHOOP', onPress: () => handleDeviceToggle('whoop', true) },
+        { text: 'Apple Watch', onPress: () => handleDeviceToggle('apple', true) },
+        { text: 'Garmin', onPress: () => handleDeviceToggle('garmin', true) },
+        { text: 'Fitbit', onPress: () => handleDeviceToggle('fitbit', true) }
       ]
     );
   };
@@ -143,7 +191,10 @@ const DeviceSettingsScreen: React.FC = () => {
                   <Ionicons name="battery-half" size={16} color="#10B981" />
                   <Text style={styles.batteryText}>{device.battery}% battery</Text>
                 </View>
-                <TouchableOpacity style={styles.syncButton}>
+                <TouchableOpacity 
+                  style={styles.syncButton}
+                  onPress={() => handleManualSync(device.type)}
+                >
                   <Ionicons name="sync" size={16} color="#3B82F6" />
                   <Text style={styles.syncText}>Sync Now</Text>
                 </TouchableOpacity>
