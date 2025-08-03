@@ -1,30 +1,69 @@
 {
   "expo": {
-    "name": "mobile",
+    "name": "Catalyft",
     "slug": "catalyft-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
-    "scheme": "exp.catalyft",
+    "scheme": "catalyft",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000000"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.catalyft.mobile",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSHealthShareUsageDescription": "This app needs access to health data to track your fitness metrics and provide personalized insights.",
+        "NSHealthUpdateUsageDescription": "This app needs to write health data to sync your workout information with Apple Health.",
+        "NSMotionUsageDescription": "This app uses motion data to track your workouts and activity levels.",
+        "NSLocationWhenInUseUsageDescription": "This app uses location data to track your running and cycling routes."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#000000"
       },
-      "edgeToEdgeEnabled": true
+      "package": "com.catalyft.mobile",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.BODY_SENSORS",
+        "android.permission.ACTIVITY_RECOGNITION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.VIBRATE",
+        "android.permission.CAMERA"
+      ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#3B82F6",
+          "defaultChannel": "default"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Catalyft to access your camera to scan food labels and barcodes."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
     }
   }
 }
