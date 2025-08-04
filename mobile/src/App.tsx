@@ -1,34 +1,22 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, Alert } from 'react-native';
+import React from 'react';
+import { StyleSheet } from 'react-native';
+import Config from 'react-native-config';
+import * as Sentry from '@sentry/react-native';
+import AppNavigator from './navigation/AppNavigator';
+
+// Initialize Sentry
+Sentry.init({
+  dsn: Config.SENTRY_DSN,
+  environment: Config.NODE_ENV,
+});
 
 export default function App() {
-  const testAlert = () => {
-    Alert.alert('Hello!', 'Your Expo Go app is working! 🎉');
-  };
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Catalyft Performance Hub</Text>
-      <Text style={styles.subtitle}>Mobile App</Text>
-      
-      <View style={styles.section}>
-        <Text style={styles.text}>Welcome to your Expo app!</Text>
-        <Text style={styles.text}>This is running in Expo Go 📱</Text>
-      </View>
-
-      <Button
-        title="Test App"
-        onPress={testAlert}
-        color="#007AFF"
-      />
-
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Built with React Native & Expo</Text>
-      </View>
-
-      <StatusBar style="auto" />
-    </View>
-  );
+  // Log environment status (remove in production)
+  console.log('🔍 Sentry DSN:', Config.SENTRY_DSN ? 'Configured ✅' : 'Not configured ❌');
+  console.log('🌍 Environment:', Config.NODE_ENV);
+  console.log('🏠 Supabase URL:', Config.SUPABASE_URL ? 'Configured ✅' : 'Not configured ❌');
+  
+  return <AppNavigator />;
 }
 
 const styles = StyleSheet.create({
