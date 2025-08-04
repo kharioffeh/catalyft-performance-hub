@@ -2,6 +2,9 @@
   "name": "mobile",
   "version": "1.0.0",
   "main": "index.ts",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "start": "expo start",
     "expo-go": "expo start --go",
