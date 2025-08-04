@@ -10,11 +10,13 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { User } from '@supabase/supabase-js';
+import { useAnalytics } from '@/context/AnalyticsContext';
 
 const Auth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const analytics = useAnalytics();
 
   useEffect(() => {
     // Check if user is already logged in
@@ -30,15 +32,26 @@ const Auth = () => {
       (event, session) => {
         if (session?.user) {
           setUser(session.user);
+          
+          // Track login event when user session is established
+          if (event === 'SIGNED_IN') {
+            analytics.trackUserLogin('email');
+          }
+          
           navigate('/');
         } else {
           setUser(null);
+          
+          // Track logout event when user session ends
+          if (event === 'SIGNED_OUT') {
+            analytics.trackUserLogout();
+          }
         }
       }
     );
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, analytics]);
 
   const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -58,11 +71,14 @@ const Auth = () => {
           data: {
             full_name: fullName,
             role: role,
+            user_type: 'athlete', // Default to athlete for individual users
           },
         },
       });
 
       if (error) {
+        analytics.trackError('auth_signup_failed', error.message, { email });
+        
         if (error.message.includes('User already registered')) {
           toast({
             title: "Account exists",
@@ -77,12 +93,18 @@ const Auth = () => {
           });
         }
       } else {
+        // Track successful registration
+        analytics.trackUserRegistration('email', 'athlete');
+        
         toast({
           title: "Account created!",
           description: "Your account has been created successfully. You can now sign in.",
         });
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      analytics.trackError('auth_signup_exception', errorMessage, { email });
+      
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
@@ -108,6 +130,8 @@ const Auth = () => {
       });
 
       if (error) {
+        analytics.trackError('auth_signin_failed', error.message, { email });
+        
         if (error.message.includes('Invalid login credentials')) {
           toast({
             title: "Invalid credentials",
@@ -122,7 +146,11 @@ const Auth = () => {
           });
         }
       }
+      // Note: Successful login tracking happens in the auth state change listener above
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      analytics.trackError('auth_signin_exception', errorMessage, { email });
+      
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",

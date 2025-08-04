@@ -4,6 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { Brain, Target, TrendingUp, Moon, Activity, Dumbbell, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Insight } from '@/hooks/useInsights';
+import { useAnalyticsNavigation } from '@/hooks/useAnalyticsNavigation';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { TrendingUp as TrendingUpIcon, TrendingDown, Minus, ArrowRight } from 'lucide-react';
 
 interface InsightCardProps {
   insight: Insight;
@@ -50,11 +55,43 @@ const getTrendIcon = (trend?: string) => {
 };
 
 export const InsightCard: React.FC<InsightCardProps> = ({ insight, index }) => {
-  const navigate = useNavigate();
+  const navigate = useAnalyticsNavigation();
 
   const handleClick = () => {
     if (insight.route) {
-      navigate(insight.route);
+      navigate(insight.route, { method: 'button' });
+    }
+  };
+
+  const getTrendIcon = () => {
+    switch (insight.trend) {
+      case 'up':
+        return <TrendingUpIcon className="w-4 h-4 text-green-500" />;
+      case 'down':
+        return <TrendingDown className="w-4 h-4 text-red-500" />;
+      case 'stable':
+        return <Minus className="w-4 h-4 text-yellow-500" />;
+      default:
+        return null;
+    }
+  };
+
+  const getPriorityColor = () => {
+    switch (insight.priority) {
+      case 'high':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low':
+        return 'bg-green-100 text-green-800 border-green-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const handleViewDetails = () => {
+    if (insight.route) {
+      navigate(insight.route, { method: 'button' });
     }
   };
 
@@ -95,7 +132,7 @@ export const InsightCard: React.FC<InsightCardProps> = ({ insight, index }) => {
         </div>
         
         <div className="flex items-center gap-1">
-          {getTrendIcon(insight.trend)}
+          {getTrendIcon()}
           {insight.value && (
             <span className="text-xs font-bold text-white">
               {insight.type === 'load' ? insight.value.toFixed(2) : Math.round(insight.value)}

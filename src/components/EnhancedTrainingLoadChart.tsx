@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAnalyticsNavigation } from '@/hooks/useAnalyticsNavigation';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { GlassCard } from '@/components/ui';
 import { LoadGauge } from '@/components/Dashboard/LoadGauge';
@@ -28,7 +29,7 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
   variant = 'default',
   onLogWorkout 
 }) => {
-  const navigate = useNavigate();
+  const navigate = useAnalyticsNavigation();
 
   if (!data || data.length === 0) {
     return (
@@ -64,7 +65,7 @@ export const EnhancedTrainingLoadChart: React.FC<EnhancedTrainingLoadChartProps>
   };
 
   const handleViewDetails = () => {
-    navigate('/analytics/load');
+    navigate('/analytics/load', { method: 'button' });
   };
 
   // Generate upper/lower body split data from daily load
