@@ -1,15 +1,25 @@
 {
   "files": [],
   "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    }
   ],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@catalyft/core": ["packages/core/src"],
-      "@catalyft/core/*": ["packages/core/src/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@catalyft/core": [
+        "packages/core/src"
+      ],
+      "@catalyft/core/*": [
+        "packages/core/src/*"
+      ]
     },
     "noImplicitAny": false,
     "noUnusedParameters": false,
@@ -18,5 +28,6 @@
     "noUnusedLocals": false,
     "strictNullChecks": false,
     "esModuleInterop": true
-  }
+  },
+  "extends": "expo/tsconfig.base"
 }
