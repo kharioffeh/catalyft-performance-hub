@@ -93,15 +93,24 @@ jobs:
           echo "Available iOS simulators:"
           xcrun simctl list devices available | head -10
           
-          # Run the tests with retries and better error handling
+          # Run the tests with detailed logging
           echo "Starting iOS E2E tests..."
-          npm run detox:test:ios || {
-            echo "First test run failed, checking logs and retrying..."
-            find . -name "*.log" -type f -exec echo "=== {} ===" \; -exec cat {} \; || true
-            npm run detox:test:ios
+          npm run detox:test:ios 2>&1 | tee ios-test-output.log || {
+            echo "=== iOS Test Failed - Showing output ==="
+            cat ios-test-output.log
+            echo "=== End of iOS Test Output ==="
+            
+            echo "=== Checking for Jest/Detox logs ==="
+            find . -name "*.log" -type f -exec echo "=== {} ===" \; -exec cat {} \; 2>/dev/null || true
+            
+            echo "=== Simulator logs ==="
+            xcrun simctl list devices | grep "Booted" || echo "No booted simulators found"
+            
+            exit 1
           }
         env:
-          DETOX_LOGLEVEL: info
+          DETOX_LOGLEVEL: trace
+          DEBUG: "*"
 
       - name: Upload iOS test artifacts
         if: failure()
@@ -171,27 +180,38 @@ jobs:
       - name: Setup Android Emulator
         run: |
           # Set environment variables for Android AVD
-          echo "ANDROID_AVD_HOME=$HOME/.android/avd" >> $GITHUB_ENV
-          echo "ANDROID_SDK_HOME=$HOME" >> $GITHUB_ENV
+          export ANDROID_AVD_HOME=$HOME/.android/avd
+          export ANDROID_SDK_HOME=$HOME
           
           # Ensure Android SDK tools are in PATH
-          echo "$ANDROID_HOME/emulator" >> $GITHUB_PATH
-          echo "$ANDROID_HOME/tools" >> $GITHUB_PATH
-          echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
+          export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
           
           # Create .android directory structure
           mkdir -p $HOME/.android/avd
           
-          # Create a simple AVD with minimal specs for faster boot
+          # List available system images for debugging
+          echo "Available system images:"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep "system-images;android-33" | head -3
+          
+          # Create AVD
+          echo "Creating AVD..."
           echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
             -n test_emulator \
             -k "system-images;android-33;google_apis;x86_64" \
             --force \
             --device "pixel_6"
           
-          # Start emulator in background with fast boot settings
-          echo "Starting Android emulator with fast boot settings..."
-          nohup $ANDROID_HOME/emulator/emulator \
+          # List created AVDs
+          echo "Created AVDs:"
+          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
+          
+          # Check if emulator binary exists
+          echo "Checking emulator binary:"
+          ls -la $ANDROID_HOME/emulator/emulator
+          
+          # Start emulator with verbose logging
+          echo "Starting Android emulator..."
+          $ANDROID_HOME/emulator/emulator \
             -avd test_emulator \
             -no-audio \
             -no-window \
@@ -199,34 +219,35 @@ jobs:
             -no-snapshot \
             -wipe-data \
             -memory 2048 \
-            -cores 2 \
-            -netfast \
-            -no-boot-anim \
-            -camera-back none \
-            -camera-front none \
+            -verbose \
             > emulator.log 2>&1 &
           
-          # Wait for ADB to detect device (faster than waiting for full boot)
-          echo "Waiting for emulator to be detected..."
-          timeout 180 bash -c '
-            until adb devices | grep -q "emulator"; do
-              echo "Waiting for emulator device..."
-              sleep 5
-            done
-          '
+          EMULATOR_PID=$!
+          echo "Emulator started with PID: $EMULATOR_PID"
           
-          # Wait for basic boot (shorter timeout)
-          echo "Waiting for basic boot completion..."
-          timeout 120 bash -c '
-            until adb shell getprop init.svc.bootanim | grep -q "stopped"; do
-              echo "Waiting for boot animation to stop..."
-              sleep 5
-            done
-          '
+          # Wait for emulator device to appear
+          echo "Waiting for emulator device..."
+          for i in {1..60}; do
+            if adb devices | grep -q "emulator"; then
+              echo "Emulator device detected!"
+              break
+            fi
+            echo "Attempt $i/60: Waiting for emulator..."
+            sleep 3
+          done
           
-          # Basic device setup
-          adb shell input keyevent 82 || true
-          echo "Android emulator is ready for testing!"
+          # Check if device was detected
+          adb devices
+          
+          # If no device, show emulator log
+          if ! adb devices | grep -q "emulator"; then
+            echo "=== EMULATOR LOG ==="
+            cat emulator.log
+            echo "=== END EMULATOR LOG ==="
+            exit 1
+          fi
+          
+          echo "Android emulator setup complete!"
 
       - name: Install Expo development build tools
         working-directory: mobile
