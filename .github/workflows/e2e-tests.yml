@@ -67,7 +67,11 @@ jobs:
         run: |
           # Build using xcodebuild instead of expo run:ios
           cd ios
-          xcodebuild -workspace *.xcworkspace -scheme * -configuration Debug -sdk iphonesimulator -derivedDataPath build
+          # Find the actual workspace and scheme names
+          WORKSPACE_NAME=$(find . -name "*.xcworkspace" | head -1 | sed 's|./||')
+          SCHEME_NAME=$(xcodebuild -workspace "$WORKSPACE_NAME" -list | grep -A 100 "Schemes:" | grep -v "Schemes:" | head -1 | xargs)
+          echo "Building workspace: $WORKSPACE_NAME with scheme: $SCHEME_NAME"
+          xcodebuild -workspace "$WORKSPACE_NAME" -scheme "$SCHEME_NAME" -configuration Debug -sdk iphonesimulator -derivedDataPath build
         env:
           EXPO_NO_METRO: 1
 
@@ -116,12 +120,16 @@ jobs:
         run: |
           # Accept licenses first
           yes | sdkmanager --licenses || true
+          # List available packages first
+          echo "Available system images:"
+          sdkmanager --list | grep "system-images;android-"
           # Install required packages
           sdkmanager "platform-tools"
           sdkmanager "emulator"
-          sdkmanager "system-images;android-33;google_apis;x86_64"
-          sdkmanager "platforms;android-33"
-          sdkmanager "build-tools;33.0.0"
+          # Try different Android versions if 33 isn't available
+          sdkmanager "system-images;android-33;google_apis;x86_64" || sdkmanager "system-images;android-34;google_apis;x86_64" || sdkmanager "system-images;android-32;google_apis;x86_64"
+          sdkmanager "platforms;android-33" || sdkmanager "platforms;android-34" || sdkmanager "platforms;android-32"
+          sdkmanager "build-tools;33.0.0" || sdkmanager "build-tools;34.0.0"
 
       - name: Setup Expo CLI
         run: npm install -g @expo/cli
@@ -147,11 +155,20 @@ jobs:
           echo "$ANDROID_HOME/tools" >> $GITHUB_PATH
           echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
           
-          # Create AVD with Android 33 (more stable in CI)
-          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test_emulator -k "system-images;android-33;google_apis;x86_64" --force
+          # Check available system images
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep system-images
+          
+          # Create AVD with available Android version
+          # Try to create with different Android versions
+          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test_emulator -k "system-images;android-33;google_apis;x86_64" --force || \
+          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test_emulator -k "system-images;android-34;google_apis;x86_64" --force || \
+          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test_emulator -k "system-images;android-32;google_apis;x86_64" --force
+          
+          # Verify AVD was created
+          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
           
           # Start emulator in background
-          $ANDROID_HOME/emulator/emulator -avd test_emulator -no-audio -no-window -gpu swiftshader_indirect -no-snapshot -wipe-data &
+          nohup $ANDROID_HOME/emulator/emulator -avd test_emulator -no-audio -no-window -gpu swiftshader_indirect -no-snapshot -wipe-data > emulator.log 2>&1 &
           
           # Wait for emulator to boot (with timeout)
           timeout 300 adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
