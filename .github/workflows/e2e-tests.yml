@@ -273,7 +273,8 @@ jobs:
           # Build using gradlew instead of expo run:android
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          # Build both the app and the test APK (required by Detox)
+          ./gradlew assembleDebug assembleAndroidTest
         env:
           EXPO_NO_METRO: 1
 
