@@ -149,16 +149,35 @@ jobs:
         run: |
           # Accept licenses first
           yes | sdkmanager --licenses || true
-          # List available packages first
-          echo "Available system images:"
-          sdkmanager --list | grep "system-images;android-"
-          # Install required packages
-          sdkmanager "platform-tools"
-          sdkmanager "emulator"
-          # Try different Android versions if 33 isn't available
-          sdkmanager "system-images;android-33;google_apis;x86_64" || sdkmanager "system-images;android-34;google_apis;x86_64" || sdkmanager "system-images;android-32;google_apis;x86_64"
-          sdkmanager "platforms;android-33" || sdkmanager "platforms;android-34" || sdkmanager "platforms;android-32"
-          sdkmanager "build-tools;33.0.0" || sdkmanager "build-tools;34.0.0"
+          
+          # Install basic tools
+          echo "Installing basic Android tools..."
+          sdkmanager "platform-tools" "emulator"
+          
+          # Install system images with better fallback logic
+          echo "Installing Android system images..."
+          if sdkmanager "system-images;android-33;google_apis;x86_64"; then
+            echo "✅ Android 33 system image installed"
+            ANDROID_API=33
+          elif sdkmanager "system-images;android-34;google_apis;x86_64"; then
+            echo "✅ Android 34 system image installed (fallback)"
+            ANDROID_API=34
+          elif sdkmanager "system-images;android-32;google_apis;x86_64"; then
+            echo "✅ Android 32 system image installed (fallback)"
+            ANDROID_API=32
+          else
+            echo "❌ Failed to install any Android system image"
+            exit 1
+          fi
+          
+          # Install corresponding platform and build tools
+          echo "Installing platform and build tools for API $ANDROID_API..."
+          sdkmanager "platforms;android-$ANDROID_API"
+          sdkmanager "build-tools;${ANDROID_API}.0.0" || sdkmanager "build-tools;34.0.0"
+          
+          # Verify installations
+          echo "Installed packages:"
+          sdkmanager --list_installed | head -20
 
       - name: Setup Expo CLI
         run: npm install -g @expo/cli
@@ -193,15 +212,29 @@ jobs:
           # Create .android directory structure
           mkdir -p $HOME/.android/avd
           
-          # List available system images for debugging
-          echo "Available system images:"
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep "system-images;android-33" | head -3
+          # Detect available system image
+          echo "Detecting available system images..."
+          if sdkmanager --list_installed | grep -q "system-images;android-33;google_apis;x86_64"; then
+            SYSTEM_IMAGE="system-images;android-33;google_apis;x86_64"
+            API_LEVEL=33
+          elif sdkmanager --list_installed | grep -q "system-images;android-34;google_apis;x86_64"; then
+            SYSTEM_IMAGE="system-images;android-34;google_apis;x86_64"
+            API_LEVEL=34
+          elif sdkmanager --list_installed | grep -q "system-images;android-32;google_apis;x86_64"; then
+            SYSTEM_IMAGE="system-images;android-32;google_apis;x86_64"
+            API_LEVEL=32
+          else
+            echo "❌ No suitable system image found"
+            exit 1
+          fi
+          
+          echo "Using system image: $SYSTEM_IMAGE (API $API_LEVEL)"
           
           # Create AVD
           echo "Creating AVD..."
           echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
             -n test_emulator \
-            -k "system-images;android-33;google_apis;x86_64" \
+            -k "$SYSTEM_IMAGE" \
             --force \
             --device "pixel_6"
           
@@ -268,8 +301,25 @@ jobs:
           rm -rf android
           npx expo prebuild --platform android
           
-          # Skip packaging fix for now - focus on getting tests to run
-          echo "Skipping packaging fixes for now - testing basic Android build"
+          # Add packaging options to handle duplicate META-INF files
+          echo "Adding packaging options to handle duplicate files..."
+          cat >> android/app/build.gradle << 'EOF'
+
+android {
+    packagingOptions {
+        pickFirst '**/libc++_shared.so'
+        pickFirst '**/libjsc.so'
+        pickFirst '**/libflipper.so'
+        pickFirst 'META-INF/LICENSE.md'
+        pickFirst 'META-INF/LICENSE-notice.md'
+        pickFirst 'META-INF/NOTICE.md'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
+}
+EOF
         env:
           EXPO_NO_TELEMETRY: 1
           NPM_CONFIG_LEGACY_PEER_DEPS: true
@@ -280,15 +330,30 @@ jobs:
           # Build using gradlew instead of expo run:android
           cd android
           chmod +x gradlew
-          # First try to build just the app APK to avoid test dependency conflicts
+          
+          # First build the main app APK
+          echo "Building main Android APK..."
           ./gradlew assembleDebug
           
-          # Then try to build the test APK separately with lenient options
-          ./gradlew assembleAndroidTest -x lint --stacktrace || {
-            echo "AndroidTest build failed, trying with alternative approach..."
-            # Try without the test APK - Detox might work with just the main APK
-            echo "Continuing with just the main APK..."
-          }
+          # Try to build the test APK with improved error handling
+          echo "Building Android test APK..."
+          if ./gradlew assembleAndroidTest -x lint --stacktrace --no-daemon; then
+            echo "✅ Both APKs built successfully"
+          else
+            echo "❌ Test APK build failed, but main APK is available"
+            echo "Detox may still work with just the main APK for basic functionality"
+            
+            # Show available APKs
+            echo "Available APK files:"
+            find . -name "*.apk" -type f
+            
+            # Try a different approach for test APK
+            echo "Attempting alternative test APK build..."
+            ./gradlew :app:assembleAndroidTest --stacktrace --no-daemon || {
+              echo "Alternative test APK build also failed"
+              echo "Continuing with main APK only - some Detox features may be limited"
+            }
+          fi
         env:
           EXPO_NO_METRO: 1
 

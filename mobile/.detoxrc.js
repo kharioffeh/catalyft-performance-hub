@@ -23,7 +23,8 @@ module.exports = {
     'android.debug': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/debug/app-debug.apk',
-      build: 'rm -rf android && npx expo prebuild --platform android && cd android && ./gradlew assembleDebug',
+      testBinaryPath: 'android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk',
+      build: 'rm -rf android && npx expo prebuild --platform android && cd android && chmod +x gradlew && ./gradlew assembleDebug assembleAndroidTest',
       reversePorts: [
         8081
       ]
@@ -31,7 +32,7 @@ module.exports = {
     'android.release': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/release/app-release.apk',
-      build: 'rm -rf android && npx expo prebuild --platform android && cd android && ./gradlew assembleRelease'
+      build: 'rm -rf android && npx expo prebuild --platform android && cd android && chmod +x gradlew && ./gradlew assembleRelease'
     }
   },
   devices: {
