@@ -27,7 +27,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: mobile
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Validate E2E setup
         working-directory: mobile
@@ -98,7 +98,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: mobile
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Validate E2E setup
         working-directory: mobile
