@@ -179,7 +179,7 @@ jobs:
           
           # Install missing libraries for Android emulator
           sudo apt-get update
-          sudo apt-get install -y libpulse0 libnss3 libnspr4 libxss1 libasound2
+          sudo apt-get install -y libpulse0 libnss3 libnspr4 libxss1 libasound2t64
 
       - name: Setup Android Emulator
         run: |
