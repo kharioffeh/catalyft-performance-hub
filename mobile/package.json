@@ -23,7 +23,12 @@
     "test:e2e": "detox test --configuration ios.sim.debug",
     "test:e2e:android": "detox test --configuration android.emu.debug",
     "build:e2e:ios": "detox build --configuration ios.sim.debug",
-    "build:e2e:android": "detox build --configuration android.emu.debug"
+    "build:e2e:android": "detox build --configuration android.emu.debug",
+    "detox:validate": "node scripts/validate-e2e-setup.js",
+    "detox:build:ios": "detox build --configuration ios.sim.debug",
+    "detox:test:ios": "detox test --configuration ios.sim.debug",
+    "detox:build:android": "detox build --configuration android.emu.debug",
+    "detox:test:android": "detox test --configuration android.emu.debug"
   },
   "dependencies": {
     "@sentry/react-native": "^6.19.0",
@@ -54,6 +59,7 @@
     "jest-circus": "^30.0.5",
     "prettier": "^3.4.2",
     "react-native-dotenv": "^3.4.11",
+    "ts-jest": "^29.1.1",
     "typescript": "~5.8.3"
   },
   "private": true
