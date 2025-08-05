@@ -78,8 +78,21 @@ jobs:
       - name: Run iOS E2E tests
         working-directory: mobile
         run: |
-          # Run the tests with retries
-          npm run detox:test:ios || npm run detox:test:ios
+          # Verify the iOS app was built successfully
+          echo "Checking for iOS app binary..."
+          find ios/build -name "*.app" -type d | head -5
+          
+          # List available iOS simulators
+          echo "Available iOS simulators:"
+          xcrun simctl list devices available | head -10
+          
+          # Run the tests with retries and better error handling
+          echo "Starting iOS E2E tests..."
+          npm run detox:test:ios || {
+            echo "First test run failed, checking logs and retrying..."
+            find . -name "*.log" -type f -exec echo "=== {} ===" \; -exec cat {} \; || true
+            npm run detox:test:ios
+          }
         env:
           DETOX_LOGLEVEL: info
 
@@ -150,28 +163,60 @@ jobs:
 
       - name: Setup Android Emulator
         run: |
+          # Set environment variables for Android AVD
+          echo "ANDROID_AVD_HOME=$HOME/.android/avd" >> $GITHUB_ENV
+          echo "ANDROID_SDK_HOME=$HOME" >> $GITHUB_ENV
+          
           # Ensure Android SDK tools are in PATH
           echo "$ANDROID_HOME/emulator" >> $GITHUB_PATH
           echo "$ANDROID_HOME/tools" >> $GITHUB_PATH
           echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
           
-          # Check available system images
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep system-images
+          # Create .android directory structure
+          mkdir -p $HOME/.android/avd
           
-          # Create AVD with available Android version
-          # Try to create with different Android versions
-          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test_emulator -k "system-images;android-33;google_apis;x86_64" --force || \
-          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test_emulator -k "system-images;android-34;google_apis;x86_64" --force || \
-          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test_emulator -k "system-images;android-32;google_apis;x86_64" --force
+          # Check available system images (limit output)
+          echo "Checking for system images..."
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep "system-images;android-33" | head -5
           
-          # Verify AVD was created
+          # Create AVD with Android 33 (should be available from our previous install)
+          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
+            -n test_emulator \
+            -k "system-images;android-33;google_apis;x86_64" \
+            --force \
+            --device "pixel_7"
+          
+          # Verify AVD was created and show details
+          echo "AVD created successfully:"
           $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
           
-          # Start emulator in background
-          nohup $ANDROID_HOME/emulator/emulator -avd test_emulator -no-audio -no-window -gpu swiftshader_indirect -no-snapshot -wipe-data > emulator.log 2>&1 &
+          # Start emulator in background with proper settings for CI
+          echo "Starting Android emulator..."
+          nohup $ANDROID_HOME/emulator/emulator \
+            -avd test_emulator \
+            -no-audio \
+            -no-window \
+            -gpu swiftshader_indirect \
+            -no-snapshot \
+            -wipe-data \
+            -memory 4096 \
+            -cores 2 \
+            > emulator.log 2>&1 &
           
-          # Wait for emulator to boot (with timeout)
-          timeout 300 adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
+          # Wait a bit for emulator to start
+          sleep 30
+          
+          # Wait for emulator to boot (with timeout and better error handling)
+          echo "Waiting for emulator to boot..."
+          timeout 300 bash -c '
+            until adb shell getprop sys.boot_completed | grep -q "1"; do
+              echo "Waiting for boot completion..."
+              sleep 10
+            done
+          '
+          
+          # Unlock screen
+          adb shell input keyevent 82
 
       - name: Install Expo development build tools
         working-directory: mobile
@@ -204,8 +249,25 @@ jobs:
       - name: Run Android E2E tests
         working-directory: mobile
         run: |
-          # Run the tests with retries
-          npm run detox:test:android || npm run detox:test:android
+          # Verify the Android app was built successfully
+          echo "Checking for Android APK..."
+          find android -name "*.apk" -type f | head -5
+          
+          # Check emulator status
+          echo "Emulator status:"
+          adb devices
+          
+          # Show emulator log if there are issues
+          echo "Recent emulator log:"
+          tail -50 emulator.log || echo "No emulator log found"
+          
+          # Run the tests with retries and better error handling
+          echo "Starting Android E2E tests..."
+          npm run detox:test:android || {
+            echo "First test run failed, checking logs and retrying..."
+            find . -name "*.log" -type f -exec echo "=== {} ===" \; -exec cat {} \; || true
+            npm run detox:test:android
+          }
         env:
           DETOX_LOGLEVEL: info
 
