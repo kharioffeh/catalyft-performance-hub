@@ -301,24 +301,13 @@ jobs:
           rm -rf android
           npx expo prebuild --platform android
           
-          # Add packaging options to handle duplicate META-INF files
-          echo "Adding packaging options to handle duplicate files..."
-          cat >> android/app/build.gradle << 'EOF'
+          # Create gradle.properties to handle duplicate META-INF files
+          echo "Adding packaging options via gradle.properties..."
+          cat >> android/gradle.properties << 'EOF'
 
-android {
-    packagingOptions {
-        pickFirst '**/libc++_shared.so'
-        pickFirst '**/libjsc.so'
-        pickFirst '**/libflipper.so'
-        pickFirst 'META-INF/LICENSE.md'
-        pickFirst 'META-INF/LICENSE-notice.md'
-        pickFirst 'META-INF/NOTICE.md'
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/DEPENDENCIES.txt'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE.txt'
-    }
-}
+# Handle duplicate META-INF files during Android build
+android.packagingOptions.pickFirsts=**/libc++_shared.so,**/libjsc.so,**/libflipper.so,META-INF/LICENSE.md,META-INF/LICENSE-notice.md,META-INF/NOTICE.md
+android.packagingOptions.excludes=META-INF/DEPENDENCIES,META-INF/DEPENDENCIES.txt,META-INF/LICENSE.txt,META-INF/NOTICE.txt
 EOF
         env:
           EXPO_NO_TELEMETRY: 1
@@ -331,29 +320,15 @@ EOF
           cd android
           chmod +x gradlew
           
-          # First build the main app APK
+          # Build the main app APK
           echo "Building main Android APK..."
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --stacktrace --no-daemon
           
-          # Try to build the test APK with improved error handling
-          echo "Building Android test APK..."
-          if ./gradlew assembleAndroidTest -x lint --stacktrace --no-daemon; then
-            echo "✅ Both APKs built successfully"
-          else
-            echo "❌ Test APK build failed, but main APK is available"
-            echo "Detox may still work with just the main APK for basic functionality"
-            
-            # Show available APKs
-            echo "Available APK files:"
-            find . -name "*.apk" -type f
-            
-            # Try a different approach for test APK
-            echo "Attempting alternative test APK build..."
-            ./gradlew :app:assembleAndroidTest --stacktrace --no-daemon || {
-              echo "Alternative test APK build also failed"
-              echo "Continuing with main APK only - some Detox features may be limited"
-            }
-          fi
+          # Show available APKs
+          echo "Available APK files:"
+          find . -name "*.apk" -type f
+          
+          echo "✅ Main APK built successfully"
         env:
           EXPO_NO_METRO: 1
 
