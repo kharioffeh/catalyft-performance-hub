@@ -35,6 +35,13 @@ jobs:
 
       - name: Setup iOS Simulator
         run: |
+          # Install applesimutils (required by Detox)
+          brew tap wix/brew
+          brew install applesimutils
+          
+          # Verify applesimutils installation
+          applesimutils --version
+          
           # List available simulators
           xcrun simctl list devices available
           
@@ -175,23 +182,15 @@ jobs:
           # Create .android directory structure
           mkdir -p $HOME/.android/avd
           
-          # Check available system images (limit output)
-          echo "Checking for system images..."
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep "system-images;android-33" | head -5
-          
-          # Create AVD with Android 33 (should be available from our previous install)
+          # Create a simple AVD with minimal specs for faster boot
           echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
             -n test_emulator \
             -k "system-images;android-33;google_apis;x86_64" \
             --force \
-            --device "pixel_7"
+            --device "pixel_6"
           
-          # Verify AVD was created and show details
-          echo "AVD created successfully:"
-          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
-          
-          # Start emulator in background with proper settings for CI
-          echo "Starting Android emulator..."
+          # Start emulator in background with fast boot settings
+          echo "Starting Android emulator with fast boot settings..."
           nohup $ANDROID_HOME/emulator/emulator \
             -avd test_emulator \
             -no-audio \
@@ -199,24 +198,35 @@ jobs:
             -gpu swiftshader_indirect \
             -no-snapshot \
             -wipe-data \
-            -memory 4096 \
+            -memory 2048 \
             -cores 2 \
+            -netfast \
+            -no-boot-anim \
+            -camera-back none \
+            -camera-front none \
             > emulator.log 2>&1 &
           
-          # Wait a bit for emulator to start
-          sleep 30
-          
-          # Wait for emulator to boot (with timeout and better error handling)
-          echo "Waiting for emulator to boot..."
-          timeout 300 bash -c '
-            until adb shell getprop sys.boot_completed | grep -q "1"; do
-              echo "Waiting for boot completion..."
-              sleep 10
+          # Wait for ADB to detect device (faster than waiting for full boot)
+          echo "Waiting for emulator to be detected..."
+          timeout 180 bash -c '
+            until adb devices | grep -q "emulator"; do
+              echo "Waiting for emulator device..."
+              sleep 5
             done
           '
           
-          # Unlock screen
-          adb shell input keyevent 82
+          # Wait for basic boot (shorter timeout)
+          echo "Waiting for basic boot completion..."
+          timeout 120 bash -c '
+            until adb shell getprop init.svc.bootanim | grep -q "stopped"; do
+              echo "Waiting for boot animation to stop..."
+              sleep 5
+            done
+          '
+          
+          # Basic device setup
+          adb shell input keyevent 82 || true
+          echo "Android emulator is ready for testing!"
 
       - name: Install Expo development build tools
         working-directory: mobile
