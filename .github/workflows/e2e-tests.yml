@@ -1,11 +1,11 @@
 name: E2E Tests
 
-on:
+"on":
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
-  workflow_dispatch: # Allow manual triggering
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   # iOS Testing on macOS runners
@@ -303,12 +303,10 @@ jobs:
           
           # Create gradle.properties to handle duplicate META-INF files
           echo "Adding packaging options via gradle.properties..."
-          cat >> android/gradle.properties << 'EOF'
-
-# Handle duplicate META-INF files during Android build
-android.packagingOptions.pickFirsts=**/libc++_shared.so,**/libjsc.so,**/libflipper.so,META-INF/LICENSE.md,META-INF/LICENSE-notice.md,META-INF/NOTICE.md
-android.packagingOptions.excludes=META-INF/DEPENDENCIES,META-INF/DEPENDENCIES.txt,META-INF/LICENSE.txt,META-INF/NOTICE.txt
-EOF
+          echo "" >> android/gradle.properties
+          echo "# Handle duplicate META-INF files during Android build" >> android/gradle.properties
+          echo "android.packagingOptions.pickFirsts=**/libc++_shared.so,**/libjsc.so,**/libflipper.so,META-INF/LICENSE.md,META-INF/LICENSE-notice.md,META-INF/NOTICE.md" >> android/gradle.properties
+          echo "android.packagingOptions.excludes=META-INF/DEPENDENCIES,META-INF/DEPENDENCIES.txt,META-INF/LICENSE.txt,META-INF/NOTICE.txt" >> android/gradle.properties
         env:
           EXPO_NO_TELEMETRY: 1
           NPM_CONFIG_LEGACY_PEER_DEPS: true
