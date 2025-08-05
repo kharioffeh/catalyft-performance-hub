@@ -171,11 +171,15 @@ jobs:
         working-directory: mobile
         run: npm run detox:validate
 
-      - name: Enable KVM (for Android emulator)
+      - name: Enable KVM and install emulator dependencies
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+          
+          # Install missing libraries for Android emulator
+          sudo apt-get update
+          sudo apt-get install -y libpulse0 libnss3 libnspr4 libxss1 libasound2
 
       - name: Setup Android Emulator
         run: |

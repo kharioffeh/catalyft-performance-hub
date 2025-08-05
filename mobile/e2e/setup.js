@@ -1,4 +1,4 @@
-import { beforeAll, afterAll } from '@jest/globals';
+const { beforeAll, afterAll } = require('@jest/globals');
 
 beforeAll(async () => {
   // Additional setup can go here
