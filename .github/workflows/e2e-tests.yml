@@ -38,17 +38,33 @@ jobs:
           # List available simulators
           xcrun simctl list devices available
           
-          # Boot iPhone 14 simulator
-          xcrun simctl boot "iPhone 14" || xcrun simctl boot "iPhone 15"
+          # Try to boot iPhone 15 first, then iPhone 14 as fallback
+          xcrun simctl boot "iPhone 15" || xcrun simctl boot "iPhone 14" || echo "Simulator boot failed, continuing anyway"
           
           # Wait for simulator to be ready
-          xcrun simctl bootstatus "iPhone 14" -b || xcrun simctl bootstatus "iPhone 15" -b
+          sleep 10
+
+      - name: Install Expo development build tools
+        working-directory: mobile
+        run: |
+          # Install required expo packages for native builds
+          npx expo install expo-dev-client
+          npx expo install @expo/metro-config
+
+      - name: Pre-build for iOS (generate native code)
+        working-directory: mobile
+        run: |
+          # Generate native iOS project
+          npx expo prebuild --platform ios --clear
+        env:
+          EXPO_NO_TELEMETRY: 1
 
       - name: Build iOS app for testing
         working-directory: mobile
         run: |
-          # Build the app
-          npm run detox:build:ios
+          # Build using xcodebuild instead of expo run:ios
+          cd ios
+          xcodebuild -workspace *.xcworkspace -scheme * -configuration Debug -sdk iphonesimulator -derivedDataPath build
         env:
           EXPO_NO_METRO: 1
 
@@ -110,22 +126,45 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      - name: Install Android system images
+        run: |
+          # Install the required system images
+          sdkmanager "system-images;android-33;google_apis;x86_64"
+          sdkmanager "platforms;android-33"
+          sdkmanager "build-tools;33.0.0"
+
       - name: Setup Android Emulator
         run: |
-          # Create AVD
-          echo "no" | avdmanager create avd -n test_emulator -k "system-images;android-34;google_apis;x86_64" --force
+          # Create AVD with Android 33 (more stable in CI)
+          echo "no" | avdmanager create avd -n test_emulator -k "system-images;android-33;google_apis;x86_64" --force
           
           # Start emulator in background
           emulator -avd test_emulator -no-audio -no-window -gpu swiftshader_indirect -no-snapshot -wipe-data &
           
-          # Wait for emulator to boot
-          adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
+          # Wait for emulator to boot (with timeout)
+          timeout 300 adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
+
+      - name: Install Expo development build tools
+        working-directory: mobile
+        run: |
+          # Install required expo packages for native builds
+          npx expo install expo-dev-client
+          npx expo install @expo/metro-config
+
+      - name: Pre-build for Android (generate native code)
+        working-directory: mobile
+        run: |
+          # Generate native Android project
+          npx expo prebuild --platform android --clear
+        env:
+          EXPO_NO_TELEMETRY: 1
 
       - name: Build Android app for testing
         working-directory: mobile
         run: |
-          # Build the app
-          npm run detox:build:android
+          # Build using gradlew instead of expo run:android
+          cd android
+          ./gradlew assembleDebug
         env:
           EXPO_NO_METRO: 1
 

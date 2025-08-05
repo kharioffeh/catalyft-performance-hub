@@ -12,18 +12,18 @@ module.exports = {
   apps: {
     'ios.debug': {
       type: 'ios.app',
-      binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/mobile.app',
-      build: 'npx expo run:ios --configuration Debug'
+      binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/*.app',
+      build: 'npx expo prebuild --platform ios --clear && cd ios && xcodebuild -workspace *.xcworkspace -scheme * -configuration Debug -sdk iphonesimulator -derivedDataPath build'
     },
     'ios.release': {
       type: 'ios.app',
-      binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/mobile.app',
-      build: 'npx expo run:ios --configuration Release'
+      binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/*.app',
+      build: 'npx expo prebuild --platform ios --clear && cd ios && xcodebuild -workspace *.xcworkspace -scheme * -configuration Release -sdk iphonesimulator -derivedDataPath build'
     },
     'android.debug': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/debug/app-debug.apk',
-      build: 'npx expo run:android --variant debug',
+      build: 'npx expo prebuild --platform android --clear && cd android && ./gradlew assembleDebug',
       reversePorts: [
         8081
       ]
@@ -31,7 +31,7 @@ module.exports = {
     'android.release': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/release/app-release.apk',
-      build: 'npx expo run:android --variant release'
+      build: 'npx expo prebuild --platform android --clear && cd android && ./gradlew assembleRelease'
     }
   },
   devices: {
@@ -50,7 +50,7 @@ module.exports = {
     emulator: {
       type: 'android.emulator',
       device: {
-        avdName: 'Pixel_7_API_34'
+        avdName: 'test_emulator'
       }
     }
   },
