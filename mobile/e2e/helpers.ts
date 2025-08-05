@@ -81,7 +81,7 @@ export class E2EHelpers {
     
     // Check current state and toggle if needed
     const offlineState = await toggleButton.getAttributes();
-    const isCurrentlyEnabled = offlineState.value === 'true' || offlineState.value === true;
+    const isCurrentlyEnabled = (offlineState as any).value === 'true' || (offlineState as any).value === true;
     
     if (isCurrentlyEnabled !== enable) {
       await toggleButton.tap();

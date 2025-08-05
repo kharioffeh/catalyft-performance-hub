@@ -19,6 +19,8 @@ module.exports = {
         lib: ['es2017'],
         allowSyntheticDefaultImports: true,
         esModuleInterop: true,
+        skipLibCheck: true,
+        types: ['detox/globals', 'jest']
       }
     }],
     '^.+\\.js$': 'babel-jest',
