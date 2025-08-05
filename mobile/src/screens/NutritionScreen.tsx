@@ -241,6 +241,7 @@ const NutritionScreen: React.FC = () => {
   return (
     <ScrollView 
       style={styles.container}
+      testID="nutrition-container"
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
@@ -386,6 +387,7 @@ const NutritionScreen: React.FC = () => {
         <View style={styles.quickAddContainer}>
           <TouchableOpacity 
             style={styles.quickAddButton}
+            testID="barcode-scanner-button"
             onPress={() => navigation.navigate('FoodSearch')}
           >
             <LinearGradient colors={['#10B981', '#059669']} style={styles.quickAddGradient}>
@@ -396,6 +398,7 @@ const NutritionScreen: React.FC = () => {
           
           <TouchableOpacity 
             style={styles.quickAddButton}
+            testID="quick-add-meal"
             onPress={() => navigation.navigate('FoodSearch')}
           >
             <LinearGradient colors={['#8B5CF6', '#7C3AED']} style={styles.quickAddGradient}>

@@ -313,6 +313,7 @@ const TrainingScreen: React.FC = () => {
   return (
     <ScrollView 
       style={styles.container}
+      testID="training-container"
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
@@ -321,7 +322,7 @@ const TrainingScreen: React.FC = () => {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Training</Text>
-        <TouchableOpacity>
+        <TouchableOpacity testID="calendar-view-button">
           <Ionicons name="calendar-outline" size={24} color="#6B7280" />
         </TouchableOpacity>
       </View>
@@ -405,6 +406,7 @@ const TrainingScreen: React.FC = () => {
         <View style={styles.quickActions}>
           <TouchableOpacity 
             style={styles.quickActionButton}
+            testID="start-workout-button"
             onPress={() => navigation.navigate('LiveSession')}
           >
             <LinearGradient colors={['#10B981', '#059669']} style={styles.quickActionGradient}>
@@ -415,11 +417,23 @@ const TrainingScreen: React.FC = () => {
           
           <TouchableOpacity 
             style={styles.quickActionButton}
+            testID="lift-create-button"
             onPress={() => Alert.alert('Feature Coming Soon', 'Workout builder will be available soon!')}
           >
             <LinearGradient colors={['#8B5CF6', '#7C3AED']} style={styles.quickActionGradient}>
               <Ionicons name="construct" size={32} color="#fff" />
               <Text style={styles.quickActionText}>Build Workout</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.quickActionButton}
+            testID="aria-chat-button"
+            onPress={() => Alert.alert('ARIA Chat', 'AI-powered training assistant coming soon!')}
+          >
+            <LinearGradient colors={['#F59E0B', '#D97706']} style={styles.quickActionGradient}>
+              <Ionicons name="chatbubble" size={32} color="#fff" />
+              <Text style={styles.quickActionText}>ARIA Chat</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>

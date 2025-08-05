@@ -241,27 +241,42 @@ function AppNavigator() {
         <Tab.Screen 
           name="Dashboard" 
           component={DashboardScreen}
-          options={{ title: 'Home' }}
+          options={{ 
+            title: 'Home',
+            tabBarTestID: 'tab-Dashboard'
+          }}
         />
         <Tab.Screen 
           name="Analytics" 
           component={AnalyticsNavigator}
-          options={{ title: 'Analytics' }}
+          options={{ 
+            title: 'Analytics',
+            tabBarTestID: 'tab-Analytics'
+          }}
         />
         <Tab.Screen 
           name="Training" 
           component={TrainingNavigator}
-          options={{ title: 'Training' }}
+          options={{ 
+            title: 'Training',
+            tabBarTestID: 'tab-Training'
+          }}
         />
         <Tab.Screen 
           name="Nutrition" 
           component={NutritionNavigator}
-          options={{ title: 'Nutrition' }}
+          options={{ 
+            title: 'Nutrition',
+            tabBarTestID: 'tab-Nutrition'
+          }}
         />
         <Tab.Screen 
           name="Settings" 
           component={SettingsNavigator}
-          options={{ title: 'Settings' }}
+          options={{ 
+            title: 'Settings',
+            tabBarTestID: 'tab-Settings'
+          }}
         />
       </Tab.Navigator>
     </NavigationContainer>
