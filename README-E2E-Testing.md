@@ -1,44 +1,92 @@
-# E2E Testing Guide for Catalyft Performance Hub
+# 🧪 End-to-End (E2E) Testing Guide
 
-This guide provides comprehensive instructions for setting up and running end-to-end (E2E) tests for the Catalyft Performance Hub mobile application using Detox.
+This guide covers the comprehensive E2E testing setup for the Catalyft Performance Hub mobile application using Detox.
 
-## 📋 Prerequisites
+## 🎯 Current Status
 
-### For iOS Testing
-- macOS machine (for local testing)
-- Xcode with iOS Simulator
-- Node.js 18+
-- iOS Simulator (iPhone 14 or iPhone 15)
-
-### For Android Testing  
-- Android SDK with API level 32-34
-- Android Emulator or Physical Device
-- Java 17+
-- Node.js 18+
-
-### GitHub Actions (Cloud Testing)
-- Repository with GitHub Actions enabled
-- No additional setup required - everything runs in the cloud!
+✅ **Setup Complete**: All E2E test files, configurations, and GitHub Actions are in place  
+✅ **Validation Passing**: `npm run detox:validate` confirms proper setup  
+✅ **iOS Ready**: iOS testing workflow configured with macOS runners  
+✅ **Android Improved**: Latest fixes for META-INF duplicate file issues  
+🔄 **In Progress**: Cloud-based testing via GitHub Actions
 
 ## 🚀 Quick Start
 
-### GitHub Actions (Recommended)
-The easiest way to run E2E tests is through GitHub Actions, which automatically tests both iOS and Android:
+### Local Validation
+```bash
+cd mobile
+npm run detox:validate
+```
 
-1. **Push to main branch or create a pull request** - tests run automatically
-2. **Manual trigger**: Go to Actions tab → E2E Tests → Run workflow
-3. **View results**: Check the workflow status for detailed logs
+### GitHub Actions (Recommended for Windows users)
+The E2E tests automatically run on:
+- Push to `main` or `develop` branches
+- Pull requests to `main`
+- Manual workflow dispatch
 
-### Local Testing (Advanced)
+## 📁 Test Structure
+
+### Core E2E Flows
+Our E2E test suite covers these critical user journeys:
+
+1. **Authentication & Onboarding**
+   - Web sign-up → magic-link deep-link → mobile landing logged-in
+   - Web Stripe checkout webhook stub → mobile premium flag check
+
+2. **Dashboard & Health Metrics**
+   - Dashboard loads demo metrics from Supabase
+   - Health metrics display (Strain, Recovery, Sleep, HRV)
+
+3. **Training Workflows**
+   - Lift logger create / edit / delete cycle
+   - Calendar schedule → start → finish session
+
+4. **Analytics & Visualization**
+   - Analytics screen: tonnage + heatmap charts render
+   - Performance metrics visualization
+
+5. **Nutrition Tracking**
+   - Nutrition scanner: mock barcode photo → macro parsing
+
+6. **AI Integration**
+   - ARIA chat prompt → program builder response visible
+
+7. **Offline Functionality**
+   - Offline mode toggle → action queue replay on reconnect
+
+### File Structure
+```
+mobile/
+├── e2e/
+│   ├── flows.e2e.ts          # Main test suite
+│   ├── helpers.ts            # Test helper functions
+│   ├── jest.config.js        # Jest configuration
+│   ├── setup.js              # Test setup
+│   └── init.js               # Detox initialization
+├── .detoxrc.js               # Detox configuration
+└── scripts/
+    └── validate-e2e-setup.js # Setup validation
+```
+
+## 🔧 Configuration
+
+### GitHub Actions Workflow
+- **iOS**: Tests run on `macos-13` with iPhone simulators
+- **Android**: Tests run on `ubuntu-latest` with Android emulators
+- **Timeout**: 60 minutes per platform
+- **Artifacts**: Test screenshots and logs uploaded on failure
+
+### Latest Improvements (January 2025)
+- ✅ Fixed META-INF/LICENSE.md duplicate file issues in Android builds
+- ✅ Simplified Android build process (main APK only)
+- ✅ Improved error handling and logging
+- ✅ Better emulator stability and package management
+- ✅ Updated to use `gradle.properties` for packaging options
+
+## 🎮 Test Commands
 
 ```bash
-# Navigate to mobile directory
-cd mobile
-
-# Install dependencies
-npm install --legacy-peer-deps
-
-# Validate E2E setup
+# Validate setup
 npm run detox:validate
 
 # iOS Testing
@@ -48,221 +96,113 @@ npm run detox:test:ios
 # Android Testing  
 npm run detox:build:android
 npm run detox:test:android
+
+# Legacy commands (also available)
+npm run test:e2e              # iOS default
+npm run test:e2e:android      # Android
 ```
 
-## 🔧 Test Configuration
+## 🆔 Test IDs Reference
 
-### Detox Configuration (`.detoxrc.js`)
-The configuration supports multiple environments:
-- `ios.sim.debug` - iOS Simulator Debug
-- `android.emu.debug` - Android Emulator Debug
-- `android.att.debug` - Android Attached Device Debug
+All interactive elements have `testID` props for reliable testing:
 
-### Jest Configuration (`e2e/jest.config.js`)
-- TypeScript support with `ts-jest`
-- 120-second test timeout
-- Single worker for deterministic testing
-- Comprehensive transform patterns for React Native
-
-## 📱 Test Structure
-
-### Main Test Suite (`e2e/flows.e2e.ts`)
-Comprehensive E2E tests covering:
-
-1. **Authentication & Onboarding**
-   - Magic link deep-linking
-   - Premium flag verification
-   
-2. **Dashboard & Metrics**
-   - Demo data loading from Supabase
-   - Health metrics display
-   
-3. **Training Features**
-   - Lift logger CRUD operations
-   - Calendar scheduling
-   - Session management
-   
-4. **Analytics**
-   - Tonnage charts
-   - Heatmap visualization
-   
-5. **Nutrition**
-   - Barcode scanning simulation
-   - Macro parsing
-   
-6. **AI Features**
-   - ARIA chat interactions
-   - Program builder responses
-   
-7. **Offline Mode**
-   - Action queue management
-   - Sync on reconnect
-
-### Test Helpers (`e2e/helpers.ts`)
-Reusable helper functions for common operations:
-- Navigation utilities
-- Form interactions
-- Authentication flows
-- Data verification
-
-## 🏷️ Test IDs Reference
-
-Components are tagged with `testID` props for reliable element selection:
+### Navigation
+- `tab-Dashboard`, `tab-Training`, `tab-Analytics`, `tab-Nutrition`
 
 ### Dashboard Screen
-- `dashboard-container` - Main container
-- `dashboard-welcome-text` - Welcome message
-- `user-profile-avatar` - Profile avatar
-- `health-metrics-container` - Metrics container
-- `strain-metric-card` - Strain metric
-- `recovery-metric-card` - Recovery metric
+- `dashboard-container`, `dashboard-welcome-text`, `user-profile-avatar`
+- `health-metrics-container`, `strain-metric-card`, `recovery-metric-card`
+- `sleep-metric-card`, `hrv-metric-card`
 
 ### Training Screen
-- `training-container` - Main container
-- `lift-create-button` - Create lift entry
-- `calendar-view-button` - Calendar access
-- `start-workout-button` - Start session
-- `aria-chat-button` - AI chat
+- `training-container`, `lift-create-button`, `calendar-view-button`
+- `start-workout-button`, `aria-chat-button`
 
 ### Analytics Screen
-- `analytics-container` - Main container
-- `tonnage-chart` - Tonnage visualization
-- `analytics-period-week` - Week selector
+- `analytics-container`, `tonnage-chart`, `analytics-charts-container`
+- `analytics-period-week`, `analytics-period-month`, `analytics-period-year`
+
+### Nutrition Screen
+- `nutrition-container`, `barcode-scanner-button`, `quick-add-meal`
 
 ### Settings Screen
-- `settings-container` - Main container
-- `offline-setting` - Offline mode toggle
+- `settings-container`, `offline-setting`, `{item.id}-toggle`
 
-## 🔍 Troubleshooting
-
-### Recent Fixes (January 2025)
-
-#### ✅ Fixed: TypeScript Configuration Error
-**Error**: `TS5023: Unknown compiler option 'compilerOptions'`  
-**Solution**: Flattened Jest `ts-jest` configuration to remove nested `compilerOptions`
-
-#### ✅ Fixed: Android Build Conflicts  
-**Error**: `6 files found with path 'META-INF/LICENSE.md'`  
-**Solution**: Added packaging options to handle duplicate files in `build.gradle`
-
-#### ✅ Fixed: Android Emulator Libraries
-**Error**: `libpulse.so.0: cannot open shared object file`  
-**Solution**: Install required libraries (`libpulse0`, `libnss3`, `libnspr4`, `libxss1`, `libasound2t64`)
-
-#### ✅ Fixed: Dynamic Android API Support
-**Issue**: Hard-coded API levels causing failures  
-**Solution**: Dynamic detection and fallback for API levels 32-34
+## 🛠️ Troubleshooting
 
 ### Common Issues
 
-#### Simulator/Emulator Not Starting
+#### Android Build Errors
+**Issue**: `META-INF/LICENSE.md` duplicate files  
+**Solution**: Latest workflow uses `gradle.properties` approach (now fixed)
+
+#### iOS Simulator Issues
+**Issue**: `applesimutils: command not found`  
+**Solution**: Workflow automatically installs via Homebrew
+
+#### Jest/TypeScript Errors
+**Issue**: Cannot parse `.e2e.ts` files  
+**Solution**: Configured with `ts-jest` preset (now working)
+
+### GitHub Actions Debugging
+Check the workflow logs for:
+1. **Setup validation**: `npm run detox:validate` output
+2. **Build logs**: iOS/Android build process details
+3. **Test execution**: Detox test runner output
+4. **Artifacts**: Screenshots and logs for failed tests
+
+### Manual Debugging Commands
 ```bash
-# iOS - Reset simulator
-xcrun simctl shutdown all
-xcrun simctl erase all
+# Check Detox installation
+cd mobile && npx detox doctor
 
-# Android - Recreate emulator
-avdmanager delete avd -n test_emulator
-avdmanager create avd -n test_emulator -k "system-images;android-33;google_apis;x86_64"
+# Validate configuration
+npm run detox:validate
+
+# Check test file syntax
+npx tsc --noEmit e2e/flows.e2e.ts
+
+# List available simulators (iOS)
+xcrun simctl list devices available
+
+# Check Android emulator (if running locally)
+adb devices
 ```
 
-#### Build Failures
-```bash
-# Clean builds
-cd mobile
-rm -rf node_modules ios android
-npm install --legacy-peer-deps
-npx expo prebuild --clean
-```
+## 📊 GitHub Actions Status
 
-#### Test Timeouts
-- Increase timeout in `jest.config.js`
-- Check device performance
-- Verify app is properly built
+The E2E tests run automatically and provide:
+- ✅ **iOS Test Results**: macOS runner with iPhone simulators
+- ✅ **Android Test Results**: Ubuntu runner with Android emulators  
+- 📋 **Test Summary**: Combined results with pass/fail status
+- 📎 **Artifacts**: Screenshots and logs for debugging failures
 
-## 🚀 CI/CD Integration
+## 🔄 Recent Updates
 
-### GitHub Actions
-The repository includes a comprehensive GitHub Actions workflow (`.github/workflows/e2e-tests.yml`) that:
+**Latest Changes (January 2025):**
+- Improved Android build reliability
+- Fixed META-INF duplicate file conflicts
+- Enhanced error handling and logging
+- Simplified build process for better stability
+- Updated documentation with current status
 
-- **iOS Testing**: Runs on macOS runners with Xcode
-- **Android Testing**: Runs on Ubuntu with Android SDK
-- **Parallel Execution**: Tests both platforms simultaneously  
-- **Artifact Collection**: Saves screenshots and logs on failure
-- **Result Summary**: Provides clear pass/fail status
+## 🎯 Next Steps
 
-### Workflow Triggers
-- Push to `main` or `develop` branches
-- Pull requests to `main`
-- Manual workflow dispatch
+1. **Monitor GitHub Actions**: Check workflow runs for both iOS and Android
+2. **Iterate on Failures**: Address any remaining platform-specific issues
+3. **Expand Tests**: Add more specific test scenarios as needed
+4. **Performance**: Optimize test execution time
+5. **Device Coverage**: Consider additional device/OS combinations
 
-## 📝 Writing New Tests
+## 💡 For Windows Users
 
-### 1. Add Test ID to Component
-```tsx
-<TouchableOpacity testID="my-new-button" onPress={handlePress}>
-  <Text>My Button</Text>
-</TouchableOpacity>
-```
+Since you're on a Windows PC with an iPhone:
+- **iOS Testing**: Use GitHub Actions (macOS runners required)
+- **Android Testing**: Use GitHub Actions (easier) or set up local Android emulator
+- **Recommended**: Rely on cloud-based GitHub Actions for both platforms
 
-### 2. Create Test Helper (if needed)
-```typescript
-// e2e/helpers.ts
-static async performNewAction() {
-  await element(by.id('my-new-button')).tap();
-  await this.waitForElement('result-container');
-}
-```
-
-### 3. Add Test Case
-```typescript
-// e2e/flows.e2e.ts
-it('should perform new action successfully', async () => {
-  await E2EHelpers.navigateToTab('MyTab');
-  await E2EHelpers.performNewAction();
-  await expect(element(by.id('success-message'))).toBeVisible();
-});
-```
-
-## 📊 Test Reporting
-
-### Artifacts
-- Screenshots saved to `mobile/artifacts/`
-- Test logs available in GitHub Actions
-- Video recordings (when configured)
-
-### Metrics
-- Test execution time
-- Pass/fail rates
-- Device performance data
-
-## 🔄 Continuous Improvement
-
-### Current Status
-- ✅ Core authentication flows
-- ✅ Navigation testing
-- ✅ Basic CRUD operations
-- ✅ Cross-platform compatibility
-- 🔄 Advanced gesture testing
-- 🔄 Performance benchmarks
-- 🔄 Visual regression testing
-
-### Upcoming Features
-- Integration with performance monitoring
-- Automated accessibility testing
-- Cross-browser web testing
-- Load testing scenarios
+The current setup provides comprehensive E2E testing without requiring local iOS development tools on Windows!
 
 ---
 
-## 📞 Support
-
-For issues with E2E testing:
-1. Check the troubleshooting section above
-2. Review GitHub Actions logs for detailed error messages  
-3. Validate setup with `npm run detox:validate`
-4. Ensure all prerequisites are installed
-
-**Happy Testing!** 🧪
-
-<!-- Trigger comprehensive E2E test run with all fixes - Wed Jan  8 11:45:00 UTC 2025 -->
+*For questions or issues, check the GitHub Actions workflow logs or the troubleshooting section above.*
