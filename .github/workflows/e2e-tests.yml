@@ -275,21 +275,25 @@ jobs:
           find android -name "build.gradle" -type f | while read gradle_file; do
             echo "Updating $gradle_file"
             if grep -q "android {" "$gradle_file"; then
-              sed -i '/android {/a\
-    packagingOptions {\
-        pickFirst "**/LICENSE.md"\
-        pickFirst "**/LICENSE.txt"\
-        pickFirst "**/LICENSE"\
-        pickFirst "**/NOTICE.txt"\
-        pickFirst "**/NOTICE"\
-        pickFirst "**/ASL2.0"\
-        pickFirst "**/META-INF/LICENSE.md"\
-        pickFirst "**/META-INF/LICENSE.txt"\
-        pickFirst "**/META-INF/LICENSE"\
-        pickFirst "**/META-INF/NOTICE.txt"\
-        pickFirst "**/META-INF/NOTICE"\
-        pickFirst "**/META-INF/ASL2.0"\
-    }' "$gradle_file"
+              # Create packaging options block
+              cat > /tmp/packaging_fix.txt << 'EOF'
+    packagingOptions {
+        pickFirst "**/LICENSE.md"
+        pickFirst "**/LICENSE.txt"
+        pickFirst "**/LICENSE"
+        pickFirst "**/NOTICE.txt"
+        pickFirst "**/NOTICE"
+        pickFirst "**/ASL2.0"
+        pickFirst "**/META-INF/LICENSE.md"
+        pickFirst "**/META-INF/LICENSE.txt"
+        pickFirst "**/META-INF/LICENSE"
+        pickFirst "**/META-INF/NOTICE.txt"
+        pickFirst "**/META-INF/NOTICE"
+        pickFirst "**/META-INF/ASL2.0"
+    }
+EOF
+              # Insert after android { line
+              sed -i '/android {/r /tmp/packaging_fix.txt' "$gradle_file"
             fi
           done
           
