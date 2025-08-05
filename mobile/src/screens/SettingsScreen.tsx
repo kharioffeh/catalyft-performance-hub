@@ -31,6 +31,7 @@ const SettingsScreen: React.FC = () => {
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [autoSync, setAutoSync] = useState(true);
   const [darkMode, setDarkMode] = useState(true);
+  const [offlineMode, setOfflineMode] = useState(false);
 
   const userInfo = {
     name: "Alex Johnson",
@@ -85,6 +86,15 @@ const SettingsScreen: React.FC = () => {
           type: 'switch',
           value: autoSync,
           onToggle: setAutoSync
+        },
+        {
+          id: 'offline',
+          title: 'Offline Mode',
+          subtitle: 'Work offline and sync when connected',
+          icon: 'cloud-offline-outline',
+          type: 'switch',
+          value: offlineMode,
+          onToggle: setOfflineMode
         },
         {
           id: 'data',
@@ -243,6 +253,7 @@ const SettingsScreen: React.FC = () => {
   const SettingsItemComponent: React.FC<{ item: SettingsItem }> = ({ item }) => (
     <TouchableOpacity 
       style={styles.settingsItem}
+      testID={`${item.id}-setting`}
       onPress={item.onPress}
       disabled={item.type === 'switch'}
     >
@@ -263,6 +274,7 @@ const SettingsScreen: React.FC = () => {
           <Switch
             value={item.value}
             onValueChange={item.onToggle}
+            testID={`${item.id}-toggle`}
             trackColor={{ false: '#374151', true: '#3B82F6' }}
             thumbColor={item.value ? '#fff' : '#D1D5DB'}
           />
@@ -274,7 +286,7 @@ const SettingsScreen: React.FC = () => {
   );
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.container} testID="settings-container" showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Settings</Text>

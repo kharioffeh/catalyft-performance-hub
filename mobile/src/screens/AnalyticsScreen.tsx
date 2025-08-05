@@ -158,6 +158,7 @@ const AnalyticsScreen: React.FC = () => {
             styles.periodButton,
             selectedPeriod === period && styles.periodButtonActive
           ]}
+          testID={`analytics-period-${period}`}
           onPress={() => setSelectedPeriod(period)}
         >
           <Text
@@ -235,8 +236,13 @@ const AnalyticsScreen: React.FC = () => {
   return (
     <ScrollView 
       style={styles.container}
+      testID="analytics-container"
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        <RefreshControl 
+          refreshing={refreshing} 
+          onRefresh={onRefresh}
+          testID="analytics-refresh-control"
+        />
       }
       showsVerticalScrollIndicator={false}
     >
@@ -282,7 +288,7 @@ const AnalyticsScreen: React.FC = () => {
       {/* Trends */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Weekly Trends</Text>
-        <View style={styles.trendsGrid}>
+        <View style={styles.trendsGrid} testID="analytics-charts-container">
           {trends.map((trend, index) => (
             <TrendCard key={index} trend={trend} />
           ))}
@@ -292,13 +298,14 @@ const AnalyticsScreen: React.FC = () => {
       {/* Strain Chart */}
       <View style={styles.section}>
         <View style={styles.chartHeader}>
-          <Text style={styles.chartTitle}>Strain Trend</Text>
+          <Text style={styles.chartTitle} testID="tonnage-chart-title">Strain Trend</Text>
           <TouchableOpacity onPress={() => navigation.navigate('StrainDetail')}>
             <Text style={styles.viewDetailsText}>View Details</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.chartContainer}>
           <LineChart
+            testID="tonnage-chart"
             data={{
               labels: analyticsData.labels,
               datasets: [{

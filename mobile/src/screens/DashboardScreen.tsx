@@ -113,13 +113,22 @@ const DashboardScreen: React.FC = () => {
     icon: string;
     onPress?: () => void;
   }> = ({ title, value, unit, color, icon, onPress }) => (
-    <TouchableOpacity style={styles.metricCard} onPress={onPress}>
+    <TouchableOpacity 
+      style={styles.metricCard} 
+      onPress={onPress}
+      testID={`${title.toLowerCase()}-metric-card`}
+    >
       <View style={styles.metricHeader}>
         <Ionicons name={icon as any} size={20} color={color} />
         <Text style={styles.metricTitle}>{title}</Text>
       </View>
       <View style={styles.metricValue}>
-        <Text style={[styles.metricNumber, { color }]}>{value}</Text>
+        <Text 
+          style={[styles.metricNumber, { color }]}
+          testID={`${title.toLowerCase()}-value`}
+        >
+          {value}
+        </Text>
         {unit && <Text style={styles.metricUnit}>{unit}</Text>}
       </View>
     </TouchableOpacity>
@@ -142,15 +151,20 @@ const DashboardScreen: React.FC = () => {
   return (
     <ScrollView 
       style={styles.container}
+      testID="dashboard-container"
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        <RefreshControl 
+          refreshing={refreshing} 
+          onRefresh={onRefresh}
+          testID="dashboard-refresh-control"
+        />
       }
       showsVerticalScrollIndicator={false}
     >
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.greeting}>Good morning!</Text>
+          <Text style={styles.greeting} testID="dashboard-welcome-text">Good morning!</Text>
           <Text style={styles.date}>{new Date().toLocaleDateString('en-US', { 
             weekday: 'long', 
             month: 'long', 
@@ -159,6 +173,7 @@ const DashboardScreen: React.FC = () => {
         </View>
         <TouchableOpacity 
           style={styles.profileButton}
+          testID="user-profile-avatar"
           onPress={() => navigation.navigate('Settings', { screen: 'Profile' })}
         >
           <Ionicons name="person-circle" size={40} color="#3B82F6" />
@@ -185,7 +200,7 @@ const DashboardScreen: React.FC = () => {
       {/* Health Metrics Overview */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Today's Overview</Text>
-        <View style={styles.metricsGrid}>
+        <View style={styles.metricsGrid} testID="health-metrics-container">
           <MetricCard
             title="Strain"
             value={healthMetrics.strain}

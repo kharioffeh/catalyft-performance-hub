@@ -1,6 +1,6 @@
 module.exports = {
   rootDir: '..',
-  testMatch: ['<rootDir>/e2e/**/*.e2e.js'],
+  testMatch: ['<rootDir>/e2e/**/*.e2e.{js,ts}'],
   testTimeout: 120000,
   maxWorkers: 1,
   globalSetup: 'detox/runners/jest/globalSetup',
@@ -10,4 +10,9 @@ module.exports = {
   testRunner: 'jest-circus/runner',
   verbose: true,
   setupFilesAfterEnv: ['./e2e/setup.js'],
+  preset: 'ts-jest',
+  transform: {
+    '^.+\\.ts$': 'ts-jest',
+  },
+  moduleFileExtensions: ['ts', 'js', 'json'],
 };
