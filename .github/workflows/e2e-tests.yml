@@ -263,6 +263,28 @@ jobs:
           # Clean any existing Android directory and generate native Android project
           rm -rf android
           npx expo prebuild --platform android
+          
+          # Fix the packaging issue with duplicate LICENSE.md files
+          echo "Fixing Android build.gradle for duplicate META-INF files..."
+          
+          # Add packaging options to the existing android block
+          sed -i '/android {/a\
+    packagingOptions {\
+        pickFirst "**/LICENSE.md"\
+        pickFirst "**/LICENSE.txt"\
+        pickFirst "**/LICENSE"\
+        pickFirst "**/NOTICE.txt"\
+        pickFirst "**/NOTICE"\
+        pickFirst "**/ASL2.0"\
+        pickFirst "**/META-INF/LICENSE.md"\
+        pickFirst "**/META-INF/LICENSE.txt"\
+        pickFirst "**/META-INF/LICENSE"\
+        pickFirst "**/META-INF/NOTICE.txt"\
+        pickFirst "**/META-INF/NOTICE"\
+        pickFirst "**/META-INF/ASL2.0"\
+    }' android/app/build.gradle
+          
+          echo "Updated build.gradle to handle duplicate files"
         env:
           EXPO_NO_TELEMETRY: 1
           NPM_CONFIG_LEGACY_PEER_DEPS: true
