@@ -11,7 +11,8 @@
     "detox:build:ios": "detox build --configuration ios.sim.debug",
     "detox:test:ios": "detox test --configuration ios.sim.debug",
     "detox:build:android": "detox build --configuration android.emu.debug",
-    "detox:test:android": "detox test --configuration android.emu.debug"
+    "detox:test:android": "detox test --configuration android.emu.debug",
+    "detox:validate": "node scripts/validate-e2e-setup.js"
   },
   "dependencies": {
     "@react-navigation/bottom-tabs": "^6.5.20",
@@ -42,6 +43,7 @@
     "jest": "^29.7.0",
     "prettier": "^3.4.2",
     "react-test-renderer": "18.2.0",
+    "ts-jest": "^29.1.1",
     "typescript": "~5.3.3"
   },
   "private": true
