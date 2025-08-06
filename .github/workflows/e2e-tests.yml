@@ -200,55 +200,86 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libpulse0 libnss3 libnspr4 libxss1 libasound2t64
 
-      - name: Setup Android Emulator
+      - name: Setup Android environment and emulator
         run: |
-          # Set environment variables for Android AVD
-          export ANDROID_AVD_HOME=$HOME/.android/avd
-          export ANDROID_SDK_HOME=$HOME
+          echo "Setting up Android environment..."
           
-          # Ensure Android SDK tools are in PATH
-          export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
-          
-          # Create .android directory structure
+          # Create AVD directory and verify environment
           mkdir -p $HOME/.android/avd
+          export ANDROID_AVD_HOME=$HOME/.android/avd
+          export ANDROID_SDK_HOME=$HOME/.android
           
-          # Detect available system image
-          echo "Detecting available system images..."
-          if sdkmanager --list_installed | grep -q "system-images;android-33;google_apis;x86_64"; then
-            SYSTEM_IMAGE="system-images;android-33;google_apis;x86_64"
-            API_LEVEL=33
-          elif sdkmanager --list_installed | grep -q "system-images;android-34;google_apis;x86_64"; then
-            SYSTEM_IMAGE="system-images;android-34;google_apis;x86_64"
-            API_LEVEL=34
-          elif sdkmanager --list_installed | grep -q "system-images;android-32;google_apis;x86_64"; then
-            SYSTEM_IMAGE="system-images;android-32;google_apis;x86_64"
-            API_LEVEL=32
-          else
-            echo "❌ No suitable system image found"
-            exit 1
+          # Install Android SDK packages with enhanced error handling
+          echo "Installing Android SDK packages..."
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses >/dev/null 2>&1 || true
+          
+          # Try different Android versions with fallbacks
+          PACKAGES="system-images;android-33;google_apis;x86_64 platforms;android-33 build-tools;33.0.1"
+          for package in $PACKAGES; do
+            echo "Installing $package..."
+            $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "$package" || echo "Failed to install $package, continuing..."
+          done
+          
+          # Fallback packages for older versions
+          if ! $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep -q "system-images;android-33"; then
+            echo "Trying Android 32 as fallback..."
+            $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-32;google_apis;x86_64" || true
+            $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-32" || true
           fi
           
-          echo "Using system image: $SYSTEM_IMAGE (API $API_LEVEL)"
+          # Create AVD with optimized settings
+          echo "Creating Android Virtual Device..."
           
-          # Create AVD
-          echo "Creating AVD..."
-          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
-            -n test_emulator \
-            -k "$SYSTEM_IMAGE" \
-            --force \
-            --device "pixel_6"
+          # Delete existing AVD if it exists
+          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager delete avd -n test_emulator || true
           
-          # List created AVDs
-          echo "Created AVDs:"
+          # Create new AVD with Android 33 (or fallback)
+          if $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep -q "system-images;android-33"; then
+            echo "Creating AVD with Android 33..."
+            echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
+              -n test_emulator \
+              -k "system-images;android-33;google_apis;x86_64" \
+              -c 512M \
+              --force
+          else
+            echo "Creating AVD with Android 32..."
+            echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
+              -n test_emulator \
+              -k "system-images;android-32;google_apis;x86_64" \
+              -c 512M \
+              --force
+          fi
+          
+          # Verify AVD was created
           $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
           
-          # Check if emulator binary exists
-          echo "Checking emulator binary:"
-          ls -la $ANDROID_HOME/emulator/emulator
+          # Configure AVD for faster startup
+          AVD_CONFIG="$HOME/.android/avd/test_emulator.avd/config.ini"
+          if [ -f "$AVD_CONFIG" ]; then
+            echo "Optimizing AVD configuration..."
+            # Add performance optimizations
+            echo "hw.gpu.enabled=yes" >> "$AVD_CONFIG"
+            echo "hw.gpu.mode=swiftshader_indirect" >> "$AVD_CONFIG"
+            echo "hw.ramSize=2048" >> "$AVD_CONFIG"
+            echo "disk.dataPartition.size=2048M" >> "$AVD_CONFIG"
+            echo "hw.accelerometer=no" >> "$AVD_CONFIG"
+            echo "hw.audioInput=no" >> "$AVD_CONFIG"
+            echo "hw.audioOutput=no" >> "$AVD_CONFIG"
+            echo "hw.camera.back=none" >> "$AVD_CONFIG"
+            echo "hw.camera.front=none" >> "$AVD_CONFIG"
+            echo "hw.gps=no" >> "$AVD_CONFIG"
+            echo "hw.sensors.orientation=no" >> "$AVD_CONFIG"
+            echo "hw.sensors.proximity=no" >> "$AVD_CONFIG"
+          fi
           
-          # Start emulator with verbose logging
+          echo "✅ Android emulator setup complete!"
+
+      - name: Start Android emulator
+        run: |
           echo "Starting Android emulator..."
-          $ANDROID_HOME/emulator/emulator \
+          
+          # Start emulator in background with optimized settings
+          nohup $ANDROID_HOME/emulator/emulator \
             -avd test_emulator \
             -no-audio \
             -no-window \
@@ -256,35 +287,62 @@ jobs:
             -no-snapshot \
             -wipe-data \
             -memory 2048 \
-            -verbose \
-            > emulator.log 2>&1 &
+            -partition-size 2048 \
+            -no-boot-anim \
+            -netdelay none \
+            -netspeed full \
+            -verbose > emulator.log 2>&1 &
           
           EMULATOR_PID=$!
           echo "Emulator started with PID: $EMULATOR_PID"
           
-          # Wait for emulator device to appear
+          # Enhanced wait logic with better timeout and checks
           echo "Waiting for emulator device..."
-          for i in {1..60}; do
-            if adb devices | grep -q "emulator"; then
-              echo "Emulator device detected!"
-              break
+          BOOT_COMPLETED=0
+          for i in {1..120}; do  # Increased timeout to 6 minutes
+            if adb devices | grep -q "emulator.*device"; then
+              echo "Emulator device detected! Checking boot status..."
+              
+              # Check if boot is actually completed
+              BOOT_STATUS=$(adb shell getprop sys.boot_completed 2>/dev/null || echo "0")
+              if [ "$BOOT_STATUS" = "1" ]; then
+                echo "✅ Emulator fully booted!"
+                BOOT_COMPLETED=1
+                break
+              else
+                echo "Emulator detected but still booting..."
+              fi
             fi
-            echo "Attempt $i/60: Waiting for emulator..."
+            
+            echo "Attempt $i/120: Waiting for emulator to boot..."
             sleep 3
           done
           
-          # Check if device was detected
+          # Final device check
+          echo "Current ADB devices:"
           adb devices
           
-          # If no device, show emulator log
-          if ! adb devices | grep -q "emulator"; then
+          # If emulator didn't boot properly, show logs and exit
+          if [ $BOOT_COMPLETED -eq 0 ]; then
+            echo "❌ Emulator failed to boot properly"
             echo "=== EMULATOR LOG ==="
-            cat emulator.log
+            tail -100 emulator.log
             echo "=== END EMULATOR LOG ==="
+            
+            # Try to get more info about what went wrong
+            echo "=== ADB LOG ==="
+            adb logcat -d | tail -50 || echo "No adb logcat available"
+            echo "=== END ADB LOG ==="
+            
             exit 1
           fi
           
-          echo "Android emulator setup complete!"
+          # Disable window animations for faster testing
+          adb shell settings put global window_animation_scale 0.0
+          adb shell settings put global transition_animation_scale 0.0
+          adb shell settings put global animator_duration_scale 0.0
+          
+          echo "✅ Android emulator ready for testing!"
 
       - name: Install Expo development build tools
         working-directory: mobile

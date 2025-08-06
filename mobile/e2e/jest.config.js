@@ -10,20 +10,19 @@ module.exports = {
   testRunner: 'jest-circus/runner',
   verbose: true,
   setupFilesAfterEnv: ['./e2e/setup.js'],
-  preset: 'ts-jest/presets/default',
-  transform: {
-    '^.+\\.ts$': ['ts-jest', {
+  preset: 'ts-jest',
+  globals: {
+    'ts-jest': {
+      useESM: false,
       tsconfig: {
         module: 'commonjs',
         target: 'es2017',
-        lib: ['es2017'],
         allowSyntheticDefaultImports: true,
         esModuleInterop: true,
         skipLibCheck: true,
         types: ['detox/globals', 'jest']
       }
-    }],
-    '^.+\\.js$': 'babel-jest',
+    }
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   transformIgnorePatterns: [
