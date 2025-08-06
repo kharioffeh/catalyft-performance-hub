@@ -14,15 +14,13 @@ module.exports = {
   transform: {
     '^.+\\.ts$': ['ts-jest', {
       tsconfig: {
-        compilerOptions: {
-          module: 'commonjs',
-          target: 'es2017',
-          lib: ['es2017'],
-          allowSyntheticDefaultImports: true,
-          esModuleInterop: true,
-          skipLibCheck: true,
-          types: ['detox/globals', 'jest']
-        }
+        module: 'commonjs',
+        target: 'es2017',
+        lib: ['es2017'],
+        allowSyntheticDefaultImports: true,
+        esModuleInterop: true,
+        skipLibCheck: true,
+        types: ['detox/globals', 'jest']
       }
     }],
     '^.+\\.js$': 'babel-jest',
