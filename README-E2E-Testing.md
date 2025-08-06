@@ -2,7 +2,7 @@
 
 > **Status**: ✅ Comprehensive E2E testing system active with GitHub Actions CI/CD
 
-This guide covers how to set up and run End-to-End (E2E) tests for the Catalyft mobile application using Detox.
+This guide covers how to set up and run End-to-End (E2E) tests for the Catalyft mobile application using Detox. Updated with latest Jest configuration fixes for TypeScript support.
 
 ## 🚀 Recent Improvements (Latest)
 
