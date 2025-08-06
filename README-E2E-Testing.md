@@ -214,6 +214,9 @@ npm run detox:validate
 6. **Android duplicate META-INF files**
    - Fixed: Added packaging options to gradle.properties
 
+7. **Android Ubuntu 24.04 package compatibility**
+   - Fixed: Updated libasound2 to libasound2t64 for Ubuntu Noble
+
 ### Debug Commands
 
 #### iOS Debugging
