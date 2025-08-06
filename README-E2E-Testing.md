@@ -1,4 +1,6 @@
-# Catalyft E2E Testing Guide
+# E2E Testing Guide for Catalyft Performance Hub
+
+> **Status**: ✅ Comprehensive E2E testing system active with GitHub Actions CI/CD
 
 This guide covers how to set up and run End-to-End (E2E) tests for the Catalyft mobile application using Detox.
 
