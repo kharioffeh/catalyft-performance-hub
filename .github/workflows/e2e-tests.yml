@@ -161,28 +161,34 @@ jobs:
           
           # Install basic tools
           echo "Installing basic Android tools..."
-          sdkmanager "platform-tools" "emulator"
+          sdkmanager "platform-tools" "emulator" || true
           
           # Install system images with better fallback logic
           echo "Installing Android system images..."
+          ANDROID_API=33
           if sdkmanager "system-images;android-33;google_apis;x86_64"; then
             echo "✅ Android 33 system image installed"
-            ANDROID_API=33
           elif sdkmanager "system-images;android-34;google_apis;x86_64"; then
             echo "✅ Android 34 system image installed (fallback)"
             ANDROID_API=34
           elif sdkmanager "system-images;android-32;google_apis;x86_64"; then
-            echo "✅ Android 32 system image installed (fallback)"
+            echo "✅ Android 32 system image installed (fallback)"  
             ANDROID_API=32
+          elif sdkmanager "system-images;android-30;google_apis;x86_64"; then
+            echo "✅ Android 30 system image installed (fallback)"
+            ANDROID_API=30
           else
             echo "❌ Failed to install any Android system image"
             exit 1
           fi
           
+          # Store API level for later steps
+          echo "ANDROID_API=$ANDROID_API" >> $GITHUB_ENV
+          
           # Install corresponding platform and build tools
           echo "Installing platform and build tools for API $ANDROID_API..."
-          sdkmanager "platforms;android-$ANDROID_API"
-          sdkmanager "build-tools;${ANDROID_API}.0.0" || sdkmanager "build-tools;34.0.0"
+          sdkmanager "platforms;android-$ANDROID_API" || true
+          sdkmanager "build-tools;34.0.0" || sdkmanager "build-tools;33.0.1" || true
           
           # Verify installations
           echo "Installed packages:"
@@ -209,76 +215,47 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libpulse0 libnss3 libnspr4 libxss1 libasound2t64
 
-      - name: Setup Android environment and emulator
+      - name: Create Android emulator
         run: |
-          echo "Setting up Android environment..."
+          echo "Creating Android Virtual Device..."
           
-          # Create AVD directory and verify environment
+          # Create AVD directory and set environment variables
           mkdir -p $HOME/.android/avd
           export ANDROID_AVD_HOME=$HOME/.android/avd
           export ANDROID_SDK_HOME=$HOME/.android
           
-          # Install Android SDK packages with enhanced error handling
-          echo "Installing Android SDK packages..."
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses >/dev/null 2>&1 || true
-          
-          # Try different Android versions with fallbacks
-          PACKAGES="system-images;android-33;google_apis;x86_64 platforms;android-33 build-tools;33.0.1"
-          for package in $PACKAGES; do
-            echo "Installing $package..."
-            $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "$package" || echo "Failed to install $package, continuing..."
-          done
-          
-          # Fallback packages for older versions
-          if ! $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep -q "system-images;android-33"; then
-            echo "Trying Android 32 as fallback..."
-            $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-32;google_apis;x86_64" || true
-            $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-32" || true
-          fi
-          
-          # Create AVD with optimized settings
-          echo "Creating Android Virtual Device..."
-          
           # Delete existing AVD if it exists
           $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager delete avd -n test_emulator || true
           
-          # Create new AVD with Android 33 (or fallback)
-          if $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep -q "system-images;android-33"; then
-            echo "Creating AVD with Android 33..."
-            echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
-              -n test_emulator \
-              -k "system-images;android-33;google_apis;x86_64" \
-              -c 512M \
-              --force
-          else
-            echo "Creating AVD with Android 32..."
-            echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
-              -n test_emulator \
-              -k "system-images;android-32;google_apis;x86_64" \
-              -c 512M \
-              --force
-          fi
+          # Create new AVD using the API level from previous step (stored in ANDROID_API env var)
+          echo "Creating AVD with Android API $ANDROID_API..."
+          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
+            -n test_emulator \
+            -k "system-images;android-$ANDROID_API;google_apis;x86_64" \
+            -c 1024M \
+            --force
           
           # Verify AVD was created
           $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
           
-          # Configure AVD for faster startup
+          # Configure AVD for faster startup and better compatibility
           AVD_CONFIG="$HOME/.android/avd/test_emulator.avd/config.ini"
           if [ -f "$AVD_CONFIG" ]; then
             echo "Optimizing AVD configuration..."
-            # Add performance optimizations
-            echo "hw.gpu.enabled=yes" >> "$AVD_CONFIG"
-            echo "hw.gpu.mode=swiftshader_indirect" >> "$AVD_CONFIG"
-            echo "hw.ramSize=2048" >> "$AVD_CONFIG"
-            echo "disk.dataPartition.size=2048M" >> "$AVD_CONFIG"
-            echo "hw.accelerometer=no" >> "$AVD_CONFIG"
-            echo "hw.audioInput=no" >> "$AVD_CONFIG"
-            echo "hw.audioOutput=no" >> "$AVD_CONFIG"
-            echo "hw.camera.back=none" >> "$AVD_CONFIG"
-            echo "hw.camera.front=none" >> "$AVD_CONFIG"
-            echo "hw.gps=no" >> "$AVD_CONFIG"
-            echo "hw.sensors.orientation=no" >> "$AVD_CONFIG"
-            echo "hw.sensors.proximity=no" >> "$AVD_CONFIG"
+            cat >> "$AVD_CONFIG" << EOF
+hw.gpu.enabled=yes
+hw.gpu.mode=swiftshader_indirect
+hw.ramSize=3072
+disk.dataPartition.size=3072M
+hw.accelerometer=no
+hw.audioInput=no
+hw.audioOutput=no
+hw.camera.back=none
+hw.camera.front=none
+hw.gps=no
+hw.sensors.orientation=no
+hw.sensors.proximity=no
+EOF
           fi
           
           echo "✅ Android emulator setup complete!"
@@ -287,7 +264,7 @@ jobs:
         run: |
           echo "Starting Android emulator..."
           
-          # Start emulator in background with optimized settings
+          # Start emulator in background with optimized settings for CI
           nohup $ANDROID_HOME/emulator/emulator \
             -avd test_emulator \
             -no-audio \
@@ -295,61 +272,45 @@ jobs:
             -gpu swiftshader_indirect \
             -no-snapshot \
             -wipe-data \
-            -memory 2048 \
-            -partition-size 2048 \
+            -memory 3072 \
+            -partition-size 3072 \
             -no-boot-anim \
             -netdelay none \
             -netspeed full \
-            -verbose > emulator.log 2>&1 &
+            -qemu -m 3072 > emulator.log 2>&1 &
           
-          EMULATOR_PID=$!
-          echo "Emulator started with PID: $EMULATOR_PID"
-          
-          # Enhanced wait logic with better timeout and checks
+          # Wait for emulator to be ready with enhanced checking
           echo "Waiting for emulator device..."
-          BOOT_COMPLETED=0
-          for i in {1..120}; do  # Increased timeout to 6 minutes
-            if adb devices | grep -q "emulator.*device"; then
-              echo "Emulator device detected! Checking boot status..."
-              
-              # Check if boot is actually completed
-              BOOT_STATUS=$(adb shell getprop sys.boot_completed 2>/dev/null || echo "0")
-              if [ "$BOOT_STATUS" = "1" ]; then
-                echo "✅ Emulator fully booted!"
-                BOOT_COMPLETED=1
-                break
-              else
-                echo "Emulator detected but still booting..."
-              fi
-            fi
-            
-            echo "Attempt $i/120: Waiting for emulator to boot..."
-            sleep 3
-          done
+          $ANDROID_HOME/platform-tools/adb wait-for-device
           
-          # Final device check
+          # Wait for boot completion with timeout
+          echo "Waiting for emulator boot completion..."
+          timeout 300 bash -c '
+            while true; do
+              boot_completed=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d "\r")
+              if [ "$boot_completed" = "1" ]; then
+                echo "✅ Emulator fully booted!"
+                break
+              fi
+              echo "Still booting..."
+              sleep 5
+            done
+          ' || {
+            echo "❌ Emulator boot timeout"
+            echo "=== EMULATOR LOG ==="
+            tail -100 emulator.log || true
+            echo "=== END EMULATOR LOG ==="
+            exit 1
+          }
+          
+          # Verify device is ready
           echo "Current ADB devices:"
           adb devices
           
-          # If emulator didn't boot properly, show logs and exit
-          if [ $BOOT_COMPLETED -eq 0 ]; then
-            echo "❌ Emulator failed to boot properly"
-            echo "=== EMULATOR LOG ==="
-            tail -100 emulator.log
-            echo "=== END EMULATOR LOG ==="
-            
-            # Try to get more info about what went wrong
-            echo "=== ADB LOG ==="
-            adb logcat -d | tail -50 || echo "No adb logcat available"
-            echo "=== END ADB LOG ==="
-            
-            exit 1
-          fi
-          
-          # Disable window animations for faster testing
-          adb shell settings put global window_animation_scale 0.0
-          adb shell settings put global transition_animation_scale 0.0
-          adb shell settings put global animator_duration_scale 0.0
+          # Disable animations for faster testing
+          adb shell settings put global window_animation_scale 0.0 || true
+          adb shell settings put global transition_animation_scale 0.0 || true
+          adb shell settings put global animator_duration_scale 0.0 || true
           
           echo "✅ Android emulator ready for testing!"
 
