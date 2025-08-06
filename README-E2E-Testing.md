@@ -1,18 +1,21 @@
-# E2E Testing Setup for Catalyft Performance Hub
+# Catalyft E2E Testing Guide
 
-This document outlines how to set up and run End-to-End (E2E) tests for both iOS and Android platforms using Detox in GitHub Actions.
+This guide covers how to set up and run End-to-End (E2E) tests for the Catalyft mobile application using Detox.
 
-## Quick Start
+## 🚀 Recent Improvements (Latest)
 
-The E2E tests are automatically triggered on:
-- Push to `main` or `develop` branches
-- Pull requests to `main` branch
-- Manual trigger via GitHub Actions UI
+### ✅ What's Working Now
+- **TypeScript Support**: Full TypeScript support in E2E tests with optimized Jest configuration
+- **GitHub Actions CI**: Automated testing for both iOS and Android platforms
+- **Android Emulator**: Enhanced reliability with better boot detection and performance optimizations
+- **iOS Simulator**: Stable testing with proper `applesimutils` integration
+- **Test Validation**: Built-in validation to check E2E setup health
 
-### Manual Trigger
-1. Go to **Actions** tab in GitHub
-2. Select **E2E Tests** workflow
-3. Click **Run workflow**
+### 🔧 Latest Optimizations
+- **Jest Configuration**: Simplified ts-jest setup for better compatibility
+- **Android Emulator**: 6-minute timeout, proper boot detection, disabled animations
+- **Error Handling**: Enhanced logging and fallback mechanisms
+- **Performance**: Optimized AVD configuration with minimal hardware features
 
 ## Prerequisites
 

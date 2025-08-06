@@ -82,7 +82,7 @@ jobs:
         env:
           EXPO_NO_METRO: 1
 
-      - name: Run iOS E2E tests
+      - name: Run iOS smoke test
         working-directory: mobile
         run: |
           # Verify the iOS app was built successfully
@@ -93,8 +93,17 @@ jobs:
           echo "Available iOS simulators:"
           xcrun simctl list devices available | head -10
           
-          # Run the tests with detailed logging
-          echo "Starting iOS E2E tests..."
+          # Run smoke test first to verify basic functionality
+          echo "Running iOS smoke test..."
+          npm run detox:smoke:ios
+        env:
+          DETOX_LOGLEVEL: info
+
+      - name: Run iOS E2E tests
+        working-directory: mobile
+        run: |
+          # Run the full test suite with detailed logging
+          echo "Starting full iOS E2E test suite..."
           npm run detox:test:ios 2>&1 | tee ios-test-output.log || {
             echo "=== iOS Test Failed - Showing output ==="
             cat ios-test-output.log
@@ -388,7 +397,7 @@ jobs:
         env:
           EXPO_NO_METRO: 1
 
-      - name: Run Android E2E tests
+      - name: Run Android smoke test
         working-directory: mobile
         run: |
           # Verify the Android app was built successfully
@@ -403,8 +412,17 @@ jobs:
           echo "Recent emulator log:"
           tail -50 emulator.log || echo "No emulator log found"
           
-          # Run the tests with retries and better error handling
-          echo "Starting Android E2E tests..."
+          # Run smoke test first to verify basic functionality
+          echo "Running Android smoke test..."
+          npm run detox:smoke:android
+        env:
+          DETOX_LOGLEVEL: info
+
+      - name: Run Android E2E tests
+        working-directory: mobile
+        run: |
+          # Run the full test suite with retries and better error handling
+          echo "Starting full Android E2E test suite..."
           npm run detox:test:android || {
             echo "First test run failed, checking logs and retrying..."
             find . -name "*.log" -type f -exec echo "=== {} ===" \; -exec cat {} \; || true
