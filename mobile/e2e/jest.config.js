@@ -10,23 +10,28 @@ module.exports = {
   testRunner: 'jest-circus/runner',
   verbose: true,
   setupFilesAfterEnv: ['./e2e/setup.js'],
-  preset: 'ts-jest/presets/default',
+  preset: 'ts-jest',
   transform: {
-    '^.+\\.ts$': ['ts-jest', {
-      tsconfig: {
-        module: 'commonjs',
-        target: 'es2017',
-        lib: ['es2017'],
-        allowSyntheticDefaultImports: true,
-        esModuleInterop: true,
-        skipLibCheck: true,
-        types: ['detox/globals', 'jest']
-      }
-    }],
+    '^.+\\.ts$': 'ts-jest',
     '^.+\\.js$': 'babel-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   transformIgnorePatterns: [
     'node_modules/(?!(react-native|@react-native|detox)/)',
   ],
+  globals: {
+    'ts-jest': {
+      tsconfig: {
+        compilerOptions: {
+          module: 'commonjs',
+          target: 'es2017',
+          lib: ['es2017'],
+          allowSyntheticDefaultImports: true,
+          esModuleInterop: true,
+          skipLibCheck: true,
+          types: ['detox/globals', 'jest']
+        }
+      }
+    }
+  }
 };

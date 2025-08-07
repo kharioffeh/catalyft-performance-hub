@@ -30,7 +30,8 @@
     "detox:build:android": "detox build --configuration android.emu.debug",
     "detox:test:android": "detox test --configuration android.emu.debug",
     "detox:smoke:ios": "detox test --configuration ios.sim.debug e2e/smoke.e2e.ts",
-    "detox:smoke:android": "detox test --configuration android.emu.debug e2e/smoke.e2e.ts"
+    "detox:smoke:android": "detox test --configuration android.emu.debug e2e/smoke.e2e.ts",
+    "fix:android-build": "node scripts/fix-android-build.js"
   },
   "dependencies": {
     "@sentry/react-native": "^6.19.0",

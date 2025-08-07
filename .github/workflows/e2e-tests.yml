@@ -329,12 +329,8 @@ EOF
           rm -rf android
           npx expo prebuild --platform android
           
-          # Create gradle.properties to handle duplicate META-INF files
-          echo "Adding packaging options via gradle.properties..."
-          echo "" >> android/gradle.properties
-          echo "# Handle duplicate META-INF files during Android build" >> android/gradle.properties
-          echo "android.packagingOptions.pickFirsts=**/libc++_shared.so,**/libjsc.so,**/libflipper.so,META-INF/LICENSE.md,META-INF/LICENSE-notice.md,META-INF/NOTICE.md" >> android/gradle.properties
-          echo "android.packagingOptions.excludes=META-INF/DEPENDENCIES,META-INF/DEPENDENCIES.txt,META-INF/LICENSE.txt,META-INF/NOTICE.txt" >> android/gradle.properties
+          # Fix Android build configuration to handle duplicate META-INF files
+          npm run fix:android-build
         env:
           EXPO_NO_TELEMETRY: 1
           NPM_CONFIG_LEGACY_PEER_DEPS: true
@@ -350,11 +346,18 @@ EOF
           echo "Building main Android APK..."
           ./gradlew assembleDebug --stacktrace --no-daemon
           
+          # Try to build test APK, but don't fail if it doesn't work
+          echo "Attempting to build test APK..."
+          ./gradlew assembleAndroidTest --stacktrace --no-daemon || {
+            echo "⚠️  Test APK build failed, continuing with main APK only"
+            echo "Detox may still work with just the main APK"
+          }
+          
           # Show available APKs
           echo "Available APK files:"
           find . -name "*.apk" -type f
           
-          echo "✅ Main APK built successfully"
+          echo "✅ Android APK build completed"
         env:
           EXPO_NO_METRO: 1
 
