@@ -299,3 +299,12 @@ Results are tracked over time to detect regressions.
 For more details, see the [main project documentation](../README.md).
 
 <!-- Trigger E2E workflow run - Jest & Android optimizations 2025-01-05 -->
+
+## Additional Notes
+
+- The E2E tests are designed to be comprehensive and cover all major user flows
+- Tests include proper error handling and retry logic
+- GitHub Actions workflow provides automated testing for both iOS and Android platforms
+- Smoke tests ensure basic app functionality before running full test suite
+
+*Last updated: January 5, 2025 - E2E setup validation completed*
