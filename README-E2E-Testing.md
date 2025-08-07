@@ -308,3 +308,7 @@ For more details, see the [main project documentation](../README.md).
 - Smoke tests ensure basic app functionality before running full test suite
 
 *Last updated: 2025-01-05 - Testing latest E2E setup optimizations*
+
+---
+
+**Last updated**: Testing workflow trigger - 2025-01-05
