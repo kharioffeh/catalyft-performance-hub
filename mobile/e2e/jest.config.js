@@ -16,12 +16,12 @@ module.exports = {
       tsconfig: {
         compilerOptions: {
           module: 'commonjs',
-          target: 'es2017',
-          lib: ['es2017'],
+          target: 'es2018',
+          lib: ['es2018'],
           allowSyntheticDefaultImports: true,
           esModuleInterop: true,
           skipLibCheck: true,
-          types: ['detox/globals', 'jest']
+          types: ['detox/globals', 'jest', 'node']
         }
       }
     }],
@@ -29,6 +29,14 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|detox)/)',
+    'node_modules/(?!(react-native|@react-native|detox|@jest)/)',
+  ],
+  collectCoverageFrom: [
+    'e2e/**/*.{ts,js}',
+    '!e2e/**/*.d.ts',
+  ],
+  testPathIgnorePatterns: [
+    '<rootDir>/node_modules/',
+    '<rootDir>/e2e/.*\\.backup$',
   ]
 };
