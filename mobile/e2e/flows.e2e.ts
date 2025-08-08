@@ -1,4 +1,4 @@
-import { device, element, by, expect } from 'detox';
+import { device, element, by, expect, waitFor } from 'detox';
 import { E2EHelpers } from './helpers';
 
 describe('Catalyft App E2E Flows', () => {
