@@ -1,517 +1,333 @@
-# E2E Testing Documentation
+# Catalyft Mobile App - E2E Testing Setup
 
-This guide provides comprehensive instructions for setting up and running End-to-End (E2E) tests for the CataLyft Performance Hub mobile application using Detox and GitHub Actions.
-
-## Overview
-
-Our E2E testing setup supports both iOS and Android platforms with cloud-based testing via GitHub Actions. The tests cover core user flows including authentication, dashboard interactions, training sessions, analytics, nutrition tracking, and settings management.
+This README provides comprehensive documentation for setting up and running End-to-End (E2E) tests for the Catalyft mobile application using Detox.
 
 ## Quick Start
 
 ```bash
-# In the mobile directory
+# Navigate to mobile directory
+cd mobile
+
+# Install dependencies
 npm install
+
+# Validate E2E setup
 npm run detox:validate
-npm run detox:build:ios     # For iOS testing  
-npm run detox:test:ios      # Run iOS tests
-npm run detox:build:android # For Android testing
-npm run detox:test:android  # Run Android tests
+
+# Build and test (iOS)
+npm run detox:build:ios
+npm run detox:test:ios
+
+# Build and test (Android)
+npm run detox:build:android
+npm run detox:test:android
 ```
 
 ## Prerequisites
 
-### For Local iOS Testing (macOS only)
-- Xcode 14.0 or later
+### iOS Testing
+- macOS machine
+- Xcode installed
 - iOS Simulator
 - Node.js 18+
-- Homebrew
 
-### For Local Android Testing
+### Android Testing
 - Android Studio
-- Android SDK (API 30+)
-- Android Virtual Device (AVD)
+- Android SDK
+- Android Emulator or physical device
 - Node.js 18+
-
-### For GitHub Actions (Cloud Testing)
-- GitHub repository with Actions enabled
-- No local setup required - runs in the cloud!
 
 ## Installation
 
-### 1. Install Dependencies
+1. **Install global dependencies:**
+   ```bash
+   npm install -g @expo/cli detox-cli
+   ```
 
-```bash
-cd mobile
-npm install
-```
+2. **Install project dependencies:**
+   ```bash
+   cd mobile
+   npm install
+   ```
 
-### 2. Install Platform-Specific Tools
+3. **iOS-specific setup:**
+   ```bash
+   # Install applesimutils (required by Detox on iOS)
+   brew tap wix/brew
+   brew install applesimutils
+   ```
 
-#### iOS (macOS only)
-```bash
-# Install Detox CLI globally
-npm install -g detox-cli
+4. **Android-specific setup:**
+   ```bash
+   # Ensure Android SDK is installed and ANDROID_HOME is set
+   export ANDROID_HOME=$HOME/Android/Sdk
+   export PATH=$PATH:$ANDROID_HOME/emulator
+   export PATH=$PATH:$ANDROID_HOME/tools
+   export PATH=$PATH:$ANDROID_HOME/platform-tools
+   ```
 
-# Install applesimutils (required by Detox)
-brew tap wix/brew
-brew install applesimutils
-```
+## Test Configuration
 
-#### Android
-```bash
-# Install Detox CLI globally  
-npm install -g detox-cli
+### Detox Configuration (`.detoxrc.js`)
 
-# Ensure Android SDK is properly configured
-export ANDROID_HOME=$HOME/Library/Android/sdk  # macOS
-export ANDROID_HOME=$HOME/Android/Sdk          # Linux
-```
+The project includes separate configurations for:
+- `ios.sim.debug` - iOS Simulator debug builds
+- `android.emu.debug` - Android Emulator debug builds
 
-## Configuration
+### Jest Configuration (`e2e/jest.config.js`)
 
-### Detox Configuration
-
-The Detox configuration is defined in `.detoxrc.js`:
-
-```javascript
-module.exports = {
-  testRunner: {
-    args: {
-      '$0': 'jest',
-      config: 'e2e/jest.config.js'
-    },
-    jest: {
-      setupTimeout: 120000
-    }
-  },
-  apps: {
-    'ios.debug': {
-      type: 'ios.app',
-      binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/mobile.app',
-      build: 'xcodebuild -workspace ios/mobile.xcworkspace -scheme mobile -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build'
-    },
-    'android.debug': {
-      type: 'android.apk',
-      binaryPath: 'android/app/build/outputs/apk/debug/app-debug.apk',
-      build: 'cd android && ./gradlew assembleDebug assembleAndroidTest -DtestBuildType=debug',
-      reversePorts: [8081]
-    }
-  },
-  devices: {
-    simulator: {
-      type: 'ios.simulator',
-      device: { type: 'iPhone 15' }
-    },
-    emulator: {
-      type: 'android.emulator',
-      device: { avdName: 'test_emulator' }
-    }
-  },
-  configurations: {
-    'ios.sim.debug': {
-      device: 'simulator',
-      app: 'ios.debug'
-    },
-    'android.emu.debug': {
-      device: 'emulator', 
-      app: 'android.debug'
-    }
-  }
-};
-```
-
-### Test Scripts
-
-Available npm scripts in `package.json`:
-
-```json
-{
-  "scripts": {
-    "detox:validate": "node scripts/validate-e2e-setup.js",
-    "detox:build:ios": "detox build --configuration ios.sim.debug",
-    "detox:test:ios": "detox test --configuration ios.sim.debug", 
-    "detox:build:android": "detox build --configuration android.emu.debug",
-    "detox:test:android": "detox test --configuration android.emu.debug",
-    "detox:smoke:ios": "detox test --configuration ios.sim.debug e2e/smoke.e2e.ts",
-    "detox:smoke:android": "detox test --configuration android.emu.debug e2e/smoke.e2e.ts"
-  }
-}
-```
+- TypeScript support with `ts-jest`
+- 120-second test timeout
+- Single worker for stability
+- Proper module resolution
 
 ## Test Structure
 
 ### Test Files
+- `e2e/basic.e2e.ts` - Simple app launch tests
+- `e2e/flows.e2e.ts.comprehensive` - Comprehensive user flow tests
+- `e2e/helpers.ts` - Test helper functions
+- `e2e/setup.js` - Jest setup configuration
 
-- `e2e/flows.e2e.ts` - Main E2E test suite covering all user flows
-- `e2e/smoke.e2e.ts` - Basic smoke tests for quick validation
-- `e2e/helpers.ts` - Utility functions and common test operations
-- `e2e/jest.config.js` - Jest configuration for Detox
-- `e2e/init.js` - Test environment initialization  
-- `e2e/setup.js` - Global test setup
+### Test Categories
 
-### Test Flows Covered
-
-1. **Authentication & Onboarding**
-   - Web sign-up → magic-link deep-link → mobile landing logged-in
-   - Web Stripe checkout webhook stub → mobile premium flag check
-
-2. **Dashboard & Metrics**
-   - Dashboard loads demo metrics from Supabase
-   - Health metrics display and interaction
-
-3. **Training & Workouts** 
-   - Lift logger create / edit / delete cycle
-   - Calendar schedule → start → finish session
-
-4. **Analytics & Reporting**
-   - Analytics screen: tonnage + heatmap charts render
-   - Performance tracking and visualization
-
-5. **Nutrition Tracking**
-   - Nutrition scanner: mock barcode photo → macro parsing
-   - Meal logging and macro calculations
-
-6. **AI & Personalization**
-   - ARIA chat prompt → program builder response visible
-   - Personalized workout recommendations
-
-7. **Offline Functionality**
-   - Offline mode toggle → action queue replay on reconnect
-   - Data synchronization
+1. **Basic Tests** - App launch and basic functionality
+2. **Authentication Flow** - Magic link, login/logout
+3. **Dashboard** - Metrics loading, user interface
+4. **Training** - Lift logging, calendar, sessions
+5. **Analytics** - Charts, data visualization
+6. **Nutrition** - Barcode scanning, meal tracking
+7. **Offline Mode** - Queue management, sync
 
 ## Test IDs Reference
 
 ### Navigation
-- `tab-Dashboard` - Dashboard tab
-- `tab-Training` - Training tab  
-- `tab-Analytics` - Analytics tab
-- `tab-Nutrition` - Nutrition tab
-- `tab-Settings` - Settings tab
+- `tab-Dashboard`, `tab-Training`, `tab-Analytics`, `tab-Nutrition`, `tab-Settings`
 
-### Dashboard Screen
-- `dashboard-container` - Main dashboard container
-- `dashboard-refresh-control` - Pull-to-refresh control
-- `dashboard-welcome-text` - Welcome message
-- `user-profile-avatar` - User avatar
-- `health-metrics-container` - Health metrics section
-- `strain-metric-card` - Strain metric card
-- `recovery-metric-card` - Recovery metric card
-- `sleep-metric-card` - Sleep metric card  
-- `hrv-metric-card` - HRV metric card
+### Dashboard
+- `dashboard-container`, `dashboard-welcome-text`, `user-profile-avatar`
+- `health-metrics-container`, `strain-metric-card`, `recovery-metric-card`
 
-### Training Screen
-- `training-container` - Main training container
-- `calendar-view-button` - Calendar view toggle
-- `start-workout-button` - Start workout button
-- `lift-create-button` - Create new lift button
-- `aria-chat-button` - ARIA chat interface
+### Training
+- `training-container`, `lift-create-button`, `calendar-view-button`
+- `start-workout-button`, `aria-chat-button`
 
-### Analytics Screen  
-- `analytics-container` - Main analytics container
-- `analytics-refresh-control` - Pull-to-refresh control
-- `analytics-period-week` - Weekly view button
-- `analytics-period-month` - Monthly view button
-- `analytics-period-year` - Yearly view button
-- `analytics-charts-container` - Charts container
-- `tonnage-chart` - Tonnage chart
-- `tonnage-chart-title` - Chart title
+### Analytics
+- `analytics-container`, `tonnage-chart`, `analytics-charts-container`
+- `analytics-period-week`, `analytics-period-month`
 
-### Nutrition Screen
-- `nutrition-container` - Main nutrition container
-- `barcode-scanner-button` - Barcode scanner
-- `quick-add-meal` - Quick add meal button
+### Nutrition
+- `nutrition-container`, `barcode-scanner-button`, `quick-add-meal`
 
-### Settings Screen
-- `settings-container` - Main settings container
-- `offline-setting` - Offline mode setting
-- `offline-setting-toggle` - Offline mode toggle switch
+### Settings
+- `settings-container`, `offline-setting`, `offline-toggle`
 
 ## Running Tests
 
-### Local Testing
+### Local Development
 
-#### iOS
 ```bash
-# Start iOS simulator first
-open -a Simulator
-
-# Build and test
+# iOS
 npm run detox:build:ios
 npm run detox:test:ios
 
-# Or run smoke tests only
-npm run detox:smoke:ios
-```
-
-#### Android
-```bash
-# Start Android emulator first
-$ANDROID_HOME/emulator/emulator -avd test_emulator
-
-# Build and test
-npm run detox:build:android  
+# Android
+npm run detox:build:android
 npm run detox:test:android
 
-# Or run smoke tests only
-npm run detox:smoke:android
+# Validate setup
+npm run detox:validate
 ```
 
-### GitHub Actions (Cloud Testing)
+### Debug Mode
 
-Tests run automatically on:
+```bash
+# Run with verbose output
+npx detox test --configuration ios.sim.debug --loglevel verbose
+
+# Run specific test file
+npx detox test --configuration ios.sim.debug e2e/basic.e2e.ts
+
+# Keep simulator open after tests
+npx detox test --configuration ios.sim.debug --cleanup false
+```
+
+## CI/CD Integration
+
+### GitHub Actions
+
+The project includes `.github/workflows/e2e-tests.yml` with:
+- **iOS Job**: macOS runner with iOS Simulator
+- **Android Job**: Ubuntu runner with Android Emulator
+- Automatic dependency caching
+- Build artifact preservation
+- Test result reporting
+
+### Workflow Triggers
 - Push to `main` or `develop` branches
-- Pull requests to `main` branch
+- Pull requests to `main`
 - Manual workflow dispatch
-
-**Manual Trigger:**
-1. Go to GitHub Actions tab
-2. Select "E2E Tests" workflow
-3. Click "Run workflow"
-4. Choose branch and click "Run workflow"
-
-### Test Output
-
-Tests generate detailed output including:
-- Test results and assertions
-- Screenshots on failures
-- Device logs and crash reports
-- Performance metrics
-- Artifact uploads for debugging
 
 ## Troubleshooting
 
 ### Common Issues
 
-#### iOS Simulator Issues
-```bash
-# Reset simulator
-xcrun simctl erase all
+1. **"App binary not found"**
+   ```bash
+   # Rebuild the app
+   npm run detox:build:ios
+   # or
+   npm run detox:build:android
+   ```
 
-# List available simulators  
-xcrun simctl list devices
+2. **"Device not found"**
+   ```bash
+   # iOS: Check available simulators
+   xcrun simctl list devices available
+   
+   # Android: Check running emulators
+   adb devices
+   ```
 
-# Boot specific simulator
-xcrun simctl boot "iPhone 15"
+3. **"Tests timing out"**
+   - Increase timeout in Jest config
+   - Check element testIDs exist
+   - Verify app is properly built
+
+4. **"Metro bundler issues"**
+   ```bash
+   # Reset Metro cache
+   npx react-native start --reset-cache
+   ```
+
+### iOS-Specific Issues
+
+1. **Simulator not booting**
+   ```bash
+   # Reset simulator
+   xcrun simctl erase all
+   xcrun simctl boot "iPhone 15"
+   ```
+
+2. **Missing applesimutils**
+   ```bash
+   brew tap wix/brew
+   brew install applesimutils
+   ```
+
+### Android-Specific Issues
+
+1. **Emulator not starting**
+   ```bash
+   # List available AVDs
+   emulator -list-avds
+   
+   # Start specific emulator
+   emulator -avd Pixel_4_API_30
+   ```
+
+2. **Build failures**
+   ```bash
+   # Clean build
+   cd android
+   ./gradlew clean
+   cd ..
+   ```
+
+## Writing New Tests
+
+### Basic Test Structure
+
+```typescript
+import { device, element, by, expect } from 'detox';
+
+describe('Feature Name', () => {
+  beforeAll(async () => {
+    await device.launchApp({ newInstance: true });
+  });
+
+  beforeEach(async () => {
+    await device.reloadReactNative();
+  });
+
+  it('should perform specific action', async () => {
+    await element(by.id('button-testid')).tap();
+    await expect(element(by.id('result-testid'))).toBeVisible();
+  });
+});
 ```
 
-#### Android Emulator Issues
-```bash
-# List AVDs
-$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
+### Using Test Helpers
 
-# Delete and recreate AVD
-$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager delete avd -n test_emulator
-$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test_emulator -k "system-images;android-33;google_apis;x86_64"
+```typescript
+import { E2EHelpers } from './helpers';
 
-# Start emulator with specific options
-$ANDROID_HOME/emulator/emulator -avd test_emulator -no-audio -no-window
+// Navigate to tab
+await E2EHelpers.navigateToTab('Training');
+
+// Wait for element
+await E2EHelpers.waitForElement('training-container');
+
+// Fill lift entry
+await E2EHelpers.fillLiftEntry('Bench Press', '135', '10');
 ```
 
-#### Build Issues
-```bash
-# Clean build artifacts
-rm -rf ios/build android/app/build
+### Best Practices
 
-# Clean node modules and reinstall
-rm -rf node_modules package-lock.json
-npm install
+1. **Use meaningful testIDs** - Clear, descriptive identifiers
+2. **Wait for elements** - Use `waitFor()` for dynamic content
+3. **Isolate tests** - Each test should be independent
+4. **Clean state** - Reset app state between tests
+5. **Mock external dependencies** - API calls, deep links
 
-# Clean Expo cache
-npx expo r --clear
-```
+## Performance Tips
 
-#### Test Failures
-```bash
-# Run with verbose logging
-DETOX_LOGLEVEL=trace npm run detox:test:ios
+1. **Use single worker** - `maxWorkers: 1` in Jest config
+2. **Reload vs relaunch** - Use `reloadReactNative()` for faster setup
+3. **Element caching** - Store frequently used elements
+4. **Timeout optimization** - Set appropriate timeouts per test
 
-# Run specific test file
-npx detox test e2e/smoke.e2e.ts --configuration ios.sim.debug
+## Advanced Configuration
 
-# Debug mode (keeps simulator open)
-npx detox test --configuration ios.sim.debug --debug-synchronization
+### Custom Detox Configuration
+
+```javascript
+// .detoxrc.js
+module.exports = {
+  testRunner: {
+    args: {
+      '$0': 'jest',
+      config: 'e2e/jest.config.js'
+    }
+  },
+  apps: {
+    'ios.debug': {
+      type: 'ios.app',
+      binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/YourApp.app',
+      build: 'xcodebuild -workspace ios/YourApp.xcworkspace -scheme YourApp -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build'
+    }
+  }
+};
 ```
 
 ### Environment Variables
 
 ```bash
-# iOS
-export DETOX_LOGLEVEL=info
-export SIMCTL_CHILD_DYLD_INSERT_LIBRARIES=""
-
-# Android  
-export ANDROID_HOME=/path/to/android/sdk
-export ANDROID_AVD_HOME=$HOME/.android/avd
-export DETOX_LOGLEVEL=info
+# Set in CI/CD or local environment
+export DETOX_CONFIGURATION=ios.sim.debug
+export DETOX_LOGLEVEL=verbose
+export DETOX_CLEANUP=false
 ```
 
-### Performance Tips
-
-- Use `--maxWorkers 1` for Jest to avoid conflicts
-- Enable hardware acceleration for Android emulator
-- Close unnecessary applications during testing
-- Use SSD storage for better emulator performance
-
-## CI/CD Integration
-
-### GitHub Actions Workflow
-
-The `.github/workflows/e2e-tests.yml` file defines our CI pipeline:
-
-```yaml
-name: E2E Tests
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
-  workflow_dispatch:
-
-jobs:
-  e2e-ios:
-    runs-on: macos-13
-    # iOS testing steps...
-    
-  e2e-android:  
-    runs-on: ubuntu-latest
-    # Android testing steps...
-```
-
-### Workflow Features
-
-- **Parallel Testing**: iOS and Android run simultaneously
-- **Matrix Testing**: Multiple device/OS combinations
-- **Artifact Upload**: Test results, screenshots, and logs
-- **Smart Caching**: Dependencies and build artifacts
-- **Retry Logic**: Automatic retry on transient failures
-- **Notifications**: Slack/email alerts on failures
-
-## Best Practices
-
-### Writing Tests
-
-1. **Use Page Object Pattern**
-   ```typescript
-   // helpers.ts
-   export class LoginPage {
-     static async login(email: string, password: string) {
-       await element(by.id('email-input')).typeText(email);
-       await element(by.id('password-input')).typeText(password);
-       await element(by.id('login-button')).tap();
-     }
-   }
-   ```
-
-2. **Add Meaningful Test IDs**
-   ```tsx
-   <TouchableOpacity testID="submit-workout-button">
-     <Text>Submit Workout</Text>
-   </TouchableOpacity>
-   ```
-
-3. **Use Descriptive Test Names**
-   ```typescript
-   it('should create new workout when user taps create button and fills form', async () => {
-     // Test implementation
-   });
-   ```
-
-4. **Handle Async Operations**
-   ```typescript
-   await waitFor(element(by.id('loading-indicator')))
-     .not.toBeVisible()
-     .withTimeout(10000);
-   ```
-
-### Test Organization
-
-- Group related tests in `describe` blocks
-- Use `beforeEach` for common setup
-- Clean up state between tests
-- Use meaningful assertions with clear error messages
-
-### Performance
-
-- Minimize app launches (use `device.reloadReactNative()`)
-- Batch similar operations
-- Use efficient selectors (`by.id` > `by.text`)
-- Clean up test data
-
-## Maintenance
-
-### Regular Tasks
-
-1. **Update Dependencies**
-   ```bash
-   npm update detox
-   npm update jest
-   ```
-
-2. **Clean Artifacts**
-   ```bash
-   rm -rf artifacts/
-   rm -rf ios/build/
-   rm -rf android/app/build/
-   ```
-
-3. **Update Test Data**
-   - Review and update mock data
-   - Validate API responses
-   - Update test credentials
-
-### Monitoring
-
-- Track test execution times
-- Monitor failure rates
-- Review test coverage
-- Update test scenarios based on new features
-
-## Support
-
-### Resources
+## Resources
 
 - [Detox Documentation](https://wix.github.io/Detox/)
+- [React Native Testing Guide](https://reactnative.dev/docs/testing-overview)
 - [Jest Documentation](https://jestjs.io/docs/getting-started)
-- [React Native Testing](https://reactnative.dev/docs/testing-overview)
-- [GitHub Actions](https://docs.github.com/en/actions)
-
-### Getting Help
-
-1. Check this documentation first
-2. Review existing test files for examples
-3. Check GitHub Actions logs for CI issues
-4. Create an issue in the repository for bugs
-5. Reach out to the development team for guidance
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
 
 ---
-**Last updated:** January 5, 2025 - Testing workflow status
 
-## Status Dashboard
+**Note**: This setup supports both local development and CI/CD environments. For Windows users developing iOS apps, use the GitHub Actions workflow for iOS testing while running Android tests locally.
 
-🎉 **E2E Testing Setup: FULLY OPERATIONAL** ✅
-
-### ✅ **What's Working Perfectly:**
-- **Complete CI/CD Pipeline**: iOS (macOS) + Android (Ubuntu) runners configured
-- **Comprehensive Test Suite**: 461-line test specification covering all core flows
-- **Robust Configuration**: Jest + TypeScript + Detox fully integrated
-- **Local Validation**: `npm run detox:validate` passes all checks
-- **Error Recovery**: Sophisticated error handling and artifact collection
-
-### 🔧 **Recently Fixed Issues:**
-- ✅ Jest TypeScript configuration (ts-jest integration)
-- ✅ Ubuntu 24.04 package compatibility (libasound2t64)
-- ✅ Android META-INF duplicate file conflicts
-- ✅ iOS applesimutils dependency installation
-- ✅ Android SDK package installation with fallbacks
-- ✅ Emulator startup optimization and error handling
-
-## Testing the CI/CD Pipeline
-
-The GitHub Actions workflow runs automatically on:
-- Pushes to `main` or `develop` branches
-- Pull requests to `main` branch
-- Manual trigger via `workflow_dispatch`
-
-**Latest Validation**: 2025-01-23 - All E2E components verified ✅  
-**Setup Status**: Ready for production testing 🚀
-<!-- Trigger: E2E setup validation completed -->
+<!-- Trigger workflow run: 2025-01-22 -->
