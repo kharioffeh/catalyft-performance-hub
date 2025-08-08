@@ -29,7 +29,7 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|detox|@jest)/)',
+    'node_modules/(?!(react-native|@react-native|detox|@jest|jest)/)',
   ],
   collectCoverageFrom: [
     'e2e/**/*.{ts,js}',

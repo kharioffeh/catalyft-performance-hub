@@ -3,24 +3,24 @@
 const fs = require('fs');
 const path = require('path');
 
+const buildGradlePath = path.join(__dirname, '..', 'android', 'app', 'build.gradle');
+
 console.log('🔧 Fixing Android build configuration...');
 
-const androidAppBuildGradlePath = path.join(__dirname, '..', 'android', 'app', 'build.gradle');
-
-if (!fs.existsSync(androidAppBuildGradlePath)) {
-  console.log('❌ Android build.gradle not found. Make sure you run expo prebuild first.');
+if (!fs.existsSync(buildGradlePath)) {
+  console.log('❌ build.gradle not found at:', buildGradlePath);
   process.exit(1);
 }
 
-let buildGradleContent = fs.readFileSync(androidAppBuildGradlePath, 'utf8');
+let buildGradleContent = fs.readFileSync(buildGradlePath, 'utf8');
 
 // Check if packagingOptions already exists
 if (buildGradleContent.includes('packagingOptions')) {
-  console.log('✅ PackagingOptions already configured');
+  console.log('✅ packagingOptions already configured in build.gradle');
   process.exit(0);
 }
 
-// Find the android block and add packagingOptions
+// Find the android block and inject packagingOptions
 const androidBlockRegex = /android\s*\{/;
 const match = buildGradleContent.match(androidBlockRegex);
 
@@ -29,29 +29,31 @@ if (!match) {
   process.exit(1);
 }
 
-const insertionPoint = match.index + match[0].length;
-
 const packagingOptionsBlock = `
     packagingOptions {
         pickFirst '**/libc++_shared.so'
         pickFirst '**/libjsc.so'
-        pickFirst '**/libflipper.so'
+        pickFirst '**/libjscexecutor.so'
         pickFirst 'META-INF/LICENSE.md'
-        pickFirst 'META-INF/LICENSE-notice.md'
+        pickFirst 'META-INF/LICENSE'
         pickFirst 'META-INF/NOTICE.md'
+        pickFirst 'META-INF/NOTICE'
+        pickFirst 'META-INF/ASL2.0'
+        pickFirst 'META-INF/*.md'
         exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/DEPENDENCIES.txt'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/io.netty.versions.properties'
     }
 `;
 
-const newContent = 
-  buildGradleContent.slice(0, insertionPoint) + 
-  packagingOptionsBlock + 
-  buildGradleContent.slice(insertionPoint);
+// Insert packagingOptions right after the android { line
+const insertIndex = match.index + match[0].length;
+buildGradleContent = buildGradleContent.slice(0, insertIndex) + 
+                   packagingOptionsBlock + 
+                   buildGradleContent.slice(insertIndex);
 
-fs.writeFileSync(androidAppBuildGradlePath, newContent);
+// Write the modified content back
+fs.writeFileSync(buildGradlePath, buildGradleContent, 'utf8');
 
-console.log('✅ Android build.gradle updated with packagingOptions');
-console.log('🚀 Android build should now handle duplicate META-INF files correctly');
+console.log('✅ Successfully added packagingOptions to build.gradle');
+console.log('📦 This should resolve META-INF/LICENSE.md conflicts during test APK builds');
