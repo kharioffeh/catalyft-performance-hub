@@ -242,20 +242,18 @@ jobs:
           AVD_CONFIG="$HOME/.android/avd/test_emulator.avd/config.ini"
           if [ -f "$AVD_CONFIG" ]; then
             echo "Optimizing AVD configuration..."
-            cat >> "$AVD_CONFIG" << EOF
-hw.gpu.enabled=yes
-hw.gpu.mode=swiftshader_indirect
-hw.ramSize=3072
-disk.dataPartition.size=3072M
-hw.accelerometer=no
-hw.audioInput=no
-hw.audioOutput=no
-hw.camera.back=none
-hw.camera.front=none
-hw.gps=no
-hw.sensors.orientation=no
-hw.sensors.proximity=no
-EOF
+            echo "hw.gpu.enabled=yes" >> "$AVD_CONFIG"
+            echo "hw.gpu.mode=swiftshader_indirect" >> "$AVD_CONFIG"
+            echo "hw.ramSize=3072" >> "$AVD_CONFIG"
+            echo "disk.dataPartition.size=3072M" >> "$AVD_CONFIG"
+            echo "hw.accelerometer=no" >> "$AVD_CONFIG"
+            echo "hw.audioInput=no" >> "$AVD_CONFIG"
+            echo "hw.audioOutput=no" >> "$AVD_CONFIG"
+            echo "hw.camera.back=none" >> "$AVD_CONFIG"
+            echo "hw.camera.front=none" >> "$AVD_CONFIG"
+            echo "hw.gps=no" >> "$AVD_CONFIG"
+            echo "hw.sensors.orientation=no" >> "$AVD_CONFIG"
+            echo "hw.sensors.proximity=no" >> "$AVD_CONFIG"
           fi
           
           echo "✅ Android emulator setup complete!"
