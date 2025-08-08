@@ -1,10 +1,11 @@
-// Use Jest globals directly without importing
-global.beforeAll(async () => {
+const { beforeAll, afterAll } = require('@jest/globals');
+
+beforeAll(async () => {
   // Additional setup can go here
   console.log('Setting up e2e tests...');
 });
 
-global.afterAll(async () => {
+afterAll(async () => {
   // Additional cleanup can go here
   console.log('Cleaning up e2e tests...');
 });
