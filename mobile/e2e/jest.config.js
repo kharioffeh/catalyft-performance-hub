@@ -10,26 +10,17 @@ module.exports = {
   testRunner: 'jest-circus/runner',
   verbose: true,
   setupFilesAfterEnv: ['./e2e/setup.js'],
-  preset: 'ts-jest/presets/default',
+  preset: 'ts-jest',
   transform: {
     '^.+\\.ts$': ['ts-jest', {
-      tsconfig: {
-        compilerOptions: {
-          module: 'commonjs',
-          target: 'es2018',
-          lib: ['es2018'],
-          allowSyntheticDefaultImports: true,
-          esModuleInterop: true,
-          skipLibCheck: true,
-          types: ['detox/globals', 'jest', 'node']
-        }
-      }
+      useESM: false,
+      isolatedModules: true
     }],
     '^.+\\.js$': 'babel-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|detox|@jest|jest)/)',
+    'node_modules/(?!(react-native|@react-native|detox)/)',
   ],
   collectCoverageFrom: [
     'e2e/**/*.{ts,js}',

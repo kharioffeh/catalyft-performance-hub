@@ -9,29 +9,22 @@ describe('Smoke Test', () => {
     await device.reloadReactNative();
   });
 
-  it('should launch app and show main screen', async () => {
-    // Give the app time to load
-    await device.waitForBackground('1000');
-    
-    // Basic smoke test - just verify the app launched
-    // We can look for any element that indicates the app is running
-    try {
-      // Try to find common elements that should exist in a React Native app
-      await expect(element(by.text('Loading...'))).toBeVisible();
-    } catch (e) {
-      // If no loading text, just verify the app is running by trying to interact with it
-      console.log('App launched successfully (no loading text found, which is expected)');
-    }
+  it('should launch the app successfully', async () => {
+    // Wait for the app to load
+    await expect(element(by.text('CataLyft'))).toBeVisible();
   });
 
-  it('should be able to reload React Native', async () => {
-    // Test that the app can reload (basic stability test)
-    await device.reloadReactNative();
-    
-    // Give it a moment to reload
-    await device.waitForBackground('2000');
-    
-    // This test passes if no errors are thrown during reload
-    console.log('React Native reload completed successfully');
+  it('should display the main navigation tabs', async () => {
+    // Check if main tabs are present
+    await expect(element(by.id('tab-Dashboard'))).toExist();
+    await expect(element(by.id('tab-Training'))).toExist();
+    await expect(element(by.id('tab-Analytics'))).toExist();
+    await expect(element(by.id('tab-Nutrition'))).toExist();
+    await expect(element(by.id('tab-Settings'))).toExist();
+  });
+
+  it('should be able to navigate to Dashboard', async () => {
+    await element(by.id('tab-Dashboard')).tap();
+    await expect(element(by.id('dashboard-container'))).toBeVisible();
   });
 });
