@@ -1,8 +1,8 @@
-import { device, element, by, expect } from 'detox';
+import { device, element, by, expect, waitFor } from 'detox';
 
 describe('Smoke Test', () => {
   beforeAll(async () => {
-    await device.launchApp();
+    await device.launchApp({ newInstance: true });
   });
 
   beforeEach(async () => {
@@ -10,13 +10,17 @@ describe('Smoke Test', () => {
   });
 
   it('should launch the app successfully', async () => {
-    // Wait for the app to load
-    await expect(element(by.text('CataLyft'))).toBeVisible();
+    // Wait for the app to load - look for the main title
+    await waitFor(element(by.text('CataLyft')))
+      .toBeVisible()
+      .withTimeout(15000);
   });
 
   it('should display the main navigation tabs', async () => {
-    // Check if main tabs are present
-    await expect(element(by.id('tab-Dashboard'))).toExist();
+    // Check if main tabs are present with longer timeout
+    await waitFor(element(by.id('tab-Dashboard')))
+      .toExist()
+      .withTimeout(10000);
     await expect(element(by.id('tab-Training'))).toExist();
     await expect(element(by.id('tab-Analytics'))).toExist();
     await expect(element(by.id('tab-Nutrition'))).toExist();
@@ -25,6 +29,8 @@ describe('Smoke Test', () => {
 
   it('should be able to navigate to Dashboard', async () => {
     await element(by.id('tab-Dashboard')).tap();
-    await expect(element(by.id('dashboard-container'))).toBeVisible();
+    await waitFor(element(by.id('dashboard-container')))
+      .toBeVisible()
+      .withTimeout(10000);
   });
 });
