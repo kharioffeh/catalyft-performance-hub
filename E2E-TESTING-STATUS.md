@@ -1,101 +1,85 @@
-# E2E Testing Status & Recent Fixes
+# E2E Testing Status - Updated
 
-## 🎯 Current Status
+## Latest Update: August 8, 2025
 
-✅ **Local Validation**: All E2E setup checks pass  
-🔄 **GitHub Actions**: Running updated workflow with fixes  
-🔧 **Recent Fixes Applied**: Jest TypeScript config, test file naming, Android dependencies  
+### ✅ Recent Fixes Applied
 
-## 🔧 Recent Fixes Applied
+**Problem**: GitHub Actions E2E tests were failing on both iOS and Android during smoke tests.
 
-### 1. Test File Structure ✅
-- Fixed missing `flows.e2e.ts` (was named `.comprehensive`)
-- All required test files now exist and are detected
+**Root Causes Identified**:
+1. **Text Matching Issues**: Tests were looking for `'Catalyft'` but the actual app displays `'CataLyft'`
+2. **Timeout Issues**: Tests were using synchronous expects instead of `waitFor` with proper timeouts
+3. **App Launch Issues**: Tests weren't consistently launching fresh app instances
 
-### 2. Jest TypeScript Configuration ✅
-- Updated TypeScript target to ES2018 for better compatibility
-- Improved transform patterns for better ES module support
-- Added proper types configuration (`detox/globals`, `jest`, `node`)
-- Enhanced `transformIgnorePatterns` to include `@jest` packages
+**Fixes Applied**:
 
-### 3. Android Emulator Dependencies ✅
-- Updated package name from `libasound2` to `libasound2t64` for Ubuntu 24.04 compatibility
-- Added essential libraries: `libpulse0`, `libnss3`, `libnspr4`, `libxss1`, `libasound2t64`
+1. **Fixed Text Matching** (`mobile/e2e/smoke.e2e.ts`, `mobile/e2e/basic.e2e.ts`):
+   - Changed from `by.text('Catalyft')` to `by.text('CataLyft')` to match actual app text
+   - Verified the app displays "CataLyft" in the main title
 
-### 4. Build Configuration ✅
-- Detox configuration matches current build setup
-- Proper iOS/Android build commands using `expo prebuild`
-- Correct binary paths and emulator settings
+2. **Added Proper Timeouts**:
+   - Replaced synchronous `expect()` calls with `waitFor().withTimeout()`
+   - Set longer timeouts (10-15 seconds) for CI environments
+   - Increased Jest setup timeout from 120s to 180s in `.detoxrc.js`
 
-## 🚀 GitHub Actions Workflow
+3. **Improved App Launch**:
+   - Added `newInstance: true` to `device.launchApp()` calls
+   - More reliable app state for each test
 
-The workflow runs on every push to `main` and includes:
+4. **Added Robust Fallback Tests**:
+   - Test for `appContainer` testID existence
+   - Basic interaction tests to ensure app doesn't crash
+   - Tests that work even if specific UI elements change
 
-### iOS Job (macOS-13)
-- ✅ Node.js 18 setup
-- ✅ Dependencies installation with `--legacy-peer-deps`
-- ✅ iOS Simulator setup with `applesimutils`
-- ✅ Dynamic Xcode workspace/scheme detection
-- 🔄 Currently testing with latest fixes
+### Current Status
 
-### Android Job (Ubuntu-latest)
-- ✅ Android SDK setup with proper packages
-- ✅ KVM enablement for hardware acceleration
-- ✅ Missing libraries installation (Ubuntu 24.04 compatible)
-- ✅ Optimized emulator configuration (Pixel 6, 3GB RAM)
-- 🔄 Currently testing with latest fixes
+**Last Workflow Run**: #89 (FAILED)
+- **iOS**: Hung during smoke test execution 
+- **Android**: Failed smoke test step
 
-## 📋 Validation Results
+**Latest Push**: Commit `2fa9bd98` with fixes
+- New workflow run should be triggered automatically
+- Expected to resolve both iOS hanging and Android failures
 
+### GitHub Actions Workflow
+
+The workflow is configured to run on:
+- Push to `main` and `develop` branches  
+- Pull requests to `main`
+- Manual workflow dispatch
+
+**Jobs**:
+1. **e2e-ios** (macOS-13): Tests iOS app on simulator
+2. **e2e-android** (Ubuntu): Tests Android app on emulator  
+3. **test-summary**: Aggregates results
+
+### Next Steps
+
+1. **Monitor New Workflow Run**: Check if fixes resolve the smoke test issues
+2. **If Tests Pass**: Move to full E2E test suite execution
+3. **If Tests Still Fail**: Further debugging of specific CI environment issues
+
+### Test Commands for Local Development
+
+```bash
+# Validate setup
+npm run detox:validate
+
+# iOS Testing
+npm run detox:build:ios
+npm run detox:smoke:ios
+npm run detox:test:ios
+
+# Android Testing  
+npm run detox:build:android
+npm run detox:smoke:android
+npm run detox:test:android
 ```
-🔍 Validating E2E Test Setup...
 
-✅ Detox configuration file exists
-✅ E2E test files exist  
-✅ Test helpers exist
-✅ Jest configuration exists
-✅ Package.json has Detox scripts
-✅ Detox dependency installed
+### Files Modified in Latest Fix
 
-🎉 All checks passed! E2E setup is ready.
-```
+- `mobile/e2e/smoke.e2e.ts`: Fixed text matching and added timeouts
+- `mobile/e2e/basic.e2e.ts`: Fixed text matching and added robust fallback tests
+- `mobile/.detoxrc.js`: Increased Jest setup timeout to 180s
 
-## 🔍 Monitoring Progress
-
-1. **GitHub Actions**: Check https://github.com/kharioffeh/catalyft-performance-hub/actions
-2. **Latest Workflow**: Look for "Fix E2E test setup issues" workflow run
-3. **Expected Outcomes**:
-   - iOS: Should pass validation, build iOS app, and run tests
-   - Android: Should pass validation, create emulator, build Android APK, and run tests
-
-## 🎯 Test Coverage
-
-The E2E test suite covers:
-- ✅ Authentication & Magic Link Deep Linking
-- ✅ Dashboard Loading & Premium Flag Checks  
-- ✅ Lift Logger CRUD Operations
-- ✅ Calendar Scheduling & Workout Sessions
-- ✅ Analytics Rendering (Tonnage & Heatmaps)
-- ✅ Nutrition Scanner & Barcode Processing
-- ✅ ARIA Chat & Program Builder
-- ✅ Offline Mode & Sync Queue
-
-## 🚨 Previous Issues (Now Fixed)
-
-1. ❌ ~~Dependencies lock file not found~~ → Fixed by removing cache configuration
-2. ❌ ~~Missing detox:validate script~~ → Fixed by adding to package.json
-3. ❌ ~~E2E test files not found~~ → Fixed by renaming flows.e2e.ts
-4. ❌ ~~Jest TypeScript compilation errors~~ → Fixed with improved config
-5. ❌ ~~Android emulator library conflicts~~ → Fixed with Ubuntu 24.04 compatible packages
-
-## 📱 Next Steps
-
-Once GitHub Actions passes:
-1. ✅ **Cloud Testing**: Both iOS & Android will run automatically on every commit
-2. 📋 **Local Development**: You can run tests locally using the provided scripts
-3. 🔄 **CI/CD Integration**: Tests will catch regressions before deployment
-
----
-
-*Last Updated: $(date)*  
-*Status: Monitoring GitHub Actions workflow with latest fixes*
+**Expected Result**: Both iOS and Android smoke tests should now pass, allowing the full E2E test suite to run.
