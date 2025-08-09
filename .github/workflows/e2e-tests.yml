@@ -69,18 +69,18 @@ jobs:
           EXPO_NO_TELEMETRY: 1
           NPM_CONFIG_LEGACY_PEER_DEPS: true
 
-      - name: Build iOS app for testing
-        working-directory: mobile
-        run: |
-          # Build using xcodebuild instead of expo run:ios
-          cd ios
-          # Find the actual workspace and scheme names
-          WORKSPACE_NAME=$(find . -name "*.xcworkspace" | head -1 | sed 's|./||')
-          SCHEME_NAME=$(xcodebuild -workspace "$WORKSPACE_NAME" -list | grep -A 100 "Schemes:" | grep -v "Schemes:" | head -1 | xargs)
-          echo "Building workspace: $WORKSPACE_NAME with scheme: $SCHEME_NAME"
-          xcodebuild -workspace "$WORKSPACE_NAME" -scheme "$SCHEME_NAME" -configuration Debug -sdk iphonesimulator -derivedDataPath build
-        env:
-          EXPO_NO_METRO: 1
+     - name: Build iOS app for testing (Detox)
+  working-directory: mobile
+  run: npx detox build -c ios.sim.debug
+
+- name: Verify the iOS app was built successfully
+  working-directory: mobile
+  run: |
+    echo "Checking for iOS app binary..."
+    find ios/build/Build/Products/Debug-iphonesimulator -maxdepth 2 -name "*.app" -print
+    echo "Available iOS simulators:"
+    xcrun simctl list devices available | head -10
+
 
       - name: Run iOS smoke test
         working-directory: mobile
