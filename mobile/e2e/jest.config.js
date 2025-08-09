@@ -20,7 +20,8 @@ module.exports = {
           lib: ['es2017'],
           allowSyntheticDefaultImports: true,
           esModuleInterop: true,
-          skipLibCheck: true
+          skipLibCheck: true,
+          isolatedModules: true
         }
       }
     }],
@@ -28,7 +29,7 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|detox)/)',
+    'node_modules/(?!(react-native|@react-native|detox|@jest)/)',
   ],
   collectCoverageFrom: [
     'e2e/**/*.{ts,js}',
@@ -37,5 +38,11 @@ module.exports = {
   testPathIgnorePatterns: [
     '<rootDir>/node_modules/',
     '<rootDir>/e2e/.*\\.backup$',
-  ]
+  ],
+  extensionsToTreatAsEsm: [],
+  globals: {
+    'ts-jest': {
+      useESM: false
+    }
+  }
 };
