@@ -468,6 +468,18 @@ jobs:
           retention-days: 7
 
 
+  # Lint workflow files
+  lint-workflows:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Run actionlint
+        uses: rhysd/actionlint@v1
+        with:
+          files: .github/workflows/e2e-tests.yml
+
   # Test Results Summary
   test-summary:
     runs-on: ubuntu-latest
