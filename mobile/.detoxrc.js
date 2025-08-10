@@ -12,13 +12,13 @@ module.exports = {
   apps: {
     'ios.debug': {
       type: 'ios.app',
-      binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/*.app',
-      build: 'rm -rf ios && npx expo prebuild --platform ios && cd ios && WORKSPACE_NAME=$(find . -name "*.xcworkspace" | head -1 | sed "s|./||") && SCHEME_NAME=$(xcodebuild -workspace "$WORKSPACE_NAME" -list | grep -A 100 "Schemes:" | grep -v "Schemes:" | head -1 | xargs) && xcodebuild -workspace "$WORKSPACE_NAME" -scheme "$SCHEME_NAME" -configuration Debug -sdk iphonesimulator -derivedDataPath build'
+      binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/mobile.app',
+      build: 'rm -rf ios && npx expo prebuild --platform ios && cd ios && xcodebuild -workspace mobile.xcworkspace -scheme mobile -configuration Debug -sdk iphonesimulator -derivedDataPath build | xcpretty --color --simple'
     },
     'ios.release': {
       type: 'ios.app',
-      binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/*.app',
-      build: 'rm -rf ios && npx expo prebuild --platform ios && cd ios && WORKSPACE_NAME=$(find . -name "*.xcworkspace" | head -1 | sed "s|./||") && SCHEME_NAME=$(xcodebuild -workspace "$WORKSPACE_NAME" -list | grep -A 100 "Schemes:" | grep -v "Schemes:" | head -1 | xargs) && xcodebuild -workspace "$WORKSPACE_NAME" -scheme "$SCHEME_NAME" -configuration Release -sdk iphonesimulator -derivedDataPath build'
+      binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/mobile.app',
+      build: 'rm -rf ios && npx expo prebuild --platform ios && cd ios && xcodebuild -workspace mobile.xcworkspace -scheme mobile -configuration Release -sdk iphonesimulator -derivedDataPath build | xcpretty --color --simple'
     },
     'android.debug': {
       type: 'android.apk',

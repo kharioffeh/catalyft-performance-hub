@@ -68,19 +68,31 @@ jobs:
         env:
           EXPO_NO_TELEMETRY: 1
           NPM_CONFIG_LEGACY_PEER_DEPS: true
+          IOS_SCHEME: mobile
 
-     - name: Build iOS app for testing (Detox)
-  working-directory: mobile
-  run: npx detox build -c ios.sim.debug
+      - name: Build iOS app for testing (Detox)
+        working-directory: mobile
+        run: |
+          cd ios
+          # Build the app explicitly with the mobile scheme
+          xcodebuild -workspace mobile.xcworkspace \
+            -scheme mobile \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -derivedDataPath build \
+            | xcpretty --color --simple
+        env:
+          IOS_SCHEME: mobile
 
-- name: Verify the iOS app was built successfully
-  working-directory: mobile
-  run: |
-    echo "Checking for iOS app binary..."
-    find ios/build/Build/Products/Debug-iphonesimulator -maxdepth 2 -name "*.app" -print
-    echo "Available iOS simulators:"
-    xcrun simctl list devices available | head -10
-
+      - name: Verify the iOS app was built successfully
+        working-directory: mobile
+        run: |
+          echo "Checking for iOS app binary..."
+          find ios/build/Build/Products/Debug-iphonesimulator -maxdepth 1 -name "*.app" -print
+          echo "Verifying mobile.app exists..."
+          ls -la ios/build/Build/Products/Debug-iphonesimulator/mobile.app || echo "Warning: mobile.app not found"
+          echo "Available iOS simulators:"
+          xcrun simctl list devices available | head -10
 
       - name: Run iOS smoke test
         working-directory: mobile
@@ -333,31 +345,23 @@ jobs:
           EXPO_NO_TELEMETRY: 1
           NPM_CONFIG_LEGACY_PEER_DEPS: true
 
-      - name: Build Android app for testing
+      - name: Build Android app for testing (Detox)
         working-directory: mobile
         run: |
-          # Build using gradlew instead of expo run:android
-          cd android
-          chmod +x gradlew
-          
-          # Build the main app APK
-          echo "Building main Android APK..."
-          ./gradlew assembleDebug --stacktrace --no-daemon
-          
-          # Try to build test APK, but don't fail if it doesn't work
-          echo "Attempting to build test APK..."
-          ./gradlew assembleAndroidTest --stacktrace --no-daemon || {
-            echo "⚠️  Test APK build failed, continuing with main APK only"
-            echo "Detox may still work with just the main APK"
-          }
-          
-          # Show available APKs
-          echo "Available APK files:"
-          find . -name "*.apk" -type f
+          # Use Detox build command which handles everything
+          npx detox build -c android.emu.debug
           
           echo "✅ Android APK build completed"
         env:
           EXPO_NO_METRO: 1
+
+      - name: Verify Android APKs were built successfully
+        working-directory: mobile
+        run: |
+          echo "Checking for Android APKs..."
+          find android/app/build/outputs -name "*.apk" -print
+          echo "Verifying main debug APK exists..."
+          ls -la android/app/build/outputs/apk/debug/app-debug.apk || echo "Warning: app-debug.apk not found"
 
       - name: Run Android smoke test
         working-directory: mobile
