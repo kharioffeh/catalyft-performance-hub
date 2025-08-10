@@ -98,18 +98,18 @@ jobs:
         working-directory: mobile
         run: mkdir -p artifacts e2e/screenshots
         
-     - name: Run iOS smoke test
-       working-directory: mobile
-       run: |
-        npx detox test \
-         --configuration ios.sim.debug \
-         --artifacts-location artifacts \
-         --record-logs all \
-         --take-screenshots failing \
-         --record-videos failing \
-         e2e/smoke.e2e.ts
-     env:
-      DETOX_LOGLEVEL: info
+      - name: Run iOS smoke test
+        working-directory: mobile
+        run: |
+          npx detox test \
+            --configuration ios.sim.debug \
+            --artifacts-location artifacts \
+            --record-logs all \
+            --take-screenshots failing \
+            --record-videos failing \
+            e2e/smoke.e2e.ts
+        env:
+          DETOX_LOGLEVEL: info
       
       - name: Run iOS E2E tests
         working-directory: mobile
@@ -375,54 +375,54 @@ jobs:
           echo "Verifying main debug APK exists..."
           ls -la android/app/build/outputs/apk/debug/app-debug.apk || echo "Warning: app-debug.apk not found"
 
-          - name: Prepare artifact folders (android)
-            working-directory: mobile
-            run: mkdir -p artifacts e2e/screenshots
+      - name: Prepare artifact folders (android)
+        working-directory: mobile
+        run: mkdir -p artifacts e2e/screenshots
 
-     - name: Run Android smoke test
-  working-directory: mobile
-  run: |
-    npx detox test \
-      --configuration android.emu.debug \
-      --artifacts-location artifacts \
-      --record-logs all \
-      --take-screenshots failing \
-      --record-videos failing \
-      e2e/smoke.e2e.ts
-  env:
-    DETOX_LOGLEVEL: info
+      - name: Run Android smoke test
+        working-directory: mobile
+        run: |
+          npx detox test \
+            --configuration android.emu.debug \
+            --artifacts-location artifacts \
+            --record-logs all \
+            --take-screenshots failing \
+            --record-videos failing \
+            e2e/smoke.e2e.ts
+        env:
+          DETOX_LOGLEVEL: info
 
-    - name: Run Android E2E tests
-  working-directory: mobile
-  run: |
-    npx detox test \
-      --configuration android.emu.debug \
-      --artifacts-location artifacts \
-      --record-logs all \
-      --take-screenshots failing \
-      --record-videos failing
-  env:
-    DETOX_LOGLEVEL: info
+      - name: Run Android E2E tests
+        working-directory: mobile
+        run: |
+          npx detox test \
+            --configuration android.emu.debug \
+            --artifacts-location artifacts \
+            --record-logs all \
+            --take-screenshots failing \
+            --record-videos failing
+        env:
+          DETOX_LOGLEVEL: info
 
-    - name: Capture Android logcat
-      if: failure()
-      working-directory: mobile
-      run: |
-        adb devices -l | tee adb-devices.txt || true
-        adb logcat -d -v time > emulator.log || true
+      - name: Capture Android logcat
+        if: failure()
+        working-directory: mobile
+        run: |
+          adb devices -l | tee adb-devices.txt || true
+          adb logcat -d -v time > emulator.log || true
 
-   - name: Upload Android test artifacts
-     if: ${{ always() }}
-     uses: actions/upload-artifact@v4
-     with:
-       name: android-e2e-artifacts
-       path: |
-         emulator.log
-         mobile/artifacts/**
-         mobile/e2e/screenshots/**
-         mobile/android/app/build/outputs/**/*.apk
-       if-no-files-found: warn
-       retention-days: 7
+      - name: Upload Android test artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-e2e-artifacts
+          path: |
+            emulator.log
+            mobile/artifacts/**
+            mobile/e2e/screenshots/**
+            mobile/android/app/build/outputs/**/*.apk
+          if-no-files-found: warn
+          retention-days: 7
 
 
   # Test Results Summary
