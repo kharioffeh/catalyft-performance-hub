@@ -376,30 +376,31 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug assembleAndroidTest --stacktrace --no-daemon
 
-      - name: Verify Android APKs were built successfully
-        working-directory: mobile
-        run: |
-          set -euo pipefail
-          
-          echo "Checking for main debug APK…"
-          MAIN_APK="android/app/build/outputs/apk/debug/app-debug.apk"
-          if [ ! -f "$MAIN_APK" ]; then
-            echo "❌ Missing $MAIN_APK"
-            echo "Available files under outputs/apk/debug:"
-            find android/app/build/outputs/apk/debug -maxdepth 1 -type f -print || true
-            exit 1
-          fi
-          echo "✅ Found: $MAIN_APK"
+     - name: Verify Android APKs were built successfully
+       working-directory: mobile
+       shell: bash
+       run: |
+         set -euo pipefail
+
+         echo "Checking for main debug APK…"
+         MAIN_APK="android/app/build/outputs/apk/debug/app-debug.apk"
+         if [ ! -f "$MAIN_APK" ]; then
+           echo "Missing $MAIN_APK"
+           echo "Available files under outputs/apk/debug:"
+           find android/app/build/outputs/apk/debug -maxdepth 1 -type f -print || true
+           exit 1
+         fi
+         echo "Found: $MAIN_APK"
 
          # Required because Detox config sets testBinaryPath
          TEST_APK="android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
          if [ ! -f "$TEST_APK" ]; then
-           echo "❌ Missing test APK at $TEST_APK"
+           echo "Missing test APK at $TEST_APK"
            echo "Available files under outputs/apk/androidTest/debug:"
            find android/app/build/outputs/apk/androidTest/debug -maxdepth 1 -type f -print || true
            exit 1
          fi
-         echo "✅ Found test APK: $TEST_APK"
+         echo "Found test APK: $TEST_APK"
 
       - name: Prepare artifact folders (android)
         working-directory: mobile
