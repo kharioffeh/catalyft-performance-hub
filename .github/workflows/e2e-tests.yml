@@ -97,7 +97,14 @@ jobs:
       - name: Prepare artifact folders (ios)
         working-directory: mobile
         run: mkdir -p artifacts e2e/screenshots
-        
+
+      - name: Start Metro (background)
+        working-directory: mobile
+        run: |
+          nohup npx expo start --dev-client --port 8081 --non-interactive >/tmp/metro.log 2>&1 &
+          echo $! > /tmp/metro.pid
+          sleep 12
+      
       - name: Run iOS smoke test
         working-directory: mobile
         run: |
@@ -132,6 +139,12 @@ jobs:
         env:
           DETOX_LOGLEVEL: trace
           DEBUG: "*"
+
+      - name: Stop Metro
+        if: always()
+        run: |
+          if [ -f /tmp/metro.pid ]; then kill -9 "$(cat /tmp/metro.pid)" || true; fi
+          tail -n 200 /tmp/metro.log || true
           
       - name: Capture iOS simulator logs
         if: failure()
@@ -357,28 +370,50 @@ jobs:
           EXPO_NO_TELEMETRY: 1
           NPM_CONFIG_LEGACY_PEER_DEPS: true
 
-      - name: Build Android app for testing (Detox)
-        working-directory: mobile
+      - name: Build Android app for testing (debug + androidTest)
+        working-directory: mobile/android
         run: |
-          # Use Detox build command which handles everything
-          npx detox build -c android.emu.debug
-          
-          echo "✅ Android APK build completed"
-        env:
-          EXPO_NO_METRO: 1
+          chmod +x gradlew
+          ./gradlew assembleDebug assembleAndroidTest --stacktrace --no-daemon
 
       - name: Verify Android APKs were built successfully
         working-directory: mobile
         run: |
-          echo "Checking for Android APKs..."
-          find android/app/build/outputs -name "*.apk" -print
-          echo "Verifying main debug APK exists..."
-          ls -la android/app/build/outputs/apk/debug/app-debug.apk || echo "Warning: app-debug.apk not found"
+          set -euo pipefail
+          
+          echo "Checking for main debug APK…"
+          MAIN_APK="android/app/build/outputs/apk/debug/app-debug.apk"
+          if [ ! -f "$MAIN_APK" ]; then
+            echo "❌ Missing $MAIN_APK"
+            echo "Available files under outputs/apk/debug:"
+            find android/app/build/outputs/apk/debug -maxdepth 1 -type f -print || true
+            exit 1
+          fi
+          echo "✅ Found: $MAIN_APK"
+
+         # Required because Detox config sets testBinaryPath
+         TEST_APK="android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+         if [ ! -f "$TEST_APK" ]; then
+           echo "❌ Missing test APK at $TEST_APK"
+           echo "Available files under outputs/apk/androidTest/debug:"
+           find android/app/build/outputs/apk/androidTest/debug -maxdepth 1 -type f -print || true
+           exit 1
+         fi
+         echo "✅ Found test APK: $TEST_APK"
 
       - name: Prepare artifact folders (android)
         working-directory: mobile
         run: mkdir -p artifacts e2e/screenshots
 
+      - name: Start Metro (background)
+        working-directory: mobile
+        run: |
+          nohup npx expo start --dev-client --port 8081 --non-interactive >/tmp/metro.log 2>&1 &
+          echo $! > /tmp/metro.pid
+          # make sure the emulator can reach Metro
+          adb reverse tcp:8081 tcp:8081 || true
+          sleep 12
+ 
       - name: Run Android smoke test
         working-directory: mobile
         run: |
@@ -404,6 +439,13 @@ jobs:
         env:
           DETOX_LOGLEVEL: info
 
+      - name: Stop Metro
+        if: always()
+        run: |
+          if [ -f /tmp/metro.pid ]; then kill -9 "$(cat /tmp/metro.pid)" || true; fi
+          tail -n 200 /tmp/metro.log || true
+
+  
       - name: Capture Android logcat
         if: failure()
         working-directory: mobile
