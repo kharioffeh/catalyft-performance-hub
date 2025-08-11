@@ -24,8 +24,7 @@ module.exports = {
      type: 'android.apk',
      binaryPath: 'android/app/build/outputs/apk/debug/app-debug.apk',
         testBinaryPath: 'android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk',
-     testBinaryPath: 'android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk', // <-- add this line
-     build: 'rm -rf android && npx expo prebuild --platform android && cd android && chmod +x gradlew && ./gradlew assembleDebug assembleAndroidTest assembleAndroidTest'
+     build: 'rm -rf android && npx expo prebuild --platform android && cd android && chmod +x gradlew && ./gradlew assembleDebug assembleAndroidTest'
    }
  },
     'android.release': {
