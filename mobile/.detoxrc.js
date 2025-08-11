@@ -21,13 +21,12 @@ module.exports = {
       build: 'rm -rf ios && npx expo prebuild --platform ios && cd ios && xcodebuild -workspace mobile.xcworkspace -scheme mobile -configuration Release -sdk iphonesimulator -derivedDataPath build | xcpretty --color --simple'
     },
     'android.debug': {
-      type: 'android.apk',
-      binaryPath: 'android/app/build/outputs/apk/debug/app-debug.apk',
-      build: 'rm -rf android && npx expo prebuild --platform android && cd android && chmod +x gradlew && ./gradlew assembleDebug',
-      reversePorts: [
-        8081
-      ]
-    },
+     type: 'android.apk',
+     binaryPath: 'android/app/build/outputs/apk/debug/app-debug.apk',
+     testBinaryPath: 'android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk', // <-- add this line
+     build: 'rm -rf android && npx expo prebuild --platform android && cd android && chmod +x gradlew && ./gradlew assembleDebug assembleAndroidTest'
+   }
+ },
     'android.release': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/release/app-release.apk',
@@ -81,3 +80,7 @@ module.exports = {
     }
   }
 };
+   configurations: {
+  'ios.sim.debug':   { device: 'simulator', app: 'ios.debug' },
+  'android.emu.debug': { device: 'emulator', app: 'android.debug' } 
+ }
