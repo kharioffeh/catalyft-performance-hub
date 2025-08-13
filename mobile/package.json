@@ -63,6 +63,7 @@
     "eslint-plugin-react": "^7.37.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-native": "^4.1.0",
+    "expo-build-properties": "^0.12.5",
     "jest": "^30.0.5",
     "jest-circus": "^30.0.5",
     "prettier": "^3.4.2",

@@ -64,25 +64,18 @@ jobs:
         run: |
           # Clean any existing iOS directory and generate native iOS project
           rm -rf ios
-          npx expo prebuild --platform ios
+          npx expo prebuild --platform ios --clear
         env:
           EXPO_NO_TELEMETRY: 1
           NPM_CONFIG_LEGACY_PEER_DEPS: true
-          IOS_SCHEME: mobile
 
       - name: Build iOS app for testing (Detox)
         working-directory: mobile
         run: |
-          cd ios
-          # Build the app explicitly with the mobile scheme
-          xcodebuild -workspace mobile.xcworkspace \
-            -scheme mobile \
-            -configuration Debug \
-            -sdk iphonesimulator \
-            -derivedDataPath build \
-            | xcpretty --color --simple
+          # Use Detox build command which handles everything including dynamic scheme detection
+          npx detox build --configuration ios.sim.debug
         env:
-          IOS_SCHEME: mobile
+          EXPO_NO_TELEMETRY: 1
 
       - name: Verify the iOS app was built successfully
         working-directory: mobile
@@ -111,9 +104,9 @@ jobs:
           npx detox test \
             --configuration ios.sim.debug \
             --artifacts-location artifacts \
-            --record-logs all \
+            --record-logs none \
             --take-screenshots failing \
-            --record-videos failing \
+            --record-videos none \
             e2e/smoke.e2e.ts
         env:
           DETOX_LOGLEVEL: info
@@ -362,19 +355,18 @@ jobs:
         run: |
           # Clean any existing Android directory and generate native Android project
           rm -rf android
-          npx expo prebuild --platform android
-          
-          # Fix Android build configuration to handle duplicate META-INF files
-          npm run fix:android-build
+          npx expo prebuild --platform android --clear
         env:
           EXPO_NO_TELEMETRY: 1
           NPM_CONFIG_LEGACY_PEER_DEPS: true
 
       - name: Build Android app for testing (debug + androidTest)
-        working-directory: mobile/android
+        working-directory: mobile
         run: |
-          chmod +x gradlew
-          ./gradlew assembleDebug assembleAndroidTest --stacktrace --no-daemon
+          # Use Detox build command which handles everything
+          npx detox build --configuration android.emu.debug
+        env:
+          EXPO_NO_TELEMETRY: 1
 
       - name: Verify Android APKs were built successfully
         working-directory: mobile
@@ -421,9 +413,9 @@ jobs:
           npx detox test \
             --configuration android.emu.debug \
             --artifacts-location artifacts \
-            --record-logs all \
+            --record-logs none \
             --take-screenshots failing \
-            --record-videos failing \
+            --record-videos none \
             e2e/smoke.e2e.ts
         env:
           DETOX_LOGLEVEL: info
@@ -434,9 +426,9 @@ jobs:
           npx detox test \
             --configuration android.emu.debug \
             --artifacts-location artifacts \
-            --record-logs all \
+            --record-logs none \
             --take-screenshots failing \
-            --record-videos failing
+            --record-videos none
         env:
           DETOX_LOGLEVEL: info
 
