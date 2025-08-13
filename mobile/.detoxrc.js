@@ -15,14 +15,14 @@ module.exports = {
         'rm -rf ios',
         'npx expo prebuild --platform ios --non-interactive --no-install',
         'cd ios',
-        // discover workspace & a non-Pods/non-library scheme
-        'WORKSPACE=$(ls -1 *.xcworkspace | head -1)',
-        `SCHEME=$(xcodebuild -workspace "$WORKSPACE" -list \
+        // Use xcodeproj directly since xcworkspace requires pod install
+        'PROJECT=$(ls -1 *.xcodeproj | head -1)',
+        `SCHEME=$(xcodebuild -project "$PROJECT" -list \
           | sed -n '/Schemes:/,$p' | tail -n +2 | sed 's/^\\s*//' | sed '/^$/d' \
           | grep -v -E 'Pods|boost|Sentry|RN|RCT|Yoga|Hermes|Flipper' \
           | head -1)`,
         'echo "Using iOS scheme: $SCHEME"',
-        'xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Debug -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
+        'xcodebuild -project "$PROJECT" -scheme "$SCHEME" -configuration Debug -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
       ].join(' && ')
     },
     'ios.release': {
@@ -32,14 +32,14 @@ module.exports = {
         'rm -rf ios',
         'npx expo prebuild --platform ios --non-interactive --no-install',
         'cd ios',
-        // discover workspace & a non-Pods/non-library scheme
-        'WORKSPACE=$(ls -1 *.xcworkspace | head -1)',
-        `SCHEME=$(xcodebuild -workspace "$WORKSPACE" -list \
+        // Use xcodeproj directly since xcworkspace requires pod install
+        'PROJECT=$(ls -1 *.xcodeproj | head -1)',
+        `SCHEME=$(xcodebuild -project "$PROJECT" -list \
           | sed -n '/Schemes:/,$p' | tail -n +2 | sed 's/^\\s*//' | sed '/^$/d' \
           | grep -v -E 'Pods|boost|Sentry|RN|RCT|Yoga|Hermes|Flipper' \
           | head -1)`,
         'echo "Using iOS scheme: $SCHEME"',
-        'xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
+        'xcodebuild -project "$PROJECT" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
       ].join(' && ')
     },
 
@@ -50,8 +50,8 @@ module.exports = {
       build: [
         'rm -rf android',
         'npx expo prebuild --platform android --non-interactive --clean',
-        // inject packagingOptions into android/app/build.gradle if missing
-        `perl -0777 -pe 's/android \\{\\n(\\s*)defaultConfig:/android {\\n$1packagingOptions {\\n$1    resources {\\n$1        excludes += ["META-INF\\/LICENSE*", "META-INF\\/NOTICE*", "META-INF\\/DEPENDENCIES"]\\n$1    }\\n$1}\\n\\n$1defaultConfig:/s' -i android/app/build.gradle`,
+        // Add subprojects block to root build.gradle to handle all modules
+        `echo '\nsubprojects { afterEvaluate { project -> if (project.hasProperty("android")) { android { packagingOptions { resources { excludes += ["META-INF/LICENSE*", "META-INF/NOTICE*", "META-INF/DEPENDENCIES", "META-INF/AL2.0", "META-INF/LGPL2.1"] } } } } } }' >> android/build.gradle`,
         'cd android',
         'chmod +x gradlew',
         './gradlew --no-daemon assembleDebug assembleAndroidTest'
@@ -64,8 +64,8 @@ module.exports = {
       build: [
         'rm -rf android',
         'npx expo prebuild --platform android --non-interactive --clean',
-        // inject packagingOptions into android/app/build.gradle if missing
-        `perl -0777 -pe 's/android \\{\\n(\\s*)defaultConfig:/android {\\n$1packagingOptions {\\n$1    resources {\\n$1        excludes += ["META-INF\\/LICENSE*", "META-INF\\/NOTICE*", "META-INF\\/DEPENDENCIES"]\\n$1    }\\n$1}\\n\\n$1defaultConfig:/s' -i android/app/build.gradle`,
+        // Add subprojects block to root build.gradle to handle all modules
+        `echo '\nsubprojects { afterEvaluate { project -> if (project.hasProperty("android")) { android { packagingOptions { resources { excludes += ["META-INF/LICENSE*", "META-INF/NOTICE*", "META-INF/DEPENDENCIES", "META-INF/AL2.0", "META-INF/LGPL2.1"] } } } } } }' >> android/build.gradle`,
         'cd android',
         'chmod +x gradlew',
         './gradlew --no-daemon assembleRelease'
