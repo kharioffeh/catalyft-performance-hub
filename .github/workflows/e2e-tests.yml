@@ -11,7 +11,7 @@ jobs:
   # iOS Testing on macOS runners
   e2e-ios:
     runs-on: macos-13
-    timeout-minutes: 60
+    timeout-minutes: 90
     
     steps:
       - name: Checkout code
@@ -21,6 +21,22 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: |
+            mobile/ios/Pods
+            ~/.cocoapods
+          key: pods-${{ runner.os }}-${{ hashFiles('mobile/ios/Podfile.lock') }}
+          restore-keys: pods-${{ runner.os }}-
+
+      - name: Cache Xcode DerivedData
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: dd-${{ runner.os }}-${{ hashFiles('mobile/ios/Podfile.lock') }}
+          restore-keys: dd-${{ runner.os }}-
 
       - name: Setup Expo CLI
         run: npm install -g @expo/cli
@@ -464,13 +480,11 @@ jobs:
   lint-workflows:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Run actionlint
-        uses: rhysd/actionlint@v1
+      - uses: actions/checkout@v4
+      - uses: reviewdog/action-actionlint@v1
         with:
-          files: .github/workflows/e2e-tests.yml
+          reporter: github-pr-check
+          actionlint_flags: "-color"
 
   # Test Results Summary
   test-summary:
