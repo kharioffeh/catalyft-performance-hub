@@ -96,9 +96,15 @@ jobs:
         working-directory: mobile
         run: |
           echo "Checking for iOS app binary..."
-          find ios/build/Build/Products/Debug-iphonesimulator -maxdepth 1 -name "*.app" -print
-          echo "Verifying mobile.app exists..."
-          ls -la ios/build/Build/Products/Debug-iphonesimulator/mobile.app || echo "Warning: mobile.app not found"
+          FOUND_APP=$(ls -1 ios/build/Build/Products/Debug-iphonesimulator/*.app 2>/dev/null | head -1 || true)
+          if [ -z "$FOUND_APP" ]; then
+            echo "❌ No .app found under ios/build/Build/Products/Debug-iphonesimulator/"
+            echo "Available products:"
+            find ios/build/Build/Products -maxdepth 3 -type f -name "*.app" -print || true
+            exit 1
+          fi
+          echo "✅ Found app: $FOUND_APP"
+          echo "IOS_APP_PATH=$FOUND_APP" >> "$GITHUB_ENV"
           echo "Available iOS simulators:"
           xcrun simctl list devices available | head -10
 
@@ -260,6 +266,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libpulse0 libnss3 libnspr4 libxss1 libasound2t64
 
+      - name: Install Android NDK 27.1.12297006
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "y" | "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" --install "ndk;27.1.12297006"
+          echo "ANDROID_NDK_HOME=${ANDROID_SDK_ROOT}/ndk/27.1.12297006" >> "$GITHUB_ENV"
+
       - name: Create Android emulator
         run: |
           echo "Creating Android Virtual Device..."
@@ -373,6 +386,25 @@ jobs:
         env:
           EXPO_NO_TELEMETRY: 1
           NPM_CONFIG_LEGACY_PEER_DEPS: true
+
+      - name: Add Gradle packagingOptions (fix duplicate META-INF)
+        working-directory: mobile
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_BUILD_GRADLE="android/app/build.gradle"
+          if [ ! -f "$APP_BUILD_GRADLE" ]; then
+            echo "build.gradle not found — did prebuild run?"
+            ls -la android || true
+            exit 1
+          fi
+          # Only inject once
+          if ! grep -q "packagingOptions" "$APP_BUILD_GRADLE"; then
+            perl -0777 -pe 's/android \{\n(\s*)defaultConfig:/android {\n$1packagingOptions {\n$1    resources {\n$1        excludes += ["META-INF/LICENSE*", "META-INF/NOTICE*", "META-INF/DEPENDENCIES"]\n$1    }\n$1}\n\n$1defaultConfig:/s' -i "$APP_BUILD_GRADLE"
+            echo "Injected packagingOptions into android/app/build.gradle"
+          else
+            echo "packagingOptions already present, skipping"
+          fi
 
       - name: Build Android app for testing (debug + androidTest)
         working-directory: mobile

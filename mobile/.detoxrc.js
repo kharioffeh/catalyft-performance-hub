@@ -10,31 +10,28 @@ module.exports = {
   apps: {
     'ios.debug': {
       type: 'ios.app',
-      // we build a concrete app bundle (not a glob) in CI, but allow glob for local:
       binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/*.app',
-      build: 'if [ ! -d ios ]; then npx expo prebuild --platform ios; fi && cd ios && WORKSPACE_NAME=$(find . -name "*.xcworkspace" | head -1 | sed "s|./||") && SCHEME_NAME=$(xcodebuild -workspace "$WORKSPACE_NAME" -list | grep -A 100 "Schemes:" | grep -v "Schemes:" | head -1 | xargs) && xcodebuild -workspace "$WORKSPACE_NAME" -scheme "$SCHEME_NAME" -configuration Debug -sdk iphonesimulator -derivedDataPath build'
+      // Hardcode workspace & scheme so we build the app target, not a Pod
+      build: 'rm -rf ios && npx expo prebuild --platform ios --non-interactive --no-install && cd ios && xcodebuild -workspace mobile.xcworkspace -scheme mobile -configuration Debug -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
     },
-
     'ios.release': {
       type: 'ios.app',
       binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/*.app',
-      build: 'if [ ! -d ios ]; then npx expo prebuild --platform ios; fi && cd ios && WORKSPACE_NAME=$(find . -name "*.xcworkspace" | head -1 | sed "s|./||") && SCHEME_NAME=$(xcodebuild -workspace "$WORKSPACE_NAME" -list | grep -A 100 "Schemes:" | grep -v "Schemes:" | head -1 | xargs) && xcodebuild -workspace "$WORKSPACE_NAME" -scheme "$SCHEME_NAME" -configuration Release -sdk iphonesimulator -derivedDataPath build'
+      build: 'rm -rf ios && npx expo prebuild --platform ios --non-interactive --no-install && cd ios && xcodebuild -workspace mobile.xcworkspace -scheme mobile -configuration Release -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
     },
 
     'android.debug': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/debug/app-debug.apk',
-      // Detox needs the test APK when using instrumentation
       testBinaryPath: 'android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk',
-      build: 'if [ ! -d android ]; then npx expo prebuild --platform android; fi && cd android && chmod +x gradlew && ./gradlew assembleDebug assembleAndroidTest',
+      build: 'rm -rf android && npx expo prebuild --platform android --non-interactive && cd android && chmod +x gradlew && ./gradlew --no-daemon assembleDebug assembleAndroidTest',
       reversePorts: [8081]
     },
-
     'android.release': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/release/app-release.apk',
-      build: 'if [ ! -d android ]; then npx expo prebuild --platform android; fi && cd android && chmod +x gradlew && ./gradlew assembleRelease'
-    },
+      build: 'rm -rf android && npx expo prebuild --platform android --non-interactive && cd android && chmod +x gradlew && ./gradlew --no-daemon assembleRelease'
+    }
   },
 
   devices: {
