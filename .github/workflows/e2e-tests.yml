@@ -111,9 +111,9 @@ jobs:
           npx detox test \
             --configuration ios.sim.debug \
             --artifacts-location artifacts \
-            --record-logs all \
+            --record-logs none \
             --take-screenshots failing \
-            --record-videos failing \
+            --record-videos none \
             e2e/smoke.e2e.ts
         env:
           DETOX_LOGLEVEL: info
@@ -421,9 +421,9 @@ jobs:
           npx detox test \
             --configuration android.emu.debug \
             --artifacts-location artifacts \
-            --record-logs all \
+            --record-logs none \
             --take-screenshots failing \
-            --record-videos failing \
+            --record-videos none \
             e2e/smoke.e2e.ts
         env:
           DETOX_LOGLEVEL: info
@@ -434,9 +434,9 @@ jobs:
           npx detox test \
             --configuration android.emu.debug \
             --artifacts-location artifacts \
-            --record-logs all \
+            --record-logs none \
             --take-screenshots failing \
-            --record-videos failing
+            --record-videos none
         env:
           DETOX_LOGLEVEL: info
 
