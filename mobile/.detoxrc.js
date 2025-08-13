@@ -12,22 +12,21 @@ module.exports = {
   apps: {
     'ios.debug': {
       type: 'ios.app',
-      binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/*.app',
-      build: 'rm -rf ios && npx expo prebuild --platform ios && cd ios && WORKSPACE_NAME=$(find . -name "*.xcworkspace" | head -1 | sed "s|./||") && SCHEME_NAME=$(xcodebuild -workspace "$WORKSPACE_NAME" -list | grep -A 100 "Schemes:" | grep -v "Schemes:" | head -1 | xargs) && xcodebuild -workspace "$WORKSPACE_NAME" -scheme "$SCHEME_NAME" -configuration Debug -sdk iphonesimulator -derivedDataPath build'
+      binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/mobile.app',
+      build: 'rm -rf ios && npx expo prebuild --platform ios && cd ios && xcodebuild -workspace mobile.xcworkspace -scheme mobile -configuration Debug -sdk iphonesimulator -derivedDataPath build | xcpretty --color --simple'
     },
     'ios.release': {
       type: 'ios.app',
-      binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/*.app',
-      build: 'rm -rf ios && npx expo prebuild --platform ios && cd ios && WORKSPACE_NAME=$(find . -name "*.xcworkspace" | head -1 | sed "s|./||") && SCHEME_NAME=$(xcodebuild -workspace "$WORKSPACE_NAME" -list | grep -A 100 "Schemes:" | grep -v "Schemes:" | head -1 | xargs) && xcodebuild -workspace "$WORKSPACE_NAME" -scheme "$SCHEME_NAME" -configuration Release -sdk iphonesimulator -derivedDataPath build'
+      binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/mobile.app',
+      build: 'rm -rf ios && npx expo prebuild --platform ios && cd ios && xcodebuild -workspace mobile.xcworkspace -scheme mobile -configuration Release -sdk iphonesimulator -derivedDataPath build | xcpretty --color --simple'
     },
     'android.debug': {
-      type: 'android.apk',
-      binaryPath: 'android/app/build/outputs/apk/debug/app-debug.apk',
-      build: 'rm -rf android && npx expo prebuild --platform android && cd android && chmod +x gradlew && ./gradlew assembleDebug',
-      reversePorts: [
-        8081
-      ]
-    },
+     type: 'android.apk',
+     binaryPath: 'android/app/build/outputs/apk/debug/app-debug.apk',
+        testBinaryPath: 'android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk',
+     build: 'rm -rf android && npx expo prebuild --platform android && cd android && chmod +x gradlew && ./gradlew assembleDebug assembleAndroidTest'
+   }
+ },
     'android.release': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/release/app-release.apk',
@@ -81,3 +80,7 @@ module.exports = {
     }
   }
 };
+   configurations: {
+  'ios.sim.debug':   { device: 'simulator', app: 'ios.debug' },
+  'android.emu.debug': { device: 'emulator', app: 'android.debug' } 
+ }

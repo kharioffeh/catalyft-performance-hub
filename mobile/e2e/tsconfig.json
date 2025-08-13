@@ -1,24 +1,13 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "target": "es2018",
+    "target": "ES2019",
     "module": "commonjs",
-    "lib": ["es2018"],
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
+    "types": ["detox", "node", "jest"],
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "strict": false,
-    "noEmit": true,
-    "isolatedModules": true,
-    "types": ["detox/globals", "jest", "node"]
+    "isolatedModules": true
   },
-  "include": [
-    "**/*.ts",
-    "**/*.js"
-  ],
-  "exclude": [
-    "node_modules",
-    "**/*.backup"
-  ]
+  "include": ["./**/*.ts"],
+  "exclude": ["../node_modules"]
 }

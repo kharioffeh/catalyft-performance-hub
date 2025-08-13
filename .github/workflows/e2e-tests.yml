@@ -68,37 +68,56 @@ jobs:
         env:
           EXPO_NO_TELEMETRY: 1
           NPM_CONFIG_LEGACY_PEER_DEPS: true
+          IOS_SCHEME: mobile
 
-     - name: Build iOS app for testing (Detox)
-  working-directory: mobile
-  run: npx detox build -c ios.sim.debug
+      - name: Build iOS app for testing (Detox)
+        working-directory: mobile
+        run: |
+          cd ios
+          # Build the app explicitly with the mobile scheme
+          xcodebuild -workspace mobile.xcworkspace \
+            -scheme mobile \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -derivedDataPath build \
+            | xcpretty --color --simple
+        env:
+          IOS_SCHEME: mobile
 
-- name: Verify the iOS app was built successfully
-  working-directory: mobile
-  run: |
-    echo "Checking for iOS app binary..."
-    find ios/build/Build/Products/Debug-iphonesimulator -maxdepth 2 -name "*.app" -print
-    echo "Available iOS simulators:"
-    xcrun simctl list devices available | head -10
+      - name: Verify the iOS app was built successfully
+        working-directory: mobile
+        run: |
+          echo "Checking for iOS app binary..."
+          find ios/build/Build/Products/Debug-iphonesimulator -maxdepth 1 -name "*.app" -print
+          echo "Verifying mobile.app exists..."
+          ls -la ios/build/Build/Products/Debug-iphonesimulator/mobile.app || echo "Warning: mobile.app not found"
+          echo "Available iOS simulators:"
+          xcrun simctl list devices available | head -10
 
+      - name: Prepare artifact folders (ios)
+        working-directory: mobile
+        run: mkdir -p artifacts e2e/screenshots
 
+      - name: Start Metro (background)
+        working-directory: mobile
+        run: |
+          nohup npx expo start --dev-client --port 8081 --non-interactive >/tmp/metro.log 2>&1 &
+          echo $! > /tmp/metro.pid
+          sleep 12
+      
       - name: Run iOS smoke test
         working-directory: mobile
         run: |
-          # Verify the iOS app was built successfully
-          echo "Checking for iOS app binary..."
-          find ios/build -name "*.app" -type d | head -5
-          
-          # List available iOS simulators
-          echo "Available iOS simulators:"
-          xcrun simctl list devices available | head -10
-          
-          # Run smoke test first to verify basic functionality
-          echo "Running iOS smoke test..."
-          npm run detox:smoke:ios
+          npx detox test \
+            --configuration ios.sim.debug \
+            --artifacts-location artifacts \
+            --record-logs all \
+            --take-screenshots failing \
+            --record-videos failing \
+            e2e/smoke.e2e.ts
         env:
           DETOX_LOGLEVEL: info
-
+      
       - name: Run iOS E2E tests
         working-directory: mobile
         run: |
@@ -121,15 +140,33 @@ jobs:
           DETOX_LOGLEVEL: trace
           DEBUG: "*"
 
-      - name: Upload iOS test artifacts
+      - name: Stop Metro
+        if: always()
+        run: |
+          if [ -f /tmp/metro.pid ]; then kill -9 "$(cat /tmp/metro.pid)" || true; fi
+          tail -n 200 /tmp/metro.log || true
+          
+      - name: Capture iOS simulator logs
         if: failure()
+        working-directory: mobile
+        run: |
+          xcrun simctl list devices | tee ios-simulators.txt
+          xcrun simctl spawn booted log show --style syslog --last 20m > ios-simulator.log || true
+
+      - name: Upload iOS test artifacts
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: ios-e2e-artifacts
           path: |
-            mobile/artifacts/
-            mobile/e2e/screenshots/
+            mobile/ios-test-output.log
+            mobile/artifacts/**
+            mobile/e2e/screenshots/**
+            mobile/ios/build/Build/Products/Debug-iphonesimulator/**/*.app
+          if-no-files-found: warn
           retention-days: 7
+
+
 
   # Android Testing on Ubuntu runners
   e2e-android:
@@ -333,75 +370,115 @@ jobs:
           EXPO_NO_TELEMETRY: 1
           NPM_CONFIG_LEGACY_PEER_DEPS: true
 
-      - name: Build Android app for testing
+      - name: Build Android app for testing (debug + androidTest)
+        working-directory: mobile/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug assembleAndroidTest --stacktrace --no-daemon
+
+      - name: Verify Android APKs were built successfully
+        working-directory: mobile
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Checking for main debug APK…"
+          MAIN_APK="android/app/build/outputs/apk/debug/app-debug.apk"
+          if [ ! -f "$MAIN_APK" ]; then
+            echo "Missing $MAIN_APK"
+            echo "Available files under outputs/apk/debug:"
+            find android/app/build/outputs/apk/debug -maxdepth 1 -type f -print || true
+            exit 1
+          fi
+          echo "Found: $MAIN_APK"
+
+          # Required because Detox config sets testBinaryPath
+          TEST_APK="android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+          if [ ! -f "$TEST_APK" ]; then
+            echo "Missing test APK at $TEST_APK"
+            echo "Available files under outputs/apk/androidTest/debug:"
+            find android/app/build/outputs/apk/androidTest/debug -maxdepth 1 -type f -print || true
+            exit 1
+          fi
+          echo "Found test APK: $TEST_APK"
+
+      - name: Prepare artifact folders (android)
+        working-directory: mobile
+        run: mkdir -p artifacts e2e/screenshots
+
+      - name: Start Metro (background)
         working-directory: mobile
         run: |
-          # Build using gradlew instead of expo run:android
-          cd android
-          chmod +x gradlew
-          
-          # Build the main app APK
-          echo "Building main Android APK..."
-          ./gradlew assembleDebug --stacktrace --no-daemon
-          
-          # Try to build test APK, but don't fail if it doesn't work
-          echo "Attempting to build test APK..."
-          ./gradlew assembleAndroidTest --stacktrace --no-daemon || {
-            echo "⚠️  Test APK build failed, continuing with main APK only"
-            echo "Detox may still work with just the main APK"
-          }
-          
-          # Show available APKs
-          echo "Available APK files:"
-          find . -name "*.apk" -type f
-          
-          echo "✅ Android APK build completed"
-        env:
-          EXPO_NO_METRO: 1
-
+          nohup npx expo start --dev-client --port 8081 --non-interactive >/tmp/metro.log 2>&1 &
+          echo $! > /tmp/metro.pid
+          # make sure the emulator can reach Metro
+          adb reverse tcp:8081 tcp:8081 || true
+          sleep 12
+ 
       - name: Run Android smoke test
         working-directory: mobile
         run: |
-          # Verify the Android app was built successfully
-          echo "Checking for Android APK..."
-          find android -name "*.apk" -type f | head -5
-          
-          # Check emulator status
-          echo "Emulator status:"
-          adb devices
-          
-          # Show emulator log if there are issues
-          echo "Recent emulator log:"
-          tail -50 emulator.log || echo "No emulator log found"
-          
-          # Run smoke test first to verify basic functionality
-          echo "Running Android smoke test..."
-          npm run detox:smoke:android
+          npx detox test \
+            --configuration android.emu.debug \
+            --artifacts-location artifacts \
+            --record-logs all \
+            --take-screenshots failing \
+            --record-videos failing \
+            e2e/smoke.e2e.ts
         env:
           DETOX_LOGLEVEL: info
 
       - name: Run Android E2E tests
         working-directory: mobile
         run: |
-          # Run the full test suite with retries and better error handling
-          echo "Starting full Android E2E test suite..."
-          npm run detox:test:android || {
-            echo "First test run failed, checking logs and retrying..."
-            find . -name "*.log" -type f -exec echo "=== {} ===" \; -exec cat {} \; || true
-            npm run detox:test:android
-          }
+          npx detox test \
+            --configuration android.emu.debug \
+            --artifacts-location artifacts \
+            --record-logs all \
+            --take-screenshots failing \
+            --record-videos failing
         env:
           DETOX_LOGLEVEL: info
 
-      - name: Upload Android test artifacts
+      - name: Stop Metro
+        if: always()
+        run: |
+          if [ -f /tmp/metro.pid ]; then kill -9 "$(cat /tmp/metro.pid)" || true; fi
+          tail -n 200 /tmp/metro.log || true
+
+  
+      - name: Capture Android logcat
         if: failure()
+        working-directory: mobile
+        run: |
+          adb devices -l | tee adb-devices.txt || true
+          adb logcat -d -v time > emulator.log || true
+
+      - name: Upload Android test artifacts
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: android-e2e-artifacts
           path: |
-            mobile/artifacts/
-            mobile/e2e/screenshots/
+            emulator.log
+            mobile/artifacts/**
+            mobile/e2e/screenshots/**
+            mobile/android/app/build/outputs/**/*.apk
+          if-no-files-found: warn
           retention-days: 7
+
+
+  # Lint workflow files
+  lint-workflows:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Run actionlint
+        uses: rhysd/actionlint@v1
+        with:
+          files: .github/workflows/e2e-tests.yml
 
   # Test Results Summary
   test-summary:
