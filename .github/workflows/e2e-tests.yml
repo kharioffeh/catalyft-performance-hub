@@ -78,8 +78,7 @@ jobs:
       - name: Pre-build for iOS (generate native code)
         working-directory: mobile
         run: |
-          # Clean any existing iOS directory and generate native iOS project
-          npx expo prebuild --platform ios --clean --non-interactive
+          npx expo prebuild --platform ios --clean
         env:
           EXPO_NO_TELEMETRY: 1
           NPM_CONFIG_LEGACY_PEER_DEPS: true
@@ -381,8 +380,7 @@ jobs:
       - name: Pre-build for Android (generate native code)
         working-directory: mobile
         run: |
-          # Clean any existing Android directory and generate native Android project
-          npx expo prebuild --platform android --clean --non-interactive
+          npx expo prebuild --platform android --clean
         env:
           EXPO_NO_TELEMETRY: 1
           NPM_CONFIG_LEGACY_PEER_DEPS: true
@@ -392,18 +390,55 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          APP_BUILD_GRADLE="android/app/build.gradle"
-          if [ ! -f "$APP_BUILD_GRADLE" ]; then
-            echo "build.gradle not found — did prebuild run?"
+          
+          # Fix for all modules - add to root build.gradle
+          ROOT_BUILD_GRADLE="android/build.gradle"
+          if [ ! -f "$ROOT_BUILD_GRADLE" ]; then
+            echo "Root build.gradle not found — did prebuild run?"
             ls -la android || true
             exit 1
           fi
-          # Only inject once
-          if ! grep -q "packagingOptions" "$APP_BUILD_GRADLE"; then
-            perl -0777 -pe 's/android \{\n(\s*)defaultConfig:/android {\n$1packagingOptions {\n$1    resources {\n$1        excludes += ["META-INF/LICENSE*", "META-INF/NOTICE*", "META-INF/DEPENDENCIES"]\n$1    }\n$1}\n\n$1defaultConfig:/s' -i "$APP_BUILD_GRADLE"
-            echo "Injected packagingOptions into android/app/build.gradle"
+          
+          # Add subprojects block to handle all modules
+          if ! grep -q "subprojects.*packagingOptions" "$ROOT_BUILD_GRADLE"; then
+            cat >> "$ROOT_BUILD_GRADLE" << 'EOF'
+          
+          // Fix META-INF duplicates in all modules
+          subprojects {
+              afterEvaluate { project ->
+                  if (project.hasProperty('android')) {
+                      android {
+                          packagingOptions {
+                              resources {
+                                  excludes += [
+                                      'META-INF/LICENSE',
+                                      'META-INF/LICENSE.md',
+                                      'META-INF/LICENSE.txt',
+                                      'META-INF/NOTICE',
+                                      'META-INF/NOTICE.md',
+                                      'META-INF/NOTICE.txt',
+                                      'META-INF/DEPENDENCIES',
+                                      'META-INF/AL2.0',
+                                      'META-INF/LGPL2.1'
+                                  ]
+                                  pickFirsts += [
+                                      'META-INF/LICENSE',
+                                      'META-INF/LICENSE.md',
+                                      'META-INF/LICENSE.txt',
+                                      'META-INF/NOTICE',
+                                      'META-INF/NOTICE.md',
+                                      'META-INF/NOTICE.txt'
+                                  ]
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+          EOF
+            echo "Added packagingOptions to root build.gradle for all modules"
           else
-            echo "packagingOptions already present, skipping"
+            echo "packagingOptions already configured, skipping"
           fi
 
       - name: Build Android app for testing (debug + androidTest)

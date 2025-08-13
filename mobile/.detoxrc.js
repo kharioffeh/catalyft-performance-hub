@@ -11,26 +11,26 @@ module.exports = {
     'ios.debug': {
       type: 'ios.app',
       binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/*.app',
-      // Hardcode workspace & scheme so we build the app target, not a Pod
-      build: 'rm -rf ios && npx expo prebuild --platform ios --non-interactive --no-install && cd ios && xcodebuild -workspace mobile.xcworkspace -scheme mobile -configuration Debug -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
+      // Use xcodeproj since xcworkspace requires pod install (macOS only)
+      build: 'rm -rf ios && npx expo prebuild --platform ios --clean && cd ios && xcodebuild -project mobile.xcodeproj -scheme mobile -configuration Debug -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
     },
     'ios.release': {
       type: 'ios.app',
       binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/*.app',
-      build: 'rm -rf ios && npx expo prebuild --platform ios --non-interactive --no-install && cd ios && xcodebuild -workspace mobile.xcworkspace -scheme mobile -configuration Release -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
+      build: 'rm -rf ios && npx expo prebuild --platform ios --clean && cd ios && xcodebuild -project mobile.xcodeproj -scheme mobile -configuration Release -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
     },
 
     'android.debug': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/debug/app-debug.apk',
       testBinaryPath: 'android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk',
-      build: 'rm -rf android && npx expo prebuild --platform android --non-interactive && cd android && chmod +x gradlew && ./gradlew --no-daemon assembleDebug assembleAndroidTest',
+      build: 'rm -rf android && npx expo prebuild --platform android --clean && cd android && chmod +x gradlew && ./gradlew --no-daemon assembleDebug assembleAndroidTest -PpackagingOptions.pickFirst=META-INF/LICENSE.md,META-INF/LICENSE,META-INF/NOTICE,META-INF/NOTICE.md',
       reversePorts: [8081]
     },
     'android.release': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/release/app-release.apk',
-      build: 'rm -rf android && npx expo prebuild --platform android --non-interactive && cd android && chmod +x gradlew && ./gradlew --no-daemon assembleRelease'
+      build: 'rm -rf android && npx expo prebuild --platform android --clean && cd android && chmod +x gradlew && ./gradlew --no-daemon assembleRelease'
     }
   },
 
