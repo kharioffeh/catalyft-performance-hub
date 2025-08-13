@@ -12,19 +12,25 @@ module.exports = {
       type: 'ios.app',
       binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/*.app',
       build:
-        'rm -rf ios && npx expo prebuild --platform ios && cd ios && ' +
+        'if [ -d "ios" ]; then rm -rf ios; fi && ' +
+        'npx expo prebuild --platform ios --clear && ' +
+        'cd ios && ' +
         'WORKSPACE_NAME=$(find . -name "*.xcworkspace" | head -1 | sed "s|./||") && ' +
         'SCHEME_NAME=$(xcodebuild -workspace "$WORKSPACE_NAME" -list | grep -A 100 "Schemes:" | grep -v "Schemes:" | head -1 | xargs) && ' +
-        'xcodebuild -workspace "$WORKSPACE_NAME" -scheme "$SCHEME_NAME" -configuration Debug -sdk iphonesimulator -derivedDataPath build'
+        'xcodebuild -workspace "$WORKSPACE_NAME" -scheme "$SCHEME_NAME" -configuration Debug -sdk iphonesimulator -derivedDataPath build | ' +
+        '(xcpretty --color --simple || cat)'
     },
     'ios.release': {
       type: 'ios.app',
       binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/*.app',
       build:
-        'rm -rf ios && npx expo prebuild --platform ios && cd ios && ' +
+        'if [ -d "ios" ]; then rm -rf ios; fi && ' +
+        'npx expo prebuild --platform ios --clear && ' +
+        'cd ios && ' +
         'WORKSPACE_NAME=$(find . -name "*.xcworkspace" | head -1 | sed "s|./||") && ' +
         'SCHEME_NAME=$(xcodebuild -workspace "$WORKSPACE_NAME" -list | grep -A 100 "Schemes:" | grep -v "Schemes:" | head -1 | xargs) && ' +
-        'xcodebuild -workspace "$WORKSPACE_NAME" -scheme "$SCHEME_NAME" -configuration Release -sdk iphonesimulator -derivedDataPath build'
+        'xcodebuild -workspace "$WORKSPACE_NAME" -scheme "$SCHEME_NAME" -configuration Release -sdk iphonesimulator -derivedDataPath build | ' +
+        '(xcpretty --color --simple || cat)'
     },
     'android.debug': {
       type: 'android.apk',
@@ -32,15 +38,21 @@ module.exports = {
       // REQUIRED so Detox can install the androidTest APK:
       testBinaryPath: 'android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk',
       build:
-        'rm -rf android && npx expo prebuild --platform android && cd android && chmod +x gradlew && ' +
-        './gradlew assembleDebug assembleAndroidTest'
+        'if [ -d "android" ]; then rm -rf android; fi && ' +
+        'npx expo prebuild --platform android --clear && ' +
+        'cd android && ' +
+        'chmod +x gradlew && ' +
+        './gradlew assembleDebug assembleAndroidTest -x lint --stacktrace'
     },
     'android.release': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/release/app-release.apk',
       build:
-        'rm -rf android && npx expo prebuild --platform android && cd android && chmod +x gradlew && ' +
-        './gradlew assembleRelease'
+        'if [ -d "android" ]; then rm -rf android; fi && ' +
+        'npx expo prebuild --platform android --clear && ' +
+        'cd android && ' +
+        'chmod +x gradlew && ' +
+        './gradlew assembleRelease -x lint --stacktrace'
     }
   }, // ← IMPORTANT trailing comma so "devices" parses
 
