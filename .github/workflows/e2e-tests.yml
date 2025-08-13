@@ -79,8 +79,7 @@ jobs:
         working-directory: mobile
         run: |
           # Clean any existing iOS directory and generate native iOS project
-          rm -rf ios
-          npx expo prebuild --platform ios --clear
+          npx expo prebuild --platform ios --clean --non-interactive
         env:
           EXPO_NO_TELEMETRY: 1
           NPM_CONFIG_LEGACY_PEER_DEPS: true
@@ -370,8 +369,7 @@ jobs:
         working-directory: mobile
         run: |
           # Clean any existing Android directory and generate native Android project
-          rm -rf android
-          npx expo prebuild --platform android --clear
+          npx expo prebuild --platform android --clean --non-interactive
         env:
           EXPO_NO_TELEMETRY: 1
           NPM_CONFIG_LEGACY_PEER_DEPS: true

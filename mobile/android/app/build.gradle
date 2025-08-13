@@ -122,8 +122,14 @@ android {
             useLegacyPackaging (findProperty('expo.useLegacyPackaging')?.toBoolean() ?: false)
         }
         resources {
-            excludes += ["META-INF/LICENSE*", "META-INF/NOTICE*", "META-INF/AL2.0", "META-INF/LGPL2.1"]
-            pickFirsts += ["META-INF/LICENSE*", "META-INF/NOTICE*"]
+            // Keep it minimal but future-proof for common duplicates from test deps (e.g., JUnit)
+            excludes += [
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE*",
+                "META-INF/NOTICE*",
+                "META-INF/AL2.0",
+                "META-INF/LGPL2.1"
+            ]
         }
     }
     androidResources {
