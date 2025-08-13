@@ -80,7 +80,7 @@ module.exports = {
 
   devices: {
     simulator: { type: 'ios.simulator', device: { type: 'iPhone 14' } },
-    emulator:  { type: 'android.emulator', device: { avdName: 'Pixel_6_API_35' } }
+    emulator:  { type: 'android.emulator', device: { avdName: 'test_emulator' } }
   },
 
   configurations: {
