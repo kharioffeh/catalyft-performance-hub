@@ -399,16 +399,16 @@ jobs:
             exit 1
           fi
           
-          # Add subprojects block to handle all modules
-          if ! grep -q "subprojects.*packagingOptions" "$ROOT_BUILD_GRADLE"; then
+          # Add subprojects block to handle all modules (Gradle 8+ syntax)
+          if ! grep -q "packaging.*META-INF" "$ROOT_BUILD_GRADLE"; then
             cat >> "$ROOT_BUILD_GRADLE" << 'EOF'
           
           // Fix META-INF duplicates in all modules
           subprojects {
               afterEvaluate { project ->
                   if (project.hasProperty('android')) {
-                      android {
-                          packagingOptions {
+                      project.android {
+                          packaging {
                               resources {
                                   excludes += [
                                       'META-INF/LICENSE',
@@ -436,9 +436,9 @@ jobs:
               }
           }
           EOF
-            echo "Added packagingOptions to root build.gradle for all modules"
+            echo "Added packaging block to root build.gradle for all modules"
           else
-            echo "packagingOptions already configured, skipping"
+            echo "packaging options already configured, skipping"
           fi
 
       - name: Build Android app for testing (debug + androidTest)

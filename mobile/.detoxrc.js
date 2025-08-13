@@ -11,20 +11,20 @@ module.exports = {
     'ios.debug': {
       type: 'ios.app',
       binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/*.app',
-      // Use xcodeproj since xcworkspace requires pod install (macOS only)
-      build: 'rm -rf ios && npx expo prebuild --platform ios --clean && cd ios && xcodebuild -project mobile.xcodeproj -scheme mobile -configuration Debug -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
+      // Run pod install to create xcworkspace, then build
+      build: 'rm -rf ios && npx expo prebuild --platform ios --clean && cd ios && pod install && xcodebuild -workspace mobile.xcworkspace -scheme mobile -configuration Debug -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
     },
     'ios.release': {
       type: 'ios.app',
       binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/*.app',
-      build: 'rm -rf ios && npx expo prebuild --platform ios --clean && cd ios && xcodebuild -project mobile.xcodeproj -scheme mobile -configuration Release -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
+      build: 'rm -rf ios && npx expo prebuild --platform ios --clean && cd ios && pod install && xcodebuild -workspace mobile.xcworkspace -scheme mobile -configuration Release -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
     },
 
     'android.debug': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/debug/app-debug.apk',
       testBinaryPath: 'android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk',
-      build: 'rm -rf android && npx expo prebuild --platform android --clean && cd android && chmod +x gradlew && ./gradlew --no-daemon assembleDebug assembleAndroidTest -PpackagingOptions.pickFirst=META-INF/LICENSE.md,META-INF/LICENSE,META-INF/NOTICE,META-INF/NOTICE.md',
+      build: 'rm -rf android && npx expo prebuild --platform android --clean && cd android && chmod +x gradlew && ./gradlew --no-daemon assembleDebug assembleAndroidTest',
       reversePorts: [8081]
     },
     'android.release': {
