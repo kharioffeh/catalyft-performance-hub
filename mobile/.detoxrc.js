@@ -23,13 +23,13 @@ module.exports = {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/debug/app-debug.apk',
       testBinaryPath: 'android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk',
-      build: 'rm -rf android && npx expo prebuild --platform android --clean && cd android && chmod +x gradlew && ./gradlew clean && ./gradlew assembleDebug assembleAndroidTest -x lint --stacktrace',
+      build: 'rm -rf android && npx expo prebuild --platform android --clean && cd android && chmod +x gradlew && ./gradlew assembleDebug assembleAndroidTest -x lint --info',
       reversePorts: [8081]
     },
     'android.release': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/release/app-release.apk',
-      build: 'rm -rf android && npx expo prebuild --platform android --clean && cd android && chmod +x gradlew && ./gradlew clean && ./gradlew assembleRelease -x lint --stacktrace'
+      build: 'rm -rf android && npx expo prebuild --platform android --clean && cd android && chmod +x gradlew && ./gradlew assembleRelease -x lint --info'
     }
   },
 
