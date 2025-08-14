@@ -13,16 +13,15 @@ module.exports = {
       binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/*.app',
       build: [
         'rm -rf ios',
-        'npx expo prebuild --platform ios --non-interactive --no-install',
+        'npx expo prebuild --platform ios --clean',
         'cd ios',
-        // Use xcodeproj directly since xcworkspace requires pod install
-        'PROJECT=$(ls -1 *.xcodeproj | head -1)',
-        `SCHEME=$(xcodebuild -project "$PROJECT" -list \
+        // Use mobile.xcodeproj directly - it's the standard name from expo prebuild
+        `SCHEME=$(xcodebuild -project mobile.xcodeproj -list \
           | sed -n '/Schemes:/,$p' | tail -n +2 | sed 's/^\\s*//' | sed '/^$/d' \
           | grep -v -E 'Pods|boost|Sentry|RN|RCT|Yoga|Hermes|Flipper' \
           | head -1)`,
         'echo "Using iOS scheme: $SCHEME"',
-        'xcodebuild -project "$PROJECT" -scheme "$SCHEME" -configuration Debug -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
+        'xcodebuild -project mobile.xcodeproj -scheme "$SCHEME" -configuration Debug -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
       ].join(' && ')
     },
     'ios.release': {
@@ -30,16 +29,15 @@ module.exports = {
       binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/*.app',
       build: [
         'rm -rf ios',
-        'npx expo prebuild --platform ios --non-interactive --no-install',
+        'npx expo prebuild --platform ios --clean',
         'cd ios',
-        // Use xcodeproj directly since xcworkspace requires pod install
-        'PROJECT=$(ls -1 *.xcodeproj | head -1)',
-        `SCHEME=$(xcodebuild -project "$PROJECT" -list \
+        // Use mobile.xcodeproj directly - it's the standard name from expo prebuild
+        `SCHEME=$(xcodebuild -project mobile.xcodeproj -list \
           | sed -n '/Schemes:/,$p' | tail -n +2 | sed 's/^\\s*//' | sed '/^$/d' \
           | grep -v -E 'Pods|boost|Sentry|RN|RCT|Yoga|Hermes|Flipper' \
           | head -1)`,
         'echo "Using iOS scheme: $SCHEME"',
-        'xcodebuild -project "$PROJECT" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
+        'xcodebuild -project mobile.xcodeproj -scheme "$SCHEME" -configuration Release -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
       ].join(' && ')
     },
 
@@ -49,12 +47,12 @@ module.exports = {
       testBinaryPath: 'android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk',
       build: [
         'rm -rf android',
-        'npx expo prebuild --platform android --non-interactive --clean',
-        // Add subprojects block to root build.gradle to handle all modules
-        `echo '\nsubprojects { afterEvaluate { project -> if (project.hasProperty("android")) { android { packagingOptions { resources { excludes += ["META-INF/LICENSE*", "META-INF/NOTICE*", "META-INF/DEPENDENCIES", "META-INF/AL2.0", "META-INF/LGPL2.1"] } } } } } }' >> android/build.gradle`,
+        'npx expo prebuild --platform android --clean',
         'cd android',
+        // Create a gradle init script to apply packagingOptions to all projects
+        `echo 'allprojects { afterEvaluate { if (it.hasProperty("android")) { android { packagingOptions { resources { excludes += ["META-INF/LICENSE", "META-INF/LICENSE.md", "META-INF/LICENSE.txt", "META-INF/NOTICE", "META-INF/NOTICE.md", "META-INF/NOTICE.txt", "META-INF/DEPENDENCIES", "META-INF/AL2.0", "META-INF/LGPL2.1"] pickFirsts += ["META-INF/LICENSE", "META-INF/LICENSE.md", "META-INF/NOTICE", "META-INF/NOTICE.md"] } } } } }' > packaging.gradle.init`,
         'chmod +x gradlew',
-        './gradlew --no-daemon assembleDebug assembleAndroidTest'
+        './gradlew --no-daemon --init-script packaging.gradle.init assembleDebug assembleAndroidTest'
       ].join(' && '),
       reversePorts: [8081]
     },
@@ -63,12 +61,12 @@ module.exports = {
       binaryPath: 'android/app/build/outputs/apk/release/app-release.apk',
       build: [
         'rm -rf android',
-        'npx expo prebuild --platform android --non-interactive --clean',
-        // Add subprojects block to root build.gradle to handle all modules
-        `echo '\nsubprojects { afterEvaluate { project -> if (project.hasProperty("android")) { android { packagingOptions { resources { excludes += ["META-INF/LICENSE*", "META-INF/NOTICE*", "META-INF/DEPENDENCIES", "META-INF/AL2.0", "META-INF/LGPL2.1"] } } } } } }' >> android/build.gradle`,
+        'npx expo prebuild --platform android --clean',
         'cd android',
+        // Create a gradle init script to apply packagingOptions to all projects
+        `echo 'allprojects { afterEvaluate { if (it.hasProperty("android")) { android { packagingOptions { resources { excludes += ["META-INF/LICENSE", "META-INF/LICENSE.md", "META-INF/LICENSE.txt", "META-INF/NOTICE", "META-INF/NOTICE.md", "META-INF/NOTICE.txt", "META-INF/DEPENDENCIES", "META-INF/AL2.0", "META-INF/LGPL2.1"] pickFirsts += ["META-INF/LICENSE", "META-INF/LICENSE.md", "META-INF/NOTICE", "META-INF/NOTICE.md"] } } } } }' > packaging.gradle.init`,
         'chmod +x gradlew',
-        './gradlew --no-daemon assembleRelease'
+        './gradlew --no-daemon --init-script packaging.gradle.init assembleRelease'
       ].join(' && ')
     }
   },
