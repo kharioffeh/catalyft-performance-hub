@@ -29,20 +29,17 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      "./plugins/withAndroidPackagingOptions",
       [
         "expo-build-properties",
         {
           "android": {
-            "packagingOptions": {
-              "pickFirst": [
-                "META-INF/LICENSE",
-                "META-INF/LICENSE.md",
-                "META-INF/NOTICE",
-                "META-INF/NOTICE.md",
-                "META-INF/AL2.0",
-                "META-INF/LGPL2.1"
-              ]
-            }
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0"
+          },
+          "ios": {
+            "deploymentTarget": "13.4"
           }
         }
       ]

@@ -10,64 +10,26 @@ module.exports = {
   apps: {
     'ios.debug': {
       type: 'ios.app',
-      binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/*.app',
-      build: [
-        'rm -rf ios',
-        'npx expo prebuild --platform ios --clean',
-        'cd ios',
-        // Use mobile.xcodeproj directly - it's the standard name from expo prebuild
-        `SCHEME=$(xcodebuild -project mobile.xcodeproj -list \
-          | sed -n '/Schemes:/,$p' | tail -n +2 | sed 's/^\\s*//' | sed '/^$/d' \
-          | grep -v -E 'Pods|boost|Sentry|RN|RCT|Yoga|Hermes|Flipper' \
-          | head -1)`,
-        'echo "Using iOS scheme: $SCHEME"',
-        'xcodebuild -project mobile.xcodeproj -scheme "$SCHEME" -configuration Debug -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
-      ].join(' && ')
+      binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/mobile.app',
+      build: 'rm -rf ios && npx expo prebuild --platform ios --clean && cd ios && pod install && xcodebuild -workspace mobile.xcworkspace -scheme mobile -configuration Debug -sdk iphonesimulator -derivedDataPath build -destination "platform=iOS Simulator,name=iPhone 14" CODE_SIGNING_ALLOWED=NO | xcpretty --color --simple'
     },
     'ios.release': {
       type: 'ios.app',
-      binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/*.app',
-      build: [
-        'rm -rf ios',
-        'npx expo prebuild --platform ios --clean',
-        'cd ios',
-        // Use mobile.xcodeproj directly - it's the standard name from expo prebuild
-        `SCHEME=$(xcodebuild -project mobile.xcodeproj -list \
-          | sed -n '/Schemes:/,$p' | tail -n +2 | sed 's/^\\s*//' | sed '/^$/d' \
-          | grep -v -E 'Pods|boost|Sentry|RN|RCT|Yoga|Hermes|Flipper' \
-          | head -1)`,
-        'echo "Using iOS scheme: $SCHEME"',
-        'xcodebuild -project mobile.xcodeproj -scheme "$SCHEME" -configuration Release -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO'
-      ].join(' && ')
+      binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/mobile.app',
+      build: 'rm -rf ios && npx expo prebuild --platform ios --clean && cd ios && pod install && xcodebuild -workspace mobile.xcworkspace -scheme mobile -configuration Release -sdk iphonesimulator -derivedDataPath build -destination "platform=iOS Simulator,name=iPhone 14" CODE_SIGNING_ALLOWED=NO | xcpretty --color --simple'
     },
 
     'android.debug': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/debug/app-debug.apk',
       testBinaryPath: 'android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk',
-      build: [
-        'rm -rf android',
-        'npx expo prebuild --platform android --clean',
-        'cd android',
-        // Create a gradle init script to apply packagingOptions to all projects
-        `echo 'allprojects { afterEvaluate { if (it.hasProperty("android")) { android { packagingOptions { resources { excludes += ["META-INF/LICENSE", "META-INF/LICENSE.md", "META-INF/LICENSE.txt", "META-INF/NOTICE", "META-INF/NOTICE.md", "META-INF/NOTICE.txt", "META-INF/DEPENDENCIES", "META-INF/AL2.0", "META-INF/LGPL2.1"] pickFirsts += ["META-INF/LICENSE", "META-INF/LICENSE.md", "META-INF/NOTICE", "META-INF/NOTICE.md"] } } } } }' > packaging.gradle.init`,
-        'chmod +x gradlew',
-        './gradlew --no-daemon --init-script packaging.gradle.init assembleDebug assembleAndroidTest'
-      ].join(' && '),
+      build: 'rm -rf android && npx expo prebuild --platform android --clean && cd android && chmod +x gradlew && ./gradlew clean && ./gradlew assembleDebug assembleAndroidTest -x lint --stacktrace',
       reversePorts: [8081]
     },
     'android.release': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/release/app-release.apk',
-      build: [
-        'rm -rf android',
-        'npx expo prebuild --platform android --clean',
-        'cd android',
-        // Create a gradle init script to apply packagingOptions to all projects
-        `echo 'allprojects { afterEvaluate { if (it.hasProperty("android")) { android { packagingOptions { resources { excludes += ["META-INF/LICENSE", "META-INF/LICENSE.md", "META-INF/LICENSE.txt", "META-INF/NOTICE", "META-INF/NOTICE.md", "META-INF/NOTICE.txt", "META-INF/DEPENDENCIES", "META-INF/AL2.0", "META-INF/LGPL2.1"] pickFirsts += ["META-INF/LICENSE", "META-INF/LICENSE.md", "META-INF/NOTICE", "META-INF/NOTICE.md"] } } } } }' > packaging.gradle.init`,
-        'chmod +x gradlew',
-        './gradlew --no-daemon --init-script packaging.gradle.init assembleRelease'
-      ].join(' && ')
+      build: 'rm -rf android && npx expo prebuild --platform android --clean && cd android && chmod +x gradlew && ./gradlew clean && ./gradlew assembleRelease -x lint --stacktrace'
     }
   },
 
