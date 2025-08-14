@@ -36,34 +36,39 @@ allprojects {
 apply plugin: "expo-root-project"
 apply plugin: "com.facebook.react.rootproject"
 
-subprojects { proj ->
-    afterEvaluate {
-        def hasAndroid = proj.extensions.findByName("android")
-        if (hasAndroid) {
-            proj.android {
-                // AGP 8+ uses `packaging { resources { ... } }`
-                packaging {
-                    resources {
-                        excludes += [
-                                "META-INF/LICENSE",
-                                "META-INF/LICENSE.txt",
-                                "META-INF/LICENSE.md",
-                                "META-INF/NOTICE",
-                                "META-INF/NOTICE.txt",
-                                "META-INF/AL2.0",
-                                "META-INF/LGPL2.1"
-                        ]
-                        // If some libs insist, pickFirst keeps build moving:
-                        pickFirsts += [
-                                "META-INF/LICENSE",
-                                "META-INF/LICENSE.txt",
-                                "META-INF/LICENSE.md",
-                                "META-INF/NOTICE",
-                                "META-INF/NOTICE.txt"
-                        ]
-                    }
-                }
-            }
+subprojects {
+  afterEvaluate { project ->
+    if (project.hasProperty('android')) {
+      project.android {
+        packaging {
+          resources {
+            excludes += [
+              'META-INF/LICENSE','META-INF/LICENSE.md','META-INF/LICENSE.txt',
+              'META-INF/NOTICE','META-INF/NOTICE.md','META-INF/NOTICE.txt',
+              'META-INF/DEPENDENCIES','META-INF/AL2.0','META-INF/LGPL2.1'
+            ]
+            // If some libs insist, pickFirst keeps build moving:
+            pickFirsts += [
+                    "META-INF/LICENSE",
+                    "META-INF/LICENSE.txt",
+                    "META-INF/LICENSE.md",
+                    "META-INF/NOTICE",
+                    "META-INF/NOTICE.txt"
+            ]
+          }
         }
+        testOptions {
+          packaging {
+            resources {
+              excludes += [
+                'META-INF/LICENSE','META-INF/LICENSE.md','META-INF/LICENSE.txt',
+                'META-INF/NOTICE','META-INF/NOTICE.md','META-INF/NOTICE.txt',
+                'META-INF/DEPENDENCIES','META-INF/AL2.0','META-INF/LGPL2.1'
+              ]
+            }
+          }
+        }
+      }
     }
+  }
 }
