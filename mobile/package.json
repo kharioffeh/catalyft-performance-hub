@@ -23,7 +23,16 @@
     "test:e2e": "detox test --configuration ios.sim.debug",
     "test:e2e:android": "detox test --configuration android.emu.debug",
     "build:e2e:ios": "detox build --configuration ios.sim.debug",
-    "build:e2e:android": "detox build --configuration android.emu.debug"
+    "build:e2e:android": "detox build --configuration android.emu.debug",
+    "env:print": "node -v && npm -v && java -version || true",
+    "android:clean-prebuild": "rm -rf android && CI=1 npx expo prebuild --platform android --clean",
+    "android:run": "npx expo run:android",
+    "android:validate": "npm run android:clean-prebuild && npm run android:run",
+    "ios:clean-prebuild": "rm -rf ios && CI=1 npx expo prebuild --platform ios --clean",
+    "ios:pod": "cd ios && npx pod-install",
+    "ios:run": "npx expo run:ios",
+    "ios:validate": "npm run ios:clean-prebuild && npm run ios:pod && npm run ios:run",
+    "validate:native": "npm run android:validate"
   },
   "dependencies": {
     "@sentry/react-native": "^6.19.0",

@@ -1,0 +1,81 @@
+name: Native Build + Launch Smoke
+on:
+  workflow_dispatch:
+
+jobs:
+  android-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - name: Install deps
+        working-directory: mobile
+        env: { CI: true, EXPO_NO_TELEMETRY: 1 }
+        run: npm install --legacy-peer-deps
+      - name: Prebuild (Android)
+        working-directory: mobile
+        env: { CI: true }
+        run: npx expo prebuild --platform android --clean
+      - name: Android Emulator Smoke
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          script: |
+            set -euxo pipefail
+            cd mobile/android
+            ./gradlew --no-daemon assembleDebug
+            APK=$(ls app/build/outputs/apk/debug/app-debug.apk)
+            adb install -r "$APK"
+            APP_ID=$(grep -m1 'applicationId "' app/build.gradle | sed 's/.*applicationId[[:space:]]*"[[:space:]]*//;s/".*//')
+            echo "Detected APP_ID=$APP_ID"
+            adb shell am start -n $APP_ID/.MainActivity || true
+            for i in $(seq 1 30); do
+              pid=$(adb shell pidof $APP_ID || true)
+              if [ -n "$pid" ]; then echo "Launched with pid $pid"; exit 0; fi
+              sleep 2
+            done
+            echo "Failed to launch $APP_ID"; exit 1
+
+  ios-smoke:
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Install deps
+        working-directory: mobile
+        env: { CI: true, EXPO_NO_TELEMETRY: 1 }
+        run: npm install --legacy-peer-deps
+      - name: Ensure CocoaPods
+        run: pod --version || sudo gem install cocoapods
+      - name: Prebuild (iOS)
+        working-directory: mobile
+        env: { CI: true }
+        run: npx expo prebuild --platform ios --clean
+      - name: Pod install
+        working-directory: mobile/ios
+        run: npx pod-install
+      - name: Build for Simulator
+        working-directory: mobile/ios
+        env: { NSUnbufferedIO: "YES" }
+        run: |
+          set -euxo pipefail
+          WORKSPACE=$(ls -1 *.xcworkspace | head -1)
+          SCHEME=$(xcodebuild -list -json -workspace "$WORKSPACE" | /usr/bin/python3 -c 'import sys,json; print(json.load(sys.stdin)["workspace"]["schemes"][0])')
+          xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Debug -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO
+      - name: Install & Launch on Simulator
+        run: |
+          set -euxo pipefail
+          SIM="iPhone 15"
+          xcrun simctl boot "$SIM" || true
+          xcrun simctl bootstatus "$SIM" -b
+          APP=$(ls -1 mobile/ios/build/Build/Products/Debug-iphonesimulator/*.app | head -1)
+          BUNDLE_ID=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")
+          xcrun simctl install "$SIM" "$APP"
+          xcrun simctl launch "$SIM" "$BUNDLE_ID"
