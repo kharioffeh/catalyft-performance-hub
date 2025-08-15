@@ -43,17 +43,12 @@ subprojects {
         packaging {
           resources {
             excludes += [
-              'META-INF/LICENSE','META-INF/LICENSE.md','META-INF/LICENSE.txt',
-              'META-INF/NOTICE','META-INF/NOTICE.md','META-INF/NOTICE.txt',
               'META-INF/DEPENDENCIES','META-INF/AL2.0','META-INF/LGPL2.1'
             ]
-            // If some libs insist, pickFirst keeps build moving:
+            // Use pickFirsts to handle duplicate files
             pickFirsts += [
-                    "META-INF/LICENSE",
-                    "META-INF/LICENSE.txt",
-                    "META-INF/LICENSE.md",
-                    "META-INF/NOTICE",
-                    "META-INF/NOTICE.txt"
+              'META-INF/LICENSE','META-INF/LICENSE.md','META-INF/LICENSE.txt',
+              'META-INF/NOTICE','META-INF/NOTICE.md','META-INF/NOTICE.txt'
             ]
           }
         }
@@ -61,15 +56,21 @@ subprojects {
           packaging {
             resources {
               excludes += [
-                'META-INF/LICENSE','META-INF/LICENSE.md','META-INF/LICENSE.txt',
-                'META-INF/NOTICE','META-INF/NOTICE.md','META-INF/NOTICE.txt',
                 'META-INF/DEPENDENCIES','META-INF/AL2.0','META-INF/LGPL2.1'
               ]
-              // Also use pickFirsts for test resources to handle duplicates
+              // Use pickFirsts for test resources to handle duplicates
               pickFirsts += [
                 'META-INF/LICENSE','META-INF/LICENSE.md','META-INF/LICENSE.txt',
                 'META-INF/NOTICE','META-INF/NOTICE.md','META-INF/NOTICE.txt'
               ]
+            }
+          }
+        }
+        // Also configure androidTest variant specifically
+        if (project.name == 'expo-dev-client' || project.path.contains(':expo-dev-client')) {
+          androidTestVariants.all { variant ->
+            variant.mergeResourcesProvider.configure {
+              duplicatesStrategy = 'include'
             }
           }
         }
