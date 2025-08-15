@@ -65,6 +65,11 @@ subprojects {
                 'META-INF/NOTICE','META-INF/NOTICE.md','META-INF/NOTICE.txt',
                 'META-INF/DEPENDENCIES','META-INF/AL2.0','META-INF/LGPL2.1'
               ]
+              // Also use pickFirsts for test resources to handle duplicates
+              pickFirsts += [
+                'META-INF/LICENSE','META-INF/LICENSE.md','META-INF/LICENSE.txt',
+                'META-INF/NOTICE','META-INF/NOTICE.md','META-INF/NOTICE.txt'
+              ]
             }
           }
         }
