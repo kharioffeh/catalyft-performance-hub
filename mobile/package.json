@@ -42,7 +42,13 @@
     "ios:validate": "npm run ios:clean-prebuild && npm run ios:pod && npm run ios:run",
     "ios:verify-build": "node scripts/verify-ios-build.js",
     "validate:native": "npm run android:validate",
-    "e2e:smoke": "npm run detox:test:android && npm run detox:test:ios"
+    "e2e:smoke": "npm run detox:test:android && npm run detox:test:ios",
+    "build:production": "./scripts/build-production.sh --all",
+    "build:android:production": "./scripts/build-production.sh --android",
+    "build:ios:production": "./scripts/build-production.sh --ios",
+    "prebuild:clean": "rm -rf android ios && npx expo prebuild --clean",
+    "start:production": "NODE_ENV=production expo start",
+    "export:production": "npx expo export --platform all --output-dir ./dist"
   },
   "dependencies": {
     "@react-navigation/bottom-tabs": "^7.4.5",
