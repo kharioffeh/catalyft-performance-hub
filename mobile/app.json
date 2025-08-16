@@ -1,13 +1,14 @@
 {
   "expo": {
-    "name": "mobile",
+    "name": "Catalyft",
     "slug": "catalyft-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "scheme": "exp.catalyft",
+    "scheme": "catalyft",
+    "owner": "your-expo-username",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -15,7 +16,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.catalyft-mobile"
+      "bundleIdentifier": "com.catalyft.mobile",
+      "buildNumber": "1"
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +25,8 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.catalyftmobile"
+      "package": "com.catalyft.mobile",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
