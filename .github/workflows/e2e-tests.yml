@@ -38,6 +38,17 @@ jobs:
           key: dd-${{ runner.os }}-${{ hashFiles('mobile/ios/Podfile.lock') }}
           restore-keys: dd-${{ runner.os }}-
 
+      - name: Setup Ruby and CocoaPods
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+          bundler-cache: false
+      
+      - name: Install CocoaPods
+        run: |
+          gem install cocoapods
+          pod --version
+
       - name: Setup Expo CLI
         run: npm install -g @expo/cli
 
@@ -78,11 +89,45 @@ jobs:
       - name: Build iOS with CocoaPods and Xcode
         working-directory: mobile
         run: |
+          echo "Running iOS prebuild..."
           CI=1 npx expo prebuild --platform ios --clean
-          cd ios && npx pod-install
-          WORKSPACE=$(ls -1 *.xcworkspace | head -1)
-          SCHEME=$(xcodebuild -list -json -workspace "$WORKSPACE" | /usr/bin/python3 -c 'import sys,json; print(json.load(sys.stdin)["workspace"]["schemes"][0])')
-          xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Debug -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO
+          
+          echo "Installing CocoaPods dependencies..."
+          cd ios
+          pod install || npx pod-install
+          
+          echo "Checking for workspace file..."
+          if [ ! -f "*.xcworkspace" ] && [ ! -d "*.xcworkspace" ]; then
+            echo "No .xcworkspace found, checking directory contents:"
+            ls -la
+            
+            # If no workspace, try to find and use it
+            WORKSPACE_FILE=$(find . -name "*.xcworkspace" -maxdepth 1 | head -1)
+            if [ -z "$WORKSPACE_FILE" ]; then
+              echo "ERROR: No .xcworkspace file found after pod install"
+              echo "Creating workspace manually..."
+              # Fallback: use the project name from parent directory
+              PROJECT_NAME="mobile"
+              if [ -f "${PROJECT_NAME}.xcodeproj/project.pbxproj" ]; then
+                echo "Found ${PROJECT_NAME}.xcodeproj, using it directly"
+                xcodebuild -project "${PROJECT_NAME}.xcodeproj" -scheme "$PROJECT_NAME" -configuration Debug -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO
+                exit 0
+              fi
+              exit 1
+            fi
+          else
+            WORKSPACE_FILE=$(ls -1 *.xcworkspace | head -1)
+          fi
+          
+          echo "Using workspace: $WORKSPACE_FILE"
+          
+          # Get the scheme
+          SCHEME=$(xcodebuild -list -json -workspace "$WORKSPACE_FILE" 2>/dev/null | /usr/bin/python3 -c 'import sys,json; data=json.load(sys.stdin); print(data.get("workspace", {}).get("schemes", ["mobile"])[0])' || echo "mobile")
+          
+          echo "Using scheme: $SCHEME"
+          
+          # Build the app
+          xcodebuild -workspace "$WORKSPACE_FILE" -scheme "$SCHEME" -configuration Debug -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO
         env:
           CI: true
           EXPO_NO_TELEMETRY: 1
