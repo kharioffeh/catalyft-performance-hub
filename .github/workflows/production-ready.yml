@@ -107,7 +107,13 @@ jobs:
         working-directory: mobile
         run: npm ci --legacy-peer-deps
 
-      - name: Setup CocoaPods
+      - name: Setup Ruby and CocoaPods
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+          bundler-cache: false
+      
+      - name: Install CocoaPods
         run: |
           gem install cocoapods
           pod --version
@@ -115,22 +121,51 @@ jobs:
       - name: Prebuild iOS
         working-directory: mobile
         run: |
+          echo "Running iOS prebuild..."
           CI=1 npx expo prebuild --platform ios --clean
+          echo "Prebuild completed"
         env:
           EXPO_NO_TELEMETRY: 1
 
-      - name: Install Pods
+      - name: Install Pods and verify workspace
         working-directory: mobile/ios
-        run: pod install
+        run: |
+          echo "Installing CocoaPods dependencies..."
+          pod install --verbose || npx pod-install
+          
+          echo "Checking for workspace files..."
+          ls -la *.xcworkspace || true
+          ls -la *.xcodeproj || true
+          
+          if [ ! -d "*.xcworkspace" ] && [ -z "$(find . -name '*.xcworkspace' -maxdepth 1)" ]; then
+            echo "ERROR: No .xcworkspace found after pod install"
+            echo "Directory contents:"
+            ls -la
+            exit 1
+          fi
 
       - name: Build iOS (Archive)
         working-directory: mobile/ios
         run: |
-          WORKSPACE=$(ls -1 *.xcworkspace | head -1)
-          SCHEME=$(xcodebuild -list -json -workspace "$WORKSPACE" | /usr/bin/python3 -c 'import sys,json; print(json.load(sys.stdin)["workspace"]["schemes"][0])')
+          # Find the workspace file
+          WORKSPACE_FILE=$(find . -name "*.xcworkspace" -maxdepth 1 | head -1)
+          
+          if [ -z "$WORKSPACE_FILE" ]; then
+            echo "ERROR: No workspace file found"
+            echo "Current directory contents:"
+            ls -la
+            exit 1
+          fi
+          
+          echo "Using workspace: $WORKSPACE_FILE"
+          
+          # Get the scheme
+          SCHEME=$(xcodebuild -list -json -workspace "$WORKSPACE_FILE" 2>/dev/null | /usr/bin/python3 -c 'import sys,json; data=json.load(sys.stdin); print(data.get("workspace", {}).get("schemes", ["mobile"])[0])' || echo "mobile")
+          
+          echo "Using scheme: $SCHEME"
           
           # Build for generic iOS device (not simulator)
-          xcodebuild -workspace "$WORKSPACE" \
+          xcodebuild -workspace "$WORKSPACE_FILE" \
             -scheme "$SCHEME" \
             -configuration Release \
             -sdk iphoneos \
