@@ -1,11 +1,5 @@
-const { beforeAll, afterAll } = require('@jest/globals');
+const detox = require('detox');
+const config = require('../detox.config.js');
 
-beforeAll(async () => {
-  // Additional setup can go here
-  console.log('Setting up e2e tests...');
-});
-
-afterAll(async () => {
-  // Additional cleanup can go here
-  console.log('Cleaning up e2e tests...');
-});
+beforeAll(async () => { await detox.init(config); }, 120000);
+afterAll(async () => { await detox.cleanup(); }, 120000);

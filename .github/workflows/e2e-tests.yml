@@ -75,20 +75,16 @@ jobs:
         env:
           NPM_CONFIG_LEGACY_PEER_DEPS: true
 
-      - name: Pre-build for iOS (generate native code)
+      - name: Build iOS with CocoaPods and Xcode
         working-directory: mobile
         run: |
-          npx expo prebuild --platform ios --clean
+          CI=1 npx expo prebuild --platform ios --clean
+          cd ios && npx pod-install
+          WORKSPACE=$(ls -1 *.xcworkspace | head -1)
+          SCHEME=$(xcodebuild -list -json -workspace "$WORKSPACE" | /usr/bin/python3 -c 'import sys,json; print(json.load(sys.stdin)["workspace"]["schemes"][0])')
+          xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Debug -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO
         env:
-          EXPO_NO_TELEMETRY: 1
-          NPM_CONFIG_LEGACY_PEER_DEPS: true
-
-      - name: Build iOS app for testing (Detox)
-        working-directory: mobile
-        run: |
-          # Use Detox build command which handles everything including dynamic scheme detection
-          npx detox build --configuration ios.sim.debug
-        env:
+          CI: true
           EXPO_NO_TELEMETRY: 1
 
       - name: Verify the iOS app was built successfully
@@ -377,19 +373,37 @@ jobs:
         env:
           NPM_CONFIG_LEGACY_PEER_DEPS: true
 
-      - name: Pre-build for Android (generate native code)
+      - name: Build Android (app only) with packaging fix
         working-directory: mobile
         run: |
-          npx expo prebuild --platform android --clean
-        env:
-          EXPO_NO_TELEMETRY: 1
-          NPM_CONFIG_LEGACY_PEER_DEPS: true
-
-      - name: Build Android app for testing (debug + androidTest)
-        working-directory: mobile
-        run: |
-          # Use Detox build command which handles everything
-          npx detox build --configuration android.emu.debug
+          rm -rf android
+          CI=1 npx expo prebuild --platform android --clean
+          cat >> android/build.gradle <<'EOF'
+/* ---- CI: Packaging fix for Detox androidTest ---- */
+subprojects {
+  afterEvaluate { project ->
+    if (project.plugins.hasPlugin('com.android.application') || project.plugins.hasPlugin('com.android.library')) {
+      def ext = project.extensions.findByName('android')
+      if (ext != null) {
+        ext.packaging { resources { excludes += [
+          'META-INF/LICENSE','META-INF/LICENSE.md','META-INF/LICENSE.txt',
+          'META-INF/NOTICE','META-INF/NOTICE.md','META-INF/NOTICE.txt',
+          'META-INF/DEPENDENCIES','META-INF/AL2.0','META-INF/LGPL2.1'
+        ]}}
+        ext.testOptions { packaging { resources { excludes += [
+          'META-INF/LICENSE','META-INF/LICENSE.md','META-INF/LICENSE.txt',
+          'META-INF/NOTICE','META-INF/NOTICE.md','META-INF/NOTICE.txt',
+          'META-INF/DEPENDENCIES','META-INF/AL2.0','META-INF/LGPL2.1'
+        ]}}}
+      }
+    }
+  }
+}
+/* ---- end fix ---- */
+EOF
+          cd android
+          chmod +x gradlew
+          ./gradlew --no-daemon :app:assembleDebug :app:assembleAndroidTest -x lint --info
         env:
           EXPO_NO_TELEMETRY: 1
 
