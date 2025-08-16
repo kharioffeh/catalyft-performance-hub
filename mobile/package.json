@@ -82,7 +82,6 @@
     "jest": "^30.0.5",
     "jest-circus": "^30.0.5",
     "prettier": "^3.4.2",
-    "react-native-dotenv": "^3.4.11",
     "ts-jest": "^29.4.1",
     "typescript": "^5.9.2"
   },
