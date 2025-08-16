@@ -11,12 +11,14 @@ module.exports = {
     'ios.debug': {
       type: 'ios.app',
       binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/mobile.app',
-      build: 'rm -rf ios && npx expo prebuild --platform ios --clean && cd ios && pod install && xcodebuild -workspace mobile.xcworkspace -scheme mobile -configuration Debug -sdk iphonesimulator -derivedDataPath build -destination "platform=iOS Simulator,name=iPhone 14" CODE_SIGNING_ALLOWED=NO | xcpretty --color --simple'
+      build: 'rm -rf ios && npx expo prebuild --platform ios --clean && cd ios && npx pod-install && xcodebuild -workspace mobile.xcworkspace -scheme mobile -configuration Debug -sdk iphonesimulator -derivedDataPath build -destination "platform=iOS Simulator,name=iPhone 14" CODE_SIGNING_ALLOWED=NO',
+      bundleId: 'com.anonymous.catalyft-mobile'
     },
     'ios.release': {
       type: 'ios.app',
       binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/mobile.app',
-      build: 'rm -rf ios && npx expo prebuild --platform ios --clean && cd ios && pod install && xcodebuild -workspace mobile.xcworkspace -scheme mobile -configuration Release -sdk iphonesimulator -derivedDataPath build -destination "platform=iOS Simulator,name=iPhone 14" CODE_SIGNING_ALLOWED=NO | xcpretty --color --simple'
+      build: 'rm -rf ios && npx expo prebuild --platform ios --clean && cd ios && npx pod-install && xcodebuild -workspace mobile.xcworkspace -scheme mobile -configuration Release -sdk iphonesimulator -derivedDataPath build -destination "platform=iOS Simulator,name=iPhone 14" CODE_SIGNING_ALLOWED=NO',
+      bundleId: 'com.anonymous.catalyft-mobile'
     },
 
     'android.debug': {
