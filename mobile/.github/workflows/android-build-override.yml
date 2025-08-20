@@ -1,0 +1,141 @@
+name: Android Build Override
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/android-build-override.yml'
+
+jobs:
+  android-build-minimal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          df -h
+
+      - name: Setup Android SDK
+        run: |
+          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
+          
+      - name: Install minimal dependencies
+        working-directory: mobile
+        run: |
+          # Use minimal package.json for CI
+          if [ -f package-ci.json ]; then
+            mv package.json package-full.json
+            cp package-ci.json package.json
+          fi
+          
+          # Install with minimal dependencies
+          npm ci --legacy-peer-deps --prefer-offline --no-audit --no-fund || \
+          npm install --legacy-peer-deps --prefer-offline --no-audit --no-fund
+          
+      - name: Apply CI optimizations
+        working-directory: mobile
+        run: |
+          # Use CI app.json if exists
+          if [ -f app-ci.json ]; then
+            mv app.json app-full.json
+            cp app-ci.json app.json
+          fi
+          
+          # Apply minimal gradle properties
+          cat > android/gradle.properties << 'EOF'
+          org.gradle.jvmargs=-Xmx1024m -XX:MaxMetaspaceSize=256m
+          org.gradle.parallel=false
+          org.gradle.daemon=false
+          org.gradle.workers.max=1
+          android.useAndroidX=true
+          android.enableJetifier=true
+          reactNativeArchitectures=x86_64
+          newArchEnabled=false
+          hermesEnabled=false
+          android.compileSdkVersion=34
+          android.targetSdkVersion=34
+          android.enableBuildCache=false
+          android.enableR8=false
+          android.enableProguardInReleaseBuilds=false
+          EOF
+
+      - name: Prebuild Android (minimal)
+        working-directory: mobile
+        run: |
+          # Clean previous builds
+          rm -rf android/app/build android/build android/.gradle
+          
+          # Prebuild with minimal config
+          CI=1 npx expo prebuild --platform android --clean --npm
+        env:
+          EXPO_NO_TELEMETRY: 1
+          NODE_OPTIONS: "--max-old-space-size=1024"
+
+      - name: Build Android APK (fast mode)
+        working-directory: mobile/android
+        run: |
+          chmod +x gradlew
+          
+          # Build with aggressive optimizations
+          ./gradlew :app:assembleRelease \
+            -x lint \
+            -x lintVitalRelease \
+            -x test \
+            -x testRelease \
+            -x checkReleaseDuplicateClasses \
+            --no-daemon \
+            --no-parallel \
+            --no-build-cache \
+            --max-workers=1 \
+            -PreactNativeArchitectures=x86_64 \
+            -PnewArchEnabled=false \
+            -PhermesEnabled=false \
+            -Dorg.gradle.jvmargs="-Xmx1024m" \
+            --stacktrace
+        env:
+          GRADLE_OPTS: "-Xmx1024m -XX:MaxMetaspaceSize=256m -XX:+HeapDumpOnOutOfMemoryError"
+          _JAVA_OPTIONS: "-Xmx1024m"
+          NODE_OPTIONS: "--max-old-space-size=1024"
+
+      - name: Check APK exists
+        working-directory: mobile
+        run: |
+          if [ -f android/app/build/outputs/apk/release/app-release.apk ]; then
+            echo "✅ APK built successfully!"
+            ls -lh android/app/build/outputs/apk/release/
+          else
+            echo "❌ APK not found!"
+            exit 1
+          fi
+
+      - name: Upload Android APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release-apk-minimal
+          path: mobile/android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 7
