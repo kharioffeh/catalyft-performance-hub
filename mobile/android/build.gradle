@@ -35,34 +35,3 @@ allprojects {
 
 apply plugin: "expo-root-project"
 apply plugin: "com.facebook.react.rootproject"
-
-/* ---- Persistent packaging fix for local dev ---- */
-subprojects {
-  afterEvaluate { project ->
-    if (project.hasProperty('android')) {
-      project.android {
-        packaging {
-          resources {
-            excludes += [
-              'META-INF/LICENSE','META-INF/LICENSE.md','META-INF/LICENSE.txt',
-              'META-INF/NOTICE','META-INF/NOTICE.md','META-INF/NOTICE.txt',
-              'META-INF/DEPENDENCIES','META-INF/AL2.0','META-INF/LGPL2.1'
-            ]
-          }
-        }
-        testOptions {
-          packaging {
-            resources {
-              excludes += [
-                'META-INF/LICENSE','META-INF/LICENSE.md','META-INF/LICENSE.txt',
-                'META-INF/NOTICE','META-INF/NOTICE.md','META-INF/NOTICE.txt',
-                'META-INF/DEPENDENCIES','META-INF/AL2.0','META-INF/LGPL2.1'
-              ]
-            }
-          }
-        }
-      }
-    }
-  }
-}
-/* ---- end persistent fix ---- */

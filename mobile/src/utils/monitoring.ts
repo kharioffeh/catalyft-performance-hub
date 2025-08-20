@@ -125,7 +125,7 @@ class MonitoringService {
     if (!this.initialized) return null;
 
     try {
-      return Sentry.startTransaction({ name, op });
+      return (Sentry as any).startTransaction({ name, op });
     } catch (error) {
       console.error('Failed to start transaction:', error);
       return null;

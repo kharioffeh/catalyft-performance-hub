@@ -1,4 +1,4 @@
-package com.anonymous.catalyftmobile
+package com.catalyft.mobile
 
 import android.os.Build
 import android.os.Bundle
