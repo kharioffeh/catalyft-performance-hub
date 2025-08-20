@@ -13,7 +13,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
+import { launchImageLibrary, ImagePickerResponse, PhotoQuality } from 'react-native-image-picker';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import {
   AuthInput,
@@ -109,7 +109,7 @@ const ProfileScreen: React.FC = () => {
       includeBase64: false,
       maxHeight: 512,
       maxWidth: 512,
-      quality: 0.8,
+      quality: 0.8 as PhotoQuality,
     };
 
     launchImageLibrary(options, async (response: ImagePickerResponse) => {
