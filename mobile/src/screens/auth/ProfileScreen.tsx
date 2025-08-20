@@ -112,7 +112,7 @@ const ProfileScreen: React.FC = () => {
       quality: 0.8 as PhotoQuality,
     };
 
-    launchImageLibrary(options, async (response: ImagePickerResponse) => {
+    launchImageLibrary(options as any, async (response: ImagePickerResponse) => {
       if (response.didCancel || response.errorMessage || !response.assets?.[0]) {
         return;
       }
