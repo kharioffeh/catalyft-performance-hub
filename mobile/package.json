@@ -46,7 +46,8 @@
     "build:android:production": "./scripts/build-production.sh --android",
     "build:ios:production": "./scripts/build-production.sh --ios",
     "prebuild:clean": "rm -rf android ios && npx expo prebuild --clean",
-    "export:production": "npx expo export --platform all --output-dir ./dist"
+    "export:production": "npx expo export --platform all --output-dir ./dist",
+    "export:ci": "./scripts/expo-export-ci.sh"
   },
   "dependencies": {
     "@expo/metro-runtime": "~5.0.4",
