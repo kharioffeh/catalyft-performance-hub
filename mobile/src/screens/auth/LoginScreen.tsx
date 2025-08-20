@@ -12,7 +12,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import ReactNativeBiometrics from 'react-native-biometrics';
+import ReactNativeBiometrics from '../../utils/biometrics';
 import {
   AuthHeader,
   AuthInput,

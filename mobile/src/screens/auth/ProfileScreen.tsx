@@ -13,8 +13,8 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { launchImageLibrary, ImagePickerResponse, PhotoQuality } from 'react-native-image-picker';
-import ReactNativeBiometrics from 'react-native-biometrics';
+import { launchImageLibrary, ImagePickerResponse, PhotoQuality } from '../../utils/imagePicker';
+import ReactNativeBiometrics from '../../utils/biometrics';
 import {
   AuthInput,
   AuthButton,
