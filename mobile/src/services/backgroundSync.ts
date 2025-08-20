@@ -4,7 +4,6 @@
 
 import { MMKV } from 'react-native-mmkv';
 import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
-import BackgroundFetch from 'react-native-background-fetch';
 import { AppState, AppStateStatus, Platform } from 'react-native';
 import { supabaseService } from './supabase';
 import { apiClient } from './api';
@@ -39,6 +38,7 @@ export class BackgroundSyncService {
   private syncInterval: NodeJS.Timeout | null = null;
   private appState: AppStateStatus = 'active';
   private netInfoUnsubscribe: (() => void) | null = null;
+  private backgroundSyncInterval: NodeJS.Timeout | null = null;
 
   constructor() {
     this.initialize();
@@ -52,11 +52,11 @@ export class BackgroundSyncService {
     // Set up app state listener
     this.setupAppStateListener();
 
-    // Configure background fetch
-    await this.configureBackgroundFetch();
-
     // Start sync interval
     this.startSyncInterval();
+
+    // Start background sync simulation
+    this.startBackgroundSync();
   }
 
   // Set up network connectivity listener
@@ -82,63 +82,25 @@ export class BackgroundSyncService {
         this.syncAll();
       }
       this.appState = nextAppState;
+
+      // Adjust sync interval based on app state
+      if (nextAppState === 'background') {
+        this.startBackgroundSync();
+      } else if (nextAppState === 'active') {
+        this.startSyncInterval();
+      }
     });
   }
 
-  // Configure background fetch for iOS/Android
-  private async configureBackgroundFetch() {
-    try {
-      await BackgroundFetch.configure(
-        {
-          minimumFetchInterval: 15, // 15 minutes
-          forceAlarmManager: false,
-          stopOnTerminate: false,
-          startOnBoot: true,
-          enableHeadless: true,
-          requiresBatteryNotLow: false,
-          requiresCharging: false,
-          requiresStorageNotLow: false,
-          requiresDeviceIdle: false,
-          requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY,
-        },
-        async (taskId: string) => {
-          console.log('[BackgroundFetch] Task:', taskId);
-          
-          // Perform sync
-          await this.syncAll();
-          
-          // Signal completion
-          BackgroundFetch.finish(taskId);
-        },
-        (taskId: string) => {
-          console.log('[BackgroundFetch] TIMEOUT:', taskId);
-          BackgroundFetch.finish(taskId);
-        }
-      );
-
-      // Check status
-      const status = await BackgroundFetch.status();
-      console.log('[BackgroundFetch] Status:', status);
-
-      // Schedule a task
-      if (Platform.OS === 'ios') {
-        await BackgroundFetch.scheduleTask({
-          taskId: 'com.catalyft.sync',
-          delay: 5 * 60 * 1000, // 5 minutes
-          periodic: true,
-          forceAlarmManager: true,
-        });
-      }
-    } catch (error) {
-      console.error('Failed to configure background fetch:', error);
-    }
-  }
-
-  // Start periodic sync interval
+  // Start periodic sync interval for foreground
   private startSyncInterval() {
-    // Clear existing interval
+    // Clear existing intervals
     if (this.syncInterval) {
       clearInterval(this.syncInterval);
+    }
+    if (this.backgroundSyncInterval) {
+      clearInterval(this.backgroundSyncInterval);
+      this.backgroundSyncInterval = null;
     }
 
     // Sync every 5 minutes when app is active
@@ -147,6 +109,27 @@ export class BackgroundSyncService {
         this.syncAll();
       }
     }, 5 * 60 * 1000);
+  }
+
+  // Simulate background sync with longer intervals
+  private startBackgroundSync() {
+    // Clear existing intervals
+    if (this.backgroundSyncInterval) {
+      clearInterval(this.backgroundSyncInterval);
+    }
+    if (this.syncInterval) {
+      clearInterval(this.syncInterval);
+      this.syncInterval = null;
+    }
+
+    // In background, sync less frequently (every 15 minutes)
+    // Note: This will only work while the app is in background, not terminated
+    this.backgroundSyncInterval = setInterval(() => {
+      if (this.isOnline) {
+        console.log('[Background Sync] Running sync task');
+        this.syncAll();
+      }
+    }, 15 * 60 * 1000);
   }
 
   // Add operation to offline queue
@@ -460,6 +443,9 @@ export class BackgroundSyncService {
   destroy() {
     if (this.syncInterval) {
       clearInterval(this.syncInterval);
+    }
+    if (this.backgroundSyncInterval) {
+      clearInterval(this.backgroundSyncInterval);
     }
     if (this.netInfoUnsubscribe) {
       this.netInfoUnsubscribe();
