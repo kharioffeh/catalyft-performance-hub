@@ -82,35 +82,6 @@ def enableProguardInReleaseBuilds = (findProperty('android.enableProguardInRelea
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
 android {
-    packaging {
-        resources {
-            excludes += [
-                'META-INF/LICENSE',
-                'META-INF/LICENSE.md',
-                'META-INF/LICENSE.txt',
-                'META-INF/LICENSE-APACHE',
-                'META-INF/LICENSE-APACHE.txt',
-                'META-INF/NOTICE',
-                'META-INF/NOTICE.md',
-                'META-INF/NOTICE.txt',
-                'META-INF/DEPENDENCIES',
-                'META-INF/AL2.0',
-                'META-INF/LGPL2.1',
-                'META-INF/versions/**',
-                'META-INF/MANIFEST.MF'
-            ]
-            pickFirsts += [
-                'META-INF/LICENSE',
-                'META-INF/LICENSE.md',
-                'META-INF/NOTICE',
-                'META-INF/NOTICE.md',
-                'lib/x86/libc++_shared.so',
-                'lib/x86_64/libc++_shared.so',
-                'lib/arm64-v8a/libc++_shared.so',
-                'lib/armeabi-v7a/libc++_shared.so'
-            ]
-        }
-    }
     ndkVersion rootProject.ext.ndkVersion
 
     buildToolsVersion rootProject.ext.buildToolsVersion
