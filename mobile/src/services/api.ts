@@ -78,7 +78,7 @@ export interface ApiRequestConfig extends AxiosRequestConfig {
 }
 
 export interface ApiResponse<T = any> extends AxiosResponse<T> {
-  config: ApiRequestConfig;
+  config: AxiosRequestConfig;
 }
 
 // Offline queue for syncing
@@ -135,7 +135,7 @@ class ApiClient {
   private setupInterceptors() {
     // Request interceptor
     this.client.interceptors.request.use(
-      async (config: ApiRequestConfig) => {
+      async (config: any) => {
         // Check network connectivity
         const netInfo = await NetInfo.fetch();
         if (!netInfo.isConnected && config.offlineQueue !== false) {
@@ -170,7 +170,7 @@ class ApiClient {
 
     // Response interceptor
     this.client.interceptors.response.use(
-      (response: ApiResponse) => {
+      (response: any) => {
         // Track response time
         const requestTime = parseInt(response.config.headers?.['X-Request-Time'] as string || '0');
         if (requestTime) {
@@ -248,7 +248,7 @@ class ApiClient {
         // Handle other errors
         const apiError = new ApiError(
           error.response.status,
-          error.response.data?.message || error.message,
+          (error.response.data as any)?.message || error.message,
           error.response.data
         );
 

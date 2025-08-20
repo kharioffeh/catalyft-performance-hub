@@ -62,7 +62,7 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, 
 
 // Type-safe database operations
 export class SupabaseService {
-  private client: SupabaseClient<Database>;
+  public client: SupabaseClient<Database>;
   private realtimeChannels: Map<string, RealtimeChannel> = new Map();
 
   constructor() {

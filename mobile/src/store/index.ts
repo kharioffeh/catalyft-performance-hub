@@ -101,9 +101,9 @@ export const useStore = create<StoreState>()(
           ...initialState,
           
           // Combine slices
-          ...createUserSlice(set, get, api),
-          ...createWorkoutSlice(set, get, api),
-          ...createNutritionSlice(set, get, api),
+          ...createUserSlice(set as any, get, api),
+          ...createWorkoutSlice(set as any, get, api),
+          ...createNutritionSlice(set as any, get, api),
           
           // Global actions
           setIsOnline: (isOnline) => set({ isOnline }),
@@ -167,8 +167,8 @@ export const useStore = create<StoreState>()(
       ),
       {
         name: 'catalyft-store',
-        storage: mmkvStorage,
-        partialize: (state) => ({
+        storage: mmkvStorage as any,
+        partialize: (state): any => ({
           // Persist only essential data
           currentUser: state.currentUser,
           isAuthenticated: state.isAuthenticated,

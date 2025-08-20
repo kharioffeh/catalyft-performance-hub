@@ -55,7 +55,7 @@ export const queryClient = new QueryClient({
     queries: {
       // Cache for 5 minutes by default
       staleTime: 5 * 60 * 1000,
-      cacheTime: 10 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
       
       // Retry logic
       retry: (failureCount, error) => {

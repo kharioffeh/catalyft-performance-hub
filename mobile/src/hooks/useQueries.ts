@@ -553,14 +553,15 @@ export const useInfiniteWorkoutsQuery = (userId: string, filters?: any) => {
   
   return useInfiniteQuery({
     queryKey: ['workouts', userId, 'infinite', filters],
-    queryFn: ({ pageParam = 0 }) => 
+    queryFn: ({ pageParam }) => 
       supabaseService.getWorkouts(userId, {
         ...filters,
         limit: pageSize,
-        offset: pageParam,
+        offset: pageParam as number,
       }),
+    initialPageParam: 0,
     getNextPageParam: (lastPage, pages) => {
-      if (lastPage.length < pageSize) return undefined;
+      if ((lastPage as any[]).length < pageSize) return undefined;
       return pages.length * pageSize;
     },
   });
@@ -571,17 +572,19 @@ export const useInfiniteNotificationsQuery = (userId: string) => {
   
   return useInfiniteQuery({
     queryKey: ['notifications', userId, 'infinite'],
-    queryFn: async ({ pageParam = 0 }) => {
+    queryFn: async ({ pageParam }) => {
+      const offset = pageParam as number;
       const { data } = await supabaseService.client
         .from('notifications')
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
-        .range(pageParam, pageParam + pageSize - 1);
+        .range(offset, offset + pageSize - 1);
       return data || [];
     },
+    initialPageParam: 0,
     getNextPageParam: (lastPage, pages) => {
-      if (lastPage.length < pageSize) return undefined;
+      if ((lastPage as any[]).length < pageSize) return undefined;
       return pages.length * pageSize;
     },
   });
