@@ -1,7 +1,7 @@
 {
   "name": "mobile",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "start": "expo start",
     "start:staging": "NODE_ENV=staging expo start",
@@ -64,6 +64,7 @@
     "axios": "^1.11.0",
     "date-fns": "^4.1.0",
     "expo": "~53.0.20",
+    "expo-build-properties": "^0.14.8",
     "expo-dev-client": "^5.2.4",
     "expo-secure-store": "^14.2.3",
     "expo-status-bar": "~2.2.3",
