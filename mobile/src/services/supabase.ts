@@ -501,7 +501,7 @@ export class SupabaseService {
     const channel = this.client
       .channel(`workouts:${userId}`)
       .on(
-        'postgres_changes',
+        ('postgres_changes' as any),
         {
           event: '*',
           schema: 'public',
@@ -523,7 +523,7 @@ export class SupabaseService {
     const channel = this.client
       .channel(`nutrition:${userId}`)
       .on(
-        'postgres_changes',
+        ('postgres_changes' as any),
         {
           event: '*',
           schema: 'public',
@@ -545,7 +545,7 @@ export class SupabaseService {
     const channel = this.client
       .channel(`notifications:${userId}`)
       .on(
-        'postgres_changes',
+        ('postgres_changes' as any),
         {
           event: 'INSERT',
           schema: 'public',
@@ -567,7 +567,7 @@ export class SupabaseService {
     const channel = this.client
       .channel(`challenge:${challengeId}`)
       .on(
-        'postgres_changes',
+        ('postgres_changes' as any),
         {
           event: '*',
           schema: 'public',

@@ -138,7 +138,7 @@ export class RealtimeService {
     const channel = supabase
       .channel(channelName)
       .on(
-        'postgres_changes',
+        ('postgres_changes' as any),
         {
           event: '*',
           schema: 'public',
@@ -150,7 +150,7 @@ export class RealtimeService {
         }
       )
       .on(
-        'postgres_changes',
+        ('postgres_changes' as any),
         {
           event: '*',
           schema: 'public',
@@ -178,7 +178,7 @@ export class RealtimeService {
     const channel = supabase
       .channel(channelName)
       .on(
-        'postgres_changes',
+        ('postgres_changes' as any),
         {
           event: '*',
           schema: 'public',
@@ -342,8 +342,8 @@ export class RealtimeService {
     if (eventType === 'INSERT' && newRecord) {
       // Add to notifications in store
       const store = useStore.getState();
-      store.setNotifications([newRecord as any, ...store.notifications]);
-      store.setUnreadNotificationCount(store.unreadNotificationCount + 1);
+      useStore.setState({ notifications: [newRecord as any, ...store.notifications] });
+      useStore.setState({ unreadNotificationCount: store.unreadNotificationCount + 1 });
 
       // Invalidate notifications query
       queryClient.invalidateQueries({ 
@@ -386,8 +386,8 @@ export class RealtimeService {
 
       // Add to store
       const store = useStore.getState();
-      store.setNotifications([notification as any, ...store.notifications]);
-      store.setUnreadNotificationCount(store.unreadNotificationCount + 1);
+      useStore.setState({ notifications: [notification as any, ...store.notifications] });
+      useStore.setState({ unreadNotificationCount: store.unreadNotificationCount + 1 });
     }
   }
 

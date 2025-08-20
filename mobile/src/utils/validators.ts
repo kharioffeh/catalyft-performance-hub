@@ -305,7 +305,7 @@ export function validateData<T>(schema: z.ZodSchema<T>, data: unknown): T {
 }
 
 // Helper function to safely validate data (returns result object)
-export function safeValidateData<T>(schema: z.ZodSchema<T>, data: unknown): z.SafeParseReturnType<unknown, T> {
+export function safeValidateData<T>(schema: z.ZodSchema<T>, data: unknown): ReturnType<typeof schema.safeParse> {
   return schema.safeParse(data);
 }
 

@@ -77,7 +77,7 @@ export interface ApiRequestConfig extends AxiosRequestConfig {
   offlineQueue?: boolean;
 }
 
-export interface ApiResponse<T = any> extends AxiosResponse<T> {
+export interface ApiResponse<T = any> {
   config: AxiosRequestConfig;
 }
 

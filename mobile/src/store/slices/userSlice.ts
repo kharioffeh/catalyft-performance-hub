@@ -180,7 +180,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
       // Validate updates
       const validation = safeValidateData(UserProfileUpdateSchema, updates);
       if (!validation.success) {
-        throw new Error(validation.error.errors[0].message);
+        throw new Error(validation.error.issues[0].message);
       }
 
       const updatedUser = await supabaseService.updateUser(currentUser.id, updates);
@@ -278,7 +278,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
     });
 
     // Update in background
-    get().updateStats({ total_workouts: updatedStats.totalWorkouts }).catch(console.error);
+    get().updateStats({ totalWorkouts: updatedStats.totalWorkouts }).catch(console.error);
   },
 
   updateStreak: (currentStreak) => {
@@ -300,8 +300,8 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
 
     // Update in background
     get().updateStats({
-      current_streak: currentStreak,
-      longest_streak: updatedStats.longestStreak,
+      currentStreak: currentStreak,
+      longestStreak: updatedStats.longestStreak,
     }).catch(console.error);
   },
 

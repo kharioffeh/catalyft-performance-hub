@@ -101,9 +101,9 @@ export const useStore = create<StoreState>()(
           ...initialState,
           
           // Combine slices
-          ...createUserSlice(set as any, get, api),
-          ...createWorkoutSlice(set as any, get, api),
-          ...createNutritionSlice(set as any, get, api),
+          ...createUserSlice(set as any, get, api as any),
+          ...createWorkoutSlice(set as any, get, api as any),
+          ...createNutritionSlice(set as any, get, api as any),
           
           // Global actions
           setIsOnline: (isOnline) => set({ isOnline }),

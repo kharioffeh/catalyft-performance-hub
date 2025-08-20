@@ -184,7 +184,7 @@ export const createNutritionSlice: StateCreator<NutritionSlice> = (set, get) => 
         // Validate entry data
         const validation = safeValidateData(CreateNutritionEntrySchema, entryData);
         if (!validation.success) {
-          throw new Error(validation.error.errors[0].message);
+          throw new Error(validation.error.issues[0].message);
         }
 
         const entry = await supabaseService.createNutritionEntry(entryData);
