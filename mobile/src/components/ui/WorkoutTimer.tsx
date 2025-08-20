@@ -20,6 +20,7 @@ import Animated, {
   withRepeat,
   withSequence,
   interpolate,
+  interpolateColor,
   Easing,
 } from 'react-native-reanimated';
 import HapticFeedback from 'react-native-haptic-feedback';
@@ -72,7 +73,7 @@ export const WorkoutTimer = forwardRef<WorkoutTimerRef, WorkoutTimerProps>(({
   const [time, setTime] = useState(initialTime);
   const [isRunning, setIsRunning] = useState(autoStart);
   const [currentIntervalIndex, setCurrentIntervalIndex] = useState(0);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   
   // Animation values
   const pulseAnimation = useSharedValue(1);
@@ -253,7 +254,7 @@ export const WorkoutTimer = forwardRef<WorkoutTimerRef, WorkoutTimerProps>(({
   
   const animatedBackgroundStyle = useAnimatedStyle(() => {
     if (mode === 'interval' || mode === 'tabata') {
-      const backgroundColor = interpolate(
+      const backgroundColor = interpolateColor(
         colorAnimation.value,
         [0, 1],
         [colors.workout, colors.rest]

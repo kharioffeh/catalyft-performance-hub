@@ -3,7 +3,7 @@
  * Visualize macronutrient distribution (protein, carbs, fat)
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -87,6 +87,34 @@ export const MacroChart: React.FC<MacroChartProps> = ({
     fat: colors.fat,
   };
   
+  // Calculate pie chart dimensions
+  const radius = size / 2;
+  const innerRadius = variant === 'donut' ? radius * 0.6 : 0;
+  const strokeWidth = radius - innerRadius;
+  const circumference = 2 * Math.PI * (radius - strokeWidth / 2);
+  
+  // Calculate stroke dash arrays
+  const proteinDash = (proteinPercentage / 100) * circumference;
+  const carbsDash = (carbsPercentage / 100) * circumference;
+  const fatDash = (fatPercentage / 100) * circumference;
+  
+  const proteinOffset = 0;
+  const carbsOffset = -proteinDash;
+  const fatOffset = -(proteinDash + carbsDash);
+  
+  // Animated props for circles - moved outside of renderPieChart
+  const animatedProteinProps = useAnimatedProps(() => ({
+    strokeDasharray: `${interpolate(animationProgress.value, [0, 1], [0, proteinDash])} ${circumference}`,
+  }));
+  
+  const animatedCarbsProps = useAnimatedProps(() => ({
+    strokeDasharray: `${interpolate(animationProgress.value, [0, 1], [0, carbsDash])} ${circumference}`,
+  }));
+  
+  const animatedFatProps = useAnimatedProps(() => ({
+    strokeDasharray: `${interpolate(animationProgress.value, [0, 1], [0, fatDash])} ${circumference}`,
+  }));
+  
   // Start animation on mount
   useEffect(() => {
     if (animated) {
@@ -103,33 +131,6 @@ export const MacroChart: React.FC<MacroChartProps> = ({
   
   // Render pie/donut chart
   const renderPieChart = () => {
-    const radius = size / 2;
-    const innerRadius = variant === 'donut' ? radius * 0.6 : 0;
-    const strokeWidth = radius - innerRadius;
-    const circumference = 2 * Math.PI * (radius - strokeWidth / 2);
-    
-    // Calculate stroke dash arrays
-    const proteinDash = (proteinPercentage / 100) * circumference;
-    const carbsDash = (carbsPercentage / 100) * circumference;
-    const fatDash = (fatPercentage / 100) * circumference;
-    
-    const proteinOffset = 0;
-    const carbsOffset = -proteinDash;
-    const fatOffset = -(proteinDash + carbsDash);
-    
-    // Animated props for circles
-    const animatedProteinProps = useAnimatedProps(() => ({
-      strokeDasharray: `${interpolate(animationProgress.value, [0, 1], [0, proteinDash])} ${circumference}`,
-    }));
-    
-    const animatedCarbsProps = useAnimatedProps(() => ({
-      strokeDasharray: `${interpolate(animationProgress.value, [0, 1], [0, carbsDash])} ${circumference}`,
-    }));
-    
-    const animatedFatProps = useAnimatedProps(() => ({
-      strokeDasharray: `${interpolate(animationProgress.value, [0, 1], [0, fatDash])} ${circumference}`,
-    }));
-    
     return (
       <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <Defs>

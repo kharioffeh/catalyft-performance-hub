@@ -130,7 +130,9 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   const baseStyle: ViewStyle = {
     backgroundColor: isDark ? colors.surfaceSecondary : colors.backgroundTertiary,
     overflow: 'hidden',
-    ...dimensions,
+    width: dimensions.width as any,
+    height: dimensions.height as any,
+    borderRadius: dimensions.borderRadius,
   };
   
   // Render single skeleton
