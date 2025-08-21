@@ -1,26 +1,33 @@
-import Config from 'react-native-config';
+// Handle react-native-config import gracefully
+let Config: any = {};
+try {
+  Config = require('react-native-config').default || {};
+} catch (error) {
+  // Fallback for when native modules aren't available (CI/testing)
+  Config = process.env || {};
+}
 
 // Supabase configuration
-export const SUPABASE_URL = Config.SUPABASE_URL || '';
-export const SUPABASE_ANON_KEY = Config.SUPABASE_ANON_KEY || '';
+export const SUPABASE_URL = Config.SUPABASE_URL || process.env.SUPABASE_URL || '';
+export const SUPABASE_ANON_KEY = Config.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
 
 // Ably configuration
-export const ABLY_API_KEY = Config.ABLY_API_KEY || '';
+export const ABLY_API_KEY = Config.ABLY_API_KEY || process.env.ABLY_API_KEY || '';
 
 // OpenAI configuration
-export const OPENAI_API_KEY = Config.OPENAI_API_KEY || '';
-export const OPENAI_ARIA_KEY = Config.OPENAI_ARIA_KEY || '';
+export const OPENAI_API_KEY = Config.OPENAI_API_KEY || process.env.OPENAI_API_KEY || '';
+export const OPENAI_ARIA_KEY = Config.OPENAI_ARIA_KEY || process.env.OPENAI_ARIA_KEY || '';
 
 // Nutritionix configuration
-export const NUTRITIONIX_APP_ID = Config.NUTRITIONIX_APP_ID || '';
-export const NUTRITIONIX_API_KEY = Config.NUTRITIONIX_API_KEY || '';
+export const NUTRITIONIX_APP_ID = Config.NUTRITIONIX_APP_ID || process.env.NUTRITIONIX_APP_ID || '';
+export const NUTRITIONIX_API_KEY = Config.NUTRITIONIX_API_KEY || process.env.NUTRITIONIX_API_KEY || '';
 
 // Google Fit configuration
-export const GOOGLE_FIT_CLIENT_ID = Config.GOOGLE_FIT_CLIENT_ID || '';
+export const GOOGLE_FIT_CLIENT_ID = Config.GOOGLE_FIT_CLIENT_ID || process.env.GOOGLE_FIT_CLIENT_ID || '';
 
 // Sentry configuration
-export const SENTRY_DSN = Config.SENTRY_DSN || '';
-export const NODE_ENV = Config.NODE_ENV || 'development';
+export const SENTRY_DSN = Config.SENTRY_DSN || process.env.SENTRY_DSN || '';
+export const NODE_ENV = Config.NODE_ENV || process.env.NODE_ENV || 'development';
 
 // Validation function to check if all required environment variables are set
 export const validateConfig = () => {

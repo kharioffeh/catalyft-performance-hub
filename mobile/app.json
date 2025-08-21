@@ -6,9 +6,9 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "scheme": "catalyft",
     "owner": "your-expo-username",
+    "jsEngine": "jsc",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -17,33 +17,29 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.catalyft.mobile",
-      "buildNumber": "1"
+      "buildNumber": "1",
+      "jsEngine": "jsc"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
       "package": "com.catalyft.mobile",
-      "versionCode": 1
+      "versionCode": 1,
+      "jsEngine": "jsc"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "./plugins/withAndroidPackagingOptions",
       [
         "expo-build-properties",
         {
           "android": {
             "compileSdkVersion": 35,
             "targetSdkVersion": 35,
-            "buildToolsVersion": "35.0.0",
-            "packagingOptions": {
-              "pickFirst": ["**/libc++_shared.so", "**/libjsc.so", "**/libhermes.so"],
-              "exclude": ["META-INF/DEPENDENCIES"]
-            }
+            "buildToolsVersion": "35.0.0"
           },
           "ios": {
             "deploymentTarget": "15.1"

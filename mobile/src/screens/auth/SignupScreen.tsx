@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
   passwordStrengthFill: {
     height: '100%',
     borderRadius: 2,
-      },
+  },
   passwordStrengthText: {
     fontSize: 12,
     marginTop: 4,

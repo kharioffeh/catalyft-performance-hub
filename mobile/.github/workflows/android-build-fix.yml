@@ -1,0 +1,94 @@
+name: Android Build Fix
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'mobile/**'
+
+jobs:
+  android-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            mobile/android/.gradle
+            mobile/android/build
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Install dependencies
+        working-directory: mobile
+        run: |
+          npm ci --legacy-peer-deps
+          
+      - name: Apply Android CI fixes
+        working-directory: mobile
+        run: |
+          chmod +x scripts/fix-android-ci.sh
+          ./scripts/fix-android-ci.sh
+        env:
+          CI: true
+
+      - name: Prebuild Android with optimizations
+        working-directory: mobile
+        run: |
+          # Use CI-optimized gradle properties
+          cp android/gradle-ci.properties android/gradle.properties
+          
+          # Prebuild with single architecture for CI
+          CI=1 npx expo prebuild --platform android --clean
+        env:
+          EXPO_NO_TELEMETRY: 1
+          CI: true
+
+      - name: Build Android APK (optimized)
+        working-directory: mobile/android
+        run: |
+          chmod +x gradlew
+          
+          # Build with optimized settings
+          ./gradlew :app:assembleRelease \
+            -x test \
+            -x lint \
+            -x bundleReleaseJsAndAssets \
+            --no-daemon \
+            --max-workers=2 \
+            --no-parallel \
+            --no-build-cache \
+            -PreactNativeArchitectures=x86_64
+        env:
+          EXPO_NO_TELEMETRY: 1
+          CI: true
+          _JAVA_OPTIONS: "-Xmx2g -XX:MaxMetaspaceSize=512m"
+
+      - name: Upload Android APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release-apk
+          path: mobile/android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 7

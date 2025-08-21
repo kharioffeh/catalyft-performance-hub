@@ -63,7 +63,7 @@ export const useAuth = () => {
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errors: Record<string, string> = {};
-        error.issues.forEach((err: any) => {
+        error.issues.forEach((err) => {
           if (err.path[0]) {
             errors[err.path[0].toString()] = err.message;
           }
@@ -82,7 +82,7 @@ export const useAuth = () => {
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errors: Record<string, string> = {};
-        error.issues.forEach((err: any) => {
+        error.issues.forEach((err) => {
           if (err.path[0]) {
             errors[err.path[0].toString()] = err.message;
           }
@@ -101,7 +101,7 @@ export const useAuth = () => {
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errors: Record<string, string> = {};
-        error.issues.forEach((err: any) => {
+        error.issues.forEach((err) => {
           if (err.path[0]) {
             errors[err.path[0].toString()] = err.message;
           }
@@ -120,7 +120,7 @@ export const useAuth = () => {
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errors: Record<string, string> = {};
-        error.issues.forEach((err: any) => {
+        error.issues.forEach((err) => {
           if (err.path[0]) {
             errors[err.path[0].toString()] = err.message;
           }
@@ -139,7 +139,7 @@ export const useAuth = () => {
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errors: Record<string, string> = {};
-        error.issues.forEach((err: any) => {
+        error.issues.forEach((err) => {
           if (err.path[0]) {
             errors[err.path[0].toString()] = err.message;
           }

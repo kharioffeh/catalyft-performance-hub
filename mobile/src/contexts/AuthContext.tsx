@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { Alert } from 'react-native';
 import { authService, User, Session, AuthError } from '../services/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import ReactNativeBiometrics from 'react-native-biometrics';
+import ReactNativeBiometrics from '../utils/biometrics';
 
 interface AuthContextType {
   user: User | null;
