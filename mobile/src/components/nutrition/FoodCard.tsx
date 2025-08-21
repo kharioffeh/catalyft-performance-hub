@@ -59,6 +59,18 @@ export const FoodCard: React.FC<FoodCardProps> = ({
     ? `${quantity} ${unit || food.servingUnit}`
     : `${food.servingSize} ${food.servingUnit}`;
 
+  const MacroItem: React.FC<{
+    label: string;
+    value: number;
+    color: string;
+  }> = ({ label, value, color }) => (
+    <View style={styles.macroItem}>
+      <View style={[styles.macroDot, { backgroundColor: color }]} />
+      <Text style={styles.macroLabel}>{label}</Text>
+      <Text style={styles.macroValue}>{value}g</Text>
+    </View>
+  );
+
   return (
     <TouchableOpacity
       style={styles.container}
@@ -161,18 +173,6 @@ export const FoodCard: React.FC<FoodCardProps> = ({
     </TouchableOpacity>
   );
 };
-
-const MacroItem: React.FC<{
-  label: string;
-  value: number;
-  color: string;
-}> = ({ label, value, color }) => (
-  <View style={styles.macroItem}>
-    <View style={[styles.macroDot, { backgroundColor: color }]} />
-    <Text style={styles.macroLabel}>{label}</Text>
-    <Text style={styles.macroValue}>{value}g</Text>
-  </View>
-);
 
 const createStyles = (colors: any, compact: boolean) =>
   StyleSheet.create({

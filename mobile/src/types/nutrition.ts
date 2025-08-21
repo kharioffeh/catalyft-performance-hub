@@ -339,6 +339,7 @@ export interface NutritionixNutrients {
   nix_brand_id?: string;
   nix_item_name?: string;
   nix_item_id?: string;
+  tag_id?: string;
   upc?: string;
   consumed_at?: string;
   metadata?: any;
@@ -424,35 +425,3 @@ export interface NutritionNotificationPreferences {
     time?: string;
   };
 }
-
-// Export all types
-export type {
-  MacroNutrients,
-  MicroNutrients,
-  Food,
-  FoodCategory,
-  MealType,
-  FoodLogEntry,
-  NutritionGoals,
-  GoalType,
-  ActivityLevel,
-  Recipe,
-  RecipeIngredient,
-  MealPlan,
-  MealPlanDay,
-  MealPlanItem,
-  ShoppingListItem,
-  WaterLog,
-  DailyNutritionSummary,
-  NutritionAnalytics,
-  TrendData,
-  NutritionixSearchResult,
-  NutritionixCommonFood,
-  NutritionixBrandedFood,
-  NutritionixNutrients,
-  BarcodeScanResult,
-  FoodSearchFilters,
-  MealSuggestion,
-  QuickAddPreset,
-  NutritionNotificationPreferences,
-};
