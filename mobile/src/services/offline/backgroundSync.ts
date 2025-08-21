@@ -1,9 +1,12 @@
-import BackgroundFetch from 'react-native-background-fetch';
+import * as BackgroundFetch from 'expo-background-fetch';
+import * as TaskManager from 'expo-task-manager';
 import { Platform } from 'react-native';
 import { syncEngine } from './syncEngine';
 import { networkMonitor } from './networkMonitor';
 import { offlineStorage } from './storage';
 import { syncQueue } from './syncQueue';
+
+const BACKGROUND_FETCH_TASK = 'catalyft-background-sync';
 
 export interface BackgroundSyncConfig {
   minimumFetchInterval: number; // minutes
@@ -29,6 +32,33 @@ export interface SyncSchedule {
   syncCount: number;
   failureCount: number;
 }
+
+// Define the background task
+TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
+  console.log('[BackgroundFetch] Task running');
+  
+  try {
+    // Check network status
+    if (!networkMonitor.isOnline()) {
+      return BackgroundFetch.BackgroundFetchResult.NoData;
+    }
+    
+    // Perform sync
+    const result = await syncEngine.sync({
+      direction: 'bidirectional',
+      batchSize: 50 // Limit batch size for background sync
+    });
+    
+    if (result.success) {
+      return BackgroundFetch.BackgroundFetchResult.NewData;
+    } else {
+      return BackgroundFetch.BackgroundFetchResult.Failed;
+    }
+  } catch (error) {
+    console.error('[BackgroundFetch] Error:', error);
+    return BackgroundFetch.BackgroundFetchResult.Failed;
+  }
+});
 
 export class BackgroundSyncService {
   private config: BackgroundSyncConfig;
@@ -92,101 +122,27 @@ export class BackgroundSyncService {
     this.config = { ...this.config, ...customConfig };
 
     try {
-      // Configure BackgroundFetch
-      const status = await BackgroundFetch.configure(
-        {
-          minimumFetchInterval: this.config.minimumFetchInterval,
-          enableHeadless: this.config.enableHeadless,
-          stopOnTerminate: this.config.stopOnTerminate,
-          startOnBoot: this.config.startOnBoot,
-          requiredNetworkType: this.mapNetworkType(this.config.requiredNetworkType),
-          requiresBatteryNotLow: this.config.requiresBatteryNotLow,
-          requiresCharging: this.config.requiresCharging,
-          requiresDeviceIdle: this.config.requiresDeviceIdle,
-          requiresStorageNotLow: this.config.requiresStorageNotLow,
-          // Android specific
-          ...(Platform.OS === 'android' && {
-            enableForegroundService: this.config.enableForegroundService,
-            forceAlarmManager: this.config.forceAlarmManager
-          })
-        },
-        async (taskId) => {
-          console.log('[BackgroundFetch] Task received:', taskId);
-          await this.onBackgroundFetch(taskId);
-        },
-        async (taskId) => {
-          console.log('[BackgroundFetch] Task timeout:', taskId);
-          BackgroundFetch.finish(taskId);
-        }
-      );
-
+      // Register the background fetch task
+      const status = await BackgroundFetch.getStatusAsync();
       console.log('[BackgroundFetch] Status:', status);
-
-      // Register headless task for Android
-      if (Platform.OS === 'android' && this.config.enableHeadless) {
-        BackgroundFetch.registerHeadlessTask(async (event) => {
-          console.log('[BackgroundFetch Headless] Task received:', event.taskId);
-          await this.onBackgroundFetch(event.taskId, true);
+      
+      if (status === BackgroundFetch.BackgroundFetchStatus.Available) {
+        await BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
+          minimumInterval: this.config.minimumFetchInterval * 60, // Convert to seconds
+          stopOnTerminate: this.config.stopOnTerminate,
+          startOnBoot: this.config.startOnBoot
         });
+        
+        console.log('[BackgroundFetch] Task registered successfully');
+        this.isConfigured = true;
+        this.notifyListeners('initialized', { status });
+      } else {
+        console.log('[BackgroundFetch] Background fetch is not available');
+        this.notifyListeners('unavailable', { status });
       }
-
-      // Schedule initial sync
-      await this.scheduleSync();
-
-      this.isConfigured = true;
-      this.notifyListeners('initialized', { status });
-
     } catch (error) {
       console.error('Failed to initialize background sync:', error);
       throw error;
-    }
-  }
-
-  // Handle background fetch event
-  private async onBackgroundFetch(taskId: string, isHeadless = false): Promise<void> {
-    console.log(`[BackgroundSync] Starting sync (${isHeadless ? 'headless' : 'normal'})...`);
-    
-    const startTime = Date.now();
-    let success = false;
-
-    try {
-      // Check if sync should proceed
-      if (!await this.shouldSync()) {
-        console.log('[BackgroundSync] Sync conditions not met, skipping...');
-        BackgroundFetch.finish(taskId);
-        return;
-      }
-
-      // Perform sync
-      const result = await this.performBackgroundSync();
-      success = result.success;
-
-      // Update schedule
-      this.schedule.lastSync = Date.now();
-      this.schedule.syncCount++;
-      
-      if (success) {
-        this.schedule.failureCount = 0;
-        console.log('[BackgroundSync] Sync completed successfully');
-      } else {
-        this.schedule.failureCount++;
-        console.log('[BackgroundSync] Sync failed');
-      }
-
-      await this.saveSchedule();
-      this.notifyListeners('syncComplete', result);
-
-    } catch (error) {
-      console.error('[BackgroundSync] Error during sync:', error);
-      this.schedule.failureCount++;
-      await this.saveSchedule();
-      this.notifyListeners('syncError', { error });
-    } finally {
-      const duration = Date.now() - startTime;
-      console.log(`[BackgroundSync] Finished in ${duration}ms`);
-      
-      // Must call finish to signal completion
-      BackgroundFetch.finish(taskId);
     }
   }
 
@@ -214,9 +170,6 @@ export class BackgroundSyncService {
     if (timeSinceLastSync < minInterval) {
       return false;
     }
-
-    // Check battery level (would need react-native-device-info in real app)
-    // For now, we'll assume battery is OK
 
     // Check storage space
     const storageStats = offlineStorage.getStats();
@@ -292,29 +245,6 @@ export class BackgroundSyncService {
     }
   }
 
-  // Schedule next sync
-  async scheduleSync(delayMinutes?: number): Promise<void> {
-    const delay = delayMinutes || this.schedule.interval;
-    this.schedule.nextSync = Date.now() + (delay * 60 * 1000);
-    await this.saveSchedule();
-
-    // On iOS, we can schedule a specific task
-    if (Platform.OS === 'ios') {
-      try {
-        await BackgroundFetch.scheduleTask({
-          taskId: 'com.catalyft.sync',
-          delay: delay * 60 * 1000, // Convert to milliseconds
-          periodic: false,
-          stopOnTerminate: false,
-          enableHeadless: true
-        });
-        console.log(`[BackgroundSync] Scheduled sync in ${delay} minutes`);
-      } catch (error) {
-        console.error('[BackgroundSync] Failed to schedule task:', error);
-      }
-    }
-  }
-
   // Manual sync trigger
   async triggerSync(): Promise<any> {
     console.log('[BackgroundSync] Manual sync triggered');
@@ -334,22 +264,12 @@ export class BackgroundSyncService {
     
     // Reconfigure if already initialized
     if (this.isConfigured) {
-      await BackgroundFetch.configure(
-        {
-          minimumFetchInterval: this.config.minimumFetchInterval,
-          requiredNetworkType: this.mapNetworkType(this.config.requiredNetworkType),
-          requiresBatteryNotLow: this.config.requiresBatteryNotLow,
-          requiresCharging: this.config.requiresCharging,
-          requiresDeviceIdle: this.config.requiresDeviceIdle,
-          requiresStorageNotLow: this.config.requiresStorageNotLow
-        },
-        async (taskId) => {
-          await this.onBackgroundFetch(taskId);
-        },
-        async (taskId) => {
-          BackgroundFetch.finish(taskId);
-        }
-      );
+      await BackgroundFetch.unregisterTaskAsync(BACKGROUND_FETCH_TASK);
+      await BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
+        minimumInterval: this.config.minimumFetchInterval * 60,
+        stopOnTerminate: this.config.stopOnTerminate,
+        startOnBoot: this.config.startOnBoot
+      });
     }
   }
 
@@ -358,8 +278,8 @@ export class BackgroundSyncService {
     this.schedule = { ...this.schedule, ...schedule };
     await this.saveSchedule();
     
-    if (schedule.interval !== undefined) {
-      await this.scheduleSync();
+    if (schedule.interval !== undefined && this.isConfigured) {
+      await this.updateConfig({ minimumFetchInterval: schedule.interval });
     }
     
     this.notifyListeners('scheduleUpdated', this.schedule);
@@ -375,8 +295,7 @@ export class BackgroundSyncService {
     return {
       config: { ...this.config },
       schedule: { ...this.schedule },
-      isConfigured: this.isConfigured,
-      backgroundFetchStatus: BackgroundFetch.status
+      isConfigured: this.isConfigured
     };
   }
 
@@ -385,11 +304,16 @@ export class BackgroundSyncService {
     this.schedule.enabled = enabled;
     await this.saveSchedule();
     
-    if (enabled) {
-      await BackgroundFetch.start();
-      await this.scheduleSync();
-    } else {
-      await BackgroundFetch.stop();
+    if (enabled && this.isConfigured) {
+      // Re-register task
+      await BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
+        minimumInterval: this.config.minimumFetchInterval * 60,
+        stopOnTerminate: this.config.stopOnTerminate,
+        startOnBoot: this.config.startOnBoot
+      });
+    } else if (!enabled && this.isConfigured) {
+      // Unregister task
+      await BackgroundFetch.unregisterTaskAsync(BACKGROUND_FETCH_TASK);
     }
     
     this.notifyListeners('enabledChanged', { enabled });
@@ -397,16 +321,16 @@ export class BackgroundSyncService {
 
   // Check background fetch status
   async checkStatus(): Promise<number> {
-    const status = await BackgroundFetch.status;
+    const status = await BackgroundFetch.getStatusAsync();
     
     switch (status) {
-      case BackgroundFetch.STATUS_RESTRICTED:
+      case BackgroundFetch.BackgroundFetchStatus.Restricted:
         console.log('[BackgroundSync] Status: Restricted');
         break;
-      case BackgroundFetch.STATUS_DENIED:
+      case BackgroundFetch.BackgroundFetchStatus.Denied:
         console.log('[BackgroundSync] Status: Denied');
         break;
-      case BackgroundFetch.STATUS_AVAILABLE:
+      case BackgroundFetch.BackgroundFetchStatus.Available:
         console.log('[BackgroundSync] Status: Available');
         break;
     }
@@ -432,19 +356,6 @@ export class BackgroundSyncService {
     this.syncListeners.forEach(listener => listener(event, data));
   }
 
-  // Helper to map network type
-  private mapNetworkType(type: string): number {
-    switch (type) {
-      case 'WiFi':
-        return BackgroundFetch.NETWORK_TYPE_UNMETERED;
-      case 'Cellular':
-        return BackgroundFetch.NETWORK_TYPE_CELLULAR;
-      case 'Any':
-      default:
-        return BackgroundFetch.NETWORK_TYPE_ANY;
-    }
-  }
-
   // Get sync history
   async getSyncHistory(): Promise<Array<{
     timestamp: number;
@@ -458,7 +369,9 @@ export class BackgroundSyncService {
 
   // Cleanup
   async cleanup(): Promise<void> {
-    await BackgroundFetch.stop();
+    if (this.isConfigured) {
+      await BackgroundFetch.unregisterTaskAsync(BACKGROUND_FETCH_TASK);
+    }
     this.syncListeners.clear();
     this.isConfigured = false;
   }
@@ -467,16 +380,8 @@ export class BackgroundSyncService {
 // Export singleton instance
 export const backgroundSync = new BackgroundSyncService();
 
-// iOS specific: Handle app refresh
+// iOS specific: Handle app refresh (not needed with Expo)
 export const handleAppRefresh = async (taskId: string): Promise<void> {
   console.log('[iOS App Refresh] Task received:', taskId);
-  
-  try {
-    const result = await backgroundSync.triggerSync();
-    console.log('[iOS App Refresh] Sync result:', result);
-  } catch (error) {
-    console.error('[iOS App Refresh] Error:', error);
-  } finally {
-    BackgroundFetch.finish(taskId);
-  }
+  // Expo handles this internally
 };
