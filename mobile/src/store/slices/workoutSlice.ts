@@ -1,593 +1,996 @@
-/**
- * Workout state slice for Zustand store
- */
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import workoutService from '../../services/workout';
+import {
+  Workout,
+  WorkoutExercise,
+  WorkoutSet,
+  Exercise,
+  WorkoutTemplate,
+  PersonalRecord,
+  TimerState,
+  WorkoutSettings,
+  ExerciseSearchFilters,
+  WorkoutStats,
+  WorkoutGoal,
+  RestTimer
+} from '../../types/workout';
+import { Alert } from 'react-native';
 
-import { StateCreator } from 'zustand';
-import { Workout, Exercise, WorkoutExercise, ExerciseSet } from '../../types/models';
-import { supabaseService } from '../../services/supabase';
-import { safeValidateData, CreateWorkoutSchema } from '../../utils/validators';
-
-export interface WorkoutSlice {
-  // State
-  workouts: Workout[];
-  exercises: Exercise[];
+interface WorkoutState {
+  // Current workout
   currentWorkout: Workout | null;
-  activeWorkout: Workout | null; // Currently in-progress workout
-  workoutTemplates: Workout[];
-  isLoading: boolean;
-  error: string | null;
+  workoutTimer: TimerState;
+  restTimer: RestTimer | null;
   
-  // Filters
-  workoutFilters: {
-    status?: string;
-    type?: string;
-    startDate?: Date;
-    endDate?: Date;
-  };
+  // Workout history
+  workoutHistory: Workout[];
+  workoutHistoryLoading: boolean;
   
-  // Actions
-  setWorkouts: (workouts: Workout[]) => void;
-  setExercises: (exercises: Exercise[]) => void;
-  setCurrentWorkout: (workout: Workout | null) => void;
-  setActiveWorkout: (workout: Workout | null) => void;
-  setIsLoading: (isLoading: boolean) => void;
-  setError: (error: string | null) => void;
-  setWorkoutFilters: (filters: any) => void;
+  // Exercise library
+  exercises: Exercise[];
+  exercisesLoading: boolean;
+  favoriteExercises: Exercise[];
+  recentExercises: Exercise[];
+  exerciseSearchFilters: ExerciseSearchFilters;
   
-  // Workout CRUD
-  loadWorkouts: (userId: string, filters?: any) => Promise<void>;
-  loadWorkout: (workoutId: string) => Promise<void>;
-  createWorkout: (workout: any) => Promise<Workout>;
-  updateWorkout: (workoutId: string, updates: any) => Promise<void>;
-  deleteWorkout: (workoutId: string) => Promise<void>;
-  duplicateWorkout: (workoutId: string) => Promise<Workout>;
+  // Templates
+  templates: WorkoutTemplate[];
+  templatesLoading: boolean;
   
-  // Template operations
-  loadTemplates: (userId: string) => Promise<void>;
-  saveAsTemplate: (workoutId: string, name: string) => Promise<void>;
-  createWorkoutFromTemplate: (templateId: string, scheduledDate?: Date) => Promise<Workout>;
+  // Personal records
+  personalRecords: PersonalRecord[];
+  newPersonalRecords: PersonalRecord[];
   
-  // Exercise operations
-  loadExercises: (filters?: any) => Promise<void>;
-  searchExercises: (query: string) => Promise<Exercise[]>;
-  createCustomExercise: (exercise: any) => Promise<Exercise>;
+  // Stats and goals
+  workoutStats: WorkoutStats | null;
+  workoutGoals: WorkoutGoal[];
   
-  // Workout session management
-  startWorkout: (workoutId: string) => Promise<void>;
+  // Settings
+  workoutSettings: WorkoutSettings;
+  
+  // Actions - Workout Management
+  startWorkout: (name?: string, templateId?: string) => Promise<void>;
   pauseWorkout: () => void;
   resumeWorkout: () => void;
-  completeWorkout: () => Promise<void>;
-  cancelWorkout: () => Promise<void>;
+  finishWorkout: () => Promise<void>;
+  cancelWorkout: () => void;
+  updateWorkoutNotes: (notes: string) => void;
   
-  // Set management during workout
-  updateSet: (exerciseId: string, setId: string, updates: Partial<ExerciseSet>) => void;
-  completeSet: (exerciseId: string, setId: string, actualData: any) => void;
-  addSet: (exerciseId: string, set: ExerciseSet) => void;
-  removeSet: (exerciseId: string, setId: string) => void;
+  // Actions - Exercise Management
+  addExerciseToWorkout: (exercise: Exercise) => Promise<void>;
+  removeExerciseFromWorkout: (exerciseId: string) => Promise<void>;
+  reorderExercises: (exerciseIds: string[]) => Promise<void>;
+  updateExerciseNotes: (exerciseId: string, notes: string) => Promise<void>;
   
-  // Exercise management during workout
-  addExerciseToWorkout: (exercise: WorkoutExercise) => void;
-  removeExerciseFromWorkout: (exerciseId: string) => void;
-  reorderExercises: (exercises: WorkoutExercise[]) => void;
-  updateExerciseNotes: (exerciseId: string, notes: string) => void;
+  // Actions - Set Management
+  addSet: (exerciseId: string) => Promise<void>;
+  updateSet: (exerciseId: string, setId: string, updates: Partial<WorkoutSet>) => Promise<void>;
+  deleteSet: (exerciseId: string, setId: string) => Promise<void>;
+  completeSet: (exerciseId: string, setId: string) => Promise<void>;
+  copyPreviousSet: (exerciseId: string, setId: string) => Promise<void>;
   
-  // Analytics
-  getWorkoutStats: (userId: string, period: 'week' | 'month' | 'year') => Promise<any>;
-  getExerciseHistory: (exerciseId: string, userId: string) => Promise<any>;
-  getPersonalRecords: (userId: string) => Promise<any>;
+  // Actions - Exercise Library
+  loadExercises: (filters?: ExerciseSearchFilters) => Promise<void>;
+  searchExercises: (query: string) => Promise<void>;
+  toggleFavoriteExercise: (exerciseId: string) => Promise<void>;
+  createCustomExercise: (exercise: Partial<Exercise>) => Promise<void>;
+  setExerciseFilters: (filters: ExerciseSearchFilters) => void;
+  
+  // Actions - Templates
+  loadTemplates: () => Promise<void>;
+  createTemplate: (template: Partial<WorkoutTemplate>) => Promise<void>;
+  startWorkoutFromTemplate: (templateId: string) => Promise<void>;
+  saveWorkoutAsTemplate: (workoutId: string, name: string, description?: string) => Promise<void>;
+  
+  // Actions - History
+  loadWorkoutHistory: (limit?: number) => Promise<void>;
+  loadWorkoutDetails: (workoutId: string) => Promise<void>;
+  deleteWorkout: (workoutId: string) => Promise<void>;
+  copyWorkout: (workoutId: string) => Promise<void>;
+  
+  // Actions - Timer
+  startRestTimer: (duration: number, exerciseName: string, setNumber: number) => void;
+  pauseRestTimer: () => void;
+  resumeRestTimer: () => void;
+  cancelRestTimer: () => void;
+  updateWorkoutTimer: () => void;
+  
+  // Actions - Stats and Goals
+  loadWorkoutStats: () => Promise<void>;
+  loadWorkoutGoals: () => Promise<void>;
+  createWorkoutGoal: (goal: Partial<WorkoutGoal>) => Promise<void>;
+  updateWorkoutGoal: (goalId: string, updates: Partial<WorkoutGoal>) => Promise<void>;
+  
+  // Actions - Settings
+  updateWorkoutSettings: (settings: Partial<WorkoutSettings>) => Promise<void>;
+  
+  // Actions - Personal Records
+  checkPersonalRecords: () => Promise<void>;
+  dismissNewPersonalRecords: () => void;
+  
+  // Helpers
+  getPreviousWorkoutData: (exerciseId: string) => Promise<WorkoutExercise | null>;
+  calculateWorkoutVolume: () => number;
+  calculateWorkoutDuration: () => number;
 }
 
-export const createWorkoutSlice: StateCreator<WorkoutSlice> = (set, get) => ({
-  // Initial state
-  workouts: [],
-  exercises: [],
-  currentWorkout: null,
-  activeWorkout: null,
-  workoutTemplates: [],
-  isLoading: false,
-  error: null,
-  workoutFilters: {},
+const defaultSettings: WorkoutSettings = {
+  weightUnit: 'kg',
+  distanceUnit: 'km',
+  defaultRestTime: 90,
+  autoStartTimer: true,
+  soundEnabled: true,
+  vibrateEnabled: true,
+  showPreviousWorkout: true,
+  plateCalculator: [20, 10, 5, 2.5, 1.25]
+};
 
-  // Basic setters
-  setWorkouts: (workouts) => set({ workouts }),
-  setExercises: (exercises) => set({ exercises }),
-  setCurrentWorkout: (workout) => set({ currentWorkout: workout }),
-  setActiveWorkout: (workout) => set({ activeWorkout: workout }),
-  setIsLoading: (isLoading) => set({ isLoading }),
-  setError: (error) => set({ error }),
-  setWorkoutFilters: (filters) => set({ workoutFilters: filters }),
+const defaultTimerState: TimerState = {
+  isRunning: false,
+  currentDuration: 0,
+  totalPausedDuration: 0,
+  restTimerActive: false
+};
 
-  // Workout CRUD
-  loadWorkouts: async (userId, filters) => {
-    set({ isLoading: true, error: null });
-    try {
-      const workouts = await supabaseService.getWorkouts(userId, filters || get().workoutFilters);
-      set({ workouts, isLoading: false });
-    } catch (error: any) {
-      set({ 
-        error: error.message || 'Failed to load workouts',
-        isLoading: false 
-      });
-    }
-  },
+export const useWorkoutStore = create<WorkoutState>()(
+  persist(
+    (set, get) => ({
+      // Initial state
+      currentWorkout: null,
+      workoutTimer: defaultTimerState,
+      restTimer: null,
+      workoutHistory: [],
+      workoutHistoryLoading: false,
+      exercises: [],
+      exercisesLoading: false,
+      favoriteExercises: [],
+      recentExercises: [],
+      exerciseSearchFilters: {},
+      templates: [],
+      templatesLoading: false,
+      personalRecords: [],
+      newPersonalRecords: [],
+      workoutStats: null,
+      workoutGoals: [],
+      workoutSettings: defaultSettings,
 
-  loadWorkout: async (workoutId) => {
-    set({ isLoading: true, error: null });
-    try {
-      const workout = await supabaseService.getWorkout(workoutId);
-      set({ 
-        currentWorkout: workout,
-        isLoading: false 
-      });
-    } catch (error: any) {
-      set({ 
-        error: error.message || 'Failed to load workout',
-        isLoading: false 
-      });
-    }
-  },
+      // Workout Management
+      startWorkout: async (name?: string, templateId?: string) => {
+        try {
+          const workout = await workoutService.createWorkout({
+            name: name || `Workout ${new Date().toLocaleDateString()}`,
+            startedAt: new Date()
+          });
 
-  createWorkout: async (workoutData) => {
-    set({ isLoading: true, error: null });
-    try {
-      // Validate workout data
-      const validation = safeValidateData(CreateWorkoutSchema, workoutData);
-      if (!validation.success) {
-        throw new Error(validation.error.issues[0].message);
-      }
+          if (!workout) throw new Error('Failed to create workout');
 
-      const workout = await supabaseService.createWorkout(workoutData);
-      
-      set(state => ({
-        workouts: [workout, ...state.workouts],
-        isLoading: false,
-      }));
-      
-      return workout;
-    } catch (error: any) {
-      set({ 
-        error: error.message || 'Failed to create workout',
-        isLoading: false 
-      });
-      throw error;
-    }
-  },
+          if (templateId) {
+            const fullWorkout = await workoutService.createWorkoutFromTemplate(templateId);
+            if (fullWorkout) {
+              set({ 
+                currentWorkout: fullWorkout,
+                workoutTimer: {
+                  ...defaultTimerState,
+                  isRunning: true,
+                  startTime: Date.now()
+                }
+              });
+              return;
+            }
+          }
 
-  updateWorkout: async (workoutId, updates) => {
-    set({ isLoading: true, error: null });
-    try {
-      const updatedWorkout = await supabaseService.updateWorkout(workoutId, updates);
-      
-      set(state => ({
-        workouts: state.workouts.map(w => w.id === workoutId ? updatedWorkout : w),
-        currentWorkout: state.currentWorkout?.id === workoutId ? updatedWorkout : state.currentWorkout,
-        activeWorkout: state.activeWorkout?.id === workoutId ? updatedWorkout : state.activeWorkout,
-        isLoading: false,
-      }));
-    } catch (error: any) {
-      set({ 
-        error: error.message || 'Failed to update workout',
-        isLoading: false 
-      });
-      throw error;
-    }
-  },
+          set({ 
+            currentWorkout: workout,
+            workoutTimer: {
+              ...defaultTimerState,
+              isRunning: true,
+              startTime: Date.now()
+            }
+          });
+        } catch (error) {
+          console.error('Error starting workout:', error);
+          Alert.alert('Error', 'Failed to start workout');
+        }
+      },
 
-  deleteWorkout: async (workoutId) => {
-    set({ isLoading: true, error: null });
-    try {
-      await supabaseService.deleteWorkout(workoutId);
-      
-      set(state => ({
-        workouts: state.workouts.filter(w => w.id !== workoutId),
-        currentWorkout: state.currentWorkout?.id === workoutId ? null : state.currentWorkout,
-        isLoading: false,
-      }));
-    } catch (error: any) {
-      set({ 
-        error: error.message || 'Failed to delete workout',
-        isLoading: false 
-      });
-      throw error;
-    }
-  },
+      pauseWorkout: () => {
+        const { workoutTimer } = get();
+        if (workoutTimer.isRunning && workoutTimer.startTime) {
+          const pausedDuration = Date.now() - workoutTimer.startTime;
+          set({
+            workoutTimer: {
+              ...workoutTimer,
+              isRunning: false,
+              pausedTime: Date.now(),
+              currentDuration: workoutTimer.currentDuration + pausedDuration
+            }
+          });
+        }
+      },
 
-  duplicateWorkout: async (workoutId) => {
-    const workout = get().workouts.find(w => w.id === workoutId);
-    if (!workout) throw new Error('Workout not found');
+      resumeWorkout: () => {
+        const { workoutTimer } = get();
+        if (!workoutTimer.isRunning) {
+          const pauseDuration = workoutTimer.pausedTime 
+            ? Date.now() - workoutTimer.pausedTime 
+            : 0;
+          set({
+            workoutTimer: {
+              ...workoutTimer,
+              isRunning: true,
+              startTime: Date.now(),
+              totalPausedDuration: workoutTimer.totalPausedDuration + pauseDuration,
+              pausedTime: undefined
+            }
+          });
+        }
+      },
 
-    const duplicatedWorkout = {
-      ...workout,
-      id: undefined,
-      name: `${workout.name} (Copy)`,
-      scheduledDate: undefined,
-      completedDate: undefined,
-      status: 'scheduled',
-      createdAt: undefined,
-      updatedAt: undefined,
-    };
+      finishWorkout: async () => {
+        try {
+          const { currentWorkout, workoutTimer, checkPersonalRecords } = get();
+          if (!currentWorkout) return;
 
-    return get().createWorkout(duplicatedWorkout);
-  },
+          // Calculate final duration
+          let finalDuration = workoutTimer.currentDuration;
+          if (workoutTimer.isRunning && workoutTimer.startTime) {
+            finalDuration += Date.now() - workoutTimer.startTime;
+          }
 
-  // Template operations
-  loadTemplates: async (userId) => {
-    try {
-      const templates = await supabaseService.getWorkouts(userId);
-      // Filter templates locally
-      const filteredTemplates = templates.filter(w => w.isTemplate);
-      set({ workoutTemplates: filteredTemplates });
-    } catch (error: any) {
-      set({ error: error.message || 'Failed to load templates' });
-    }
-  },
+          const completedWorkout = await workoutService.completeWorkout(currentWorkout.id);
+          
+          if (completedWorkout) {
+            // Check for personal records
+            await checkPersonalRecords();
+            
+            // Update history
+            const history = get().workoutHistory;
+            set({
+              currentWorkout: null,
+              workoutTimer: defaultTimerState,
+              workoutHistory: [completedWorkout, ...history],
+              restTimer: null
+            });
 
-  saveAsTemplate: async (workoutId, name) => {
-    const workout = get().workouts.find(w => w.id === workoutId);
-    if (!workout) throw new Error('Workout not found');
+            Alert.alert(
+              'Workout Complete! 💪',
+              `Great job! You completed ${completedWorkout.exercises.length} exercises in ${Math.floor(finalDuration / 60000)} minutes.`,
+              [{ text: 'OK' }]
+            );
+          }
+        } catch (error) {
+          console.error('Error finishing workout:', error);
+          Alert.alert('Error', 'Failed to complete workout');
+        }
+      },
 
-    const template = {
-      ...workout,
-      id: undefined,
-      name,
-      isTemplate: true,
-      templateId: undefined,
-      scheduledDate: undefined,
-      completedDate: undefined,
-      status: 'scheduled',
-    };
+      cancelWorkout: () => {
+        Alert.alert(
+          'Cancel Workout',
+          'Are you sure you want to cancel this workout? All progress will be lost.',
+          [
+            { text: 'No', style: 'cancel' },
+            {
+              text: 'Yes',
+              style: 'destructive',
+              onPress: async () => {
+                const { currentWorkout } = get();
+                if (currentWorkout) {
+                  await workoutService.deleteWorkout(currentWorkout.id);
+                }
+                set({
+                  currentWorkout: null,
+                  workoutTimer: defaultTimerState,
+                  restTimer: null
+                });
+              }
+            }
+          ]
+        );
+      },
 
-    await get().createWorkout(template);
-    await get().loadTemplates(workout.userId);
-  },
+      updateWorkoutNotes: (notes: string) => {
+        const { currentWorkout } = get();
+        if (currentWorkout) {
+          set({
+            currentWorkout: {
+              ...currentWorkout,
+              notes
+            }
+          });
+          workoutService.updateWorkout(currentWorkout.id, { notes });
+        }
+      },
 
-  createWorkoutFromTemplate: async (templateId, scheduledDate) => {
-    const template = get().workoutTemplates.find(t => t.id === templateId);
-    if (!template) throw new Error('Template not found');
+      // Exercise Management
+      addExerciseToWorkout: async (exercise: Exercise) => {
+        try {
+          const { currentWorkout } = get();
+          if (!currentWorkout) return;
 
-    const workout = {
-      ...template,
-      id: undefined,
-      isTemplate: false,
-      templateId,
-      scheduledDate,
-      status: 'scheduled',
-      createdAt: undefined,
-      updatedAt: undefined,
-    };
+          const workoutExercise = await workoutService.addExerciseToWorkout(
+            currentWorkout.id,
+            { exercise }
+          );
 
-    return get().createWorkout(workout);
-  },
+          if (workoutExercise) {
+            // Add default sets
+            const sets: WorkoutSet[] = [];
+            for (let i = 0; i < 3; i++) {
+              const newSet = await workoutService.addSet(workoutExercise.id, {
+                setNumber: i + 1,
+                completed: false
+              });
+              if (newSet) sets.push(newSet);
+            }
 
-  // Exercise operations
-  loadExercises: async (filters) => {
-    set({ isLoading: true, error: null });
-    try {
-      const exercises = await supabaseService.getExercises(filters);
-      set({ exercises, isLoading: false });
-    } catch (error: any) {
-      set({ 
-        error: error.message || 'Failed to load exercises',
-        isLoading: false 
-      });
-    }
-  },
+            workoutExercise.sets = sets;
 
-  searchExercises: async (query) => {
-    try {
-      const exercises = await supabaseService.getExercises({ search: query });
-      return exercises;
-    } catch (error: any) {
-      set({ error: error.message || 'Failed to search exercises' });
-      return [];
-    }
-  },
+            // Get previous workout data for reference
+            const previousData = await get().getPreviousWorkoutData(exercise.id);
+            if (previousData) {
+              workoutExercise.previousSets = previousData.sets;
+            }
 
-  createCustomExercise: async (exerciseData) => {
-    try {
-      const exercise = await supabaseService.createExercise({
-        ...exerciseData,
-        is_custom: true,
-      });
-      
-      set(state => ({
-        exercises: [...state.exercises, exercise],
-      }));
-      
-      return exercise;
-    } catch (error: any) {
-      set({ error: error.message || 'Failed to create custom exercise' });
-      throw error;
-    }
-  },
+            set({
+              currentWorkout: {
+                ...currentWorkout,
+                exercises: [...currentWorkout.exercises, workoutExercise]
+              }
+            });
 
-  // Workout session management
-  startWorkout: async (workoutId) => {
-    const workout = get().workouts.find(w => w.id === workoutId);
-    if (!workout) throw new Error('Workout not found');
+            // Add to recent exercises
+            const recentExercises = get().recentExercises.filter(e => e.id !== exercise.id);
+            set({
+              recentExercises: [exercise, ...recentExercises].slice(0, 10)
+            });
+          }
+        } catch (error) {
+          console.error('Error adding exercise:', error);
+          Alert.alert('Error', 'Failed to add exercise');
+        }
+      },
 
-    set({ 
-      activeWorkout: { ...workout, status: 'in_progress' },
-      error: null,
-    });
+      removeExerciseFromWorkout: async (exerciseId: string) => {
+        try {
+          const { currentWorkout } = get();
+          if (!currentWorkout) return;
 
-    // Update status in database
-    try {
-      await supabaseService.updateWorkout(workoutId, { 
-        status: 'in_progress',
-      });
-    } catch (error: any) {
-      set({ error: error.message || 'Failed to start workout' });
-    }
-  },
+          const exercise = currentWorkout.exercises.find(e => e.id === exerciseId);
+          if (!exercise) return;
 
-  pauseWorkout: () => {
-    const { activeWorkout } = get();
-    if (!activeWorkout) return;
+          const success = await workoutService.removeExerciseFromWorkout(exerciseId);
+          if (success) {
+            set({
+              currentWorkout: {
+                ...currentWorkout,
+                exercises: currentWorkout.exercises.filter(e => e.id !== exerciseId)
+              }
+            });
+          }
+        } catch (error) {
+          console.error('Error removing exercise:', error);
+          Alert.alert('Error', 'Failed to remove exercise');
+        }
+      },
 
-    set({
-      activeWorkout: { ...activeWorkout, /* isPaused: true */ },
-    });
-  },
+      reorderExercises: async (exerciseIds: string[]) => {
+        try {
+          const { currentWorkout } = get();
+          if (!currentWorkout) return;
 
-  resumeWorkout: () => {
-    const { activeWorkout } = get();
-    if (!activeWorkout) return;
+          const success = await workoutService.reorderExercises(currentWorkout.id, exerciseIds);
+          if (success) {
+            const reorderedExercises = exerciseIds
+              .map(id => currentWorkout.exercises.find(e => e.id === id))
+              .filter(Boolean) as WorkoutExercise[];
 
-    set({
-      activeWorkout: { ...activeWorkout, /* isPaused: false */ },
-    });
-  },
+            set({
+              currentWorkout: {
+                ...currentWorkout,
+                exercises: reorderedExercises
+              }
+            });
+          }
+        } catch (error) {
+          console.error('Error reordering exercises:', error);
+        }
+      },
 
-  completeWorkout: async () => {
-    const { activeWorkout } = get();
-    if (!activeWorkout) throw new Error('No active workout');
+      updateExerciseNotes: async (exerciseId: string, notes: string) => {
+        const { currentWorkout } = get();
+        if (!currentWorkout) return;
 
-    const completedWorkout = {
-      ...activeWorkout,
-      status: 'completed' as const,
-      completedDate: new Date(),
-    };
+        const exerciseIndex = currentWorkout.exercises.findIndex(e => e.id === exerciseId);
+        if (exerciseIndex === -1) return;
 
-    try {
-      await supabaseService.updateWorkout(activeWorkout.id, {
-        status: 'completed',
-        completed_date: new Date().toISOString(),
-        exercises: completedWorkout.exercises as any,
-      });
-
-      set(state => ({
-        workouts: state.workouts.map(w => 
-          w.id === activeWorkout.id ? completedWorkout : w
-        ),
-        activeWorkout: null,
-      }));
-    } catch (error: any) {
-      set({ error: error.message || 'Failed to complete workout' });
-      throw error;
-    }
-  },
-
-  cancelWorkout: async () => {
-    const { activeWorkout } = get();
-    if (!activeWorkout) return;
-
-    try {
-      await supabaseService.updateWorkout(activeWorkout.id, {
-        status: 'scheduled',
-      });
-
-      set({ activeWorkout: null });
-    } catch (error: any) {
-      set({ error: error.message || 'Failed to cancel workout' });
-    }
-  },
-
-  // Set management during workout
-  updateSet: (exerciseId, setId, updates) => {
-    const { activeWorkout } = get();
-    if (!activeWorkout) return;
-
-    const updatedExercises = activeWorkout.exercises.map(exercise => {
-      if (exercise.id === exerciseId) {
-        return {
-          ...exercise,
-          sets: exercise.sets.map(set => 
-            set.id === setId ? { ...set, ...updates } : set
-          ),
+        const updatedExercises = [...currentWorkout.exercises];
+        updatedExercises[exerciseIndex] = {
+          ...updatedExercises[exerciseIndex],
+          notes
         };
+
+        set({
+          currentWorkout: {
+            ...currentWorkout,
+            exercises: updatedExercises
+          }
+        });
+      },
+
+      // Set Management
+      addSet: async (exerciseId: string) => {
+        try {
+          const { currentWorkout } = get();
+          if (!currentWorkout) return;
+
+          const exerciseIndex = currentWorkout.exercises.findIndex(e => e.id === exerciseId);
+          if (exerciseIndex === -1) return;
+
+          const exercise = currentWorkout.exercises[exerciseIndex];
+          const newSet = await workoutService.addSet(exerciseId, {
+            setNumber: exercise.sets.length + 1,
+            completed: false
+          });
+
+          if (newSet) {
+            const updatedExercises = [...currentWorkout.exercises];
+            updatedExercises[exerciseIndex] = {
+              ...exercise,
+              sets: [...exercise.sets, newSet]
+            };
+
+            set({
+              currentWorkout: {
+                ...currentWorkout,
+                exercises: updatedExercises
+              }
+            });
+          }
+        } catch (error) {
+          console.error('Error adding set:', error);
+          Alert.alert('Error', 'Failed to add set');
+        }
+      },
+
+      updateSet: async (exerciseId: string, setId: string, updates: Partial<WorkoutSet>) => {
+        try {
+          const { currentWorkout } = get();
+          if (!currentWorkout) return;
+
+          const exerciseIndex = currentWorkout.exercises.findIndex(e => e.id === exerciseId);
+          if (exerciseIndex === -1) return;
+
+          const updatedSet = await workoutService.updateSet(setId, updates);
+          if (updatedSet) {
+            const exercise = currentWorkout.exercises[exerciseIndex];
+            const setIndex = exercise.sets.findIndex(s => s.id === setId);
+            
+            if (setIndex !== -1) {
+              const updatedSets = [...exercise.sets];
+              updatedSets[setIndex] = updatedSet;
+
+              const updatedExercises = [...currentWorkout.exercises];
+              updatedExercises[exerciseIndex] = {
+                ...exercise,
+                sets: updatedSets
+              };
+
+              set({
+                currentWorkout: {
+                  ...currentWorkout,
+                  exercises: updatedExercises
+                }
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error updating set:', error);
+        }
+      },
+
+      deleteSet: async (exerciseId: string, setId: string) => {
+        try {
+          const { currentWorkout } = get();
+          if (!currentWorkout) return;
+
+          const exerciseIndex = currentWorkout.exercises.findIndex(e => e.id === exerciseId);
+          if (exerciseIndex === -1) return;
+
+          const success = await workoutService.deleteSet(setId);
+          if (success) {
+            const exercise = currentWorkout.exercises[exerciseIndex];
+            const updatedSets = exercise.sets.filter(s => s.id !== setId);
+
+            const updatedExercises = [...currentWorkout.exercises];
+            updatedExercises[exerciseIndex] = {
+              ...exercise,
+              sets: updatedSets
+            };
+
+            set({
+              currentWorkout: {
+                ...currentWorkout,
+                exercises: updatedExercises
+              }
+            });
+          }
+        } catch (error) {
+          console.error('Error deleting set:', error);
+          Alert.alert('Error', 'Failed to delete set');
+        }
+      },
+
+      completeSet: async (exerciseId: string, setId: string) => {
+        const { updateSet, workoutSettings, startRestTimer } = get();
+        await updateSet(exerciseId, setId, { completed: true });
+
+        // Auto-start rest timer if enabled
+        if (workoutSettings.autoStartTimer) {
+          const { currentWorkout } = get();
+          if (currentWorkout) {
+            const exercise = currentWorkout.exercises.find(e => e.id === exerciseId);
+            const set = exercise?.sets.find(s => s.id === setId);
+            if (exercise && set) {
+              startRestTimer(
+                set.restSeconds || workoutSettings.defaultRestTime,
+                exercise.exercise.name,
+                set.setNumber
+              );
+            }
+          }
+        }
+      },
+
+      copyPreviousSet: async (exerciseId: string, setId: string) => {
+        const { currentWorkout, updateSet } = get();
+        if (!currentWorkout) return;
+
+        const exercise = currentWorkout.exercises.find(e => e.id === exerciseId);
+        if (!exercise) return;
+
+        const currentSetIndex = exercise.sets.findIndex(s => s.id === setId);
+        if (currentSetIndex <= 0) return;
+
+        const previousSet = exercise.sets[currentSetIndex - 1];
+        await updateSet(exerciseId, setId, {
+          weight: previousSet.weight,
+          reps: previousSet.reps,
+          restSeconds: previousSet.restSeconds
+        });
+      },
+
+      // Exercise Library
+      loadExercises: async (filters?: ExerciseSearchFilters) => {
+        set({ exercisesLoading: true });
+        try {
+          const exercises = await workoutService.getExercises(filters);
+          const favorites = await workoutService.getFavoriteExercises();
+          
+          set({ 
+            exercises,
+            favoriteExercises: favorites,
+            exercisesLoading: false 
+          });
+        } catch (error) {
+          console.error('Error loading exercises:', error);
+          set({ exercisesLoading: false });
+        }
+      },
+
+      searchExercises: async (query: string) => {
+        const filters = { ...get().exerciseSearchFilters, query };
+        await get().loadExercises(filters);
+      },
+
+      toggleFavoriteExercise: async (exerciseId: string) => {
+        try {
+          const isFavorite = await workoutService.toggleFavoriteExercise(exerciseId);
+          const { favoriteExercises, exercises } = get();
+          
+          if (isFavorite) {
+            const exercise = exercises.find(e => e.id === exerciseId);
+            if (exercise) {
+              set({ favoriteExercises: [...favoriteExercises, exercise] });
+            }
+          } else {
+            set({ 
+              favoriteExercises: favoriteExercises.filter(e => e.id !== exerciseId) 
+            });
+          }
+        } catch (error) {
+          console.error('Error toggling favorite:', error);
+        }
+      },
+
+      createCustomExercise: async (exercise: Partial<Exercise>) => {
+        try {
+          const newExercise = await workoutService.createCustomExercise(exercise);
+          if (newExercise) {
+            const { exercises } = get();
+            set({ exercises: [newExercise, ...exercises] });
+            Alert.alert('Success', 'Custom exercise created successfully');
+          }
+        } catch (error) {
+          console.error('Error creating custom exercise:', error);
+          Alert.alert('Error', 'Failed to create custom exercise');
+        }
+      },
+
+      setExerciseFilters: (filters: ExerciseSearchFilters) => {
+        set({ exerciseSearchFilters: filters });
+        get().loadExercises(filters);
+      },
+
+      // Templates
+      loadTemplates: async () => {
+        set({ templatesLoading: true });
+        try {
+          const user = await workoutService['getCurrentUser']();
+          if (!user) return;
+          
+          const templates = await workoutService.getTemplates(user.id);
+          set({ templates, templatesLoading: false });
+        } catch (error) {
+          console.error('Error loading templates:', error);
+          set({ templatesLoading: false });
+        }
+      },
+
+      createTemplate: async (template: Partial<WorkoutTemplate>) => {
+        try {
+          const newTemplate = await workoutService.createTemplate(template);
+          if (newTemplate) {
+            const { templates } = get();
+            set({ templates: [newTemplate, ...templates] });
+            Alert.alert('Success', 'Template created successfully');
+          }
+        } catch (error) {
+          console.error('Error creating template:', error);
+          Alert.alert('Error', 'Failed to create template');
+        }
+      },
+
+      startWorkoutFromTemplate: async (templateId: string) => {
+        try {
+          const workout = await workoutService.createWorkoutFromTemplate(templateId);
+          if (workout) {
+            set({ 
+              currentWorkout: workout,
+              workoutTimer: {
+                ...defaultTimerState,
+                isRunning: true,
+                startTime: Date.now()
+              }
+            });
+          }
+        } catch (error) {
+          console.error('Error starting workout from template:', error);
+          Alert.alert('Error', 'Failed to start workout from template');
+        }
+      },
+
+      saveWorkoutAsTemplate: async (workoutId: string, name: string, description?: string) => {
+        try {
+          const workout = await workoutService.getWorkoutById(workoutId);
+          if (!workout) return;
+
+          const templateExercises = workout.exercises.map(e => ({
+            exerciseId: e.exercise.id,
+            sets: e.sets.length,
+            reps: e.sets[0]?.reps || 10,
+            weight: e.sets[0]?.weight,
+            restSeconds: e.sets[0]?.restSeconds,
+            notes: e.notes
+          }));
+
+          const template = await workoutService.createTemplate({
+            name,
+            description,
+            exercises: templateExercises
+          });
+
+          if (template) {
+            const { templates } = get();
+            set({ templates: [template, ...templates] });
+            Alert.alert('Success', 'Workout saved as template');
+          }
+        } catch (error) {
+          console.error('Error saving workout as template:', error);
+          Alert.alert('Error', 'Failed to save workout as template');
+        }
+      },
+
+      // History
+      loadWorkoutHistory: async (limit: number = 50) => {
+        set({ workoutHistoryLoading: true });
+        try {
+          const user = await workoutService['getCurrentUser']();
+          if (!user) return;
+          
+          const workouts = await workoutService.getUserWorkouts(user.id, limit);
+          set({ workoutHistory: workouts, workoutHistoryLoading: false });
+        } catch (error) {
+          console.error('Error loading workout history:', error);
+          set({ workoutHistoryLoading: false });
+        }
+      },
+
+      loadWorkoutDetails: async (workoutId: string) => {
+        try {
+          const workout = await workoutService.getWorkoutById(workoutId);
+          if (workout) {
+            return workout;
+          }
+        } catch (error) {
+          console.error('Error loading workout details:', error);
+        }
+      },
+
+      deleteWorkout: async (workoutId: string) => {
+        try {
+          const success = await workoutService.deleteWorkout(workoutId);
+          if (success) {
+            const { workoutHistory } = get();
+            set({
+              workoutHistory: workoutHistory.filter(w => w.id !== workoutId)
+            });
+            Alert.alert('Success', 'Workout deleted');
+          }
+        } catch (error) {
+          console.error('Error deleting workout:', error);
+          Alert.alert('Error', 'Failed to delete workout');
+        }
+      },
+
+      copyWorkout: async (workoutId: string) => {
+        try {
+          const workout = await workoutService.getWorkoutById(workoutId);
+          if (!workout) return;
+
+          const newWorkout = await workoutService.createWorkout({
+            name: `${workout.name} (Copy)`,
+            startedAt: new Date()
+          });
+
+          if (!newWorkout) return;
+
+          // Copy exercises and sets
+          for (const exercise of workout.exercises) {
+            const newExercise = await workoutService.addExerciseToWorkout(
+              newWorkout.id,
+              {
+                exercise: exercise.exercise,
+                notes: exercise.notes
+              }
+            );
+
+            if (newExercise) {
+              for (const set of exercise.sets) {
+                await workoutService.addSet(newExercise.id, {
+                  weight: set.weight,
+                  reps: set.reps,
+                  restSeconds: set.restSeconds,
+                  completed: false
+                });
+              }
+            }
+          }
+
+          const copiedWorkout = await workoutService.getWorkoutById(newWorkout.id);
+          if (copiedWorkout) {
+            set({
+              currentWorkout: copiedWorkout,
+              workoutTimer: {
+                ...defaultTimerState,
+                isRunning: true,
+                startTime: Date.now()
+              }
+            });
+            Alert.alert('Success', 'Workout copied and started');
+          }
+        } catch (error) {
+          console.error('Error copying workout:', error);
+          Alert.alert('Error', 'Failed to copy workout');
+        }
+      },
+
+      // Timer
+      startRestTimer: (duration: number, exerciseName: string, setNumber: number) => {
+        const { workoutSettings } = get();
+        
+        set({
+          restTimer: {
+            duration,
+            exerciseId: '',
+            exerciseName,
+            setNumber,
+            onComplete: () => {
+              if (workoutSettings.soundEnabled) {
+                // Play sound
+              }
+              if (workoutSettings.vibrateEnabled) {
+                // Vibrate
+              }
+              Alert.alert('Rest Complete', `Time to start your next set of ${exerciseName}!`);
+              set({ restTimer: null });
+            }
+          },
+          workoutTimer: {
+            ...get().workoutTimer,
+            restTimerActive: true,
+            restTimeRemaining: duration
+          }
+        });
+      },
+
+      pauseRestTimer: () => {
+        // Implementation for pausing rest timer
+      },
+
+      resumeRestTimer: () => {
+        // Implementation for resuming rest timer
+      },
+
+      cancelRestTimer: () => {
+        set({ 
+          restTimer: null,
+          workoutTimer: {
+            ...get().workoutTimer,
+            restTimerActive: false,
+            restTimeRemaining: undefined
+          }
+        });
+      },
+
+      updateWorkoutTimer: () => {
+        const { workoutTimer } = get();
+        if (workoutTimer.isRunning && workoutTimer.startTime) {
+          const elapsed = Date.now() - workoutTimer.startTime;
+          set({
+            workoutTimer: {
+              ...workoutTimer,
+              currentDuration: workoutTimer.currentDuration + elapsed
+            }
+          });
+        }
+      },
+
+      // Stats and Goals
+      loadWorkoutStats: async () => {
+        try {
+          const user = await workoutService['getCurrentUser']();
+          if (!user) return;
+          
+          const stats = await workoutService.getWorkoutStats(user.id);
+          set({ workoutStats: stats });
+        } catch (error) {
+          console.error('Error loading workout stats:', error);
+        }
+      },
+
+      loadWorkoutGoals: async () => {
+        try {
+          const user = await workoutService['getCurrentUser']();
+          if (!user) return;
+          
+          const goals = await workoutService.getGoals(user.id);
+          set({ workoutGoals: goals });
+        } catch (error) {
+          console.error('Error loading workout goals:', error);
+        }
+      },
+
+      createWorkoutGoal: async (goal: Partial<WorkoutGoal>) => {
+        try {
+          const newGoal = await workoutService.createGoal(goal);
+          if (newGoal) {
+            const { workoutGoals } = get();
+            set({ workoutGoals: [newGoal, ...workoutGoals] });
+            Alert.alert('Success', 'Goal created successfully');
+          }
+        } catch (error) {
+          console.error('Error creating goal:', error);
+          Alert.alert('Error', 'Failed to create goal');
+        }
+      },
+
+      updateWorkoutGoal: async (goalId: string, updates: Partial<WorkoutGoal>) => {
+        // Implementation for updating goal
+      },
+
+      // Settings
+      updateWorkoutSettings: async (settings: Partial<WorkoutSettings>) => {
+        const newSettings = { ...get().workoutSettings, ...settings };
+        set({ workoutSettings: newSettings });
+        await AsyncStorage.setItem('workout_settings', JSON.stringify(newSettings));
+      },
+
+      // Personal Records
+      checkPersonalRecords: async () => {
+        try {
+          const { currentWorkout } = get();
+          if (!currentWorkout) return;
+
+          const newRecords = await workoutService.checkAndUpdatePersonalRecords(currentWorkout);
+          if (newRecords.length > 0) {
+            set({ newPersonalRecords: newRecords });
+            
+            // Show celebration
+            const recordText = newRecords.map(pr => 
+              `${pr.exerciseName}: ${pr.weight}${get().workoutSettings.weightUnit} x ${pr.reps}`
+            ).join('\n');
+            
+            Alert.alert(
+              '🎉 New Personal Records!',
+              recordText,
+              [{ text: 'Awesome!' }]
+            );
+          }
+        } catch (error) {
+          console.error('Error checking personal records:', error);
+        }
+      },
+
+      dismissNewPersonalRecords: () => {
+        set({ newPersonalRecords: [] });
+      },
+
+      // Helpers
+      getPreviousWorkoutData: async (exerciseId: string) => {
+        try {
+          const { workoutHistory } = get();
+          
+          for (const workout of workoutHistory) {
+            const exercise = workout.exercises.find(e => e.exercise.id === exerciseId);
+            if (exercise && exercise.sets.length > 0) {
+              return exercise;
+            }
+          }
+          
+          return null;
+        } catch (error) {
+          console.error('Error getting previous workout data:', error);
+          return null;
+        }
+      },
+
+      calculateWorkoutVolume: () => {
+        const { currentWorkout } = get();
+        if (!currentWorkout) return 0;
+
+        return currentWorkout.exercises.reduce((total, exercise) => {
+          const exerciseVolume = exercise.sets.reduce((setTotal, set) => {
+            if (set.completed && set.weight && set.reps) {
+              return setTotal + (set.weight * set.reps);
+            }
+            return setTotal;
+          }, 0);
+          return total + exerciseVolume;
+        }, 0);
+      },
+
+      calculateWorkoutDuration: () => {
+        const { workoutTimer } = get();
+        let duration = workoutTimer.currentDuration;
+        
+        if (workoutTimer.isRunning && workoutTimer.startTime) {
+          duration += Date.now() - workoutTimer.startTime;
+        }
+        
+        return Math.floor(duration / 1000); // Return in seconds
       }
-      return exercise;
-    });
-
-    set({
-      activeWorkout: {
-        ...activeWorkout,
-        exercises: updatedExercises,
-      },
-    });
-  },
-
-  completeSet: (exerciseId, setId, actualData) => {
-    get().updateSet(exerciseId, setId, {
-      isCompleted: true,
-      ...actualData,
-    });
-  },
-
-  addSet: (exerciseId, newSet) => {
-    const { activeWorkout } = get();
-    if (!activeWorkout) return;
-
-    const updatedExercises = activeWorkout.exercises.map(exercise => {
-      if (exercise.id === exerciseId) {
-        return {
-          ...exercise,
-          sets: [...exercise.sets, newSet],
-        };
-      }
-      return exercise;
-    });
-
-    set({
-      activeWorkout: {
-        ...activeWorkout,
-        exercises: updatedExercises,
-      },
-    });
-  },
-
-  removeSet: (exerciseId, setId) => {
-    const { activeWorkout } = get();
-    if (!activeWorkout) return;
-
-    const updatedExercises = activeWorkout.exercises.map(exercise => {
-      if (exercise.id === exerciseId) {
-        return {
-          ...exercise,
-          sets: exercise.sets.filter(set => set.id !== setId),
-        };
-      }
-      return exercise;
-    });
-
-    set({
-      activeWorkout: {
-        ...activeWorkout,
-        exercises: updatedExercises,
-      },
-    });
-  },
-
-  // Exercise management during workout
-  addExerciseToWorkout: (newExercise) => {
-    const { activeWorkout } = get();
-    if (!activeWorkout) return;
-
-    set({
-      activeWorkout: {
-        ...activeWorkout,
-        exercises: [...activeWorkout.exercises, newExercise],
-      },
-    });
-  },
-
-  removeExerciseFromWorkout: (exerciseId) => {
-    const { activeWorkout } = get();
-    if (!activeWorkout) return;
-
-    set({
-      activeWorkout: {
-        ...activeWorkout,
-        exercises: activeWorkout.exercises.filter(e => e.id !== exerciseId),
-      },
-    });
-  },
-
-  reorderExercises: (exercises) => {
-    const { activeWorkout } = get();
-    if (!activeWorkout) return;
-
-    set({
-      activeWorkout: {
-        ...activeWorkout,
-        exercises,
-      },
-    });
-  },
-
-  updateExerciseNotes: (exerciseId, notes) => {
-    const { activeWorkout } = get();
-    if (!activeWorkout) return;
-
-    const updatedExercises = activeWorkout.exercises.map(exercise => 
-      exercise.id === exerciseId ? { ...exercise, notes } : exercise
-    );
-
-    set({
-      activeWorkout: {
-        ...activeWorkout,
-        exercises: updatedExercises,
-      },
-    });
-  },
-
-  // Analytics
-  getWorkoutStats: async (userId, period) => {
-    try {
-      const endDate = new Date();
-      const startDate = new Date();
-      
-      switch (period) {
-        case 'week':
-          startDate.setDate(endDate.getDate() - 7);
-          break;
-        case 'month':
-          startDate.setMonth(endDate.getMonth() - 1);
-          break;
-        case 'year':
-          startDate.setFullYear(endDate.getFullYear() - 1);
-          break;
-      }
-
-      const workouts = await supabaseService.getWorkouts(userId, {
-        startDate,
-        endDate,
-        status: 'completed',
-      });
-
-      const stats = {
-        totalWorkouts: workouts.length,
-        totalDuration: workouts.reduce((sum, w) => sum + w.duration, 0),
-        totalCalories: workouts.reduce((sum, w) => sum + (w.totalCaloriesBurned || 0), 0),
-        workoutsByType: workouts.reduce((acc, w) => {
-          acc[w.type] = (acc[w.type] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>),
-        averageDuration: workouts.length > 0 
-          ? workouts.reduce((sum, w) => sum + w.duration, 0) / workouts.length 
-          : 0,
-      };
-
-      return stats;
-    } catch (error: any) {
-      set({ error: error.message || 'Failed to get workout stats' });
-      return null;
+    }),
+    {
+      name: 'workout-storage',
+      storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({
+        recentExercises: state.recentExercises,
+        workoutSettings: state.workoutSettings,
+        favoriteExercises: state.favoriteExercises
+      })
     }
-  },
-
-  getExerciseHistory: async (exerciseId, userId) => {
-    try {
-      const workouts = await supabaseService.getWorkouts(userId, {
-        status: 'completed',
-      });
-
-      const history = workouts
-        .filter(w => w.exercises.some(e => e.exerciseId === exerciseId))
-        .map(w => {
-          const exercise = w.exercises.find(e => e.exerciseId === exerciseId);
-          return {
-            date: w.completedDate,
-            sets: exercise?.sets || [],
-            notes: exercise?.notes,
-          };
-        })
-        .sort((a, b) => new Date(b.date!).getTime() - new Date(a.date!).getTime());
-
-      return history;
-    } catch (error: any) {
-      set({ error: error.message || 'Failed to get exercise history' });
-      return [];
-    }
-  },
-
-  getPersonalRecords: async (userId) => {
-    try {
-      const stats = await supabaseService.getUserStats(userId);
-      return stats?.personal_records || [];
-    } catch (error: any) {
-      set({ error: error.message || 'Failed to get personal records' });
-      return [];
-    }
-  },
-});
+  )
+);
