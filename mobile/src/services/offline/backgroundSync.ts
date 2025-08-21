@@ -389,6 +389,6 @@ export class BackgroundSyncService {
 export const backgroundSync = new BackgroundSyncService();
 
 // Placeholder for iOS app refresh (would be used in bare workflow)
-export const handleAppRefresh = async (taskId: string): Promise<void> {
+export const handleAppRefresh = async (taskId: string): Promise<void> => {
   console.log('[iOS App Refresh] Not available in managed workflow');
 };

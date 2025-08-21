@@ -310,7 +310,7 @@ export class SyncEngine {
 
       // Handle conflicts
       if (conflicts.length > 0) {
-        await this.handleConflicts(conflicts, config.conflictStrategy || options.conflictStrategy);
+        await this.handleConflicts(conflicts, config.conflictStrategy);
       }
 
       // Update last sync timestamp

@@ -35,7 +35,7 @@ export const ConflictResolutionScreen: React.FC<ConflictResolutionScreenProps> =
     
     // If specific conflict ID provided, select it
     if (route?.params?.conflictId) {
-      const conflict = syncEngine.getConflicts().find(c => c.id === route.params.conflictId);
+      const conflict = syncEngine.getConflicts().find(c => c.id === route.params?.conflictId);
       if (conflict) {
         setSelectedConflict(conflict);
       }
@@ -53,7 +53,7 @@ export const ConflictResolutionScreen: React.FC<ConflictResolutionScreenProps> =
     }
   };
 
-  const handleResolve = async (resolution: 'local' | 'remote' | 'merge') => {
+  const handleResolve = async (resolution: 'local' | 'remote' | 'merged') => {
     if (!selectedConflict) return;
 
     Alert.alert(
@@ -277,7 +277,7 @@ export const ConflictResolutionScreen: React.FC<ConflictResolutionScreenProps> =
           {canMerge(selectedConflict.entity) && (
             <TouchableOpacity
               style={[styles.actionButton, styles.mergeButton]}
-              onPress={() => handleResolve('merge')}
+              onPress={() => handleResolve('merged')}
               disabled={isResolving}
             >
               <Ionicons name="git-merge" size={20} color="#FFF" />
