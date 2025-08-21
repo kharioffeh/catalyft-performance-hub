@@ -22,7 +22,7 @@ import Animated, {
   interpolate,
   interpolateColor,
   Easing,
-} from 'react-native-reanimated';
+} from '../../utils/reanimated-mock';
 import HapticFeedback from 'react-native-haptic-feedback';
 import { theme } from '../../theme';
 import Button from './Button';

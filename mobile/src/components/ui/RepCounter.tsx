@@ -19,7 +19,7 @@ import Animated, {
   withTiming,
   withSequence,
   runOnJS,
-} from 'react-native-reanimated';
+} from '../../utils/reanimated-mock';
 import HapticFeedback from 'react-native-haptic-feedback';
 import { theme } from '../../theme';
 

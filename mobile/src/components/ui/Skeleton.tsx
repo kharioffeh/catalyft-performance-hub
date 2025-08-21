@@ -16,7 +16,7 @@ import Animated, {
   withRepeat,
   withTiming,
   interpolate,
-} from 'react-native-reanimated';
+} from '../../utils/reanimated-mock';
 import { theme } from '../../theme';
 
 export type SkeletonVariant = 'text' | 'title' | 'button' | 'avatar' | 'card' | 'image' | 'custom';

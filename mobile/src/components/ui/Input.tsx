@@ -23,7 +23,7 @@ import Animated, {
   withSpring,
   interpolate,
   interpolateColor,
-} from 'react-native-reanimated';
+} from '../../utils/reanimated-mock';
 import { theme } from '../../theme';
 
 const AnimatedView = Animated.createAnimatedComponent(View);

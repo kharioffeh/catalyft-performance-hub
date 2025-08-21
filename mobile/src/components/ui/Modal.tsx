@@ -24,7 +24,7 @@ import Animated, {
   runOnJS,
   interpolate,
   Extrapolate,
-} from 'react-native-reanimated';
+} from '../../utils/reanimated-mock';
 import {
   Gesture,
   GestureDetector,

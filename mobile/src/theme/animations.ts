@@ -3,7 +3,7 @@
  * Reusable animation configurations and utilities
  */
 
-import { Easing } from 'react-native-reanimated';
+import { Easing } from '../utils/reanimated-mock';
 
 // Animation durations (in milliseconds)
 export const duration = {

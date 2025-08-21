@@ -23,7 +23,7 @@ import Animated, {
   runOnJS,
   interpolate,
   Extrapolate,
-} from 'react-native-reanimated';
+} from '../../utils/reanimated-mock';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HapticFeedback from 'react-native-haptic-feedback';
 import { theme } from '../../theme';

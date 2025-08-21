@@ -20,7 +20,7 @@ import Animated, {
   withSpring,
   withTiming,
   interpolate,
-} from 'react-native-reanimated';
+} from '../../utils/reanimated-mock';
 import HapticFeedback from 'react-native-haptic-feedback';
 import { theme } from '../../theme';
 import Card from './Card';

@@ -18,7 +18,7 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
-} from 'react-native-reanimated';
+} from '../../utils/reanimated-mock';
 import { theme } from '../../theme';
 import Button from './Button';
 
