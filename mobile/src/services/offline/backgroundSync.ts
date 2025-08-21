@@ -1,12 +1,16 @@
-import * as BackgroundFetch from 'expo-background-fetch';
-import * as TaskManager from 'expo-task-manager';
-import { Platform } from 'react-native';
+/**
+ * Background Sync Service
+ * 
+ * Note: Background fetch is limited in Expo managed workflow.
+ * This implementation provides a timer-based sync when the app is in foreground,
+ * and prepares for background sync when ejecting to bare workflow.
+ */
+
+import { AppState, AppStateStatus, Platform } from 'react-native';
 import { syncEngine } from './syncEngine';
 import { networkMonitor } from './networkMonitor';
 import { offlineStorage } from './storage';
 import { syncQueue } from './syncQueue';
-
-const BACKGROUND_FETCH_TASK = 'catalyft-background-sync';
 
 export interface BackgroundSyncConfig {
   minimumFetchInterval: number; // minutes
@@ -33,38 +37,14 @@ export interface SyncSchedule {
   failureCount: number;
 }
 
-// Define the background task
-TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
-  console.log('[BackgroundFetch] Task running');
-  
-  try {
-    // Check network status
-    if (!networkMonitor.isOnline()) {
-      return BackgroundFetch.BackgroundFetchResult.NoData;
-    }
-    
-    // Perform sync
-    const result = await syncEngine.sync({
-      direction: 'bidirectional',
-      batchSize: 50 // Limit batch size for background sync
-    });
-    
-    if (result.success) {
-      return BackgroundFetch.BackgroundFetchResult.NewData;
-    } else {
-      return BackgroundFetch.BackgroundFetchResult.Failed;
-    }
-  } catch (error) {
-    console.error('[BackgroundFetch] Error:', error);
-    return BackgroundFetch.BackgroundFetchResult.Failed;
-  }
-});
-
 export class BackgroundSyncService {
   private config: BackgroundSyncConfig;
   private schedule: SyncSchedule;
   private isConfigured = false;
   private syncListeners: Set<(event: string, data?: any) => void> = new Set();
+  private syncInterval: NodeJS.Timeout | null = null;
+  private appStateSubscription: any = null;
+  private lastAppState: AppStateStatus = 'active';
 
   constructor() {
     this.config = this.getDefaultConfig();
@@ -112,7 +92,7 @@ export class BackgroundSyncService {
     await offlineStorage.set('background_sync_schedule', this.schedule);
   }
 
-  // Initialize background fetch
+  // Initialize background sync (timer-based for Expo managed workflow)
   async initialize(customConfig?: Partial<BackgroundSyncConfig>): Promise<void> {
     if (this.isConfigured) {
       console.log('Background sync already configured');
@@ -122,27 +102,72 @@ export class BackgroundSyncService {
     this.config = { ...this.config, ...customConfig };
 
     try {
-      // Register the background fetch task
-      const status = await BackgroundFetch.getStatusAsync();
-      console.log('[BackgroundFetch] Status:', status);
+      // Set up app state listener for foreground/background transitions
+      this.appStateSubscription = AppState.addEventListener('change', this.handleAppStateChange);
       
-      if (status === BackgroundFetch.BackgroundFetchStatus.Available) {
-        await BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
-          minimumInterval: this.config.minimumFetchInterval * 60, // Convert to seconds
-          stopOnTerminate: this.config.stopOnTerminate,
-          startOnBoot: this.config.startOnBoot
-        });
-        
-        console.log('[BackgroundFetch] Task registered successfully');
-        this.isConfigured = true;
-        this.notifyListeners('initialized', { status });
-      } else {
-        console.log('[BackgroundFetch] Background fetch is not available');
-        this.notifyListeners('unavailable', { status });
-      }
+      // Start periodic sync timer (only runs when app is active)
+      this.startPeriodicSync();
+      
+      console.log('[BackgroundSync] Initialized with timer-based sync');
+      this.isConfigured = true;
+      this.notifyListeners('initialized', { mode: 'timer' });
+      
+      // Note: For true background sync, you would need to:
+      // 1. Eject to bare workflow
+      // 2. Use react-native-background-fetch or react-native-background-task
+      // 3. Configure native code for iOS and Android
+      
     } catch (error) {
       console.error('Failed to initialize background sync:', error);
       throw error;
+    }
+  }
+
+  // Handle app state changes
+  private handleAppStateChange = async (nextAppState: AppStateStatus) => {
+    console.log(`[BackgroundSync] App state changed: ${this.lastAppState} -> ${nextAppState}`);
+    
+    if (this.lastAppState.match(/inactive|background/) && nextAppState === 'active') {
+      // App came to foreground
+      console.log('[BackgroundSync] App came to foreground, checking for sync...');
+      
+      // Check if we should sync
+      if (await this.shouldSync()) {
+        this.performBackgroundSync();
+      }
+    } else if (nextAppState.match(/inactive|background/) && this.lastAppState === 'active') {
+      // App went to background
+      console.log('[BackgroundSync] App went to background');
+      
+      // Stop the periodic sync timer
+      this.stopPeriodicSync();
+    }
+    
+    this.lastAppState = nextAppState;
+  };
+
+  // Start periodic sync timer
+  private startPeriodicSync(): void {
+    this.stopPeriodicSync(); // Clear any existing timer
+    
+    const intervalMs = this.config.minimumFetchInterval * 60 * 1000;
+    
+    this.syncInterval = setInterval(async () => {
+      if (AppState.currentState === 'active' && await this.shouldSync()) {
+        console.log('[BackgroundSync] Periodic sync triggered');
+        await this.performBackgroundSync();
+      }
+    }, intervalMs);
+    
+    console.log(`[BackgroundSync] Periodic sync started (every ${this.config.minimumFetchInterval} minutes)`);
+  }
+
+  // Stop periodic sync timer
+  private stopPeriodicSync(): void {
+    if (this.syncInterval) {
+      clearInterval(this.syncInterval);
+      this.syncInterval = null;
+      console.log('[BackgroundSync] Periodic sync stopped');
     }
   }
 
@@ -184,6 +209,8 @@ export class BackgroundSyncService {
   // Perform the actual background sync
   private async performBackgroundSync(): Promise<any> {
     try {
+      console.log('[BackgroundSync] Starting sync...');
+      
       // 1. Clean up old data
       const cleanupCount = await offlineStorage.cleanupExpired();
       if (cleanupCount > 0) {
@@ -211,37 +238,29 @@ export class BackgroundSyncService {
         await syncQueue.retryFailed();
       }
 
-      // 6. Update cached data if sync was successful
+      // 6. Update schedule
       if (syncResult.success) {
-        await this.updateCachedData();
+        this.schedule.lastSync = Date.now();
+        this.schedule.syncCount++;
+        this.schedule.failureCount = 0;
+      } else {
+        this.schedule.failureCount++;
       }
+      
+      await this.saveSchedule();
+      this.notifyListeners('syncComplete', syncResult);
 
       return syncResult;
 
     } catch (error) {
       console.error('[BackgroundSync] Sync error:', error);
+      this.schedule.failureCount++;
+      await this.saveSchedule();
+      
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'
       };
-    }
-  }
-
-  // Update cached data after successful sync
-  private async updateCachedData(): Promise<void> {
-    try {
-      // This would fetch fresh data from the server
-      // For now, we'll just log
-      console.log('[BackgroundSync] Updating cached data...');
-      
-      // In a real implementation:
-      // - Fetch latest workouts
-      // - Fetch latest nutrition logs
-      // - Update exercise library
-      // - Update user preferences
-      
-    } catch (error) {
-      console.error('[BackgroundSync] Error updating cache:', error);
     }
   }
 
@@ -252,24 +271,27 @@ export class BackgroundSyncService {
     
     const result = await this.performBackgroundSync();
     
-    this.schedule.lastSync = Date.now();
+    return result;
+  }
+
+  // Schedule next sync (placeholder for future implementation)
+  async scheduleSync(delayMinutes?: number): Promise<void> {
+    const delay = delayMinutes || this.schedule.interval;
+    this.schedule.nextSync = Date.now() + (delay * 60 * 1000);
     await this.saveSchedule();
     
-    return result;
+    console.log(`[BackgroundSync] Next sync scheduled in ${delay} minutes`);
+    
+    // In a bare workflow, you would schedule an actual background task here
   }
 
   // Update sync configuration
   async updateConfig(config: Partial<BackgroundSyncConfig>): Promise<void> {
     this.config = { ...this.config, ...config };
     
-    // Reconfigure if already initialized
-    if (this.isConfigured) {
-      await BackgroundFetch.unregisterTaskAsync(BACKGROUND_FETCH_TASK);
-      await BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
-        minimumInterval: this.config.minimumFetchInterval * 60,
-        stopOnTerminate: this.config.stopOnTerminate,
-        startOnBoot: this.config.startOnBoot
-      });
+    // Restart periodic sync with new interval if needed
+    if (config.minimumFetchInterval !== undefined && this.isConfigured) {
+      this.startPeriodicSync();
     }
   }
 
@@ -290,12 +312,13 @@ export class BackgroundSyncService {
     config: BackgroundSyncConfig;
     schedule: SyncSchedule;
     isConfigured: boolean;
-    backgroundFetchStatus?: number;
+    backgroundFetchStatus?: string;
   } {
     return {
       config: { ...this.config },
       schedule: { ...this.schedule },
-      isConfigured: this.isConfigured
+      isConfigured: this.isConfigured,
+      backgroundFetchStatus: 'timer-based' // In managed workflow, we use timers
     };
   }
 
@@ -305,37 +328,18 @@ export class BackgroundSyncService {
     await this.saveSchedule();
     
     if (enabled && this.isConfigured) {
-      // Re-register task
-      await BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
-        minimumInterval: this.config.minimumFetchInterval * 60,
-        stopOnTerminate: this.config.stopOnTerminate,
-        startOnBoot: this.config.startOnBoot
-      });
-    } else if (!enabled && this.isConfigured) {
-      // Unregister task
-      await BackgroundFetch.unregisterTaskAsync(BACKGROUND_FETCH_TASK);
+      this.startPeriodicSync();
+    } else if (!enabled) {
+      this.stopPeriodicSync();
     }
     
     this.notifyListeners('enabledChanged', { enabled });
   }
 
   // Check background fetch status
-  async checkStatus(): Promise<number> {
-    const status = await BackgroundFetch.getStatusAsync();
-    
-    switch (status) {
-      case BackgroundFetch.BackgroundFetchStatus.Restricted:
-        console.log('[BackgroundSync] Status: Restricted');
-        break;
-      case BackgroundFetch.BackgroundFetchStatus.Denied:
-        console.log('[BackgroundSync] Status: Denied');
-        break;
-      case BackgroundFetch.BackgroundFetchStatus.Available:
-        console.log('[BackgroundSync] Status: Available');
-        break;
-    }
-    
-    return status;
+  async checkStatus(): Promise<string> {
+    // In managed workflow, we can only use timer-based sync
+    return 'timer-based';
   }
 
   // Reset sync data
@@ -369,9 +373,13 @@ export class BackgroundSyncService {
 
   // Cleanup
   async cleanup(): Promise<void> {
-    if (this.isConfigured) {
-      await BackgroundFetch.unregisterTaskAsync(BACKGROUND_FETCH_TASK);
+    this.stopPeriodicSync();
+    
+    if (this.appStateSubscription) {
+      this.appStateSubscription.remove();
+      this.appStateSubscription = null;
     }
+    
     this.syncListeners.clear();
     this.isConfigured = false;
   }
@@ -380,8 +388,7 @@ export class BackgroundSyncService {
 // Export singleton instance
 export const backgroundSync = new BackgroundSyncService();
 
-// iOS specific: Handle app refresh (not needed with Expo)
+// Placeholder for iOS app refresh (would be used in bare workflow)
 export const handleAppRefresh = async (taskId: string): Promise<void> {
-  console.log('[iOS App Refresh] Task received:', taskId);
-  // Expo handles this internally
+  console.log('[iOS App Refresh] Not available in managed workflow');
 };
