@@ -7,9 +7,12 @@ export CI=true
 export EXPO_NO_TELEMETRY=1
 export EAS_NO_VCS=1
 
-# Clean any existing native folders
-echo "Cleaning native folders..."
+# Clean any existing native folders and caches
+echo "Cleaning native folders and caches..."
 rm -rf android ios
+rm -rf node_modules/.cache
+rm -rf $TMPDIR/react-* 2>/dev/null || true
+rm -rf $TMPDIR/metro-* 2>/dev/null || true
 
 # Run prebuild with explicit configuration
 echo "Running prebuild..."
@@ -43,6 +46,8 @@ kotlin.incremental=false
 android.enablePngCrunchInReleaseBuilds=false
 android.packagingOptions.pickFirsts=**/libc++_shared.so,**/libjsc.so
 android.packagingOptions.excludes=META-INF/DEPENDENCIES
+android.packagingOptions.pickFirst=**/libreanimated.so
+android.packagingOptions.pickFirst=**/libworklets.so
 expo.gif.enabled=false
 expo.webp.enabled=false
 expo.webp.animated=false
