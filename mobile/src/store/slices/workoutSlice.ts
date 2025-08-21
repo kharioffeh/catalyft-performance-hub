@@ -121,6 +121,13 @@ export interface WorkoutSlice {
   setWorkouts?: (workouts: Workout[]) => void;
   addWorkout?: (workout: Workout) => void;
   updateWorkout?: (id: string, workout: Workout) => void;
+  setActiveWorkout?: (workout: Workout | null) => void;
+  
+  // Helper methods
+  checkPersonalRecords?: () => Promise<void>;
+  getPreviousWorkoutData?: (exerciseId: string) => Promise<WorkoutExercise | null>;
+  calculateWorkoutVolume?: () => number;
+  calculateWorkoutDuration?: () => number;
 }
 
 // Keep the original WorkoutState as an alias
@@ -130,7 +137,14 @@ interface WorkoutState extends WorkoutSlice {}
 export const createWorkoutSlice = () => ({
   // Current workout
   currentWorkout: null,
-  workoutTimer: { isRunning: false, startTime: null, pausedTime: null, totalPausedDuration: 0 },
+  workoutTimer: { 
+    isRunning: false, 
+    startTime: undefined, 
+    pausedTime: undefined, 
+    totalPausedDuration: 0,
+    currentDuration: 0,
+    restTimerActive: false
+  },
   restTimer: null,
   
   // Workout history
@@ -218,6 +232,13 @@ export const createWorkoutSlice = () => ({
   setWorkouts: () => {},
   addWorkout: () => {},
   updateWorkout: () => {},
+  setActiveWorkout: () => {},
+  
+  // Helper methods
+  checkPersonalRecords: async () => {},
+  getPreviousWorkoutData: async () => null,
+  calculateWorkoutVolume: () => 0,
+  calculateWorkoutDuration: () => 0,
 });
 
 const defaultSettings: WorkoutSettings = {
@@ -1017,29 +1038,78 @@ export const useWorkoutStore = create<WorkoutState>()(
         await AsyncStorage.setItem('workout_settings', JSON.stringify(newSettings));
       },
 
-      // Personal Records
-      checkPersonalRecords: async () => {
+      // Add missing methods
+      loadPersonalRecords: async () => {
         try {
-          const { currentWorkout } = get();
-          if (!currentWorkout) return;
-
-          const newRecords = await workoutService.checkAndUpdatePersonalRecords(currentWorkout);
-          if (newRecords.length > 0) {
-            set({ newPersonalRecords: newRecords });
-            
-            // Show celebration
-            const recordText = newRecords.map(pr => 
-              `${pr.exerciseName}: ${pr.weight}${get().workoutSettings.weightUnit} x ${pr.reps}`
-            ).join('\n');
-            
-            Alert.alert(
-              '🎉 New Personal Records!',
-              recordText,
-              [{ text: 'Awesome!' }]
-            );
-          }
+          const records = await workoutService.getPersonalRecords();
+          set((state) => {
+            state.personalRecords = records;
+          });
         } catch (error) {
-          console.error('Error checking personal records:', error);
+          console.error('Error loading personal records:', error);
+        }
+      },
+
+      deleteWorkoutGoal: async (goalId: string) => {
+        try {
+          await workoutService.deleteWorkoutGoal(goalId);
+          set((state) => {
+            state.workoutGoals = state.workoutGoals.filter(g => g.id !== goalId);
+          });
+        } catch (error) {
+          console.error('Error deleting workout goal:', error);
+        }
+      },
+
+      syncWorkoutData: async () => {
+        // TODO: Implement workout data sync
+        console.log('Syncing workout data...');
+      },
+
+      clearWorkoutData: () => {
+        set((state) => {
+          state.workoutHistory = [];
+          state.exercises = [];
+          state.templates = [];
+          state.personalRecords = [];
+          state.workoutGoals = [];
+        });
+      },
+
+      checkPersonalRecords: async () => {
+        const { currentWorkout } = get();
+        if (!currentWorkout) return;
+
+        const newRecords: PersonalRecord[] = [];
+        
+        for (const exercise of currentWorkout.exercises) {
+          for (const set of exercise.sets) {
+            if (set.completed && set.weight) {
+              // Check if this is a personal record
+              const existingRecord = get().personalRecords.find(
+                r => r.exerciseId === exercise.exercise.id
+              );
+              
+              if (!existingRecord || set.weight > existingRecord.weight) {
+                newRecords.push({
+                  id: `pr-${Date.now()}-${exercise.exercise.id}`,
+                  userId: '',
+                  exerciseId: exercise.exercise.id,
+                  exerciseName: exercise.exercise.name,
+                  weight: set.weight,
+                  reps: set.reps || 0,
+                  date: new Date(),
+                  workoutId: currentWorkout.id,
+                });
+              }
+            }
+          }
+        }
+
+        if (newRecords.length > 0) {
+          set((state) => {
+            state.newPersonalRecords = newRecords;
+          });
         }
       },
 

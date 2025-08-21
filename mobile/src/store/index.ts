@@ -68,28 +68,25 @@ const initialState = {
   activeWorkout: null,
   workoutTemplates: [],
   workoutFilters: {},
+  workoutTimer: { 
+    isRunning: false, 
+    startTime: undefined, 
+    pausedTime: undefined, 
+    totalPausedDuration: 0,
+    currentDuration: 0,
+    restTimerActive: false
+  },
   
-  // Nutrition slice
-  nutritionEntries: [],
-  currentEntry: null,
+  // Nutrition slice - removed old properties, will come from createNutritionSlice
   foods: [],
   favoriteFoods: [],
   recentFoods: [],
-  dailyTargets: {
-    calories: 2000,
-    protein: 150,
-    carbs: 250,
-    fat: 65,
-    water: 2000,
-  },
   
   // Global state
   isOnline: true,
   isSyncing: false,
   lastSyncTime: null,
   syncErrors: [],
-  isLoading: false,
-  error: null,
 };
 
 // Create the store
@@ -100,9 +97,9 @@ export const useStore = create<StoreState>()(
         immer((set, get, api) => ({
           ...initialState,
           
-          // Combine slices
+          // Merge slices
           ...createUserSlice(set as any, get, api as any),
-          ...createWorkoutSlice(set as any, get, api as any),
+          ...createWorkoutSlice(),  // No parameters needed since it returns static object
           ...createNutritionSlice(set as any, get, api as any),
           
           // Global actions
@@ -115,35 +112,33 @@ export const useStore = create<StoreState>()(
           clearSyncErrors: () => set({ syncErrors: [] }),
           
           syncData: async () => {
-            const state = get();
-            if (state.isSyncing || !state.isOnline || !state.currentUser) return;
-            
-            set({ isSyncing: true, syncErrors: [] });
+            set({ isSyncing: true });
             
             try {
-              // Sync user data
-              await state.refreshUser();
+              const state = get();
               
-              // Sync workouts
-              await state.loadWorkouts(state.currentUser.id);
+              if (state.currentUser) {
+                // Sync workouts
+                if (state.loadWorkoutHistory) {
+                  await state.loadWorkoutHistory();
+                }
+                
+                // Sync nutrition
+                if (state.refreshTodaysData) {
+                  await state.refreshTodaysData();
+                }
+                
+                // Sync user data
+                await Promise.all([
+                  state.loadUserProfile?.(state.currentUser.id),
+                  state.loadFriends?.(),
+                  state.loadGoals?.(),
+                  state.loadAchievements?.(),
+                  state.loadNotifications?.(),
+                ]);
+              }
               
-              // Sync nutrition entries (last 30 days)
-              const endDate = new Date();
-              const startDate = new Date();
-              startDate.setDate(endDate.getDate() - 30);
-              await state.loadNutritionEntries(state.currentUser.id, startDate, endDate);
-              
-              // Sync other data
-              await Promise.all([
-                state.loadGoals(),
-                state.loadFriends(),
-                state.loadAchievements(),
-                state.loadNotifications(),
-                state.loadExercises(),
-                state.loadFoods(),
-              ]);
-              
-              set({ 
+              set({
                 lastSyncTime: new Date(),
                 isSyncing: false,
               });
@@ -156,8 +151,12 @@ export const useStore = create<StoreState>()(
           },
           
           clearAllData: () => {
-            storage.clearAll();
-            set(initialState);
+            set({
+              ...initialState,
+              // Preserve auth state
+              currentUser: get().currentUser,
+              isAuthenticated: get().isAuthenticated,
+            });
           },
           
           resetStore: () => {
@@ -186,16 +185,12 @@ export const useStore = create<StoreState>()(
 );
 
 // Selectors for common use cases
-export const useUser = () => useStore(state => state.currentUser);
+export const useCurrentUser = () => useStore(state => state.currentUser);
 export const useIsAuthenticated = () => useStore(state => state.isAuthenticated);
-export const useWorkouts = () => useStore(state => state.workouts);
-export const useActiveWorkout = () => useStore(state => state.activeWorkout);
-export const useNutritionToday = () => useStore(state => state.currentEntry);
-export const useGoals = () => useStore(state => state.goals);
-export const useNotifications = () => useStore(state => ({
-  notifications: state.notifications,
-  unreadCount: state.unreadNotificationCount,
-}));
+export const useWorkouts = () => useStore(state => state.workouts || []);
+export const useCurrentWorkout = () => useStore(state => state.currentWorkout);
+export const useTodaysFoodLogs = () => useStore(state => state.todaysFoodLogs || []);
+export const useNutritionGoals = () => useStore(state => state.nutritionGoals);
 
 // Actions selectors
 export const useAuthActions = () => useStore(state => ({
@@ -206,16 +201,17 @@ export const useAuthActions = () => useStore(state => ({
 
 export const useWorkoutActions = () => useStore(state => ({
   startWorkout: state.startWorkout,
-  completeWorkout: state.completeWorkout,
-  updateSet: state.updateSet,
-  completeSet: state.completeSet,
+  pauseWorkout: state.pauseWorkout,
+  resumeWorkout: state.resumeWorkout,
+  finishWorkout: state.finishWorkout,
+  deleteWorkout: state.deleteWorkout,
 }));
 
 export const useNutritionActions = () => useStore(state => ({
-  addMeal: state.addMeal,
-  addFoodToMeal: state.addFoodToMeal,
-  updateWaterIntake: state.updateWaterIntake,
-  searchFoods: state.searchFoods,
+  logFood: state.logFood,
+  updateFoodLog: state.updateFoodLog,
+  deleteFoodLog: state.deleteFoodLog,
+  logWater: state.logWater,
 }));
 
 // Subscribe to auth changes
