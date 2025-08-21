@@ -106,10 +106,10 @@ export const useStore = create<StoreState>()(
           ...createNutritionSlice(set as any, get, api as any),
           
           // Global actions
-          setIsOnline: (isOnline) => set({ isOnline }),
-          setIsSyncing: (isSyncing) => set({ isSyncing }),
-          setLastSyncTime: (time) => set({ lastSyncTime: time }),
-          addSyncError: (error) => set(state => ({
+          setIsOnline: (isOnline: boolean) => set({ isOnline }),
+          setIsSyncing: (isSyncing: boolean) => set({ isSyncing }),
+          setLastSyncTime: (time: Date) => set({ lastSyncTime: time }),
+          addSyncError: (error: string) => set((state: any) => ({
             syncErrors: [...state.syncErrors, error],
           })),
           clearSyncErrors: () => set({ syncErrors: [] }),
@@ -148,7 +148,7 @@ export const useStore = create<StoreState>()(
                 isSyncing: false,
               });
             } catch (error: any) {
-              set(state => ({
+              set((state: any) => ({
                 syncErrors: [...state.syncErrors, error.message || 'Sync failed'],
                 isSyncing: false,
               }));

@@ -18,7 +18,8 @@ import {
 } from '../../types/workout';
 import { Alert } from 'react-native';
 
-interface WorkoutState {
+// Export WorkoutState as WorkoutSlice for compatibility
+export interface WorkoutSlice {
   // Current workout
   currentWorkout: Workout | null;
   workoutTimer: TimerState;
@@ -98,23 +99,126 @@ interface WorkoutState {
   updateWorkoutTimer: () => void;
   
   // Actions - Stats and Goals
-  loadWorkoutStats: () => Promise<void>;
+  loadWorkoutStats: (period?: 'week' | 'month' | 'year') => Promise<void>;
+  loadPersonalRecords: () => Promise<void>;
   loadWorkoutGoals: () => Promise<void>;
   createWorkoutGoal: (goal: Partial<WorkoutGoal>) => Promise<void>;
   updateWorkoutGoal: (goalId: string, updates: Partial<WorkoutGoal>) => Promise<void>;
+  deleteWorkoutGoal: (goalId: string) => Promise<void>;
   
   // Actions - Settings
-  updateWorkoutSettings: (settings: Partial<WorkoutSettings>) => Promise<void>;
+  updateWorkoutSettings: (settings: Partial<WorkoutSettings>) => void;
   
-  // Actions - Personal Records
-  checkPersonalRecords: () => Promise<void>;
-  dismissNewPersonalRecords: () => void;
+  // Actions - Sync
+  syncWorkoutData: () => Promise<void>;
+  clearWorkoutData: () => void;
   
-  // Helpers
-  getPreviousWorkoutData: (exerciseId: string) => Promise<WorkoutExercise | null>;
-  calculateWorkoutVolume: () => number;
-  calculateWorkoutDuration: () => number;
+  // Additional workout-specific state (for main store compatibility)
+  workouts?: Workout[];
+  activeWorkout?: Workout | null;
+  workoutTemplates?: WorkoutTemplate[];
+  workoutFilters?: any;
+  setWorkouts?: (workouts: Workout[]) => void;
+  addWorkout?: (workout: Workout) => void;
+  updateWorkout?: (id: string, workout: Workout) => void;
 }
+
+// Keep the original WorkoutState as an alias
+interface WorkoutState extends WorkoutSlice {}
+
+// Export a createWorkoutSlice function for the main store
+export const createWorkoutSlice = () => ({
+  // Current workout
+  currentWorkout: null,
+  workoutTimer: { isRunning: false, startTime: null, pausedTime: null, totalPausedDuration: 0 },
+  restTimer: null,
+  
+  // Workout history
+  workoutHistory: [],
+  workoutHistoryLoading: false,
+  
+  // Exercise library
+  exercises: [],
+  exercisesLoading: false,
+  favoriteExercises: [],
+  recentExercises: [],
+  exerciseSearchFilters: {},
+  
+  // Templates
+  templates: [],
+  templatesLoading: false,
+  
+  // Personal records
+  personalRecords: [],
+  newPersonalRecords: [],
+  
+  // Stats and goals
+  workoutStats: null,
+  workoutGoals: [],
+  
+  // Settings
+  workoutSettings: {
+    defaultRestTimer: 90,
+    autoStartRestTimer: true,
+    plateCalculation: true,
+    warmupSets: true,
+    soundEnabled: true,
+    vibrateEnabled: true,
+  },
+  
+  // Placeholder actions (actual implementation is in useWorkoutStore)
+  startWorkout: async () => {},
+  pauseWorkout: () => {},
+  resumeWorkout: () => {},
+  finishWorkout: async () => {},
+  cancelWorkout: () => {},
+  updateWorkoutNotes: () => {},
+  addExerciseToWorkout: async () => {},
+  removeExerciseFromWorkout: async () => {},
+  reorderExercises: async () => {},
+  updateExerciseNotes: async () => {},
+  addSet: async () => {},
+  updateSet: async () => {},
+  deleteSet: async () => {},
+  completeSet: async () => {},
+  copyPreviousSet: async () => {},
+  loadExercises: async () => {},
+  searchExercises: async () => {},
+  toggleFavoriteExercise: async () => {},
+  createCustomExercise: async () => {},
+  setExerciseFilters: () => {},
+  loadTemplates: async () => {},
+  createTemplate: async () => {},
+  startWorkoutFromTemplate: async () => {},
+  saveWorkoutAsTemplate: async () => {},
+  loadWorkoutHistory: async () => {},
+  loadWorkoutDetails: async () => {},
+  deleteWorkout: async () => {},
+  copyWorkout: async () => {},
+  startRestTimer: () => {},
+  pauseRestTimer: () => {},
+  resumeRestTimer: () => {},
+  cancelRestTimer: () => {},
+  updateWorkoutTimer: () => {},
+  loadWorkoutStats: async () => {},
+  loadPersonalRecords: async () => {},
+  loadWorkoutGoals: async () => {},
+  createWorkoutGoal: async () => {},
+  updateWorkoutGoal: async () => {},
+  deleteWorkoutGoal: async () => {},
+  updateWorkoutSettings: () => {},
+  syncWorkoutData: async () => {},
+  clearWorkoutData: () => {},
+  
+  // Additional state for main store
+  workouts: [],
+  activeWorkout: null,
+  workoutTemplates: [],
+  workoutFilters: {},
+  setWorkouts: () => {},
+  addWorkout: () => {},
+  updateWorkout: () => {},
+});
 
 const defaultSettings: WorkoutSettings = {
   weightUnit: 'kg',
@@ -722,7 +826,12 @@ export const useWorkoutStore = create<WorkoutState>()(
         try {
           const workout = await workoutService.getWorkoutById(workoutId);
           if (workout) {
-            return workout;
+            // Store the workout in state instead of returning it
+            set((state: WorkoutState) => ({
+              workoutHistory: state.workoutHistory.map(w => 
+                w.id === workout.id ? workout : w
+              )
+            }));
           }
         } catch (error) {
           console.error('Error loading workout details:', error);

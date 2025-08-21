@@ -1,78 +1,69 @@
 /**
- * Nutrition Store Slice
+ * Nutrition State Management Slice
  * Manages all nutrition-related state including food logs, goals, and analytics
  */
 
-import { StateCreator } from 'zustand';
-import { immer } from 'zustand/middleware/immer';
 import {
   Food,
   FoodLogEntry,
-  Recipe,
-  MealPlan,
   NutritionGoals,
-  WaterLog,
   DailyNutritionSummary,
   NutritionAnalytics,
+  Recipe,
+  MealPlan,
   MealType,
+  WaterLog,
   FoodSearchFilters,
   QuickAddPreset,
 } from '../../types/nutrition';
-import nutritionService from '../../services/nutrition';
+import { nutritionService } from '../../services/nutrition';
 import { format } from 'date-fns';
 
 // Nutrition slice state
 export interface NutritionSlice {
-  // Current date being viewed
+  // Date navigation
   currentDate: Date;
   
-  // Today's data
+  // Food logs
   todaysFoodLogs: FoodLogEntry[];
-  todaysWaterLogs: WaterLog[];
   dailySummary: DailyNutritionSummary | null;
   
-  // User data
+  // Nutrition goals
   nutritionGoals: NutritionGoals | null;
-  recentFoods: Food[];
-  favoriteFoods: Food[];
-  customFoods: Food[];
   
-  // Search and selection
-  searchQuery: string;
+  // Food search
   searchResults: Food[];
+  searchLoading: boolean;
   searchFilters: FoodSearchFilters;
   selectedFood: Food | null;
-  isSearching: boolean;
+  
+  // Favorites and recent
+  favoriteFoods: Food[];
+  recentFoods: Food[];
+  customFoods: Food[];
+  
+  // Water tracking
+  todaysWaterLogs: WaterLog[];
+  waterGoal: number;
+  quickWaterPresets: QuickAddPreset[];
   
   // Recipes
   userRecipes: Recipe[];
   selectedRecipe: Recipe | null;
   
   // Meal plans
-  activeMealPlan: MealPlan | null;
   mealPlans: MealPlan[];
+  activeMealPlan: MealPlan | null;
   
   // Analytics
   nutritionAnalytics: NutritionAnalytics | null;
   analyticsLoading: boolean;
   
-  // Water tracking
-  waterGoal: number;
-  quickWaterPresets: QuickAddPreset[];
-  
   // UI State
-  selectedMealType: MealType;
-  isAddingFood: boolean;
-  isScanningBarcode: boolean;
-  lastScannedBarcode: string | null;
-  
-  // Loading states
-  isLoadingFoodLogs: boolean;
-  isLoadingGoals: boolean;
-  isSavingFood: boolean;
-  
-  // Error states
+  selectedMealType: MealType | null;
+  isLoading: boolean;
   lastError: string | null;
+  lastScannedBarcode: string | null;
   
   // Actions - Date Navigation
   setCurrentDate: (date: Date) => void;
@@ -84,7 +75,7 @@ export interface NutritionSlice {
   searchFoods: (query: string, filters?: FoodSearchFilters) => Promise<void>;
   clearSearch: () => void;
   setSearchFilters: (filters: FoodSearchFilters) => void;
-  selectFood: (food: Food | null) => void;
+  selectFood: (food: Food) => void;
   
   // Actions - Food Logging
   logFood: (food: Food, quantity: number, unit: string, mealType: MealType) => Promise<void>;
@@ -112,18 +103,18 @@ export interface NutritionSlice {
   updateNutritionGoals: (goals: Partial<NutritionGoals>) => Promise<void>;
   
   // Actions - Daily Summary
-  loadDailySummary: (date?: Date) => Promise<void>;
+  loadDailySummary: (date: Date) => Promise<void>;
   refreshTodaysData: () => Promise<void>;
   
   // Actions - Analytics
   loadNutritionAnalytics: (period: 'week' | 'month' | 'quarter' | 'year') => Promise<void>;
   
   // Actions - Barcode Scanning
-  scanBarcode: (barcode: string) => Promise<Food | null>;
+  scanBarcode: (barcode: string) => Promise<void>;
   clearLastScannedBarcode: () => void;
   
   // Actions - Meal Type
-  setSelectedMealType: (mealType: MealType) => void;
+  setSelectedMealType: (mealType: MealType | null) => void;
   getMealTypeForCurrentTime: () => MealType;
   
   // Actions - Recipes
@@ -133,7 +124,7 @@ export interface NutritionSlice {
   
   // Actions - Meal Plans
   loadMealPlans: () => Promise<void>;
-  setActiveMealPlan: (planId: string) => Promise<void>;
+  setActiveMealPlan: (planId: string | null) => Promise<void>;
   
   // Actions - Error Handling
   clearError: () => void;
@@ -149,273 +140,240 @@ export interface NutritionSlice {
   getWaterProgress: () => number;
 }
 
-// Create nutrition slice
-export const createNutritionSlice: StateCreator<
-  NutritionSlice,
-  [['zustand/immer', never]],
-  [],
-  NutritionSlice
-> = immer((set, get) => ({
+// Create nutrition slice - simplified type for compatibility
+export const createNutritionSlice = (set: any, get: any, api: any): NutritionSlice => ({
   // Initial state
   currentDate: new Date(),
   todaysFoodLogs: [],
-  todaysWaterLogs: [],
   dailySummary: null,
   nutritionGoals: null,
-  recentFoods: [],
-  favoriteFoods: [],
-  customFoods: [],
-  searchQuery: '',
   searchResults: [],
+  searchLoading: false,
   searchFilters: {},
   selectedFood: null,
-  isSearching: false,
+  favoriteFoods: [],
+  recentFoods: [],
+  customFoods: [],
+  todaysWaterLogs: [],
+  waterGoal: 2000, // Default 2L
+  quickWaterPresets: [
+    { id: '1', name: 'Glass', icon: '🥤', amount: 250, unit: 'ml' },
+    { id: '2', name: 'Bottle', icon: '🍶', amount: 500, unit: 'ml' },
+    { id: '3', name: 'Large Bottle', icon: '💧', amount: 1000, unit: 'ml' },
+  ],
   userRecipes: [],
   selectedRecipe: null,
-  activeMealPlan: null,
   mealPlans: [],
+  activeMealPlan: null,
   nutritionAnalytics: null,
   analyticsLoading: false,
-  waterGoal: 2000,
-  quickWaterPresets: [
-    { id: '1', name: 'Glass', amount: 250, unit: 'ml', icon: '🥤' },
-    { id: '2', name: 'Bottle', amount: 500, unit: 'ml', icon: '🍶' },
-    { id: '3', name: 'Large Bottle', amount: 1000, unit: 'ml', icon: '💧' },
-  ],
-  selectedMealType: 'breakfast' as MealType,
-  isAddingFood: false,
-  isScanningBarcode: false,
-  lastScannedBarcode: null,
-  isLoadingFoodLogs: false,
-  isLoadingGoals: false,
-  isSavingFood: false,
+  selectedMealType: null,
+  isLoading: false,
   lastError: null,
+  lastScannedBarcode: null,
 
-  // Date Navigation
-  setCurrentDate: (date) => set((state) => {
+  // Actions - Date Navigation
+  setCurrentDate: (date: Date) => set((state: NutritionSlice) => {
     state.currentDate = date;
   }),
-  
-  goToToday: () => set((state) => {
+
+  goToToday: () => set((state: NutritionSlice) => {
     state.currentDate = new Date();
   }),
-  
-  goToPreviousDay: () => set((state) => {
+
+  goToPreviousDay: () => set((state: NutritionSlice) => {
     const newDate = new Date(state.currentDate);
     newDate.setDate(newDate.getDate() - 1);
     state.currentDate = newDate;
   }),
-  
-  goToNextDay: () => set((state) => {
+
+  goToNextDay: () => set((state: NutritionSlice) => {
     const newDate = new Date(state.currentDate);
     newDate.setDate(newDate.getDate() + 1);
     state.currentDate = newDate;
   }),
 
-  // Food Search
-  searchFoods: async (query, filters) => {
-    set((state) => {
-      state.isSearching = true;
-      state.searchQuery = query;
-      if (filters) state.searchFilters = filters;
+  // Actions - Food Search
+  searchFoods: async (query: string, filters?: FoodSearchFilters) => {
+    set((state: NutritionSlice) => {
+      state.searchLoading = true;
+      state.lastError = null;
     });
 
     try {
       const results = await nutritionService.searchFoods(query, filters);
-      set((state) => {
+      set((state: NutritionSlice) => {
         state.searchResults = results;
-        state.isSearching = false;
+        state.searchLoading = false;
       });
-    } catch (error) {
-      set((state) => {
-        state.isSearching = false;
-        state.lastError = error instanceof Error ? error.message : 'Search failed';
+    } catch (error: any) {
+      set((state: NutritionSlice) => {
+        state.searchLoading = false;
+        state.lastError = error.message;
       });
     }
   },
 
-  clearSearch: () => set((state) => {
-    state.searchQuery = '';
+  clearSearch: () => set((state: NutritionSlice) => {
     state.searchResults = [];
     state.searchFilters = {};
     state.selectedFood = null;
   }),
 
-  setSearchFilters: (filters) => set((state) => {
+  setSearchFilters: (filters: FoodSearchFilters) => set((state: NutritionSlice) => {
     state.searchFilters = filters;
   }),
 
-  selectFood: (food) => set((state) => {
+  selectFood: (food: Food) => set((state: NutritionSlice) => {
     state.selectedFood = food;
   }),
 
-  // Food Logging
-  logFood: async (food, quantity, unit, mealType) => {
-    set((state) => {
-      state.isSavingFood = true;
+  // Actions - Food Logging
+  logFood: async (food: Food, quantity: number, unit: string, mealType: MealType) => {
+    set((state: NutritionSlice) => {
+      state.isLoading = true;
     });
 
     try {
-      // Calculate nutrition based on quantity
-      const multiplier = quantity / food.servingSize;
-      const entry: Omit<FoodLogEntry, 'id' | 'createdAt' | 'updatedAt'> = {
+      const entry = await nutritionService.logFood({
         userId: '', // Will be set by service
         food,
         foodId: food.id,
         mealType,
         quantity,
         unit,
-        calories: food.calories * multiplier,
+        calories: (food.calories * quantity) / food.servingSize,
         macros: {
-          protein: food.macros.protein * multiplier,
-          carbs: food.macros.carbs * multiplier,
-          fat: food.macros.fat * multiplier,
+          protein: (food.macros.protein * quantity) / food.servingSize,
+          carbs: (food.macros.carbs * quantity) / food.servingSize,
+          fat: (food.macros.fat * quantity) / food.servingSize,
         },
         micronutrients: food.micronutrients ? {
-          fiber: (food.micronutrients.fiber || 0) * multiplier,
-          sugar: (food.micronutrients.sugar || 0) * multiplier,
-          sodium: (food.micronutrients.sodium || 0) * multiplier,
+          ...food.micronutrients,
         } : undefined,
-        loggedAt: get().currentDate,
-      };
+        loggedAt: new Date(),
+      });
 
-      const loggedEntry = await nutritionService.logFood(entry);
-      
-      set((state) => {
-        // Only add to today's logs if it's for today
-        if (format(state.currentDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')) {
-          state.todaysFoodLogs.push(loggedEntry);
-        }
-        state.isSavingFood = false;
-        state.isAddingFood = false;
-        state.selectedFood = null;
+      set((state: NutritionSlice) => {
+        state.todaysFoodLogs.push(entry);
+        state.isLoading = false;
       });
 
       // Refresh daily summary
       await get().loadDailySummary(get().currentDate);
-    } catch (error) {
-      set((state) => {
-        state.isSavingFood = false;
-        state.lastError = error instanceof Error ? error.message : 'Failed to log food';
+    } catch (error: any) {
+      set((state: NutritionSlice) => {
+        state.isLoading = false;
+        state.lastError = error.message;
       });
     }
   },
 
-  updateFoodLog: async (logId, updates) => {
+  updateFoodLog: async (logId: string, updates: Partial<FoodLogEntry>) => {
     try {
       const updatedLog = await nutritionService.updateFoodLog(logId, updates);
       
-      set((state) => {
-        const index = state.todaysFoodLogs.findIndex(log => log.id === logId);
+      set((state: NutritionSlice) => {
+        const index = state.todaysFoodLogs.findIndex((log: FoodLogEntry) => log.id === logId);
         if (index !== -1) {
           state.todaysFoodLogs[index] = updatedLog;
         }
       });
 
-      // Refresh daily summary
       await get().loadDailySummary(get().currentDate);
-    } catch (error) {
-      set((state) => {
-        state.lastError = error instanceof Error ? error.message : 'Failed to update food log';
+    } catch (error: any) {
+      set((state: NutritionSlice) => {
+        state.lastError = error.message;
       });
     }
   },
 
-  deleteFoodLog: async (logId) => {
+  deleteFoodLog: async (logId: string) => {
     try {
       await nutritionService.deleteFoodLog(logId);
       
-      set((state) => {
-        state.todaysFoodLogs = state.todaysFoodLogs.filter(log => log.id !== logId);
+      set((state: NutritionSlice) => {
+        state.todaysFoodLogs = state.todaysFoodLogs.filter((log: FoodLogEntry) => log.id !== logId);
       });
 
-      // Refresh daily summary
       await get().loadDailySummary(get().currentDate);
-    } catch (error) {
-      set((state) => {
-        state.lastError = error instanceof Error ? error.message : 'Failed to delete food log';
+    } catch (error: any) {
+      set((state: NutritionSlice) => {
+        state.lastError = error.message;
       });
     }
   },
 
-  copyMeal: async (fromDate, toDate, mealType) => {
+  copyMeal: async (fromDate: Date, toDate: Date, mealType: MealType) => {
     try {
-      const copiedLogs = await nutritionService.copyMeal(fromDate, toDate, mealType);
+      const copiedEntries = await nutritionService.copyMeal(fromDate, toDate, mealType);
       
-      // If copying to today, update today's logs
-      if (format(toDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')) {
-        set((state) => {
-          state.todaysFoodLogs.push(...copiedLogs);
+      if (format(toDate, 'yyyy-MM-dd') === format(get().currentDate, 'yyyy-MM-dd')) {
+        set((state: NutritionSlice) => {
+          state.todaysFoodLogs.push(...copiedEntries);
         });
       }
 
-      // Refresh daily summary
-      await get().loadDailySummary(toDate);
-    } catch (error) {
-      set((state) => {
-        state.lastError = error instanceof Error ? error.message : 'Failed to copy meal';
+      await get().loadDailySummary(get().currentDate);
+    } catch (error: any) {
+      set((state: NutritionSlice) => {
+        state.lastError = error.message;
       });
     }
   },
 
-  quickLogFood: async (food, mealType) => {
-    // Log with default serving size
+  quickLogFood: async (food: Food, mealType: MealType) => {
     await get().logFood(food, food.servingSize, food.servingUnit, mealType);
   },
 
-  // Water Tracking
-  logWater: async (amountMl) => {
+  // Actions - Water Tracking
+  logWater: async (amountMl: number) => {
     try {
-      const waterLog = await nutritionService.logWater(amountMl);
+      const log = await nutritionService.logWater(amountMl);
       
-      set((state) => {
-        if (format(new Date(), 'yyyy-MM-dd') === format(state.currentDate, 'yyyy-MM-dd')) {
-          state.todaysWaterLogs.push(waterLog);
-        }
+      set((state: NutritionSlice) => {
+        state.todaysWaterLogs.push(log);
       });
 
-      // Refresh daily summary
       await get().loadDailySummary(get().currentDate);
-    } catch (error) {
-      set((state) => {
-        state.lastError = error instanceof Error ? error.message : 'Failed to log water';
+    } catch (error: any) {
+      set((state: NutritionSlice) => {
+        state.lastError = error.message;
       });
     }
   },
 
-  quickLogWater: async (presetId) => {
-    const preset = get().quickWaterPresets.find(p => p.id === presetId);
+  quickLogWater: async (presetId: string) => {
+    const preset = get().quickWaterPresets.find((p: QuickAddPreset) => p.id === presetId);
     if (preset) {
       await get().logWater(preset.amount);
     }
   },
 
-  setWaterGoal: (goalMl) => set((state) => {
+  setWaterGoal: (goalMl: number) => set((state: NutritionSlice) => {
     state.waterGoal = goalMl;
   }),
 
-  // Favorites and Recent
-  toggleFavoriteFood: async (foodId) => {
+  // Actions - Favorites and Recent
+  toggleFavoriteFood: async (foodId: string) => {
     try {
       const isFavorite = await nutritionService.toggleFavoriteFood(foodId);
       
       if (isFavorite) {
-        // Add to favorites
         const food = await nutritionService.getFoodById(foodId);
         if (food) {
-          set((state) => {
+          set((state: NutritionSlice) => {
             state.favoriteFoods.push(food);
           });
         }
       } else {
-        // Remove from favorites
-        set((state) => {
-          state.favoriteFoods = state.favoriteFoods.filter(f => f.id !== foodId);
+        set((state: NutritionSlice) => {
+          state.favoriteFoods = state.favoriteFoods.filter((f: Food) => f.id !== foodId);
         });
       }
-    } catch (error) {
-      set((state) => {
-        state.lastError = error instanceof Error ? error.message : 'Failed to toggle favorite';
+    } catch (error: any) {
+      set((state: NutritionSlice) => {
+        state.lastError = error.message;
       });
     }
   },
@@ -423,12 +381,12 @@ export const createNutritionSlice: StateCreator<
   loadRecentFoods: async () => {
     try {
       const foods = await nutritionService.getRecentFoods();
-      set((state) => {
+      set((state: NutritionSlice) => {
         state.recentFoods = foods;
       });
-    } catch (error) {
-      set((state) => {
-        state.lastError = error instanceof Error ? error.message : 'Failed to load recent foods';
+    } catch (error: any) {
+      set((state: NutritionSlice) => {
+        state.lastError = error.message;
       });
     }
   },
@@ -436,33 +394,33 @@ export const createNutritionSlice: StateCreator<
   loadFavoriteFoods: async () => {
     try {
       const foods = await nutritionService.getFavoriteFoods();
-      set((state) => {
+      set((state: NutritionSlice) => {
         state.favoriteFoods = foods;
       });
-    } catch (error) {
-      set((state) => {
-        state.lastError = error instanceof Error ? error.message : 'Failed to load favorite foods';
+    } catch (error: any) {
+      set((state: NutritionSlice) => {
+        state.lastError = error.message;
       });
     }
   },
 
-  // Custom Foods
-  createCustomFood: async (food) => {
-    set((state) => {
-      state.isSavingFood = true;
+  // Actions - Custom Foods
+  createCustomFood: async (food: Omit<Food, 'id' | 'createdAt' | 'updatedAt'>) => {
+    set((state: NutritionSlice) => {
+      state.isLoading = true;
     });
 
     try {
-      const createdFood = await nutritionService.createCustomFood(food);
+      const newFood = await nutritionService.createCustomFood(food);
       
-      set((state) => {
-        state.customFoods.push(createdFood);
-        state.isSavingFood = false;
+      set((state: NutritionSlice) => {
+        state.customFoods.push(newFood);
+        state.isLoading = false;
       });
-    } catch (error) {
-      set((state) => {
-        state.isSavingFood = false;
-        state.lastError = error instanceof Error ? error.message : 'Failed to create custom food';
+    } catch (error: any) {
+      set((state: NutritionSlice) => {
+        state.isLoading = false;
+        state.lastError = error.message;
       });
     }
   },
@@ -470,199 +428,204 @@ export const createNutritionSlice: StateCreator<
   loadCustomFoods: async () => {
     try {
       const foods = await nutritionService.searchFoods('', { isCustom: true });
-      set((state) => {
+      set((state: NutritionSlice) => {
         state.customFoods = foods;
       });
-    } catch (error) {
-      set((state) => {
-        state.lastError = error instanceof Error ? error.message : 'Failed to load custom foods';
+    } catch (error: any) {
+      set((state: NutritionSlice) => {
+        state.lastError = error.message;
       });
     }
   },
 
-  // Goals
+  // Actions - Goals
   loadNutritionGoals: async () => {
-    set((state) => {
-      state.isLoadingGoals = true;
+    set((state: NutritionSlice) => {
+      state.isLoading = true;
     });
 
     try {
       const goals = await nutritionService.getNutritionGoals();
-      set((state) => {
+      set((state: NutritionSlice) => {
         state.nutritionGoals = goals;
-        state.isLoadingGoals = false;
+        state.isLoading = false;
         if (goals?.waterMl) {
           state.waterGoal = goals.waterMl;
         }
       });
-    } catch (error) {
-      set((state) => {
-        state.isLoadingGoals = false;
-        state.lastError = error instanceof Error ? error.message : 'Failed to load nutrition goals';
+    } catch (error: any) {
+      set((state: NutritionSlice) => {
+        state.isLoading = false;
+        state.lastError = error.message;
       });
     }
   },
 
-  updateNutritionGoals: async (goals) => {
+  updateNutritionGoals: async (goals: Partial<NutritionGoals>) => {
     try {
       const updatedGoals = await nutritionService.updateNutritionGoals(goals);
-      set((state) => {
+      
+      set((state: NutritionSlice) => {
         state.nutritionGoals = updatedGoals;
         if (updatedGoals.waterMl) {
           state.waterGoal = updatedGoals.waterMl;
         }
       });
-    } catch (error) {
-      set((state) => {
-        state.lastError = error instanceof Error ? error.message : 'Failed to update nutrition goals';
+    } catch (error: any) {
+      set((state: NutritionSlice) => {
+        state.lastError = error.message;
       });
     }
   },
 
-  // Daily Summary
-  loadDailySummary: async (date) => {
-    const targetDate = date || get().currentDate;
+  // Actions - Daily Summary
+  loadDailySummary: async (date: Date) => {
+    const formattedDate = format(date, 'yyyy-MM-dd');
+    const currentFormattedDate = format(get().currentDate, 'yyyy-MM-dd');
     
-    set((state) => {
-      state.isLoadingFoodLogs = true;
+    set((state: NutritionSlice) => {
+      state.isLoading = true;
     });
 
     try {
-      const summary = await nutritionService.getDailyNutritionSummary(targetDate);
-      
-      set((state) => {
-        state.dailySummary = summary;
-        
-        // Update today's logs if loading for today
-        if (format(targetDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')) {
-          state.todaysFoodLogs = [
-            ...summary.meals.breakfast,
-            ...summary.meals.lunch,
-            ...summary.meals.dinner,
-            ...summary.meals.snack,
-          ];
+      const [summary, foodLogs, waterLogs] = await Promise.all([
+        nutritionService.getDailyNutritionSummary(date),
+        nutritionService.getFoodLogs(date),
+        nutritionService.getWaterLogs(date),
+      ]);
+
+      set((state: NutritionSlice) => {
+        if (formattedDate === currentFormattedDate) {
+          state.todaysFoodLogs = foodLogs;
+          state.todaysWaterLogs = waterLogs;
         }
-        
-        state.isLoadingFoodLogs = false;
+        state.dailySummary = summary;
+        state.isLoading = false;
       });
-    } catch (error) {
-      set((state) => {
-        state.isLoadingFoodLogs = false;
-        state.lastError = error instanceof Error ? error.message : 'Failed to load daily summary';
+    } catch (error: any) {
+      set((state: NutritionSlice) => {
+        state.isLoading = false;
+        state.lastError = error.message;
       });
     }
   },
 
   refreshTodaysData: async () => {
-    const today = new Date();
-    await Promise.all([
-      get().loadDailySummary(today),
-      get().loadRecentFoods(),
-      get().loadFavoriteFoods(),
-    ]);
+    const currentDate = get().currentDate;
+    
+    try {
+      await Promise.all([
+        get().loadDailySummary(currentDate),
+        get().loadNutritionGoals(),
+        get().loadRecentFoods(),
+        get().loadFavoriteFoods(),
+      ]);
+    } catch (error: any) {
+      set((state: NutritionSlice) => {
+        state.lastError = error.message;
+      });
+    }
   },
 
-  // Analytics
-  loadNutritionAnalytics: async (period) => {
-    set((state) => {
+  // Actions - Analytics
+  loadNutritionAnalytics: async (period: 'week' | 'month' | 'quarter' | 'year') => {
+    set((state: NutritionSlice) => {
       state.analyticsLoading = true;
     });
 
     try {
       const analytics = await nutritionService.getNutritionAnalytics(period);
-      set((state) => {
+      set((state: NutritionSlice) => {
         state.nutritionAnalytics = analytics;
         state.analyticsLoading = false;
       });
-    } catch (error) {
-      set((state) => {
+    } catch (error: any) {
+      set((state: NutritionSlice) => {
         state.analyticsLoading = false;
-        state.lastError = error instanceof Error ? error.message : 'Failed to load analytics';
+        state.lastError = error.message;
       });
     }
   },
 
-  // Barcode Scanning
-  scanBarcode: async (barcode) => {
-    set((state) => {
-      state.isScanningBarcode = true;
+  // Actions - Barcode Scanning
+  scanBarcode: async (barcode: string) => {
+    set((state: NutritionSlice) => {
+      state.isLoading = true;
       state.lastScannedBarcode = barcode;
     });
 
     try {
-      const food = await nutritionService.searchFoods('', { barcode });
+      const foods = await nutritionService.searchFoods('', { barcode });
       
-      set((state) => {
-        state.isScanningBarcode = false;
-        if (food && food.length > 0) {
-          state.selectedFood = food[0];
+      set((state: NutritionSlice) => {
+        state.searchResults = foods;
+        state.isLoading = false;
+        if (foods.length === 1) {
+          state.selectedFood = foods[0];
         }
       });
-
-      return food && food.length > 0 ? food[0] : null;
-    } catch (error) {
-      set((state) => {
-        state.isScanningBarcode = false;
-        state.lastError = error instanceof Error ? error.message : 'Failed to scan barcode';
+    } catch (error: any) {
+      set((state: NutritionSlice) => {
+        state.isLoading = false;
+        state.lastError = error.message;
       });
-      return null;
     }
   },
 
-  clearLastScannedBarcode: () => set((state) => {
+  clearLastScannedBarcode: () => set((state: NutritionSlice) => {
     state.lastScannedBarcode = null;
   }),
 
-  // Meal Type
-  setSelectedMealType: (mealType) => set((state) => {
+  // Actions - Meal Type
+  setSelectedMealType: (mealType: MealType | null) => set((state: NutritionSlice) => {
     state.selectedMealType = mealType;
   }),
 
   getMealTypeForCurrentTime: () => {
     const hour = new Date().getHours();
-    if (hour < 10) return 'breakfast';
-    if (hour < 14) return 'lunch';
-    if (hour < 18) return 'dinner';
-    return 'snack';
+    if (hour < 11) return 'breakfast' as MealType;
+    if (hour < 15) return 'lunch' as MealType;
+    if (hour < 20) return 'dinner' as MealType;
+    return 'snack' as MealType;
   },
 
-  // Recipes
+  // Actions - Recipes (TODO)
   loadUserRecipes: async () => {
-    // TODO: Implement when recipe service is ready
+    // TODO: Implement recipe loading
   },
 
-  createRecipe: async (recipe) => {
-    // TODO: Implement when recipe service is ready
+  createRecipe: async (recipe: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>) => {
+    // TODO: Implement recipe creation
   },
 
-  selectRecipe: (recipe) => set((state) => {
+  selectRecipe: (recipe: Recipe | null) => set((state: NutritionSlice) => {
     state.selectedRecipe = recipe;
   }),
 
-  // Meal Plans
+  // Actions - Meal Plans (TODO)
   loadMealPlans: async () => {
-    // TODO: Implement when meal plan service is ready
+    // TODO: Implement meal plan loading
   },
 
-  setActiveMealPlan: async (planId) => {
-    // TODO: Implement when meal plan service is ready
+  setActiveMealPlan: async (planId: string | null) => {
+    // TODO: Implement active meal plan setting
   },
 
-  // Error Handling
-  clearError: () => set((state) => {
+  // Actions - Error Handling
+  clearError: () => set((state: NutritionSlice) => {
     state.lastError = null;
   }),
 
   // Computed values
   getTotalCalories: () => {
     const { todaysFoodLogs } = get();
-    return todaysFoodLogs.reduce((total, log) => total + log.calories, 0);
+    return todaysFoodLogs.reduce((total: number, log: FoodLogEntry) => total + log.calories, 0);
   },
 
   getTotalMacros: () => {
     const { todaysFoodLogs } = get();
     return todaysFoodLogs.reduce(
-      (totals, log) => ({
+      (totals: any, log: FoodLogEntry) => ({
         protein: totals.protein + log.macros.protein,
         carbs: totals.carbs + log.macros.carbs,
         fat: totals.fat + log.macros.fat,
@@ -673,7 +636,7 @@ export const createNutritionSlice: StateCreator<
 
   getTotalWater: () => {
     const { todaysWaterLogs } = get();
-    return todaysWaterLogs.reduce((total, log) => total + log.amountMl, 0);
+    return todaysWaterLogs.reduce((total: number, log: WaterLog) => total + log.amountMl, 0);
   },
 
   getRemainingCalories: () => {
@@ -682,11 +645,11 @@ export const createNutritionSlice: StateCreator<
     return (nutritionGoals?.dailyCalories || 2000) - totalCalories;
   },
 
-  getMealCalories: (mealType) => {
+  getMealCalories: (mealType: MealType) => {
     const { todaysFoodLogs } = get();
     return todaysFoodLogs
-      .filter(log => log.mealType === mealType)
-      .reduce((total, log) => total + log.calories, 0);
+      .filter((log: FoodLogEntry) => log.mealType === mealType)
+      .reduce((total: number, log: FoodLogEntry) => total + log.calories, 0);
   },
 
   getCalorieProgress: () => {
@@ -698,18 +661,12 @@ export const createNutritionSlice: StateCreator<
 
   getMacroProgress: () => {
     const { nutritionGoals } = get();
-    const totals = get().getTotalMacros();
+    const totalMacros = get().getTotalMacros();
     
     return {
-      protein: nutritionGoals?.proteinGrams 
-        ? (totals.protein / nutritionGoals.proteinGrams) * 100 
-        : 0,
-      carbs: nutritionGoals?.carbsGrams 
-        ? (totals.carbs / nutritionGoals.carbsGrams) * 100 
-        : 0,
-      fat: nutritionGoals?.fatGrams 
-        ? (totals.fat / nutritionGoals.fatGrams) * 100 
-        : 0,
+      protein: ((totalMacros.protein / (nutritionGoals?.proteinGrams || 150)) * 100),
+      carbs: ((totalMacros.carbs / (nutritionGoals?.carbsGrams || 250)) * 100),
+      fat: ((totalMacros.fat / (nutritionGoals?.fatGrams || 65)) * 100),
     };
   },
 
@@ -718,4 +675,4 @@ export const createNutritionSlice: StateCreator<
     const totalWater = get().getTotalWater();
     return (totalWater / waterGoal) * 100;
   },
-}));
+});

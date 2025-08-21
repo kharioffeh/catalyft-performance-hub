@@ -283,7 +283,7 @@ export class RealtimeService {
 
           // Update store
           const store = useStore.getState();
-          store.setWorkouts(store.workouts.filter(w => w.id !== oldRecord.id));
+          store.setWorkouts(store.workouts.filter((w: any) => w.id !== oldRecord.id));
         }
         break;
     }

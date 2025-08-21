@@ -159,15 +159,15 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
           
           {/* Progress circle */}
           <AnimatedCircle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
+            cx={radius}
+            cy={radius}
+            r={radius - strokeWidth / 2}
             stroke={customColors ? "url(#progressGradient)" : undefined}
             strokeWidth={strokeWidth}
             fill="none"
             strokeDasharray={circumference}
             strokeLinecap="round"
-            animatedProps={customColors ? animatedCircleProps : { ...animatedCircleProps, ...animatedColorProps }}
+            {...(customColors ? animatedCircleProps : { ...animatedCircleProps, ...animatedColorProps })}
           />
         </G>
         

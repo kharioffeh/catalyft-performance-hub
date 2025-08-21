@@ -4,6 +4,13 @@
 import { useRef, useEffect, useState } from 'react';
 import { Animated, Easing } from 'react-native';
 
+// Mock Extrapolate enum
+export enum Extrapolate {
+  EXTEND = 'extend',
+  CLAMP = 'clamp',
+  IDENTITY = 'identity',
+}
+
 // Mock shared value
 export const useSharedValue = (initialValue: any) => {
   const ref = useRef(new Animated.Value(initialValue));
