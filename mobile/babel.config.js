@@ -3,14 +3,15 @@ module.exports = function (api) {
   
   const plugins = [];
   
-  // Only add reanimated plugin if not in CI or if the module exists
+  // Only add reanimated plugin if not in CI
   if (!process.env.CI) {
     try {
-      require.resolve('react-native-worklets-core');
+      // Try to resolve the plugin first
+      require.resolve('react-native-reanimated/plugin');
       plugins.push('react-native-reanimated/plugin');
     } catch (e) {
-      // Worklets not available, skip reanimated plugin
-      console.log('Skipping reanimated plugin - worklets not available');
+      // Plugin not available, skip it
+      console.log('Skipping reanimated plugin - not available');
     }
   }
   
