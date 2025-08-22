@@ -19,7 +19,7 @@ export class OfflineWorkoutService {
   /**
    * Create a new workout with offline support
    */
-  async createWorkout(workoutData: any, userId: string) {
+  async createWorkout(workoutData: any, userId: string): Promise<any> {
     // Check if online
     if (networkMonitor.isOffline()) {
       // Store locally and queue for sync
@@ -67,7 +67,7 @@ export class OfflineWorkoutService {
   /**
    * Update an existing workout
    */
-  async updateWorkout(workoutId: string, updates: any, userId: string) {
+  async updateWorkout(workoutId: string, updates: any, userId: string): Promise<any> {
     if (networkMonitor.isOffline()) {
       // Update locally
       const workouts = await offlineStorage.getWorkouts(userId) || [];
@@ -145,7 +145,7 @@ export class OfflineWorkoutService {
   /**
    * Delete a workout
    */
-  async deleteWorkout(workoutId: string, userId: string) {
+  async deleteWorkout(workoutId: string, userId: string): Promise<any> {
     if (networkMonitor.isOffline()) {
       // Mark for deletion locally
       const workouts = await offlineStorage.getWorkouts(userId) || [];
@@ -188,7 +188,7 @@ export class OfflineNutritionService {
   /**
    * Log food with offline support
    */
-  async logFood(foodData: any, userId: string) {
+  async logFood(foodData: any, userId: string): Promise<any> {
     if (networkMonitor.isOffline()) {
       const localLog = {
         ...foodData,
