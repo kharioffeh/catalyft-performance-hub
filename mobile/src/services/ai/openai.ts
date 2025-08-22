@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { supabase } from '../supabase';
-import Config from 'react-native-config';
+import { OPENAI_API_KEY, OPENAI_ARIA_KEY } from '../../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   ConversationContext,
@@ -37,8 +37,15 @@ export class AriaService {
   private offlineMode: boolean = false;
   
   constructor() {
+    // Use ARIA key if available, otherwise fall back to main OpenAI key
+    const apiKey = OPENAI_ARIA_KEY || OPENAI_API_KEY;
+    
+    if (!apiKey) {
+      console.error('ARIA: No OpenAI API key configured. Please add OPENAI_API_KEY to your .env file');
+    }
+    
     this.openai = new OpenAI({
-      apiKey: Config.OPENAI_API_KEY || process.env.OPENAI_API_KEY,
+      apiKey: apiKey,
     });
     this.initializeOfflineDetection();
   }
