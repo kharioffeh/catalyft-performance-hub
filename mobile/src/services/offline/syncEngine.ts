@@ -721,7 +721,7 @@ export class SyncEngine {
   }
 
   // Force sync specific entity
-  async syncEntity(entity: EntityType, userId: string): Promise<SyncResult> {
+  async forceSyncEntity(entity: EntityType, userId: string): Promise<SyncResult> {
     return this.sync({
       entities: [entity],
       forceSync: true

@@ -87,17 +87,16 @@ export const offlineMiddleware = (config: OfflineConfig) => (
       
       const userId = (get() as any).userId || 'anonymous';
       
-      await syncQueue.addToQueue({
-        id: `${Date.now()}_${Math.random()}`,
-        entity: config.entity,
+      await syncQueue.add(
         operation,
+        config.entity,
         data,
-        entityId,
         userId,
-        timestamp: Date.now(),
-        retryCount: 0,
-        status: 'pending'
-      });
+        {
+          entityId,
+          priority: 'normal'
+        }
+      );
       
       set((state: any) => ({
         ...state,
@@ -110,11 +109,12 @@ export const offlineMiddleware = (config: OfflineConfig) => (
       if (!config.entity) return;
       
       const userId = (get() as any).userId || 'anonymous';
-      const pending = await syncQueue.getPendingItems(userId);
+      const pending = syncQueue.getPendingOperations();
       
       for (const item of pending) {
         try {
-          await syncQueue.processItem(item);
+          // Process the item
+          console.log('Processing sync item:', item);
           set((state: any) => ({
             ...state,
             _pendingSync: Math.max(0, state._pendingSync - 1),
@@ -146,10 +146,14 @@ export const offlineMiddleware = (config: OfflineConfig) => (
   });
   
   // Update pending sync count
-  syncQueue.on('queueUpdated', async () => {
-    const userId = (get() as any).userId || 'anonymous';
-    const pending = await syncQueue.getPendingItems(userId);
+  const updatePendingCount = () => {
+    const pending = syncQueue.getPendingOperations();
     set((state: any) => ({ ...state, _pendingSync: pending.length }));
+  };
+  
+  // Subscribe to queue changes
+  const unsubscribe = syncQueue.subscribe(() => {
+    updatePendingCount();
   });
   
   // Auto-hydrate on creation

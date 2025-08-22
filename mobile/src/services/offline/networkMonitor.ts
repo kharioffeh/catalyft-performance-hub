@@ -1,5 +1,5 @@
 import NetInfo, { NetInfoState, NetInfoSubscription } from '@react-native-community/netinfo';
-import { EventEmitter } from 'events';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type ConnectionQuality = 'excellent' | 'good' | 'fair' | 'poor' | 'offline';
 export type ConnectionType = 'wifi' | 'cellular' | 'ethernet' | 'bluetooth' | 'unknown' | 'none';
@@ -32,20 +32,28 @@ export interface NetworkConfig {
   minQualityForSync: ConnectionQuality;
 }
 
-export class NetworkMonitor extends EventEmitter {
-  private subscription: NetInfoSubscription | null = null;
-  private currentStatus: NetworkStatus;
+export class NetworkMonitor {
+  private static instance: NetworkMonitor;
+  private netInfo = NetInfo;
+  private eventListeners: Map<string, Set<(status: NetworkStatus) => void>> = new Map();
+  private currentStatus: NetworkStatus = {
+    isConnected: true,
+    isInternetReachable: true,
+    type: 'unknown',
+    details: undefined,
+    quality: 'good',
+    effectiveType: '4g',
+    lastChecked: Date.now()
+  };
   private config: NetworkConfig;
   private checkInterval: NodeJS.Timeout | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000; // Base delay in ms
   private speedTestResults: number[] = [];
-  private listeners: Map<string, Set<(status: NetworkStatus) => void>> = new Map();
+  private subscription: NetInfoSubscription | null = null;
 
   constructor(config?: Partial<NetworkConfig>) {
-    super();
-    
     this.config = {
       checkInterval: 30000, // 30 seconds
       pingTimeout: 5000, // 5 seconds
@@ -369,26 +377,26 @@ export class NetworkMonitor extends EventEmitter {
     return this.currentStatus.quality;
   }
 
-  // Event subscription with specific event types
-  on(event: 'connected' | 'disconnected' | 'qualityChanged' | 'syncReady' | 'status', 
+  // Event handling
+  on(event: 'connected' | 'disconnected' | 'qualityChanged' | 'syncReady' | 'status',
      listener: (status: NetworkStatus) => void): void {
-    if (!this.listeners.has(event)) {
-      this.listeners.set(event, new Set());
+    if (!this.eventListeners.has(event)) {
+      this.eventListeners.set(event, new Set());
     }
-    this.listeners.get(event)!.add(listener);
-    super.on(event, listener);
+    this.eventListeners.get(event)?.add(listener);
   }
 
   off(event: string, listener: (status: NetworkStatus) => void): void {
-    if (this.listeners.has(event)) {
-      this.listeners.get(event)!.delete(listener);
-    }
-    super.off(event, listener);
+    this.eventListeners.get(event)?.delete(listener);
+  }
+
+  private emit(event: string, status: NetworkStatus): void {
+    this.eventListeners.get(event)?.forEach(listener => listener(status));
   }
 
   private notifyListeners(event: string, status: NetworkStatus): void {
-    if (this.listeners.has(event)) {
-      this.listeners.get(event)!.forEach(listener => listener(status));
+    if (this.eventListeners.has(event)) {
+      this.eventListeners.get(event)!.forEach(listener => listener(status));
     }
   }
 
@@ -413,8 +421,7 @@ export class NetworkMonitor extends EventEmitter {
     }
     
     this.stopPeriodicCheck();
-    this.removeAllListeners();
-    this.listeners.clear();
+    this.eventListeners.clear();
   }
 
   // Force refresh network status
