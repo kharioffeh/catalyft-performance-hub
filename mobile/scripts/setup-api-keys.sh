@@ -1,109 +1,147 @@
 #!/bin/bash
 
-# Setup API Keys for ARIA
-echo "🤖 ARIA API Key Setup"
-echo "====================="
-echo ""
-echo "This script will help you configure your API keys for ARIA."
-echo "Your keys will be saved in the .env file."
-echo ""
+# ARIA API Keys Setup Script
+# This script helps configure OpenAI and Supabase API keys for the ARIA AI coach
 
-# Function to update or add key in .env
-update_env_key() {
-    local key=$1
-    local value=$2
-    local env_file="/workspace/mobile/.env"
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Function to mask input
+read_secret() {
+    local prompt="$1"
+    local var_name="$2"
     
-    if grep -q "^${key}=" "$env_file"; then
-        # Key exists, update it
-        sed -i "s|^${key}=.*|${key}=${value}|" "$env_file"
+    echo -n "$prompt"
+    read -s $var_name
+    echo
+}
+
+echo -e "${BLUE}================================${NC}"
+echo -e "${BLUE}   ARIA API Keys Setup${NC}"
+echo -e "${BLUE}================================${NC}"
+echo
+
+# Determine the correct path to .env file
+if [ -f ".env" ]; then
+    # We're in the mobile directory
+    ENV_FILE=".env"
+    ENV_EXAMPLE=".env.example"
+    SCRIPT_DIR="scripts"
+elif [ -f "mobile/.env" ] || [ -f "mobile/.env.example" ]; then
+    # We're in the project root
+    ENV_FILE="mobile/.env"
+    ENV_EXAMPLE="mobile/.env.example"
+    SCRIPT_DIR="mobile/scripts"
+else
+    # Try to find mobile directory
+    if [ -d "../mobile" ]; then
+        ENV_FILE="../mobile/.env"
+        ENV_EXAMPLE="../mobile/.env.example"
+        SCRIPT_DIR="../mobile/scripts"
     else
-        # Key doesn't exist, add it
-        echo "${key}=${value}" >> "$env_file"
+        ENV_FILE=".env"
+        ENV_EXAMPLE=".env.example"
+        SCRIPT_DIR="scripts"
+    fi
+fi
+
+# Check if .env file exists
+if [ -f "$ENV_FILE" ]; then
+    echo -e "${YELLOW}Found existing .env file. Keys will be updated.${NC}"
+else
+    # Create from example if it doesn't exist
+    if [ -f "$ENV_EXAMPLE" ]; then
+        cp "$ENV_EXAMPLE" "$ENV_FILE"
+        echo -e "${GREEN}Created .env file from .env.example${NC}"
+    else
+        # Create a new .env file
+        touch "$ENV_FILE"
+        echo -e "${GREEN}Created new .env file${NC}"
+    fi
+fi
+
+echo
+echo -e "${BLUE}Please enter your API keys:${NC}"
+echo -e "${YELLOW}(Your input will be hidden for security)${NC}"
+echo
+
+# OpenAI API Key
+read_secret "OpenAI API Key (required, starts with sk-): " OPENAI_KEY
+if [ -z "$OPENAI_KEY" ]; then
+    echo -e "${RED}Error: OpenAI API key is required${NC}"
+    exit 1
+fi
+
+# OpenAI ARIA Key (optional)
+read_secret "OpenAI ARIA Key (optional, press Enter to skip): " ARIA_KEY
+
+# Supabase URL
+echo -n "Supabase URL (e.g., https://xxxxx.supabase.co): "
+read SUPABASE_URL
+if [ -z "$SUPABASE_URL" ]; then
+    echo -e "${YELLOW}Warning: Supabase URL not provided${NC}"
+fi
+
+# Supabase Anon Key
+read_secret "Supabase Anon Key: " SUPABASE_KEY
+if [ -z "$SUPABASE_KEY" ]; then
+    echo -e "${YELLOW}Warning: Supabase Anon Key not provided${NC}"
+fi
+
+echo
+echo -e "${BLUE}Updating .env file...${NC}"
+
+# Update or add keys to .env file
+update_env_var() {
+    local key="$1"
+    local value="$2"
+    local file="$ENV_FILE"
+    
+    if grep -q "^${key}=" "$file" 2>/dev/null; then
+        # Update existing key
+        sed -i.bak "s|^${key}=.*|${key}=${value}|" "$file"
+    else
+        # Add new key
+        echo "${key}=${value}" >> "$file"
     fi
 }
 
-# Check if .env exists
-if [ ! -f "/workspace/mobile/.env" ]; then
-    echo "Creating .env file..."
-    cp /workspace/mobile/.env.example /workspace/mobile/.env
-fi
-
-echo "Please enter your API keys (they will be masked in display):"
-echo ""
-
-# OpenAI API Key
-echo "1. OpenAI API Key"
-echo "   Get it from: https://platform.openai.com/api-keys"
-echo -n "   Enter your OpenAI API key (starts with sk-): "
-read -s OPENAI_KEY
-echo ""
-
-if [ ! -z "$OPENAI_KEY" ]; then
-    update_env_key "OPENAI_API_KEY" "$OPENAI_KEY"
-    echo "   ✓ OpenAI API key saved"
-else
-    echo "   ⚠ Skipped OpenAI API key"
-fi
-
-echo ""
-
-# OpenAI ARIA Key (optional)
-echo "2. OpenAI ARIA Key (Optional - for separate billing)"
-echo "   Leave blank to use the same key as above"
-echo -n "   Enter your ARIA-specific OpenAI key (or press Enter to skip): "
-read -s ARIA_KEY
-echo ""
-
+# Update the .env file
+update_env_var "OPENAI_API_KEY" "$OPENAI_KEY"
 if [ ! -z "$ARIA_KEY" ]; then
-    update_env_key "OPENAI_ARIA_KEY" "$ARIA_KEY"
-    echo "   ✓ ARIA API key saved"
-else
-    echo "   ⚠ Skipped ARIA-specific key (will use main OpenAI key)"
+    update_env_var "OPENAI_ARIA_KEY" "$ARIA_KEY"
 fi
-
-echo ""
-
-# Supabase Configuration
-echo "3. Supabase Configuration"
-echo "   Get these from: https://app.supabase.com/project/_/settings/api"
-echo ""
-
-echo -n "   Enter your Supabase URL: "
-read SUPABASE_URL
-
 if [ ! -z "$SUPABASE_URL" ]; then
-    update_env_key "SUPABASE_URL" "$SUPABASE_URL"
-    echo "   ✓ Supabase URL saved"
-else
-    echo "   ⚠ Skipped Supabase URL"
+    update_env_var "SUPABASE_URL" "$SUPABASE_URL"
 fi
-
-echo -n "   Enter your Supabase Anon Key: "
-read -s SUPABASE_KEY
-echo ""
-
 if [ ! -z "$SUPABASE_KEY" ]; then
-    update_env_key "SUPABASE_ANON_KEY" "$SUPABASE_KEY"
-    echo "   ✓ Supabase Anon Key saved"
-else
-    echo "   ⚠ Skipped Supabase Anon Key"
+    update_env_var "SUPABASE_ANON_KEY" "$SUPABASE_KEY"
 fi
 
-echo ""
-echo "================================"
-echo "Configuration complete!"
-echo ""
-echo "Running verification..."
-echo ""
+echo -e "${GREEN}✓ API keys have been saved to $ENV_FILE${NC}"
+echo
 
-# Run verification script
-node /workspace/mobile/scripts/verify-openai-setup.js
+# Run verification
+echo -e "${BLUE}Running verification...${NC}"
+echo
 
-echo ""
-echo "🎯 Next Steps:"
-echo "1. If all checks pass, run: npm run ios (or android)"
-echo "2. Navigate to the ARIA chat screen"
-echo "3. Test with: 'Hello ARIA, how can you help me?'"
-echo ""
-echo "📝 To update keys later, run this script again or edit .env directly"
+VERIFY_SCRIPT="$SCRIPT_DIR/verify-openai-setup.js"
+if [ -f "$VERIFY_SCRIPT" ]; then
+    node "$VERIFY_SCRIPT"
+else
+    echo -e "${YELLOW}Verification script not found at $VERIFY_SCRIPT${NC}"
+    echo -e "${GREEN}Your keys have been saved. You can verify manually later.${NC}"
+fi
+
+echo
+echo -e "${GREEN}Setup complete!${NC}"
+echo -e "${BLUE}Next steps:${NC}"
+echo "1. Start the Metro bundler: cd mobile && npm start"
+echo "2. Run the app: npm run ios (or npm run android)"
+echo "3. Test ARIA in the app!"
