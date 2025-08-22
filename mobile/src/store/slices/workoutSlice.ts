@@ -172,12 +172,14 @@ export const createWorkoutSlice = () => ({
   
   // Settings
   workoutSettings: {
-    defaultRestTimer: 90,
-    autoStartRestTimer: true,
-    plateCalculation: true,
-    warmupSets: true,
+    weightUnit: 'kg' as const,
+    distanceUnit: 'km' as const,
+    defaultRestTime: 90,
+    autoStartTimer: true,
     soundEnabled: true,
     vibrateEnabled: true,
+    showPreviousWorkout: true,
+    plateCalculator: [20, 10, 5, 2.5, 1.25],
   },
   
   // Placeholder actions (actual implementation is in useWorkoutStore)
@@ -368,7 +370,10 @@ export const useWorkoutStore = create<WorkoutState>()(
           
           if (completedWorkout) {
             // Check for personal records
-            await checkPersonalRecords();
+            const { checkPersonalRecords } = get();
+            if (checkPersonalRecords) {
+              await checkPersonalRecords();
+            }
             
             // Update history
             const history = get().workoutHistory;
@@ -454,9 +459,12 @@ export const useWorkoutStore = create<WorkoutState>()(
             workoutExercise.sets = sets;
 
             // Get previous workout data for reference
-            const previousData = await get().getPreviousWorkoutData(exercise.id);
-            if (previousData) {
-              workoutExercise.previousSets = previousData.sets;
+            const { getPreviousWorkoutData } = get();
+            if (getPreviousWorkoutData) {
+              const previousData = await getPreviousWorkoutData(exercise.id);
+              if (previousData) {
+                workoutExercise.previousSets = previousData.sets;
+              }
             }
 
             set({
@@ -1041,10 +1049,9 @@ export const useWorkoutStore = create<WorkoutState>()(
       // Add missing methods
       loadPersonalRecords: async () => {
         try {
-          const records = await workoutService.getPersonalRecords();
-          set((state) => {
-            state.personalRecords = records;
-          });
+          const userId = get().currentWorkout?.userId || '';
+          const records = await workoutService.getPersonalRecords(userId);
+          set({ personalRecords: records });
         } catch (error) {
           console.error('Error loading personal records:', error);
         }
@@ -1052,10 +1059,9 @@ export const useWorkoutStore = create<WorkoutState>()(
 
       deleteWorkoutGoal: async (goalId: string) => {
         try {
-          await workoutService.deleteWorkoutGoal(goalId);
-          set((state) => {
-            state.workoutGoals = state.workoutGoals.filter(g => g.id !== goalId);
-          });
+          // TODO: Implement deleteWorkoutGoal in workoutService
+          // await workoutService.deleteWorkoutGoal(goalId);
+          set({ workoutGoals: get().workoutGoals.filter(g => g.id !== goalId) });
         } catch (error) {
           console.error('Error deleting workout goal:', error);
         }
@@ -1067,12 +1073,12 @@ export const useWorkoutStore = create<WorkoutState>()(
       },
 
       clearWorkoutData: () => {
-        set((state) => {
-          state.workoutHistory = [];
-          state.exercises = [];
-          state.templates = [];
-          state.personalRecords = [];
-          state.workoutGoals = [];
+        set({
+          workoutHistory: [],
+          exercises: [],
+          templates: [],
+          personalRecords: [],
+          workoutGoals: [],
         });
       },
 
@@ -1091,14 +1097,17 @@ export const useWorkoutStore = create<WorkoutState>()(
               );
               
               if (!existingRecord || set.weight > existingRecord.weight) {
+                const oneRepMax = set.weight * (1 + (set.reps || 0) / 30);
                 newRecords.push({
                   id: `pr-${Date.now()}-${exercise.exercise.id}`,
-                  userId: '',
+                  userId: currentWorkout.userId || '',
                   exerciseId: exercise.exercise.id,
                   exerciseName: exercise.exercise.name,
                   weight: set.weight,
                   reps: set.reps || 0,
-                  date: new Date(),
+                  oneRepMax,
+                  volume: set.weight * (set.reps || 0),
+                  achievedAt: new Date(),
                   workoutId: currentWorkout.id,
                 });
               }
@@ -1107,9 +1116,7 @@ export const useWorkoutStore = create<WorkoutState>()(
         }
 
         if (newRecords.length > 0) {
-          set((state) => {
-            state.newPersonalRecords = newRecords;
-          });
+          set({ newPersonalRecords: newRecords });
         }
       },
 

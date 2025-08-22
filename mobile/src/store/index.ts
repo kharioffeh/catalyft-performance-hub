@@ -130,7 +130,7 @@ export const useStore = create<StoreState>()(
                 
                 // Sync user data
                 await Promise.all([
-                  state.loadUserProfile?.(state.currentUser.id),
+                  state.refreshUser?.(),
                   state.loadFriends?.(),
                   state.loadGoals?.(),
                   state.loadAchievements?.(),
@@ -171,10 +171,11 @@ export const useStore = create<StoreState>()(
           // Persist only essential data
           currentUser: state.currentUser,
           isAuthenticated: state.isAuthenticated,
-          dailyTargets: state.dailyTargets,
           workoutTemplates: state.workoutTemplates,
           favoriteFoods: state.favoriteFoods,
           lastSyncTime: state.lastSyncTime,
+          nutritionGoals: state.nutritionGoals,
+          waterGoal: state.waterGoal,
         }),
       }
     ),
@@ -225,9 +226,10 @@ useStore.subscribe(
       // Clear sensitive data when logged out
       useStore.setState({
         workouts: [],
-        nutritionEntries: [],
+        todaysFoodLogs: [],
         friends: [],
         notifications: [],
+        goals: [],
       });
     }
   }
