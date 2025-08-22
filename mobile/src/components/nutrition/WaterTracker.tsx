@@ -3,7 +3,7 @@
  * Tracks daily water intake with visual progress and quick add buttons
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -11,17 +11,12 @@ import {
   TouchableOpacity,
   useColorScheme,
   ScrollView,
+  Animated,
 } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-  withSpring,
-  interpolate,
-} from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
 import { QuickAddPreset } from '../../types/nutrition';
+import { useStore } from '../../store';
 
 interface WaterTrackerProps {
   consumed: number; // in ml
@@ -51,24 +46,28 @@ export const WaterTracker: React.FC<WaterTrackerProps> = ({
   const colors = isDark ? theme.colors.dark : theme.colors.light;
   const styles = createStyles(colors, compact);
 
-  const progress = useSharedValue(0);
+  const progress = useRef(new Animated.Value(0)).current;
   const percentage = Math.min((consumed / goal) * 100, 100);
   const glassesCount = Math.floor(consumed / 250); // 1 glass = 250ml
 
   useEffect(() => {
-    progress.value = withSpring(percentage / 100, {
-      damping: 15,
-      stiffness: 100,
-    });
+    Animated.spring(progress, {
+      toValue: percentage / 100,
+      friction: 7,
+      tension: 100,
+      useNativeDriver: false,
+    }).start();
   }, [percentage]);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    width: `${interpolate(progress.value, [0, 1], [0, 100])}%`,
-  }));
+  const animatedWidth = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0%', '100%'],
+  });
 
-  const animatedWaterStyle = useAnimatedStyle(() => ({
-    height: `${interpolate(progress.value, [0, 1], [0, 100])}%`,
-  }));
+  const animatedHeight = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0%', '100%'],
+  });
 
   const getProgressColor = () => {
     if (percentage < 50) return colors.info;
@@ -90,8 +89,10 @@ export const WaterTracker: React.FC<WaterTrackerProps> = ({
           <Animated.View
             style={[
               styles.compactProgressFill,
-              { backgroundColor: getProgressColor() },
-              animatedStyle,
+              { 
+                backgroundColor: getProgressColor(),
+                width: animatedWidth,
+              },
             ]}
           />
         </View>
@@ -115,13 +116,14 @@ export const WaterTracker: React.FC<WaterTrackerProps> = ({
             <Animated.View
               style={[
                 styles.water,
-                { backgroundColor: getProgressColor() },
-                animatedWaterStyle,
+                { 
+                  backgroundColor: getProgressColor(),
+                  height: animatedHeight,
+                },
               ]}
             />
             <View style={styles.glassOverlay}>
-              <Text style={styles.consumedText}>{consumed}</Text>
-              <Text style={styles.unitText}>ml</Text>
+              <Text style={styles.consumedText}>{consumed}ml</Text>
             </View>
           </View>
         </View>
@@ -150,8 +152,10 @@ export const WaterTracker: React.FC<WaterTrackerProps> = ({
         <Animated.View
           style={[
             styles.progressFill,
-            { backgroundColor: getProgressColor() },
-            animatedStyle,
+            { 
+              backgroundColor: getProgressColor(),
+              width: animatedWidth,
+            },
           ]}
         />
       </View>

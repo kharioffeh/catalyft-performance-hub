@@ -1,23 +1,18 @@
 /**
  * CalorieCounter Component
- * Displays daily calorie intake with circular progress visualization
+ * Displays daily calorie intake progress with animated ring
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  useColorScheme,
   TouchableOpacity,
+  useColorScheme,
+  Animated,
 } from 'react-native';
-import Svg, { Circle, G, Text as SvgText } from 'react-native-svg';
-import Animated, {
-  useAnimatedProps,
-  useSharedValue,
-  withTiming,
-  interpolate,
-} from 'react-native-reanimated';
+import Svg, { Circle, G } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
 
@@ -26,7 +21,6 @@ const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 interface CalorieCounterProps {
   consumed: number;
   goal: number;
-  remaining?: number;
   burned?: number;
   size?: number;
   strokeWidth?: number;
@@ -37,51 +31,49 @@ interface CalorieCounterProps {
 export const CalorieCounter: React.FC<CalorieCounterProps> = ({
   consumed,
   goal,
-  remaining,
   burned = 0,
-  size = 200,
+  size = 150,
   strokeWidth = 12,
   showDetails = true,
   onPress,
 }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-  const colors = isDark ? theme.colors.dark : theme.colors.light;
+  const isDarkMode = useColorScheme() === 'dark';
+  const colors = isDarkMode ? theme.colors.dark : theme.colors.light;
   const styles = createStyles(colors, size);
-
-  const progress = useSharedValue(0);
+  
+  const animatedValue = useRef(new Animated.Value(0)).current;
+  
+  // Calculate values
+  const adjustedGoal = goal + burned;
+  const percentage = Math.min((consumed / adjustedGoal) * 100, 100);
+  const calculatedRemaining = adjustedGoal - consumed;
+  
   const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
+  const circumference = radius * 2 * Math.PI;
   
-  const calculatedRemaining = remaining ?? goal - consumed + burned;
-  const percentage = Math.min((consumed / goal) * 100, 100);
-  
-  // Determine color based on progress
-  const getProgressColor = () => {
-    if (percentage < 80) return colors.primary;
-    if (percentage < 100) return colors.warning;
-    return colors.error;
-  };
-
   useEffect(() => {
-    progress.value = withTiming(percentage / 100, { duration: 1000 });
+    Animated.timing(animatedValue, {
+      toValue: percentage / 100,
+      duration: 1000,
+      useNativeDriver: false,
+    }).start();
   }, [percentage]);
-
-  const animatedProps = useAnimatedProps(() => {
-    const strokeDashoffset = interpolate(
-      progress.value,
-      [0, 1],
-      [circumference, 0]
-    );
-    return {
-      strokeDashoffset,
-    };
+  
+  const strokeDashoffset = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [circumference, 0],
   });
-
+  
+  const getProgressColor = () => {
+    if (percentage >= 100) return colors.error;
+    if (percentage >= 80) return colors.warning;
+    return colors.success;
+  };
+  
   const Container = onPress ? TouchableOpacity : View;
-
+  
   return (
-    <Container style={styles.container} onPress={onPress} activeOpacity={0.8}>
+    <Container style={styles.container} onPress={onPress}>
       <Svg width={size} height={size} style={styles.svg}>
         <G rotation="-90" origin={`${size / 2}, ${size / 2}`}>
           {/* Background Circle */}
@@ -104,7 +96,7 @@ export const CalorieCounter: React.FC<CalorieCounterProps> = ({
             fill="none"
             strokeDasharray={circumference}
             strokeLinecap="round"
-            animatedProps={animatedProps}
+            strokeDashoffset={strokeDashoffset}
           />
         </G>
       </Svg>
