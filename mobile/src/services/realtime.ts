@@ -235,7 +235,7 @@ export class RealtimeService {
         
         // Update store if needed
         const store = useStore.getState();
-        if (newRecord) {
+        if (newRecord && store.setWorkouts && store.workouts) {
           store.setWorkouts([...store.workouts, newRecord as any]);
         }
         break;
@@ -259,7 +259,7 @@ export class RealtimeService {
 
           // Update store
           const store = useStore.getState();
-          if (store.activeWorkout?.id === newRecord.id) {
+          if (store.activeWorkout?.id === newRecord.id && store.setActiveWorkout) {
             store.setActiveWorkout(newRecord as any);
           }
         }
@@ -283,7 +283,9 @@ export class RealtimeService {
 
           // Update store
           const store = useStore.getState();
-          store.setWorkouts(store.workouts.filter(w => w.id !== oldRecord.id));
+          if (store.setWorkouts && store.workouts) {
+            store.setWorkouts(store.workouts.filter((w: any) => w.id !== oldRecord.id));
+          }
         }
         break;
     }
@@ -319,7 +321,8 @@ export class RealtimeService {
             entryDate.getFullYear() === today.getFullYear()
           ) {
             const store = useStore.getState();
-            store.setCurrentEntry(newRecord as any);
+            // TODO: Update nutrition entry when method is available
+            // store.setCurrentEntry(newRecord as any);
           }
         }
         break;

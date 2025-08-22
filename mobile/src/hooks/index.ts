@@ -61,16 +61,15 @@ export { useRealtime, useChallengeRealtime, usePresence } from '../services/real
 // Background sync hooks
 export { useBackgroundSync, useOfflineQueue } from '../services/backgroundSync';
 
-// Store hooks
+// Re-export store hooks
 export {
   useStore,
-  useUser,
+  useCurrentUser,
   useIsAuthenticated,
   useWorkouts,
-  useActiveWorkout,
-  useNutritionToday,
-  useGoals,
-  useNotifications,
+  useCurrentWorkout,
+  useTodaysFoodLogs,
+  useNutritionGoals,
   useAuthActions,
   useWorkoutActions,
   useNutritionActions,

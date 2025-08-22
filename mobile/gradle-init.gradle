@@ -1,0 +1,167 @@
+// Gradle init script for CI builds
+// This ensures all projects use reliable repository configurations
+
+allprojects {
+    buildscript {
+        repositories {
+            // Remove all existing repositories
+            clear()
+            
+            // Add repositories in order of preference
+            google()
+            mavenCentral()
+            
+            // Maven Central mirror
+            maven { 
+                url "https://repo1.maven.org/maven2"
+                allowInsecureProtocol = false
+            }
+            
+            // Google's Maven repository
+            maven { 
+                url "https://maven.google.com"
+                allowInsecureProtocol = false
+            }
+            
+            // Gradle Plugin Portal with multiple URLs
+            gradlePluginPortal()
+            maven { 
+                url "https://plugins-artifacts.gradle.org/m2/"
+                allowInsecureProtocol = false
+                metadataSources {
+                    mavenPom()
+                    artifact()
+                }
+            }
+            
+            // JitPack for GitHub dependencies
+            maven { 
+                url "https://jitpack.io"
+                allowInsecureProtocol = false
+            }
+            
+            // Sonatype snapshots (if needed)
+            maven { 
+                url "https://oss.sonatype.org/content/repositories/snapshots/"
+                allowInsecureProtocol = false
+            }
+            
+            // Local Maven repository as fallback
+            mavenLocal()
+        }
+    }
+    
+    repositories {
+        // Remove all existing repositories
+        clear()
+        
+        // Add repositories in order of preference
+        google()
+        mavenCentral()
+        
+        // Maven Central mirror
+        maven { 
+            url "https://repo1.maven.org/maven2"
+            allowInsecureProtocol = false
+        }
+        
+        // Google's Maven repository
+        maven { 
+            url "https://maven.google.com"
+            allowInsecureProtocol = false
+        }
+        
+        // Gradle Plugin Portal
+        gradlePluginPortal()
+        maven { 
+            url "https://plugins-artifacts.gradle.org/m2/"
+            allowInsecureProtocol = false
+        }
+        
+        // JitPack
+        maven { 
+            url "https://jitpack.io"
+            allowInsecureProtocol = false
+        }
+        
+        // React Native community packages
+        maven { 
+            url "$rootDir/../node_modules/react-native/android"
+            allowInsecureProtocol = false
+        }
+        
+        // Expo packages
+        maven {
+            url "$rootDir/../node_modules/expo/android"
+            allowInsecureProtocol = false
+        }
+        
+        // Local Maven repository
+        mavenLocal()
+    }
+}
+
+// Configure plugin management
+settingsEvaluated { settings ->
+    settings.pluginManagement {
+        repositories {
+            clear()
+            google()
+            mavenCentral()
+            gradlePluginPortal()
+            maven { 
+                url "https://plugins-artifacts.gradle.org/m2/"
+                allowInsecureProtocol = false
+            }
+            mavenLocal()
+        }
+        
+        // Resolution strategy for problematic plugins
+        resolutionStrategy {
+            eachPlugin {
+                // Force specific versions if needed
+                if (requested.id.namespace == "org.jetbrains.kotlin") {
+                    useVersion "1.9.20" // Use a stable version
+                }
+            }
+        }
+    }
+}
+
+// Gradle properties for better network handling
+gradle.projectsLoaded {
+    rootProject.allprojects {
+        // Set timeouts
+        if (project.hasProperty('android')) {
+            project.android {
+                // Increase timeout for downloads
+                project.configurations.all {
+                    resolutionStrategy {
+                        // Cache dynamic versions for 10 minutes
+                        cacheDynamicVersionsFor 10, 'minutes'
+                        // Cache changing modules for 10 minutes
+                        cacheChangingModulesFor 10, 'minutes'
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Error handling for repository failures
+gradle.buildFinished { result ->
+    if (result.failure) {
+        def cause = result.failure.cause
+        if (cause && cause.message.contains("Could not resolve") || cause.message.contains("Could not download")) {
+            println ""
+            println "========================================="
+            println "Repository connection issue detected!"
+            println "Try the following:"
+            println "1. Clear Gradle cache: rm -rf ~/.gradle/caches/"
+            println "2. Use VPN if behind firewall"
+            println "3. Check network connectivity"
+            println "4. Retry the build"
+            println "========================================="
+        }
+    }
+}

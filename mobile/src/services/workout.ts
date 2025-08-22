@@ -1139,7 +1139,7 @@ class WorkoutService {
       id: we.id,
       workoutId: we.workout_id,
       exercise: this.mapExercise(we.exercises),
-      sets: (we.sets || []).map(this.mapSet).sort((a, b) => a.setNumber - b.setNumber),
+      sets: (we.sets || []).map(this.mapSet).sort((a: any, b: any) => a.setNumber - b.setNumber),
       orderIndex: we.order_index,
       notes: we.notes,
       isSuperset: we.is_superset,

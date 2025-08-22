@@ -109,7 +109,7 @@ export const baseColors: ColorPalette = {
   success200: '#BBF7D0',
   success300: '#86EFAC',
   success400: '#4ADE80',
-  success500: '#22C55E', // Achievement green
+  success500: '#22C55E', // Positive green
   success600: '#16A34A',
   success700: '#15803D',
   success800: '#166534',
@@ -121,7 +121,7 @@ export const baseColors: ColorPalette = {
   warning200: '#FEF08A',
   warning300: '#FDE047',
   warning400: '#FACC15',
-  warning500: '#EAB308', // Attention yellow
+  warning500: '#EAB308', // Alert yellow
   warning600: '#CA8A04',
   warning700: '#A16207',
   warning800: '#854D0E',
@@ -133,7 +133,7 @@ export const baseColors: ColorPalette = {
   error200: '#FECACA',
   error300: '#FCA5A5',
   error400: '#F87171',
-  error500: '#EF4444', // Alert red
+  error500: '#EF4444', // Critical red
   error600: '#DC2626',
   error700: '#B91C1C',
   error800: '#991B1B',
@@ -141,16 +141,16 @@ export const baseColors: ColorPalette = {
 
   // Neutral - Grays
   neutral50: '#FAFAFA',
-  neutral100: '#F4F4F5',
-  neutral200: '#E4E4E7',
-  neutral300: '#D4D4D8',
-  neutral400: '#A1A1AA',
-  neutral500: '#71717A',
-  neutral600: '#52525B',
-  neutral700: '#3F3F46',
-  neutral800: '#27272A',
-  neutral900: '#18181B',
-  neutral950: '#09090B',
+  neutral100: '#F5F5F5',
+  neutral200: '#E5E5E5',
+  neutral300: '#D4D4D4',
+  neutral400: '#A3A3A3',
+  neutral500: '#737373',
+  neutral600: '#525252',
+  neutral700: '#404040',
+  neutral800: '#262626',
+  neutral900: '#171717',
+  neutral950: '#0A0A0A',
 };
 
 export interface ThemeColors {
@@ -192,11 +192,26 @@ export interface ThemeColors {
   error: string;
   errorLight: string;
   errorDark: string;
+  info: string;
+  infoLight: string;
+  infoDark: string;
 
-  // Special colors
-  overlay: string;
+  // Component colors
+  card: string;
+  cardHover: string;
+  modal: string;
+  modalOverlay: string;
+  tooltip: string;
+  badge: string;
   shadow: string;
-  highlight: string;
+  
+  // Interactive states
+  hover: string;
+  active: string;
+  focus: string;
+  disabled: string;
+  
+  // Links
   link: string;
   linkVisited: string;
 
@@ -249,11 +264,26 @@ export const lightTheme: ThemeColors = {
   error: baseColors.error500,
   errorLight: baseColors.error400,
   errorDark: baseColors.error600,
+  info: baseColors.primary300,
+  infoLight: baseColors.primary200,
+  infoDark: baseColors.primary400,
 
-  // Special colors
-  overlay: 'rgba(0, 0, 0, 0.5)',
+  // Component colors
+  card: '#FFFFFF',
+  cardHover: baseColors.neutral50,
+  modal: '#FFFFFF',
+  modalOverlay: 'rgba(0, 0, 0, 0.5)',
+  tooltip: baseColors.neutral800,
+  badge: baseColors.primary500,
   shadow: 'rgba(0, 0, 0, 0.1)',
-  highlight: baseColors.primary100,
+  
+  // Interactive states
+  hover: baseColors.neutral50,
+  active: baseColors.neutral100,
+  focus: baseColors.primary100,
+  disabled: baseColors.neutral300,
+  
+  // Links
   link: baseColors.primary500,
   linkVisited: baseColors.primary700,
 
@@ -278,7 +308,7 @@ export const darkTheme: ThemeColors = {
 
   // Text colors
   text: baseColors.neutral50,
-  textSecondary: baseColors.neutral200,
+  textSecondary: baseColors.neutral300,
   textTertiary: baseColors.neutral400,
   textDisabled: baseColors.neutral600,
   textInverse: baseColors.neutral900,
@@ -306,11 +336,26 @@ export const darkTheme: ThemeColors = {
   error: baseColors.error400,
   errorLight: baseColors.error300,
   errorDark: baseColors.error500,
+  info: baseColors.primary300,
+  infoLight: baseColors.primary200,
+  infoDark: baseColors.primary400,
 
-  // Special colors
-  overlay: 'rgba(0, 0, 0, 0.7)',
+  // Component colors
+  card: baseColors.neutral900,
+  cardHover: baseColors.neutral800,
+  modal: baseColors.neutral900,
+  modalOverlay: 'rgba(0, 0, 0, 0.7)',
+  tooltip: baseColors.neutral200,
+  badge: baseColors.primary400,
   shadow: 'rgba(0, 0, 0, 0.3)',
-  highlight: baseColors.primary900,
+  
+  // Interactive states
+  hover: baseColors.neutral800,
+  active: baseColors.neutral700,
+  focus: baseColors.primary900,
+  disabled: baseColors.neutral700,
+  
+  // Links
   link: baseColors.primary400,
   linkVisited: baseColors.primary600,
 
@@ -324,29 +369,38 @@ export const darkTheme: ThemeColors = {
   rest: baseColors.success400,
 };
 
-// Gradients for special UI elements
+// Gradient definitions
 export const gradients = {
   primary: ['#0078FF', '#0063E6'],
   secondary: ['#F97316', '#EA580C'],
   success: ['#22C55E', '#16A34A'],
-  sunset: ['#F97316', '#EF4444'],
-  ocean: ['#0078FF', '#22C55E'],
-  fire: ['#EF4444', '#F97316'],
-  energy: ['#FACC15', '#F97316'],
-  cool: ['#0078FF', '#A855F7'],
-  dark: ['#27272A', '#09090B'],
-  light: ['#FFFFFF', '#F4F4F5'],
+  warning: ['#EAB308', '#CA8A04'],
+  error: ['#EF4444', '#DC2626'],
+  
+  // Fitness-specific gradients
+  workout: ['#0078FF', '#F97316'],
+  energy: ['#F97316', '#FACC15'],
+  health: ['#22C55E', '#0078FF'],
+  power: ['#EF4444', '#F97316'],
+  calm: ['#0078FF', '#22C55E'],
+  
+  // Background gradients
+  backgroundLight: ['#FFFFFF', '#F5F5F5'],
+  backgroundDark: ['#0A0A0A', '#171717'],
 };
 
 // Opacity values for consistent transparency
 export const opacity = {
-  transparent: 0,
-  barely: 0.05,
-  faint: 0.1,
-  light: 0.2,
-  medium: 0.4,
-  strong: 0.6,
-  heavy: 0.8,
-  almost: 0.95,
-  opaque: 1,
+  transparent: 'transparent',
+  opacity5: 0.05,
+  opacity10: 0.1,
+  opacity20: 0.2,
+  opacity30: 0.3,
+  opacity40: 0.4,
+  opacity50: 0.5,
+  opacity60: 0.6,
+  opacity70: 0.7,
+  opacity80: 0.8,
+  opacity90: 0.9,
+  opacity95: 0.95,
 };

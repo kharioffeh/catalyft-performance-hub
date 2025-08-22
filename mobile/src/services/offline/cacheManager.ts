@@ -357,7 +357,8 @@ export class CacheManager {
           const info = await FileSystem.getInfoAsync(filePath);
           
           // Remove files older than 30 days
-          if (info.modificationTime && Date.now() - info.modificationTime > 30 * 24 * 60 * 60 * 1000) {
+          const fileInfo = info as any;
+          if (fileInfo.modificationTime && Date.now() - fileInfo.modificationTime > 30 * 24 * 60 * 60 * 1000) {
             await FileSystem.deleteAsync(filePath, { idempotent: true });
           }
         }

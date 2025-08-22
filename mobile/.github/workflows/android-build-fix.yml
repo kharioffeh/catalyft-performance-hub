@@ -49,18 +49,33 @@ jobs:
         working-directory: mobile
         run: |
           chmod +x scripts/fix-android-ci.sh
+          chmod +x scripts/fix-gradle-repos.sh || true
           ./scripts/fix-android-ci.sh
         env:
           CI: true
 
+      - name: Setup Gradle init script
+        working-directory: mobile
+        run: |
+          # Copy gradle init script to proper location
+          mkdir -p ~/.gradle/init.d
+          if [ -f "gradle-init.gradle" ]; then
+            cp gradle-init.gradle ~/.gradle/init.d/repos.gradle
+          fi
+          
+          # Clear problematic Gradle caches
+          rm -rf ~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-scripting-compiler-impl-embeddable || true
+
       - name: Prebuild Android with optimizations
         working-directory: mobile
         run: |
-          # Use CI-optimized gradle properties
-          cp android/gradle-ci.properties android/gradle.properties
-          
           # Prebuild with single architecture for CI
           CI=1 npx expo prebuild --platform android --clean
+          
+          # Apply repository fixes after prebuild
+          if [ -f "scripts/fix-gradle-repos.sh" ]; then
+            ./scripts/fix-gradle-repos.sh
+          fi
         env:
           EXPO_NO_TELEMETRY: 1
           CI: true
@@ -70,8 +85,9 @@ jobs:
         run: |
           chmod +x gradlew
           
-          # Build with optimized settings
+          # Build with optimized settings and init script
           ./gradlew :app:assembleRelease \
+            --init-script ~/.gradle/init.d/repos.gradle \
             -x test \
             -x lint \
             -x bundleReleaseJsAndAssets \
@@ -79,11 +95,13 @@ jobs:
             --max-workers=2 \
             --no-parallel \
             --no-build-cache \
+            --refresh-dependencies \
             -PreactNativeArchitectures=x86_64
         env:
           EXPO_NO_TELEMETRY: 1
           CI: true
           _JAVA_OPTIONS: "-Xmx2g -XX:MaxMetaspaceSize=512m"
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false"
 
       - name: Upload Android APK
         if: success()
@@ -92,3 +110,18 @@ jobs:
           name: android-release-apk
           path: mobile/android/app/build/outputs/apk/release/app-release.apk
           retention-days: 7
+          
+      - name: Debug information on failure
+        if: failure()
+        working-directory: mobile
+        run: |
+          echo "Build failed. Collecting debug information..."
+          echo "=== Gradle version ==="
+          ./android/gradlew --version || true
+          echo "=== Network connectivity ==="
+          curl -I https://plugins.gradle.org/m2/ || true
+          curl -I https://repo1.maven.org/maven2/ || true
+          echo "=== Gradle properties ==="
+          cat android/gradle.properties || true
+          echo "=== Available disk space ==="
+          df -h

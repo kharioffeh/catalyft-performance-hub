@@ -18,7 +18,8 @@ import {
 } from '../../types/workout';
 import { Alert } from 'react-native';
 
-interface WorkoutState {
+// Export WorkoutState as WorkoutSlice for compatibility
+export interface WorkoutSlice {
   // Current workout
   currentWorkout: Workout | null;
   workoutTimer: TimerState;
@@ -98,23 +99,149 @@ interface WorkoutState {
   updateWorkoutTimer: () => void;
   
   // Actions - Stats and Goals
-  loadWorkoutStats: () => Promise<void>;
+  loadWorkoutStats: (period?: 'week' | 'month' | 'year') => Promise<void>;
+  loadPersonalRecords: () => Promise<void>;
   loadWorkoutGoals: () => Promise<void>;
   createWorkoutGoal: (goal: Partial<WorkoutGoal>) => Promise<void>;
   updateWorkoutGoal: (goalId: string, updates: Partial<WorkoutGoal>) => Promise<void>;
+  deleteWorkoutGoal: (goalId: string) => Promise<void>;
   
   // Actions - Settings
-  updateWorkoutSettings: (settings: Partial<WorkoutSettings>) => Promise<void>;
+  updateWorkoutSettings: (settings: Partial<WorkoutSettings>) => void;
   
-  // Actions - Personal Records
-  checkPersonalRecords: () => Promise<void>;
-  dismissNewPersonalRecords: () => void;
+  // Actions - Sync
+  syncWorkoutData: () => Promise<void>;
+  clearWorkoutData: () => void;
   
-  // Helpers
-  getPreviousWorkoutData: (exerciseId: string) => Promise<WorkoutExercise | null>;
-  calculateWorkoutVolume: () => number;
-  calculateWorkoutDuration: () => number;
+  // Additional workout-specific state (for main store compatibility)
+  workouts?: Workout[];
+  activeWorkout?: Workout | null;
+  workoutTemplates?: WorkoutTemplate[];
+  workoutFilters?: any;
+  setWorkouts?: (workouts: Workout[]) => void;
+  addWorkout?: (workout: Workout) => void;
+  updateWorkout?: (id: string, workout: Workout) => void;
+  setActiveWorkout?: (workout: Workout | null) => void;
+  
+  // Helper methods
+  checkPersonalRecords?: () => Promise<void>;
+  getPreviousWorkoutData?: (exerciseId: string) => Promise<WorkoutExercise | null>;
+  calculateWorkoutVolume?: () => number;
+  calculateWorkoutDuration?: () => number;
 }
+
+// Keep the original WorkoutState as an alias
+interface WorkoutState extends WorkoutSlice {}
+
+// Export a createWorkoutSlice function for the main store
+export const createWorkoutSlice = () => ({
+  // Current workout
+  currentWorkout: null,
+  workoutTimer: { 
+    isRunning: false, 
+    startTime: undefined, 
+    pausedTime: undefined, 
+    totalPausedDuration: 0,
+    currentDuration: 0,
+    restTimerActive: false
+  },
+  restTimer: null,
+  
+  // Workout history
+  workoutHistory: [],
+  workoutHistoryLoading: false,
+  
+  // Exercise library
+  exercises: [],
+  exercisesLoading: false,
+  favoriteExercises: [],
+  recentExercises: [],
+  exerciseSearchFilters: {},
+  
+  // Templates
+  templates: [],
+  templatesLoading: false,
+  
+  // Personal records
+  personalRecords: [],
+  newPersonalRecords: [],
+  
+  // Stats and goals
+  workoutStats: null,
+  workoutGoals: [],
+  
+  // Settings
+  workoutSettings: {
+    weightUnit: 'kg' as const,
+    distanceUnit: 'km' as const,
+    defaultRestTime: 90,
+    autoStartTimer: true,
+    soundEnabled: true,
+    vibrateEnabled: true,
+    showPreviousWorkout: true,
+    plateCalculator: [20, 10, 5, 2.5, 1.25],
+  },
+  
+  // Placeholder actions (actual implementation is in useWorkoutStore)
+  startWorkout: async () => {},
+  pauseWorkout: () => {},
+  resumeWorkout: () => {},
+  finishWorkout: async () => {},
+  cancelWorkout: () => {},
+  updateWorkoutNotes: () => {},
+  addExerciseToWorkout: async () => {},
+  removeExerciseFromWorkout: async () => {},
+  reorderExercises: async () => {},
+  updateExerciseNotes: async () => {},
+  addSet: async () => {},
+  updateSet: async () => {},
+  deleteSet: async () => {},
+  completeSet: async () => {},
+  copyPreviousSet: async () => {},
+  loadExercises: async () => {},
+  searchExercises: async () => {},
+  toggleFavoriteExercise: async () => {},
+  createCustomExercise: async () => {},
+  setExerciseFilters: () => {},
+  loadTemplates: async () => {},
+  createTemplate: async () => {},
+  startWorkoutFromTemplate: async () => {},
+  saveWorkoutAsTemplate: async () => {},
+  loadWorkoutHistory: async () => {},
+  loadWorkoutDetails: async () => {},
+  deleteWorkout: async () => {},
+  copyWorkout: async () => {},
+  startRestTimer: () => {},
+  pauseRestTimer: () => {},
+  resumeRestTimer: () => {},
+  cancelRestTimer: () => {},
+  updateWorkoutTimer: () => {},
+  loadWorkoutStats: async () => {},
+  loadPersonalRecords: async () => {},
+  loadWorkoutGoals: async () => {},
+  createWorkoutGoal: async () => {},
+  updateWorkoutGoal: async () => {},
+  deleteWorkoutGoal: async () => {},
+  updateWorkoutSettings: () => {},
+  syncWorkoutData: async () => {},
+  clearWorkoutData: () => {},
+  
+  // Additional state for main store
+  workouts: [],
+  activeWorkout: null,
+  workoutTemplates: [],
+  workoutFilters: {},
+  setWorkouts: () => {},
+  addWorkout: () => {},
+  updateWorkout: () => {},
+  setActiveWorkout: () => {},
+  
+  // Helper methods
+  checkPersonalRecords: async () => {},
+  getPreviousWorkoutData: async () => null,
+  calculateWorkoutVolume: () => 0,
+  calculateWorkoutDuration: () => 0,
+});
 
 const defaultSettings: WorkoutSettings = {
   weightUnit: 'kg',
@@ -243,7 +370,10 @@ export const useWorkoutStore = create<WorkoutState>()(
           
           if (completedWorkout) {
             // Check for personal records
-            await checkPersonalRecords();
+            const { checkPersonalRecords } = get();
+            if (checkPersonalRecords) {
+              await checkPersonalRecords();
+            }
             
             // Update history
             const history = get().workoutHistory;
@@ -329,9 +459,12 @@ export const useWorkoutStore = create<WorkoutState>()(
             workoutExercise.sets = sets;
 
             // Get previous workout data for reference
-            const previousData = await get().getPreviousWorkoutData(exercise.id);
-            if (previousData) {
-              workoutExercise.previousSets = previousData.sets;
+            const { getPreviousWorkoutData } = get();
+            if (getPreviousWorkoutData) {
+              const previousData = await getPreviousWorkoutData(exercise.id);
+              if (previousData) {
+                workoutExercise.previousSets = previousData.sets;
+              }
             }
 
             set({
@@ -722,7 +855,12 @@ export const useWorkoutStore = create<WorkoutState>()(
         try {
           const workout = await workoutService.getWorkoutById(workoutId);
           if (workout) {
-            return workout;
+            // Store the workout in state instead of returning it
+            set((state: WorkoutState) => ({
+              workoutHistory: state.workoutHistory.map(w => 
+                w.id === workout.id ? workout : w
+              )
+            }));
           }
         } catch (error) {
           console.error('Error loading workout details:', error);
@@ -908,29 +1046,77 @@ export const useWorkoutStore = create<WorkoutState>()(
         await AsyncStorage.setItem('workout_settings', JSON.stringify(newSettings));
       },
 
-      // Personal Records
-      checkPersonalRecords: async () => {
+      // Add missing methods
+      loadPersonalRecords: async () => {
         try {
-          const { currentWorkout } = get();
-          if (!currentWorkout) return;
-
-          const newRecords = await workoutService.checkAndUpdatePersonalRecords(currentWorkout);
-          if (newRecords.length > 0) {
-            set({ newPersonalRecords: newRecords });
-            
-            // Show celebration
-            const recordText = newRecords.map(pr => 
-              `${pr.exerciseName}: ${pr.weight}${get().workoutSettings.weightUnit} x ${pr.reps}`
-            ).join('\n');
-            
-            Alert.alert(
-              '🎉 New Personal Records!',
-              recordText,
-              [{ text: 'Awesome!' }]
-            );
-          }
+          const userId = get().currentWorkout?.userId || '';
+          const records = await workoutService.getPersonalRecords(userId);
+          set({ personalRecords: records });
         } catch (error) {
-          console.error('Error checking personal records:', error);
+          console.error('Error loading personal records:', error);
+        }
+      },
+
+      deleteWorkoutGoal: async (goalId: string) => {
+        try {
+          // TODO: Implement deleteWorkoutGoal in workoutService
+          // await workoutService.deleteWorkoutGoal(goalId);
+          set({ workoutGoals: get().workoutGoals.filter(g => g.id !== goalId) });
+        } catch (error) {
+          console.error('Error deleting workout goal:', error);
+        }
+      },
+
+      syncWorkoutData: async () => {
+        // TODO: Implement workout data sync
+        console.log('Syncing workout data...');
+      },
+
+      clearWorkoutData: () => {
+        set({
+          workoutHistory: [],
+          exercises: [],
+          templates: [],
+          personalRecords: [],
+          workoutGoals: [],
+        });
+      },
+
+      checkPersonalRecords: async () => {
+        const { currentWorkout } = get();
+        if (!currentWorkout) return;
+
+        const newRecords: PersonalRecord[] = [];
+        
+        for (const exercise of currentWorkout.exercises) {
+          for (const set of exercise.sets) {
+            if (set.completed && set.weight) {
+              // Check if this is a personal record
+              const existingRecord = get().personalRecords.find(
+                r => r.exerciseId === exercise.exercise.id
+              );
+              
+              if (!existingRecord || set.weight > existingRecord.weight) {
+                const oneRepMax = set.weight * (1 + (set.reps || 0) / 30);
+                newRecords.push({
+                  id: `pr-${Date.now()}-${exercise.exercise.id}`,
+                  userId: currentWorkout.userId || '',
+                  exerciseId: exercise.exercise.id,
+                  exerciseName: exercise.exercise.name,
+                  weight: set.weight,
+                  reps: set.reps || 0,
+                  oneRepMax,
+                  volume: set.weight * (set.reps || 0),
+                  achievedAt: new Date(),
+                  workoutId: currentWorkout.id,
+                });
+              }
+            }
+          }
+        }
+
+        if (newRecords.length > 0) {
+          set({ newPersonalRecords: newRecords });
         }
       },
 

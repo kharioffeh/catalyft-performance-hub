@@ -13,15 +13,13 @@ export { syncEngine, SyncEngine } from './syncEngine';
 export { backgroundSync, BackgroundSyncService } from './backgroundSync';
 export { cacheManager, CacheManager } from './cacheManager';
 
-// Integration Helpers
+// Integration
 export {
   OfflineWorkoutService,
   OfflineNutritionService,
-  useOfflineWorkoutStore,
-  initializeOfflineSupport,
+  createOfflineWorkoutStore,
   useNetworkStatus,
-  useSyncStatus,
-  useOfflineData,
+  useSyncStatus
 } from './integration';
 
 // Types
@@ -69,12 +67,11 @@ export type {
 } from './cacheManager';
 
 // Middleware
-export {
+export { 
   offlineMiddleware,
-  createMMKVStorage,
-  type WithOfflineState,
   type OfflineConfig,
   type OfflineState,
+  type WithOfflineState
 } from '../../store/middleware/offlineMiddleware';
 
 // UI Components

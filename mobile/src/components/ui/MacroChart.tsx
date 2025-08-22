@@ -169,8 +169,8 @@ export const MacroChart: React.FC<MacroChartProps> = ({
             strokeWidth={strokeWidth}
             fill="none"
             strokeDashoffset={proteinOffset}
-            animatedProps={animatedProteinProps}
             strokeLinecap="round"
+            {...animatedProteinProps}
           />
           
           {/* Carbs arc */}
@@ -182,8 +182,8 @@ export const MacroChart: React.FC<MacroChartProps> = ({
             strokeWidth={strokeWidth}
             fill="none"
             strokeDashoffset={carbsOffset}
-            animatedProps={animatedCarbsProps}
             strokeLinecap="round"
+            {...animatedCarbsProps}
           />
           
           {/* Fat arc */}
@@ -195,8 +195,8 @@ export const MacroChart: React.FC<MacroChartProps> = ({
             strokeWidth={strokeWidth}
             fill="none"
             strokeDashoffset={fatOffset}
-            animatedProps={animatedFatProps}
             strokeLinecap="round"
+            {...animatedFatProps}
           />
         </G>
         

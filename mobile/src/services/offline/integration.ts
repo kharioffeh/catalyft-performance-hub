@@ -19,7 +19,7 @@ export class OfflineWorkoutService {
   /**
    * Create a new workout with offline support
    */
-  async createWorkout(workoutData: any, userId: string) {
+  async createWorkout(workoutData: any, userId: string): Promise<any> {
     // Check if online
     if (networkMonitor.isOffline()) {
       // Store locally and queue for sync
@@ -67,7 +67,7 @@ export class OfflineWorkoutService {
   /**
    * Update an existing workout
    */
-  async updateWorkout(workoutId: string, updates: any, userId: string) {
+  async updateWorkout(workoutId: string, updates: any, userId: string): Promise<any> {
     if (networkMonitor.isOffline()) {
       // Update locally
       const workouts = await offlineStorage.getWorkouts(userId) || [];
@@ -145,7 +145,7 @@ export class OfflineWorkoutService {
   /**
    * Delete a workout
    */
-  async deleteWorkout(workoutId: string, userId: string) {
+  async deleteWorkout(workoutId: string, userId: string): Promise<any> {
     if (networkMonitor.isOffline()) {
       // Mark for deletion locally
       const workouts = await offlineStorage.getWorkouts(userId) || [];
@@ -188,7 +188,7 @@ export class OfflineNutritionService {
   /**
    * Log food with offline support
    */
-  async logFood(foodData: any, userId: string) {
+  async logFood(foodData: any, userId: string): Promise<any> {
     if (networkMonitor.isOffline()) {
       const localLog = {
         ...foodData,
@@ -284,47 +284,50 @@ interface WorkoutState {
   setCurrentWorkout: (workout: any | null) => void;
 }
 
-export const useOfflineWorkoutStore = create<WithOfflineState<WorkoutState>>(
-  offlineMiddleware(
-    (set, get) => ({
-      workouts: [],
-      currentWorkout: null,
-      userId: null,
-      
-      setWorkouts: (workouts) => set({ workouts }),
-      
-      addWorkout: (workout) => set((state) => ({
-        workouts: [...state.workouts, workout]
-      })),
-      
-      updateWorkout: (id, updates) => set((state) => ({
-        workouts: state.workouts.map(w => 
-          w.id === id ? { ...w, ...updates } : w
-        )
-      })),
-      
-      deleteWorkout: (id) => set((state) => ({
-        workouts: state.workouts.filter(w => w.id !== id)
-      })),
-      
-      setCurrentWorkout: (workout) => set({ currentWorkout: workout }),
-      
-      // Offline state (added by middleware)
-      _hasHydrated: false,
-      _pendingSync: 0,
-      _lastSync: Date.now(),
-      _isOffline: false
-    }),
-    {
+// Example: Create a workout store with offline support
+export const createOfflineWorkoutStore = () => {
+  return create<WithOfflineState<WorkoutState>>(
+    offlineMiddleware({
       name: 'workout-store',
       entity: 'workout',
       syncOnReconnect: true,
       optimisticUpdates: true,
-      persistKeys: ['workouts', 'currentWorkout'],
       version: 1
-    }
-  )
-);
+    })(
+      (set: any, get: any) => ({
+        workouts: [],
+        currentWorkout: null,
+        userId: null,
+        
+        setWorkouts: (workouts: any[]) => set({ workouts }),
+        
+        addWorkout: (workout: any) => set((state: any) => ({
+          workouts: [...state.workouts, workout]
+        })),
+        
+        updateWorkout: (id: string, updates: any) => set((state: any) => ({
+          workouts: state.workouts.map((w: any) =>
+            w.id === id ? { ...w, ...updates } : w
+          )
+        })),
+        
+        deleteWorkout: (id: string) => set((state: any) => ({
+          workouts: state.workouts.filter((w: any) => w.id !== id)
+        })),
+        
+        setCurrentWorkout: (workout: any) => set({ currentWorkout: workout }),
+        
+        setUserId: (userId: string) => set({ userId }),
+        
+        // Offline state will be added by middleware
+        _hasHydrated: false,
+        _pendingSync: 0,
+        _lastSync: Date.now(),
+        _isOffline: false
+      })
+    )
+  );
+};
 
 // ============================================================================
 // APP INITIALIZATION
@@ -519,18 +522,23 @@ export function useOfflineData<T>(
 export const ExampleWorkoutScreen = () => {
   const { isOnline } = useNetworkStatus();
   const { pendingCount } = useSyncStatus();
-  const store = useOfflineWorkoutStore();
+  const storeInstance = createOfflineWorkoutStore();
+  const store = storeInstance();
   const workoutService = new OfflineWorkoutService();
 
   const handleCreateWorkout = async (data: any) => {
-    // Optimistic update
-    const tempWorkout = { ...data, id: `temp_${Date.now()}` };
+    // Create a temporary workout for optimistic UI
+    const tempWorkout = {
+      ...data,
+      id: `temp_${Date.now()}`,
+      _isOffline: !isOnline
+    };
+    
     store.addWorkout(tempWorkout);
-
+    
     try {
       const workout = await workoutService.createWorkout(data, store.userId!);
-      
-      // Replace temp with real
+      // Replace temp workout with real one
       store.updateWorkout(tempWorkout.id, workout);
     } catch (error) {
       // Rollback on error
