@@ -93,6 +93,7 @@
     "react-native-svg-charts": "^5.4.0",
     "react-native-uuid": "^2.0.3",
     "react-native-vision-camera": "^4.7.1",
+    "react-native-worklets-core": "^1.6.2",
     "vision-camera-code-scanner": "^0.2.0",
     "zod": "^4.0.17",
     "zustand": "^5.0.7"
