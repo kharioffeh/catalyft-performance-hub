@@ -94,8 +94,6 @@
     "react-native-svg": "^15.12.1",
     "react-native-svg-charts": "^5.4.0",
     "react-native-uuid": "^2.0.3",
-    "react-native-vision-camera": "^4.7.1",
-    "vision-camera-code-scanner": "^0.2.0",
     "zod": "^4.0.17",
     "zustand": "^5.0.7"
   },
@@ -127,7 +125,10 @@
   "private": true,
   "expo": {
     "autolinking": {
-      "exclude": []
+      "exclude": [
+        "react-native-vision-camera",
+        "vision-camera-code-scanner"
+      ]
     }
   }
 }
