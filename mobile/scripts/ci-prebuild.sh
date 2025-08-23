@@ -57,23 +57,18 @@ EX_DEV_CLIENT_NETWORK_INSPECTOR=false
 EOF
 fi
 
-# Fix react-native-voice Gradle issues if needed
-if [ -f "scripts/check-voice-gradle.sh" ]; then
-    ./scripts/check-voice-gradle.sh || true
+# Apply all Android fixes
+if [ -f "scripts/fix-android-all.sh" ]; then
+    echo "🔧 Applying all Android fixes..."
+    chmod +x scripts/fix-android-all.sh
+    ./scripts/fix-android-all.sh
 else
+    # Fallback to individual fixes
     node scripts/fix-voice-gradle.js || true
-fi
-
-# Fix Android manifest merger issues
-if [ -f "android/app/src/main/AndroidManifest.xml" ]; then
-    echo "🔧 Fixing Android manifest merger issues..."
     node scripts/fix-android-manifest.js || true
-fi
-
-# Fix Gradle dependency conflicts
-if [ -f "android/build.gradle" ]; then
-    echo "🔧 Fixing Gradle dependency conflicts..."
     node scripts/fix-gradle-dependencies.js || true
+    node scripts/fix-kotlin-version.js || true
+    node scripts/fix-expo-plugin.js || true
 fi
 
 echo "CI prebuild complete!"

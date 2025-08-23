@@ -34,6 +34,7 @@ echo "🔧 Applying build fixes..."
 node scripts/fix-voice-gradle.js || true
 node scripts/fix-android-manifest.js || true
 node scripts/fix-gradle-dependencies.js || true
+node scripts/fix-kotlin-version.js || true
 
 # Build Android
 echo "📱 Building Android app..."
