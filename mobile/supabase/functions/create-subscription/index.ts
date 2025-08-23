@@ -85,6 +85,9 @@ serve(async (req) => {
       }
     }
 
+    // Determine trial period based on price ID
+    const trialDays = getTrialDaysForPrice(priceId)
+    
     // Create subscription with metadata
     const subscription = await stripe.subscriptions.create({
       customer: customerId,
@@ -94,7 +97,7 @@ serve(async (req) => {
         save_default_payment_method: 'on_subscription' 
       },
       expand: ['latest_invoice.payment_intent'],
-      trial_from_plan: trialFromPlan,
+      trial_period_days: trialDays,  // Set trial period explicitly
       promotion_code: promotionCode,
       metadata: {
         userId: userId,  // ⭐ This ensures webhooks can identify the user
@@ -161,4 +164,16 @@ function getTierFromPriceId(priceId: string): 'Free' | 'Premium' | 'Elite' {
   }
   
   return tierMap[priceId] || 'Free'
+}
+
+function getTrialDaysForPrice(priceId: string): number {
+  // Define trial periods for each price
+  const trialPeriods: Record<string, number> = {
+    [Deno.env.get('STRIPE_PREMIUM_MONTHLY_PRICE_ID') || '']: 7,   // 7-day trial for Premium Monthly
+    [Deno.env.get('STRIPE_PREMIUM_YEARLY_PRICE_ID') || '']: 7,    // 7-day trial for Premium Yearly
+    [Deno.env.get('STRIPE_ELITE_MONTHLY_PRICE_ID') || '']: 14,    // 14-day trial for Elite Monthly
+    [Deno.env.get('STRIPE_ELITE_YEARLY_PRICE_ID') || '']: 14,     // 14-day trial for Elite Yearly
+  }
+  
+  return trialPeriods[priceId] || 0  // No trial if price ID not found
 }
