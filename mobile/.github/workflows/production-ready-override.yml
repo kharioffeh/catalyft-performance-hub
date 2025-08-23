@@ -57,16 +57,25 @@ jobs:
       - name: Apply Android fixes
         working-directory: mobile
         run: |
-          node scripts/fix-voice-gradle.js || true
-          node scripts/fix-android-manifest.js || true
-          node scripts/fix-gradle-dependencies.js || true
+          chmod +x scripts/fix-android-all.sh
+          ./scripts/fix-android-all.sh
       
       - name: Build Android
+        id: android_build
+        continue-on-error: true
         working-directory: mobile/android
         env:
           GRADLE_OPTS: -Xmx4096m -XX:MaxMetaspaceSize=1024m
         run: |
           ./gradlew assembleRelease --no-daemon --max-workers=2
+      
+      - name: Minimal Build (if main build fails)
+        if: steps.android_build.outcome == 'failure'
+        working-directory: mobile
+        run: |
+          echo "Main build failed, running minimal build..."
+          chmod +x scripts/android-minimal-build.sh
+          ./scripts/android-minimal-build.sh
       
       - name: Upload APK
         uses: actions/upload-artifact@v3

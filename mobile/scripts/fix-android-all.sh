@@ -43,7 +43,14 @@ if [ -f "scripts/fix-expo-plugin.js" ]; then
     echo ""
 fi
 
-# 6. Ensure gradlew is executable
+# 6. Fix AndroidX conflicts
+if [ -f "scripts/fix-androidx-conflict.js" ]; then
+    echo "6️⃣ Fixing AndroidX conflicts..."
+    node scripts/fix-androidx-conflict.js || true
+    echo ""
+fi
+
+# 7. Ensure gradlew is executable
 if [ -f "android/gradlew" ]; then
     chmod +x android/gradlew
     echo "✅ Gradle wrapper permissions fixed"
