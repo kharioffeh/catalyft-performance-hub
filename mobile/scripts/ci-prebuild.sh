@@ -70,4 +70,10 @@ if [ -f "android/app/src/main/AndroidManifest.xml" ]; then
     node scripts/fix-android-manifest.js || true
 fi
 
+# Fix Gradle dependency conflicts
+if [ -f "android/build.gradle" ]; then
+    echo "🔧 Fixing Gradle dependency conflicts..."
+    node scripts/fix-gradle-dependencies.js || true
+fi
+
 echo "CI prebuild complete!"

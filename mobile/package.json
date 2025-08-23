@@ -34,7 +34,7 @@
     "detox:smoke:android": "detox test --configuration android.emu.debug e2e/smoke.e2e.ts",
     "fix:android-build": "node scripts/fix-android-build.js",
     "env:print": "node -v && npm -v && java -version || true",
-    "android:clean-prebuild": "rm -rf android && CI=1 npx expo prebuild --platform android --clean && node scripts/fix-voice-gradle.js && node scripts/fix-android-manifest.js",
+    "android:clean-prebuild": "rm -rf android && CI=1 npx expo prebuild --platform android --clean && node scripts/fix-voice-gradle.js && node scripts/fix-android-manifest.js && node scripts/fix-gradle-dependencies.js",
     "android:run": "npx expo run:android",
     "android:validate": "npm run android:clean-prebuild && npm run android:run",
     "ios:clean-prebuild": "rm -rf ios && CI=1 npx expo prebuild --platform ios --clean",
