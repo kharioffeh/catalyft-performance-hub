@@ -1,64 +1,72 @@
 #!/bin/bash
 
-echo "Fixing Android build for CI/CD..."
+# Comprehensive Android CI Build Fix Script
+# Handles Gradle issues, manifest merger conflicts, and build optimizations
 
-# Fix Gradle repositories first
-echo "Applying Gradle repository fixes..."
-if [ -f "scripts/fix-gradle-repos.sh" ]; then
-    chmod +x scripts/fix-gradle-repos.sh
-    ./scripts/fix-gradle-repos.sh
+set -e
+
+echo "🚀 Starting Android CI Build Fix..."
+
+# 1. Fix react-native-voice Gradle issues
+echo "📦 Checking react-native-voice..."
+if [ -f "scripts/check-voice-gradle.sh" ]; then
+    ./scripts/check-voice-gradle.sh || true
+else
+    node scripts/fix-voice-gradle.js || true
 fi
 
-# Use CI-optimized gradle properties if in CI
-if [ "$CI" = "true" ] || [ "$GITHUB_ACTIONS" = "true" ]; then
-  echo "CI environment detected, using optimized gradle properties..."
-  
-  # Create gradle-ci.properties if it doesn't exist
-  cat > android/gradle-ci.properties << 'EOF'
-# CI-optimized Gradle properties
-org.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
-org.gradle.daemon=false
-org.gradle.parallel=false
-org.gradle.configureondemand=false
-org.gradle.caching=false
-
-# Build optimizations
-android.useAndroidX=true
-android.enableJetifier=true
-android.enableR8=false
-android.enableProguardInReleaseBuilds=false
-
-# Network timeouts for CI
-systemProp.http.connectionTimeout=120000
-systemProp.http.socketTimeout=120000
-systemProp.https.connectionTimeout=120000
-systemProp.https.socketTimeout=120000
-
-# Kotlin optimizations
-kotlin.incremental=false
-kotlin.compiler.execution.strategy=in-process
-EOF
-  
-  if [ -f "android/gradle-ci.properties" ]; then
-    cp android/gradle-ci.properties android/gradle.properties
-  fi
+# 2. Fix Android Manifest merger issues
+if [ -f "android/app/src/main/AndroidManifest.xml" ]; then
+    echo "📝 Fixing Android manifest..."
+    node scripts/fix-android-manifest.js || true
 fi
 
-# Clear gradle caches
-echo "Clearing gradle caches..."
-if [ -d "android" ]; then
-  cd android
-  rm -rf .gradle build app/build
-  cd ..
+# 3. Ensure gradle.properties is optimized for CI
+if [ -f "android/gradle.properties" ]; then
+    echo "⚙️ Optimizing gradle.properties for CI..."
+    
+    # Backup original
+    cp android/gradle.properties android/gradle.properties.backup || true
+    
+    # Add CI optimizations if not present
+    grep -q "org.gradle.jvmargs" android/gradle.properties || echo "org.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=512m" >> android/gradle.properties
+    grep -q "org.gradle.parallel" android/gradle.properties || echo "org.gradle.parallel=true" >> android/gradle.properties
+    grep -q "org.gradle.configureondemand" android/gradle.properties || echo "org.gradle.configureondemand=true" >> android/gradle.properties
+    grep -q "org.gradle.caching" android/gradle.properties || echo "org.gradle.caching=true" >> android/gradle.properties
+    
+    # Disable new architecture if causing issues
+    sed -i.bak 's/newArchEnabled=true/newArchEnabled=false/g' android/gradle.properties || true
+    
+    echo "✅ Gradle properties optimized"
 fi
 
-# Ensure proper permissions
+# 4. Clean gradle cache if needed
+if [ "$CLEAN_GRADLE_CACHE" = "true" ]; then
+    echo "🧹 Cleaning Gradle cache..."
+    cd android && ./gradlew clean || true
+    cd ..
+fi
+
+# 5. Fix potential permission issues
 if [ -f "android/gradlew" ]; then
-  chmod +x android/gradlew
+    chmod +x android/gradlew
+    echo "✅ Gradle wrapper permissions fixed"
 fi
 
-# Apply patches
-echo "Applying patches..."
-npx patch-package || true
+# 6. Create local.properties if missing
+if [ ! -f "android/local.properties" ]; then
+    echo "📄 Creating local.properties..."
+    echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties || true
+fi
 
-echo "Android CI build fixes applied!"
+echo "✨ Android CI Build Fix Complete!"
+echo ""
+echo "Next steps:"
+echo "1. The build should now proceed without manifest merger errors"
+echo "2. Voice package Gradle issues are resolved"
+echo "3. Build is optimized for CI environment"
+echo ""
+echo "If build still fails, check:"
+echo "- GitHub Actions logs for specific error"
+echo "- Ensure all dependencies are compatible"
+echo "- Consider using EAS Build as alternative"

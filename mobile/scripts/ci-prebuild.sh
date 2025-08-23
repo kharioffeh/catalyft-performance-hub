@@ -64,4 +64,10 @@ else
     node scripts/fix-voice-gradle.js || true
 fi
 
+# Fix Android manifest merger issues
+if [ -f "android/app/src/main/AndroidManifest.xml" ]; then
+    echo "🔧 Fixing Android manifest merger issues..."
+    node scripts/fix-android-manifest.js || true
+fi
+
 echo "CI prebuild complete!"
