@@ -8,18 +8,23 @@
 const fs = require('fs');
 const path = require('path');
 
-const voiceGradlePath = path.join(
-  __dirname,
-  '..',
-  'node_modules',
-  'react-native-voice',
-  'android',
-  'build.gradle'
-);
+// Try both possible package locations
+const possiblePaths = [
+  path.join(__dirname, '..', 'node_modules', '@react-native-voice', 'voice', 'android', 'build.gradle'),
+  path.join(__dirname, '..', 'node_modules', 'react-native-voice', 'android', 'build.gradle')
+];
+
+let voiceGradlePath = null;
+for (const p of possiblePaths) {
+  if (fs.existsSync(p)) {
+    voiceGradlePath = p;
+    break;
+  }
+}
 
 console.log('🔧 Fixing react-native-voice Gradle configuration...');
 
-if (!fs.existsSync(voiceGradlePath)) {
+if (!voiceGradlePath) {
   console.log('⚠️  react-native-voice not found. Skipping fix.');
   process.exit(0);
 }

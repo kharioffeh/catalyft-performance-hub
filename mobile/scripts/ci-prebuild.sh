@@ -57,8 +57,11 @@ EX_DEV_CLIENT_NETWORK_INSPECTOR=false
 EOF
 fi
 
-# Fix react-native-voice Gradle issues
-echo "🔧 Fixing react-native-voice Gradle configuration..."
-node scripts/fix-voice-gradle.js || true
+# Fix react-native-voice Gradle issues if needed
+if [ -f "scripts/check-voice-gradle.sh" ]; then
+    ./scripts/check-voice-gradle.sh || true
+else
+    node scripts/fix-voice-gradle.js || true
+fi
 
 echo "CI prebuild complete!"
