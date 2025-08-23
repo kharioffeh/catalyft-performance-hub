@@ -1,33 +1,58 @@
 {
   "expo": {
     "name": "Catalyft",
-    "slug": "catalyft-mobile",
+    "slug": "catalyft",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "scheme": "catalyft",
-    "owner": "your-expo-username",
-    "jsEngine": "jsc",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.catalyft.mobile",
+      "bundleIdentifier": "com.catalyft.app",
       "buildNumber": "1",
-      "jsEngine": "jsc"
+      "infoPlist": {
+        "NSHealthShareUsageDescription": "Catalyft needs access to read your health data to sync workouts, heart rate, sleep, and recovery metrics from your Apple Watch and other health devices. This helps provide personalized training recommendations.",
+        "NSHealthUpdateUsageDescription": "Catalyft needs permission to save your workouts and fitness data to Apple Health so it syncs with your Apple Watch and other health apps.",
+        "NSHealthClinicalHealthRecordsShareUsageDescription": "Catalyft does not access clinical health records.",
+        "NSCameraUsageDescription": "This app needs access to camera to take progress photos.",
+        "NSPhotoLibraryUsageDescription": "This app needs access to photo library to select progress photos.",
+        "UIBackgroundModes": ["fetch", "remote-notification"]
+      },
+      "entitlements": {
+        "com.apple.developer.healthkit": true,
+        "com.apple.developer.healthkit.access": ["health-records"],
+        "com.apple.developer.healthkit.background-delivery": true
+      },
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#FFFFFF"
       },
-      "package": "com.catalyft.mobile",
+      "package": "com.catalyft.app",
       "versionCode": 1,
-      "jsEngine": "jsc"
+      "permissions": [
+        "ACTIVITY_RECOGNITION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -36,16 +61,16 @@
       [
         "expo-build-properties",
         {
-          "android": {
-            "compileSdkVersion": 35,
-            "targetSdkVersion": 35,
-            "buildToolsVersion": "35.0.0"
-          },
           "ios": {
-            "deploymentTarget": "15.1"
+            "deploymentTarget": "13.0"
           }
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id"
+      }
+    }
   }
 }
