@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
+    "postinstall": "patch-package",
     "start": "expo start",
     "start:staging": "NODE_ENV=staging expo start",
     "start:production": "NODE_ENV=production expo start",
@@ -33,7 +34,7 @@
     "detox:smoke:android": "detox test --configuration android.emu.debug e2e/smoke.e2e.ts",
     "fix:android-build": "node scripts/fix-android-build.js",
     "env:print": "node -v && npm -v && java -version || true",
-    "android:clean-prebuild": "rm -rf android && CI=1 npx expo prebuild --platform android --clean",
+    "android:clean-prebuild": "rm -rf android && CI=1 npx expo prebuild --platform android --clean && node scripts/fix-voice-gradle.js",
     "android:run": "npx expo run:android",
     "android:validate": "npm run android:clean-prebuild && npm run android:run",
     "ios:clean-prebuild": "rm -rf ios && CI=1 npx expo prebuild --platform ios --clean",
@@ -131,6 +132,7 @@
     "eslint-plugin-react-native": "^4.1.0",
     "jest": "^29.2.1",
     "jest-expo": "~54.0.1",
+    "patch-package": "^8.0.0",
     "prettier": "^3.4.2",
     "typescript": "~5.7.0"
   },
