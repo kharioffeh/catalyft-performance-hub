@@ -12,6 +12,40 @@ import {
   PrivacySettings 
 } from '../types/social';
 
+// Helper function to create default privacy settings
+const createDefaultPrivacySettings = (): PrivacySettings => ({
+  profileVisibility: 'public',
+  showWorkoutDetails: true,
+  showNutritionDetails: false,
+  showLocation: false,
+  allowTagging: true,
+  allowMessages: 'followers',
+  blockedUsers: [],
+  
+  shareWorkoutStats: true,
+  sharePersonalRecords: true,
+  shareBodyMeasurements: false,
+  shareWeight: false,
+  shareCaloriesBurned: true,
+  shareDuration: true,
+  shareExerciseDetails: true,
+  
+  shareMealPhotos: false,
+  shareMacros: false,
+  shareCalorieIntake: false,
+  
+  shareStreaks: true,
+  shareAchievements: true,
+  shareChallengeParticipation: true,
+  shareLeaderboardPosition: true,
+  allowFriendRequests: true,
+  showInDiscovery: true,
+  
+  activityFeedPrivacy: 'followers',
+  workoutHistoryPrivacy: 'private',
+  achievementsPrivacy: 'public',
+});
+
 // Mock data generators
 export const mockDataGenerators = {
   // Generate mock user profile
@@ -48,7 +82,7 @@ export const mockDataGenerators = {
     showAchievements: true,
     allowMessages: 'followers',
     
-    privacySettings: createMockPrivacySettings(),
+    privacySettings: overrides?.privacySettings || createDefaultPrivacySettings(),
     
     createdAt: new Date(),
     updatedAt: new Date(),
