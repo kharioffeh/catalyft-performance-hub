@@ -37,12 +37,29 @@ class SocialService {
             email,
             username,
             full_name
-          )
+          ),
+          privacy_settings
         `)
         .eq('user_id', userId)
         .single();
 
       if (error) throw error;
+
+      // Check if current user
+      const { data: { user } } = await supabase.auth.getUser();
+      const isCurrentUser = user?.id === userId;
+      
+      // Check if following
+      let isFollowing = false;
+      if (user && !isCurrentUser) {
+        const { data: followData } = await supabase
+          .from('follows')
+          .select('id')
+          .eq('follower_id', user.id)
+          .eq('following_id', userId)
+          .single();
+        isFollowing = !!followData;
+      }
 
       // Get follow counts
       const [followersCount, followingCount] = await Promise.all([
@@ -50,23 +67,57 @@ class SocialService {
         this.getFollowingCount(userId),
       ]);
 
-      // Get posts count
-      const { count: postsCount } = await supabase
-        .from('activity_feed')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId);
+      // Get posts count based on privacy settings
+      let postsCount = 0;
+      const privacySettings = data.privacy_settings || {};
+      
+      // Only get posts count if allowed by privacy settings
+      if (isCurrentUser || 
+          privacySettings.activityFeedPrivacy === 'public' ||
+          (privacySettings.activityFeedPrivacy === 'followers' && isFollowing)) {
+        const { count } = await supabase
+          .from('activity_feed')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId);
+        postsCount = count || 0;
+      }
 
-      // Check if current user
-      const { data: { user } } = await supabase.auth.getUser();
-      const isCurrentUser = user?.id === userId;
-
-      return {
+      // Filter sensitive data based on privacy settings
+      const profile: UserProfile = {
         ...data,
         followersCount,
         followingCount,
-        postsCount: postsCount || 0,
+        postsCount,
         isCurrentUser,
+        privacySettings: data.privacy_settings,
       };
+
+      // Remove sensitive data if not authorized
+      if (!isCurrentUser) {
+        if (!privacySettings.shareWeight) {
+          delete profile.weight;
+        }
+        if (!privacySettings.shareBodyMeasurements) {
+          delete profile.bodyMeasurements;
+        }
+        if (!privacySettings.showLocation) {
+          delete profile.location;
+        }
+        if (!privacySettings.shareWorkoutStats) {
+          profile.totalWorkouts = 0;
+          profile.totalWorkoutTime = 0;
+          profile.totalCaloriesBurned = 0;
+        }
+        if (!privacySettings.sharePersonalRecords) {
+          profile.personalRecords = [];
+        }
+        if (!privacySettings.shareStreaks) {
+          profile.currentStreak = 0;
+          profile.longestStreak = 0;
+        }
+      }
+
+      return profile;
     } catch (error: any) {
       console.error('Error fetching user profile:', error);
       throw error;

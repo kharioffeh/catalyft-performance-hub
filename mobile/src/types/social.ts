@@ -37,6 +37,9 @@ export interface UserProfile {
   showAchievements: boolean;
   allowMessages: 'everyone' | 'following' | 'none';
   
+  // Privacy Settings
+  privacySettings?: PrivacySettings;
+  
   createdAt: Date;
   updatedAt: Date;
 }
@@ -375,6 +378,7 @@ export interface SocialStats {
 
 // Privacy Types
 export interface PrivacySettings {
+  // Basic visibility
   profileVisibility: 'public' | 'followers' | 'private';
   showWorkoutDetails: boolean;
   showNutritionDetails: boolean;
@@ -382,4 +386,31 @@ export interface PrivacySettings {
   allowTagging: boolean;
   allowMessages: 'everyone' | 'followers' | 'none';
   blockedUsers: string[];
+  
+  // Granular workout privacy
+  shareWorkoutStats: boolean;
+  sharePersonalRecords: boolean;
+  shareBodyMeasurements: boolean;
+  shareWeight: boolean;
+  shareCaloriesBurned: boolean;
+  shareDuration: boolean;
+  shareExerciseDetails: boolean;
+  
+  // Nutrition privacy
+  shareMealPhotos: boolean;
+  shareMacros: boolean;
+  shareCalorieIntake: boolean;
+  
+  // Social privacy
+  shareStreaks: boolean;
+  shareAchievements: boolean;
+  shareChallengeParticipation: boolean;
+  shareLeaderboardPosition: boolean;
+  allowFriendRequests: boolean;
+  showInDiscovery: boolean;
+  
+  // Content privacy
+  activityFeedPrivacy: 'public' | 'followers' | 'private';
+  workoutHistoryPrivacy: 'public' | 'followers' | 'private';
+  achievementsPrivacy: 'public' | 'followers' | 'private';
 }

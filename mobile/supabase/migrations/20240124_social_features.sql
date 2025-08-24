@@ -22,11 +22,41 @@ CREATE TABLE IF NOT EXISTS user_profiles (
   longest_streak INTEGER DEFAULT 0,
   total_calories_burned INTEGER DEFAULT 0,
   
-  -- Preferences
+  -- Preferences (deprecated - moved to privacy_settings)
   show_workout_stats BOOLEAN DEFAULT true,
   show_nutrition_stats BOOLEAN DEFAULT true,
   show_achievements BOOLEAN DEFAULT true,
   allow_messages TEXT DEFAULT 'everyone' CHECK (allow_messages IN ('everyone', 'following', 'none')),
+  
+  -- Privacy Settings (comprehensive)
+  privacy_settings JSONB DEFAULT '{
+    "profileVisibility": "public",
+    "showWorkoutDetails": true,
+    "showNutritionDetails": false,
+    "showLocation": false,
+    "allowTagging": true,
+    "allowMessages": "followers",
+    "blockedUsers": [],
+    "shareWorkoutStats": true,
+    "sharePersonalRecords": true,
+    "shareBodyMeasurements": false,
+    "shareWeight": false,
+    "shareCaloriesBurned": true,
+    "shareDuration": true,
+    "shareExerciseDetails": true,
+    "shareMealPhotos": false,
+    "shareMacros": false,
+    "shareCalorieIntake": false,
+    "shareStreaks": true,
+    "shareAchievements": true,
+    "shareChallengeParticipation": true,
+    "shareLeaderboardPosition": true,
+    "allowFriendRequests": true,
+    "showInDiscovery": true,
+    "activityFeedPrivacy": "followers",
+    "workoutHistoryPrivacy": "private",
+    "achievementsPrivacy": "public"
+  }'::jsonb,
   
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
