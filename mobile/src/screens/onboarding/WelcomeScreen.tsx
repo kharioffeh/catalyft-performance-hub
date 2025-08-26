@@ -12,7 +12,8 @@ import AppIntroSlider from 'react-native-app-intro-slider';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import AnalyticsService, { EVENTS } from '../../services/analytics';
+import EnhancedAnalyticsService, { EVENTS } from '../../services/analytics.enhanced';
+import { PlaceholderIllustration } from '../../assets/placeholders';
 
 const { width, height } = Dimensions.get('window');
 
@@ -125,7 +126,7 @@ const WelcomeScreen: React.FC = () => {
   const handleGetStarted = () => {
     const duration = Date.now() - startTime.current;
     
-    AnalyticsService.track(EVENTS.ONBOARDING_STARTED, {
+    EnhancedAnalyticsService.track(EVENTS.ONBOARDING_STARTED, {
       source: 'welcome_screen',
       completed_slides: true,
       duration_ms: duration,
@@ -137,7 +138,7 @@ const WelcomeScreen: React.FC = () => {
   const handleSkip = () => {
     const duration = Date.now() - startTime.current;
     
-    AnalyticsService.track(EVENTS.ONBOARDING_SKIPPED, {
+    EnhancedAnalyticsService.track(EVENTS.ONBOARDING_SKIPPED, {
       source: 'welcome_screen',
       slide_index: sliderRef.current?.state?.activeIndex || 0,
       duration_ms: duration,
@@ -147,7 +148,7 @@ const WelcomeScreen: React.FC = () => {
   };
 
   const onSlideChange = (index: number, lastIndex: number) => {
-    AnalyticsService.track('onboarding_slide_viewed', {
+    EnhancedAnalyticsService.track('onboarding_slide_viewed', {
       slide_index: index,
       slide_key: slides[index].key,
       previous_slide: slides[lastIndex]?.key,

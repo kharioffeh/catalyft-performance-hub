@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,9 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import AnalyticsService, { EVENTS } from '../../services/analytics';
+import EnhancedAnalyticsService, { EVENTS } from '../../services/analytics.enhanced';
+import SupabaseAnalyticsService from '../../services/supabaseAnalytics';
+import { supabase } from '../../config/supabase';
 
 interface Goal {
   id: string;
@@ -78,16 +80,25 @@ const GoalSelectionScreen: React.FC = () => {
     });
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (selectedGoals.length === 0) {
       // Show error or prompt to select at least one goal
       return;
     }
 
-    AnalyticsService.trackGoalSelected(selectedGoals);
+    EnhancedAnalyticsService.trackGoalSelected(selectedGoals);
     
-    // Store goals in user context or state management
-    // TODO: Save to user profile
+    // Save to Supabase
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await SupabaseAnalyticsService.initialize(user.id);
+      await SupabaseAnalyticsService.saveOnboardingProgress('goals', {
+        goals: selectedGoals,
+      });
+      await SupabaseAnalyticsService.saveUserProfile({
+        goals: selectedGoals,
+      });
+    }
     
     navigation.navigate('FitnessAssessment', { goals: selectedGoals });
   };
