@@ -18,7 +18,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.catalyft.mobile",
       "buildNumber": "1",
-      "jsEngine": "jsc"
+      "jsEngine": "jsc",
+      "googleServicesFile": "./ios/GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -27,7 +28,8 @@
       },
       "package": "com.catalyft.mobile",
       "versionCode": 1,
-      "jsEngine": "jsc"
+      "jsEngine": "jsc",
+      "googleServicesFile": "./android/app/google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
