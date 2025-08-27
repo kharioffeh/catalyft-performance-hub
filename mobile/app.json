@@ -18,7 +18,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.catalyft.mobile",
       "buildNumber": "1",
-      "jsEngine": "jsc",
+      "jsEngine": "hermes",
       "googleServicesFile": "./ios/GoogleService-Info.plist"
     },
     "android": {
@@ -28,7 +28,7 @@
       },
       "package": "com.catalyft.mobile",
       "versionCode": 1,
-      "jsEngine": "jsc",
+      "jsEngine": "hermes",
       "googleServicesFile": "./android/app/google-services.json"
     },
     "web": {
