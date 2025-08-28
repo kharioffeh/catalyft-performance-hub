@@ -11,7 +11,7 @@ import { Session } from '@/types/training';
 import { GlassLayout } from '@/components/Glass/GlassLayout';
 import { GlassContainer } from '@/components/Glass/GlassContainer';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Trophy } from 'lucide-react';
+import { Clock, Trophy, Calendar as CalendarIcon, Target, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import 'react-calendar/dist/Calendar.css';
 
@@ -38,32 +38,49 @@ const SessionCard: React.FC<SessionCardProps> = ({ session, onClick }) => {
     return `hsl(${hue}, 70%, 50%)`;
   };
 
+  const getSessionTypeIcon = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'strength':
+        return <Target className="w-4 h-4 text-red-400" />;
+      case 'cardio':
+        return <Zap className="w-4 h-4 text-blue-400" />;
+      case 'mobility':
+        return <Zap className="w-4 h-4 text-green-400" />;
+      default:
+        return <Target className="w-4 h-4 text-purple-400" />;
+    }
+  };
+
   return (
     <div
       onClick={onClick}
       className={cn(
-        "p-4 rounded-lg border cursor-pointer transition-all duration-200",
+        "p-4 rounded-2xl border cursor-pointer transition-all duration-200",
         "bg-white/5 backdrop-blur-md border-white/10 hover:bg-white/10",
-        "hover:scale-[1.02] hover:shadow-lg"
+        "hover:scale-[1.02] hover:shadow-lg group"
       )}
       style={{
         borderLeftColor: session.isPR ? '#FFD700' : getLoadBorderColor(session.loadPercent),
         borderLeftWidth: '4px'
       }}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-blue-400" />
             <span className="text-sm font-medium text-white">{startTime}</span>
           </div>
-          <Badge variant="secondary" className="text-xs">
-            {session.type}
+          <Badge 
+            variant="secondary" 
+            className="text-xs bg-white/10 hover:bg-white/20 border-white/20"
+          >
+            {getSessionTypeIcon(session.type)}
+            <span className="ml-1">{session.type}</span>
           </Badge>
         </div>
         
         {session.isPR && (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 bg-yellow-500/20 px-2 py-1 rounded-full">
             <Trophy className="w-4 h-4 text-yellow-400" />
             <span className="text-xs text-yellow-400 font-medium">PR</span>
           </div>
@@ -71,22 +88,19 @@ const SessionCard: React.FC<SessionCardProps> = ({ session, onClick }) => {
       </div>
       
       {session.notes && (
-        <p className="text-sm text-gray-300 mt-2 truncate">{session.notes}</p>
+        <p className="text-sm text-gray-300 mb-3 line-clamp-2">{session.notes}</p>
       )}
       
       {session.loadPercent !== undefined && (
-        <div className="mt-2">
+        <div className="space-y-2">
           <div className="flex justify-between text-xs text-gray-400">
-            <span>Load</span>
-            <span>{session.loadPercent}%</span>
+            <span>Training Load</span>
+            <span className="font-medium text-white">{session.loadPercent}%</span>
           </div>
-          <div className="w-full bg-gray-700 rounded-full h-1 mt-1">
+          <div className="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
             <div 
-              className="h-1 rounded-full transition-all duration-300"
-              style={{ 
-                width: `${session.loadPercent}%`,
-                backgroundColor: getLoadBorderColor(session.loadPercent)
-              }}
+              className="h-2 rounded-full transition-all duration-300 bg-gradient-to-r from-green-400 to-blue-500"
+              style={{ width: `${session.loadPercent}%` }}
             />
           </div>
         </div>
@@ -218,13 +232,15 @@ const CalendarPage: React.FC = () => {
 
   const tileClassName = ({ date }: { date: Date }) => {
     const dateString = date.toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0];
     const selectedDateString = selectedDate.toISOString().split('T')[0];
     const hasSessions = datesWithSessions.has(dateString);
     
     return cn(
       "calendar-tile",
       hasSessions && "has-sessions",
-      dateString === selectedDateString && "selected"
+      dateString === selectedDateString && "selected",
+      dateString === today && "today"
     );
   };
 
@@ -244,10 +260,14 @@ const CalendarPage: React.FC = () => {
     <GlassLayout variant="dashboard">
       <GlassContainer className="min-h-screen">
         <div className="p-6 space-y-6">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-white mb-2">Training Calendar</h1>
+            <p className="text-white/70">Plan and track your training sessions</p>
+          </div>
+
           {/* Calendar */}
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6">
-            <h2 className="text-2xl font-semibold text-white mb-4">Training Calendar</h2>
-            
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6">
             <div className="calendar-container">
               <Calendar
                 onChange={handleDateChange}
@@ -259,7 +279,7 @@ const CalendarPage: React.FC = () => {
             </div>
 
             {/* Legend */}
-            <div className="flex justify-center gap-6 mt-4">
+            <div className="flex justify-center gap-6 mt-6">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-blue-400" />
                 <span className="text-sm text-white">Normal Session</span>
@@ -272,27 +292,31 @@ const CalendarPage: React.FC = () => {
           </div>
 
           {/* Selected Date Sessions */}
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold text-white mb-4">
-              Sessions for {selectedDate.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-            </h3>
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <CalendarIcon className="w-6 h-6 text-indigo-400" />
+              <h3 className="text-xl font-semibold text-white">
+                Sessions for {selectedDate.toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </h3>
+            </div>
             
             {selectedDateSessions.length > 0 ? (
               <div className="space-y-4">
-                <p className="text-sm text-gray-400 italic">
-                  Drag and drop to reorder sessions
-                </p>
+                <div className="flex items-center gap-2 text-sm text-white/60 mb-4">
+                  <div className="w-2 h-2 bg-indigo-400 rounded-full" />
+                  <span>Drag and drop to reorder sessions</span>
+                </div>
                 
                 <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
                   <SortableContext 
                     items={selectedDateSessions.map(s => s.id)} 
                     strategy={verticalListSortingStrategy}
                   >
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                       {selectedDateSessions.map(session => (
                         <SortableItem key={session.id} id={session.id}>
                           <SessionCard 
@@ -306,8 +330,12 @@ const CalendarPage: React.FC = () => {
                 </DndContext>
               </div>
             ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-400">No sessions scheduled for this date</p>
+              <div className="text-center py-12">
+                <div className="mx-auto h-16 w-16 text-white/20 mb-4">
+                  <CalendarIcon className="w-full h-full" />
+                </div>
+                <p className="text-white/60 text-lg mb-2">No sessions scheduled</p>
+                <p className="text-white/40">Tap the calendar to select a different date or add new sessions</p>
               </div>
             )}
           </div>
@@ -329,53 +357,69 @@ const CalendarPage: React.FC = () => {
           }
           
           .custom-calendar .react-calendar__navigation {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
           }
           
           .custom-calendar .react-calendar__navigation button {
             color: white;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 0.5rem;
-            padding: 0.5rem;
+            border-radius: 0.75rem;
+            padding: 0.75rem;
             margin: 0 0.25rem;
+            transition: all 0.2s ease;
           }
           
           .custom-calendar .react-calendar__navigation button:hover {
             background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
           }
           
           .custom-calendar .react-calendar__month-view__weekdays {
             color: rgba(255, 255, 255, 0.7);
             font-weight: 600;
             font-size: 0.875rem;
+            margin-bottom: 0.5rem;
           }
           
           .custom-calendar .react-calendar__tile {
             color: white;
             background: transparent;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 0.75rem 0.5rem;
+            padding: 1rem 0.5rem;
             position: relative;
-            border-radius: 0.5rem;
+            border-radius: 0.75rem;
             margin: 0.125rem;
+            transition: all 0.2s ease;
+            min-height: 4rem;
           }
           
           .custom-calendar .react-calendar__tile:hover {
             background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
           }
           
           .custom-calendar .react-calendar__tile--active {
-            background: rgba(91, 175, 255, 0.3) !important;
-            border-color: #5BAFFF;
+            background: rgba(99, 102, 241, 0.3) !important;
+            border-color: #6366F1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
           }
           
           .custom-calendar .react-calendar__tile--now {
-            background: rgba(91, 175, 255, 0.2);
+            background: rgba(99, 102, 241, 0.2);
+            border-color: #6366F1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
           }
           
           .custom-calendar .react-calendar__tile.has-sessions {
-            border-color: rgba(91, 175, 255, 0.5);
+            border-color: rgba(99, 102, 241, 0.5);
+            background: rgba(99, 102, 241, 0.1);
+          }
+          
+          .custom-calendar .react-calendar__tile.today {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3));
+            border-color: #6366F1;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
           }
         `}</style>
       </GlassContainer>
