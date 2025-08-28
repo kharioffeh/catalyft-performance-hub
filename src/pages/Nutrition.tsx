@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { GlassCard } from '@/components/ui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Apple, Plus, TrendingUp, Target, Utensils, Scan } from 'lucide-react';
+import { Apple, Plus, TrendingUp, Target, Utensils, Scan, Trash2, Edit, Clock } from 'lucide-react';
 import { useNutrition } from '@/hooks/useNutrition';
 import { AddMealDialog } from '@/components/nutrition/AddMealDialog';
 import { MealLogList } from '@/components/nutrition/MealLogList';
@@ -20,6 +20,186 @@ import { WearableConnectionBanner } from '@/components/nutrition/WearableConnect
 import { WearableDeviceSelector } from '@/components/nutrition/WearableDeviceSelector';
 import { cn } from '@/lib/utils';
 import ParseScreen from './ParseScreen';
+
+// Macro Split Pie Chart Component
+const MacroSplitPieChart: React.FC<{ macros: any }> = ({ macros }) => {
+  const total = macros.protein.current + macros.carbs.current + macros.fat.current;
+  const proteinAngle = (macros.protein.current / total) * 360;
+  const carbsAngle = (macros.carbs.current / total) * 360;
+  const fatAngle = (macros.fat.current / total) * 360;
+
+  return (
+    <div className="relative w-32 h-32 mx-auto mb-4">
+      <svg className="w-full h-full" viewBox="0 0 100 100">
+        {/* Protein slice */}
+        <circle
+          cx="50"
+          cy="50"
+          r="40"
+          fill="none"
+          stroke="#3B82F6"
+          strokeWidth="20"
+          strokeDasharray={`${(proteinAngle / 360) * 251.2} 251.2`}
+          transform="rotate(-90 50 50)"
+          className="transition-all duration-1000"
+        />
+        {/* Carbs slice */}
+        <circle
+          cx="50"
+          cy="50"
+          r="40"
+          fill="none"
+          stroke="#10B981"
+          strokeWidth="20"
+          strokeDasharray={`${(carbsAngle / 360) * 251.2} 251.2`}
+          transform={`rotate(${proteinAngle - 90} 50 50)`}
+          className="transition-all duration-1000"
+        />
+        {/* Fat slice */}
+        <circle
+          cx="50"
+          cy="50"
+          r="40"
+          fill="none"
+          stroke="#F59E0B"
+          strokeWidth="20"
+          strokeDasharray={`${(fatAngle / 360) * 251.2} 251.2`}
+          transform={`rotate(${proteinAngle + carbsAngle - 90} 50 50)`}
+          className="transition-all duration-1000"
+        />
+      </svg>
+      
+      {/* Center content */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-lg font-bold text-white">{Math.round(total)}g</div>
+          <div className="text-xs text-white/60">Total</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Swipeable Meal Card Component
+const SwipeableMealCard: React.FC<{
+  meal: any;
+  onDelete: (id: string) => void;
+  onEdit: (meal: any) => void;
+}> = ({ meal, onDelete, onEdit }) => {
+  const [isSwiped, setIsSwiped] = useState(false);
+
+  const handleSwipe = () => {
+    setIsSwiped(!isSwiped);
+  };
+
+  const getMealTypeIcon = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'breakfast':
+        return '🌅';
+      case 'lunch':
+        return '🌞';
+      case 'dinner':
+        return '🌙';
+      case 'snack':
+        return '🍎';
+      default:
+        return '🍽️';
+    }
+  };
+
+  const getMealTypeColor = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'breakfast':
+        return 'from-orange-500/20 to-yellow-500/20 border-orange-400/30';
+      case 'lunch':
+        return 'from-green-500/20 to-emerald-500/20 border-green-400/30';
+      case 'dinner':
+        return 'from-purple-500/20 to-pink-500/20 border-purple-400/30';
+      case 'snack':
+        return 'from-blue-500/20 to-cyan-500/20 border-blue-400/30';
+      default:
+        return 'from-gray-500/20 to-slate-500/20 border-gray-400/30';
+    }
+  };
+
+  return (
+    <div className="relative group">
+      <Card 
+        className={cn(
+          "bg-gradient-to-r border transition-all duration-300 cursor-pointer",
+          "hover:scale-[1.02] hover:shadow-xl",
+          getMealTypeColor(meal.type)
+        )}
+        onClick={handleSwipe}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <div className="text-2xl">{getMealTypeIcon(meal.type)}</div>
+              <div>
+                <h4 className="font-semibold text-white">{meal.name}</h4>
+                <p className="text-sm text-white/60 capitalize">{meal.type}</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-lg font-bold text-white">{meal.calories} cal</div>
+              <div className="text-xs text-white/60">
+                {new Date(meal.timestamp).toLocaleTimeString('en-US', { 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Macro breakdown */}
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            <div className="text-center p-2 bg-white/10 rounded-lg">
+              <div className="text-sm font-medium text-blue-300">{meal.protein}g</div>
+              <div className="text-xs text-white/60">Protein</div>
+            </div>
+            <div className="text-center p-2 bg-white/10 rounded-lg">
+              <div className="text-sm font-medium text-green-300">{meal.carbs}g</div>
+              <div className="text-xs text-white/60">Carbs</div>
+            </div>
+            <div className="text-center p-2 bg-white/10 rounded-lg">
+              <div className="text-sm font-medium text-yellow-300">{meal.fat}g</div>
+              <div className="text-xs text-white/60">Fat</div>
+            </div>
+          </div>
+
+          {/* Quick actions */}
+          <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <Button
+              size="sm"
+              variant="outline"
+              className="flex-1 bg-white/10 border-white/20 text-white hover:bg-white/20"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(meal);
+              }}
+            >
+              <Edit className="w-3 h-3 mr-1" />
+              Edit
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="flex-1 bg-red-500/20 border-red-400/30 text-red-300 hover:bg-red-500/30"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(meal.id);
+              }}
+            >
+              <Trash2 className="w-3 h-3 mr-1" />
+              Delete
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 
 const Nutrition: React.FC = () => {
   const { meals, addMeal, removeMeal, getTodaysMeals, getTodaysMacros, getMacroTargets, getNutritionScore } = useNutrition();
@@ -97,6 +277,60 @@ const Nutrition: React.FC = () => {
             {/* Add Device Selector for user choice */}
             <WearableDeviceSelector className="mb-6" />
             
+            {/* Macro Split Pie Chart Section */}
+            <div className="bg-gradient-to-br from-white/5 to-white/10 rounded-3xl p-6 border border-white/10">
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-semibold text-white mb-2">Today's Macro Split</h3>
+                <p className="text-white/60">Visual breakdown of your macro intake</p>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                {/* Pie Chart */}
+                <div className="flex justify-center">
+                  <MacroSplitPieChart macros={macroData} />
+                </div>
+                
+                {/* Macro Details */}
+                <div className="space-y-4">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="text-center p-4 bg-blue-500/20 rounded-2xl border border-blue-400/30">
+                      <div className="text-2xl font-bold text-blue-300">{todaysMacros.protein}g</div>
+                      <div className="text-sm text-blue-200">Protein</div>
+                      <div className="text-xs text-blue-300/70">
+                        {Math.round((todaysMacros.protein / macroTargets.protein) * 100)}% of target
+                      </div>
+                    </div>
+                    <div className="text-center p-4 bg-green-500/20 rounded-2xl border border-green-400/30">
+                      <div className="text-2xl font-bold text-green-300">{todaysMacros.carbs}g</div>
+                      <div className="text-sm text-green-200">Carbs</div>
+                      <div className="text-xs text-green-300/70">
+                        {Math.round((todaysMacros.carbs / macroTargets.carbs) * 100)}% of target
+                      </div>
+                    </div>
+                    <div className="text-center p-4 bg-yellow-500/20 rounded-2xl border border-yellow-400/30">
+                      <div className="text-2xl font-bold text-yellow-300">{todaysMacros.fat}g</div>
+                      <div className="text-sm text-yellow-200">Fat</div>
+                      <div className="text-xs text-yellow-300/70">
+                        {Math.round((todaysMacros.fat / macroTargets.fat) * 100)}% of target
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Quick Stats */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-3 bg-white/10 rounded-xl">
+                      <div className="text-lg font-bold text-white">{nutritionScore}%</div>
+                      <div className="text-xs text-white/60">Nutrition Score</div>
+                    </div>
+                    <div className="text-center p-3 bg-white/10 rounded-xl">
+                      <div className="text-lg font-bold text-white">{todaysMeals.length}</div>
+                      <div className="text-xs text-white/60">Meals Logged</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Calorie Balance Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {todaysData ? (
@@ -128,121 +362,6 @@ const Nutrition: React.FC = () => {
               />
             </div>
 
-            {/* Macro Rings and Nutrition Score */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <MacroRings macros={macroData} />
-              <NutritionScoreCard 
-                score={nutritionScore}
-                mealsLogged={todaysMeals.length}
-                targetMeals={3}
-              />
-            </div>
-
-            {/* Daily Macro Progress Bars */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="bg-white/5 border-white/10">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-white">Calories</h3>
-                    <span className={`text-sm font-semibold ${getProgressColor(todaysMacros.calories, macroTargets.calories)}`}>
-                      {todaysMacros.calories}/{macroTargets.calories} kcal
-                    </span>
-                  </div>
-                  <div className="w-full bg-white/10 rounded-full h-2">
-                    <div
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${getProgressWidth(todaysMacros.calories, macroTargets.calories)}%` }}
-                    />
-                  </div>
-                  <div className="mt-2 text-xs text-white/70">
-                    {Math.round((todaysMacros.calories / macroTargets.calories) * 100)}% of daily target
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white/5 border-white/10">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-white">Protein</h3>
-                    <span className={`text-sm font-semibold ${getProgressColor(todaysMacros.protein, macroTargets.protein)}`}>
-                      {todaysMacros.protein}/{macroTargets.protein} g
-                    </span>
-                  </div>
-                  <div className="w-full bg-white/10 rounded-full h-2">
-                    <div
-                      className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${getProgressWidth(todaysMacros.protein, macroTargets.protein)}%` }}
-                    />
-                  </div>
-                  <div className="mt-2 text-xs text-white/70">
-                    {Math.round((todaysMacros.protein / macroTargets.protein) * 100)}% of daily target
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white/5 border-white/10">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-white">Carbs</h3>
-                    <span className={`text-sm font-semibold ${getProgressColor(todaysMacros.carbs, macroTargets.carbs)}`}>
-                      {todaysMacros.carbs}/{macroTargets.carbs} g
-                    </span>
-                  </div>
-                  <div className="w-full bg-white/10 rounded-full h-2">
-                    <div
-                      className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${getProgressWidth(todaysMacros.carbs, macroTargets.carbs)}%` }}
-                    />
-                  </div>
-                  <div className="mt-2 text-xs text-white/70">
-                    {Math.round((todaysMacros.carbs / macroTargets.carbs) * 100)}% of daily target
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white/5 border-white/10">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-white">Fat</h3>
-                    <span className={`text-sm font-semibold ${getProgressColor(todaysMacros.fat, macroTargets.fat)}`}>
-                      {todaysMacros.fat}/{macroTargets.fat} g
-                    </span>
-                  </div>
-                  <div className="w-full bg-white/10 rounded-full h-2">
-                    <div
-                      className="bg-gradient-to-r from-yellow-500 to-orange-500 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${getProgressWidth(todaysMacros.fat, macroTargets.fat)}%` }}
-                    />
-                  </div>
-                  <div className="mt-2 text-xs text-white/70">
-                    {Math.round((todaysMacros.fat / macroTargets.fat) * 100)}% of daily target
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="bg-white/5 border-white/10">
-                <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-white mb-1">7</div>
-                  <div className="text-sm text-white/70">Day Streak</div>
-                </CardContent>
-              </Card>
-              <Card className="bg-white/5 border-white/10">
-                <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-green-400 mb-1">{nutritionScore}%</div>
-                  <div className="text-sm text-white/70">Nutrition Score</div>
-                </CardContent>
-              </Card>
-              <Card className="bg-white/5 border-white/10">
-                <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-400 mb-1">{todaysMeals.length}</div>
-                  <div className="text-sm text-white/70">Meals Logged</div>
-                </CardContent>
-              </Card>
-            </div>
-
             {/* Today's Meals Section */}
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -250,7 +369,7 @@ const Nutrition: React.FC = () => {
                 <AddMealDialog 
                   onAddMeal={addMeal}
                   trigger={
-                    <Button className="bg-white/10 hover:bg-white/20 text-white border-white/20 flex-1 sm:flex-none">
+                    <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white border-0">
                       <Plus className="w-4 h-4 mr-2" />
                       <span className="hidden sm:inline">Log Meal</span>
                       <span className="sm:hidden">Log</span>
@@ -259,10 +378,30 @@ const Nutrition: React.FC = () => {
                 />
               </div>
 
-              <MealLogList 
-                meals={todaysMeals} 
-                onDeleteMeal={removeMeal}
-              />
+              {/* Swipeable Meal Cards */}
+              {todaysMeals.length > 0 ? (
+                <div className="space-y-4">
+                  {todaysMeals.map((meal) => (
+                    <SwipeableMealCard
+                      key={meal.id}
+                      meal={meal}
+                      onDelete={removeMeal}
+                      onEdit={(meal) => {
+                        // TODO: Implement edit functionality
+                        console.log('Edit meal:', meal);
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-white/5 rounded-2xl border border-white/10">
+                  <div className="mx-auto h-16 w-16 text-white/20 mb-4">
+                    <Utensils className="w-full h-full" />
+                  </div>
+                  <p className="text-white/60 text-lg mb-2">No meals logged today</p>
+                  <p className="text-white/40">Start by logging your first meal</p>
+                </div>
+              )}
             </div>
           </TabsContent>
 
