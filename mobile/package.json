@@ -67,6 +67,7 @@
     "@react-navigation/stack": "^6.4.1",
     "@reduxjs/toolkit": "^2.2.6",
     "@segment/analytics-react-native": "^2.21.2",
+    "@segment/sovran-react-native": "^1.1.2",
     "@sentry/react-native": "^6.4.0",
     "@stripe/stripe-react-native": "^0.40.0",
     "@supabase/supabase-js": "^2.47.0",

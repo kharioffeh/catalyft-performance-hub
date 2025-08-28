@@ -14,7 +14,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.catalyft.mobile"
+      "bundleIdentifier": "com.catalyft.mobile",
+      "deploymentTarget": "13.4"
     },
     "android": {
       "adaptiveIcon": {
@@ -25,6 +26,18 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "@react-native-firebase/app",
+      "@react-native-firebase/crashlytics",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "13.4"
+          }
+        }
+      ]
+    ]
   }
 }
