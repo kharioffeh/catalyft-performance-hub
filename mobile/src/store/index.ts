@@ -10,6 +10,7 @@ import { StateStorage } from 'zustand/middleware';
 import { UserSlice, createUserSlice } from './slices/userSlice';
 import { WorkoutSlice, createWorkoutSlice } from './slices/workoutSlice';
 import { NutritionSlice, createNutritionSlice } from './slices/nutritionSlice';
+import { SocialSlice, createSocialSlice } from './slices/socialSlice';
 
 // Initialize MMKV for store persistence
 const storage = new MMKV({
@@ -32,7 +33,7 @@ const mmkvStorage: StateStorage = {
 };
 
 // Combined store type
-export type StoreState = UserSlice & WorkoutSlice & NutritionSlice & {
+export type StoreState = UserSlice & WorkoutSlice & NutritionSlice & SocialSlice & {
   // Global state
   isOnline: boolean;
   isSyncing: boolean;
@@ -101,6 +102,7 @@ export const useStore = create<StoreState>()(
           ...createUserSlice(set as any, get, api as any),
           ...createWorkoutSlice(),  // No parameters needed since it returns static object
           ...createNutritionSlice(set as any, get, api as any),
+          ...createSocialSlice(set as any, get, api as any),
           
           // Global actions
           setIsOnline: (isOnline: boolean) => set({ isOnline }),
