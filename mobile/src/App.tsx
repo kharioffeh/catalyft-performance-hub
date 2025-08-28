@@ -4,6 +4,8 @@ import * as Sentry from '@sentry/react-native';
 import AppNavigator from './navigation/AppNavigator';
 import { AuthProvider } from './contexts/AuthContext';
 import { validateConfig } from './config';
+import firebaseService from './config/firebase';
+import ErrorBoundary from './services/errorBoundary';
 
 // Initialize Sentry for error tracking
 Sentry.init({
@@ -20,13 +22,27 @@ function App(): React.JSX.Element {
     if (!isConfigValid && __DEV__) {
       console.warn('Some environment variables are missing. Check your .env file.');
     }
+
+    // Initialize Firebase
+    const initializeFirebase = async () => {
+      try {
+        await firebaseService.initialize();
+        console.log('✅ Firebase initialized successfully');
+      } catch (error) {
+        console.error('❌ Firebase initialization failed:', error);
+      }
+    };
+
+    initializeFirebase();
   }, []);
 
   return (
-    <AuthProvider>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <AppNavigator />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+        <AppNavigator />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

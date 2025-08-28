@@ -7,18 +7,16 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "scheme": "catalyft",
-    "owner": "your-expo-username",
-    "jsEngine": "jsc",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.catalyft.mobile",
-      "buildNumber": "1",
-      "jsEngine": "jsc"
+      "deploymentTarget": "15.0",
+      "googleServicesFile": "./firebase-config/GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -26,23 +24,26 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.catalyft.mobile",
-      "versionCode": 1,
-      "jsEngine": "jsc"
+      "googleServicesFile": "./firebase-config/google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      "./plugins/withModularHeaders",
+      "@react-native-firebase/app",
+      "@react-native-firebase/crashlytics",
       [
         "expo-build-properties",
         {
-          "android": {
-            "compileSdkVersion": 35,
-            "targetSdkVersion": 35,
-            "buildToolsVersion": "35.0.0"
-          },
           "ios": {
-            "deploymentTarget": "15.1"
+            "deploymentTarget": "15.0",
+            "useFrameworks": "static"
+          },
+          "android": {
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
+            "minSdkVersion": 23
           }
         }
       ]

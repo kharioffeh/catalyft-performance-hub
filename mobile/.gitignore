@@ -28,6 +28,10 @@ yarn-error.*
 
 # macOS
 .DS_Store
+
+# Firebase config files (contain sensitive data)
+ios/GoogleService-Info.plist
+android/app/google-services.json
 *.pem
 
 # local env files
