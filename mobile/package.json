@@ -104,7 +104,10 @@
     "react-native-super-grid": "^6.0.1",
     "react-native-svg": "15.2.0",
     "react-native-web": "~0.19.10",
-    "react-redux": "^9.1.2"
+    "react-redux": "^9.1.2",
+    "react-hook-form": "^7.48.2",
+    "@hookform/resolvers": "^3.3.4",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
@@ -116,6 +119,7 @@
     "@typescript-eslint/eslint-plugin": "^8.22.0",
     "@typescript-eslint/parser": "^8.22.0",
     "babel-jest": "^29.7.0",
+    "babel-preset-expo": "^11.0.0",
     "eslint": "^9.15.0",
     "eslint-config-expo": "^10.0.0",
     "eslint-plugin-react-hooks": "^5.1.0",
