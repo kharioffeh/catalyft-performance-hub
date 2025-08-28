@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "632745169818",
+    "project_id": "catalyft-ai",
+    "storage_bucket": "catalyft-ai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:632745169818:android:a9dcdf9899a139e325e023",
+        "android_client_info": {
+          "package_name": "com.catalyft.ai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATIcVjaomXskN631hWX_dYChr95egt5v0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
