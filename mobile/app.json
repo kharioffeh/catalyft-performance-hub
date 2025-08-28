@@ -7,47 +7,24 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "scheme": "catalyft",
-    "owner": "your-expo-username",
-    "jsEngine": "jsc",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.catalyft.mobile",
-      "buildNumber": "1",
-      "jsEngine": "hermes",
-      "googleServicesFile": "./ios/GoogleService-Info.plist"
+      "bundleIdentifier": "com.catalyft.mobile"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.catalyft.mobile",
-      "versionCode": 1,
-      "jsEngine": "hermes",
-      "googleServicesFile": "./android/app/google-services.json"
+      "package": "com.catalyft.mobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "plugins": [
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "compileSdkVersion": 35,
-            "targetSdkVersion": 35,
-            "buildToolsVersion": "35.0.0"
-          },
-          "ios": {
-            "deploymentTarget": "15.1"
-          }
-        }
-      ]
-    ]
+    }
   }
 }
