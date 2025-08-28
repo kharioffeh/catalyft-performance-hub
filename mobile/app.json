@@ -16,7 +16,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.catalyft.mobile",
       "deploymentTarget": "13.4",
-      "googleServicesFile": "./ios/GoogleService-Info.plist"
+      "googleServicesFile": "./firebase-config/GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -24,7 +24,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.catalyft.mobile",
-      "googleServicesFile": "./android/app/google-services.json"
+      "googleServicesFile": "./firebase-config/google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"

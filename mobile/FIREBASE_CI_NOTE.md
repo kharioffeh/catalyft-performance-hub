@@ -3,8 +3,8 @@
 The Firebase configuration files in this repository are **dummy files for CI/CD purposes only**.
 
 ## Files:
-- `ios/GoogleService-Info.plist` - Dummy iOS Firebase config
-- `android/app/google-services.json` - Dummy Android Firebase config
+- `firebase-config/GoogleService-Info.plist` - Dummy iOS Firebase config
+- `firebase-config/google-services.json` - Dummy Android Firebase config
 
 ## Important:
 - These files allow the CI/CD pipeline to build successfully
