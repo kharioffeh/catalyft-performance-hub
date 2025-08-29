@@ -1,6 +1,6 @@
 /**
- * Catalyft Fitness App - Card Component
- * Flexible container with elevation, borders, and press states
+ * Catalyft Fitness App - Enhanced Card Component
+ * Modern design system card with variants, shadows, and animations
  */
 
 import React, { useCallback } from 'react';
@@ -18,13 +18,13 @@ import Animated, {
   useSharedValue,
   withSpring,
   withTiming,
-} from '../../utils/reanimated-mock';
+} from 'react-native-reanimated';
 import HapticFeedback from 'react-native-haptic-feedback';
 import { theme } from '../../theme';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
-export type CardVariant = 'elevated' | 'outlined' | 'filled' | 'ghost';
+export type CardVariant = 'elevated' | 'outlined' | 'glass';
 export type CardSize = 'small' | 'medium' | 'large';
 
 export interface CardProps {
@@ -64,36 +64,37 @@ export const Card: React.FC<CardProps> = ({
   
   // Animation values
   const scale = useSharedValue(1);
-  const elevation = useSharedValue(variant === 'elevated' ? 4 : 0);
+  const elevation = useSharedValue(variant === 'elevated' ? 1 : 0);
   
-  // Get card styles based on variant
+  // Get card styles based on variant and size
   const getCardStyles = (): ViewStyle => {
     const padding = size === 'small'
-      ? theme.spacing.component.cardPaddingSmall
+      ? theme.componentSpacing.cardPaddingSmall
       : size === 'large'
-      ? theme.spacing.component.cardPaddingLarge
-      : theme.spacing.component.cardPadding;
+      ? theme.componentSpacing.cardPaddingLarge
+      : theme.componentSpacing.cardPadding;
     
     const baseStyle: ViewStyle = {
       padding,
       borderRadius: theme.borderRadius.card,
       width: fullWidth ? '100%' : undefined,
+      overflow: 'hidden',
     };
     
     switch (variant) {
       case 'elevated':
         return {
           ...baseStyle,
-          backgroundColor: colors.surface,
+          backgroundColor: colors.neutral.surface,
           ...Platform.select({
             ios: {
-              shadowColor: colors.shadow,
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.1,
-              shadowRadius: 4,
+              shadowColor: '#000000',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.08,
+              shadowRadius: 12,
             },
             android: {
-              elevation: 4,
+              elevation: 8,
             },
           }),
         };
@@ -101,21 +102,33 @@ export const Card: React.FC<CardProps> = ({
       case 'outlined':
         return {
           ...baseStyle,
-          backgroundColor: colors.surface,
-          borderWidth: theme.borderWidth.thin,
-          borderColor: colors.border,
+          backgroundColor: colors.neutral.surface,
+          borderWidth: 1,
+          borderColor: colors.neutral.border,
         };
       
-      case 'filled':
+      case 'glass':
         return {
           ...baseStyle,
-          backgroundColor: colors.surfaceSecondary,
-        };
-      
-      case 'ghost':
-        return {
-          ...baseStyle,
-          backgroundColor: 'transparent',
+          backgroundColor: isDark 
+            ? 'rgba(255, 255, 255, 0.05)' 
+            : 'rgba(255, 255, 255, 0.8)',
+          borderWidth: 1,
+          borderColor: isDark 
+            ? 'rgba(255, 255, 255, 0.1)' 
+            : 'rgba(255, 255, 255, 0.3)',
+          // Alternative glass effect using backdrop filter simulation
+          ...Platform.select({
+            ios: {
+              shadowColor: isDark ? '#FFFFFF' : '#000000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: isDark ? 0.1 : 0.05,
+              shadowRadius: 8,
+            },
+            android: {
+              elevation: 4,
+            },
+          }),
         };
       
       default:
@@ -123,86 +136,92 @@ export const Card: React.FC<CardProps> = ({
     }
   };
   
-  // Handle press in
+  // Handle press animations
   const handlePressIn = useCallback(() => {
-    'worklet';
-    if (onPress) {
-      scale.value = withSpring(0.98, theme.animation.spring.snappy);
-      if (variant === 'elevated') {
-        elevation.value = withTiming(2, theme.animation.timing.fast);
-      }
-    }
-  }, [scale, elevation, onPress, variant]);
-  
-  // Handle press out
-  const handlePressOut = useCallback(() => {
-    'worklet';
-    scale.value = withSpring(1, theme.animation.spring.snappy);
+    if (disabled) return;
+    
+    scale.value = withSpring(0.98, {
+      damping: 15,
+      stiffness: 300,
+    });
+    
     if (variant === 'elevated') {
-      elevation.value = withTiming(4, theme.animation.timing.fast);
+      elevation.value = withSpring(0.5, {
+        damping: 15,
+        stiffness: 300,
+      });
     }
-  }, [scale, elevation, variant]);
+    
+    if (haptic) {
+      HapticFeedback.trigger('impactLight', {
+        enableVibrateFallback: true,
+        ignoreAndroidSystemSettings: false,
+      });
+    }
+  }, [disabled, variant, haptic, scale, elevation]);
   
-  // Handle press with haptic feedback
-  const handlePress = useCallback((event: GestureResponderEvent) => {
-    if (haptic && !disabled) {
-      HapticFeedback.trigger('impactLight');
+  const handlePressOut = useCallback(() => {
+    if (disabled) return;
+    
+    scale.value = withSpring(1, {
+      damping: 15,
+      stiffness: 300,
+    });
+    
+    if (variant === 'elevated') {
+      elevation.value = withSpring(1, {
+        damping: 15,
+        stiffness: 300,
+      });
     }
-    onPress?.(event);
-  }, [onPress, haptic, disabled]);
-  
-  // Handle long press with haptic feedback
-  const handleLongPress = useCallback((event: GestureResponderEvent) => {
-    if (haptic && !disabled) {
-      HapticFeedback.trigger('impactMedium');
-    }
-    onLongPress?.(event);
-  }, [onLongPress, haptic, disabled]);
+  }, [disabled, variant, scale, elevation]);
   
   // Animated styles
-  const animatedStyle = useAnimatedStyle(() => {
-    const animatedElevation = variant === 'elevated' 
-      ? Platform.select({
-          android: { elevation: elevation.value },
-          ios: {
-            shadowOpacity: elevation.value / 40,
-            shadowRadius: elevation.value,
-          },
-        })
-      : {};
-    
-    return {
-      transform: [{ scale: scale.value }],
-      ...animatedElevation,
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
   
-  // If not pressable, render as a simple view
-  if (!onPress && !onLongPress) {
+  // Handle press events
+  const handlePress = useCallback((event: GestureResponderEvent) => {
+    if (disabled) return;
+    onPress?.(event);
+  }, [disabled, onPress]);
+  
+  const handleLongPress = useCallback((event: GestureResponderEvent) => {
+    if (disabled) return;
+    onLongPress?.(event);
+  }, [disabled, onLongPress]);
+  
+  // Render card content
+  const renderCardContent = () => {
     return (
-      <Animated.View style={[getCardStyles(), animatedStyle, style]}>
-        <View style={contentStyle}>
-          {children}
-        </View>
-      </Animated.View>
+      <View style={[getCardStyles(), contentStyle]}>
+        {children}
+      </View>
+    );
+  };
+  
+  // Render card based on interaction
+  if (onPress || onLongPress) {
+    return (
+      <AnimatedTouchable
+        style={[animatedStyle, style]}
+        onPress={handlePress}
+        onLongPress={onLongPress ? handleLongPress : undefined}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={disabled}
+        activeOpacity={1}
+      >
+        {renderCardContent()}
+      </AnimatedTouchable>
     );
   }
   
-  // Render pressable card
   return (
-    <AnimatedTouchable
-      style={[getCardStyles(), animatedStyle, style]}
-      onPress={handlePress}
-      onLongPress={onLongPress ? handleLongPress : undefined}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      disabled={disabled}
-      activeOpacity={0.9}
-    >
-      <View style={contentStyle}>
-        {children}
-      </View>
-    </AnimatedTouchable>
+    <View style={[getCardStyles(), style, contentStyle]}>
+      {children}
+    </View>
   );
 };
 

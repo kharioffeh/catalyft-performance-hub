@@ -1,6 +1,6 @@
 /**
- * Catalyft Fitness App - Button Component
- * Versatile button with multiple variants and states
+ * Catalyft Fitness App - Enhanced Button Component
+ * Modern design system button with gradient, variants, and animations
  */
 
 import React, { useCallback, useMemo } from 'react';
@@ -14,6 +14,7 @@ import {
   TextStyle,
   GestureResponderEvent,
   useColorScheme,
+  Platform,
 } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -22,14 +23,16 @@ import Animated, {
   withTiming,
   interpolate,
   runOnJS,
-} from '../../utils/reanimated-mock';
+} from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 import HapticFeedback from 'react-native-haptic-feedback';
 import { theme } from '../../theme';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
+const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
-export type ButtonVariant = 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'ghost' | 'outline';
-export type ButtonSize = 'small' | 'medium' | 'large';
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
+export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
 
 export interface ButtonProps {
   // Content
@@ -67,7 +70,7 @@ export const Button: React.FC<ButtonProps> = ({
   icon,
   iconPosition = 'left',
   variant = 'primary',
-  size = 'medium',
+  size = 'md',
   fullWidth = false,
   rounded = false,
   disabled = false,
@@ -89,212 +92,216 @@ export const Button: React.FC<ButtonProps> = ({
   const scale = useSharedValue(1);
   const opacity = useSharedValue(1);
   
+  // Get button dimensions based on size
+  const getButtonDimensions = useCallback((): { height: number; paddingHorizontal: number } => {
+    switch (size) {
+      case 'sm':
+        return { height: 40, paddingHorizontal: 16 };
+      case 'md':
+        return { height: 48, paddingHorizontal: 24 };
+      case 'lg':
+        return { height: 56, paddingHorizontal: 32 };
+      case 'xl':
+        return { height: 64, paddingHorizontal: 40 };
+      default:
+        return { height: 48, paddingHorizontal: 24 };
+    }
+  }, [size]);
+  
   // Get button styles based on variant
   const getButtonStyles = useCallback((): ViewStyle => {
+    const { height, paddingHorizontal } = getButtonDimensions();
+    
     const baseStyle: ViewStyle = {
-      paddingHorizontal: size === 'small' 
-        ? theme.spacing.component.buttonPaddingHorizontalSmall
-        : size === 'large'
-        ? theme.spacing.component.buttonPaddingHorizontalLarge
-        : theme.spacing.component.buttonPaddingHorizontal,
-      paddingVertical: size === 'small'
-        ? theme.spacing.component.buttonPaddingVerticalSmall
-        : size === 'large'
-        ? theme.spacing.component.buttonPaddingVerticalLarge
-        : theme.spacing.component.buttonPaddingVertical,
-      borderRadius: rounded 
-        ? theme.borderRadius.full
-        : size === 'small'
-        ? theme.borderRadius.buttonSmall
-        : size === 'large'
-        ? theme.borderRadius.buttonLarge
-        : theme.borderRadius.button,
-      minHeight: size === 'small'
-        ? theme.dimensions.buttonHeightSmall
-        : size === 'large'
-        ? theme.dimensions.buttonHeightLarge
-        : theme.dimensions.buttonHeight,
-      flexDirection: 'row',
+      height,
+      paddingHorizontal,
+      borderRadius: rounded ? height / 2 : theme.borderRadius.button,
+      width: fullWidth ? '100%' : undefined,
       alignItems: 'center',
       justifyContent: 'center',
+      flexDirection: 'row',
+      gap: 8,
     };
     
-    if (fullWidth) {
-      baseStyle.width = '100%';
-    }
-    
-    // Apply variant styles
     switch (variant) {
       case 'primary':
         return {
           ...baseStyle,
-          backgroundColor: disabled ? colors.textDisabled : colors.primary,
+          // Primary uses gradient background
         };
+      
       case 'secondary':
         return {
           ...baseStyle,
-          backgroundColor: disabled ? colors.textDisabled : colors.secondary,
+          backgroundColor: colors.brand.primaryGreen,
         };
-      case 'success':
+      
+      case 'outline':
         return {
           ...baseStyle,
-          backgroundColor: disabled ? colors.textDisabled : colors.success,
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          borderColor: colors.brand.primaryBlue,
         };
-      case 'warning':
-        return {
-          ...baseStyle,
-          backgroundColor: disabled ? colors.textDisabled : colors.warning,
-        };
-      case 'error':
-        return {
-          ...baseStyle,
-          backgroundColor: disabled ? colors.textDisabled : colors.error,
-        };
+      
       case 'ghost':
         return {
           ...baseStyle,
           backgroundColor: 'transparent',
         };
-      case 'outline':
-        return {
-          ...baseStyle,
-          backgroundColor: 'transparent',
-          borderWidth: theme.borderWidth.thin,
-          borderColor: disabled 
-            ? colors.textDisabled 
-            : variant === 'outline' 
-            ? colors.border 
-            : colors.primary,
-        };
+      
       default:
         return baseStyle;
     }
-  }, [variant, size, rounded, fullWidth, disabled, colors]);
+  }, [variant, size, fullWidth, rounded, colors, getButtonDimensions]);
   
   // Get text styles based on variant
   const getTextStyles = useCallback((): TextStyle => {
-    const baseStyle: TextStyle = size === 'small'
-      ? theme.typography.styles.buttonSmall
-      : theme.typography.styles.button;
-    
-    let color: string;
-    
-    if (disabled) {
-      color = variant === 'ghost' || variant === 'outline' 
-        ? colors.textDisabled 
-        : colors.textOnPrimary;
-    } else {
-      switch (variant) {
-        case 'ghost':
-        case 'outline':
-          color = colors.text;
-          break;
-        default:
-          color = colors.textOnPrimary;
-      }
-    }
-    
-    return {
-      ...baseStyle,
-      color,
+    const baseTextStyle: TextStyle = {
+      ...theme.typography.body,
+      fontWeight: '600',
+      textAlign: 'center',
     };
-  }, [variant, size, disabled, colors]);
+    
+    switch (variant) {
+      case 'primary':
+        return {
+          ...baseTextStyle,
+          color: '#FFFFFF',
+        };
+      
+      case 'secondary':
+        return {
+          ...baseTextStyle,
+          color: '#FFFFFF',
+        };
+      
+      case 'outline':
+        return {
+          ...baseTextStyle,
+          color: colors.brand.primaryBlue,
+        };
+      
+      case 'ghost':
+        return {
+          ...baseTextStyle,
+          color: colors.brand.primaryBlue,
+        };
+      
+      default:
+        return baseTextStyle;
+    }
+  }, [variant, colors]);
   
-  // Handle press in
+  // Handle press animations
   const handlePressIn = useCallback(() => {
-    'worklet';
-    scale.value = withSpring(0.95, theme.animation.spring.snappy);
-    opacity.value = withTiming(0.8, theme.animation.timing.fast);
-  }, [scale, opacity]);
+    if (disabled || loading) return;
+    
+    scale.value = withSpring(0.98, {
+      damping: 15,
+      stiffness: 300,
+    });
+    
+    if (haptic) {
+      HapticFeedback.trigger(hapticType, {
+        enableVibrateFallback: true,
+        ignoreAndroidSystemSettings: false,
+      });
+    }
+  }, [disabled, loading, haptic, hapticType, scale]);
   
-  // Handle press out
   const handlePressOut = useCallback(() => {
-    'worklet';
-    scale.value = withSpring(1, theme.animation.spring.snappy);
-    opacity.value = withTiming(1, theme.animation.timing.fast);
-  }, [scale, opacity]);
-  
-  // Handle press with haptic feedback
-  const handlePress = useCallback((event: GestureResponderEvent) => {
-    if (haptic && !disabled && !loading) {
-      HapticFeedback.trigger(hapticType);
-    }
-    onPress?.(event);
-  }, [onPress, haptic, hapticType, disabled, loading]);
-  
-  // Handle long press with haptic feedback
-  const handleLongPress = useCallback((event: GestureResponderEvent) => {
-    if (haptic && !disabled && !loading) {
-      HapticFeedback.trigger('impactHeavy');
-    }
-    onLongPress?.(event);
-  }, [onLongPress, haptic, disabled, loading]);
+    if (disabled || loading) return;
+    
+    scale.value = withSpring(1, {
+      damping: 15,
+      stiffness: 300,
+    });
+  }, [disabled, loading, scale]);
   
   // Animated styles
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-      opacity: opacity.value,
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: opacity.value,
+  }));
   
-  // Memoized styles
-  const buttonStyles = useMemo(() => getButtonStyles(), [getButtonStyles]);
-  const textStyles = useMemo(() => getTextStyles(), [getTextStyles]);
+  // Handle press events
+  const handlePress = useCallback((event: GestureResponderEvent) => {
+    if (disabled || loading) return;
+    onPress?.(event);
+  }, [disabled, loading, onPress]);
   
-  // Render content
+  const handleLongPress = useCallback((event: GestureResponderEvent) => {
+    if (disabled || loading) return;
+    onLongPress?.(event);
+  }, [disabled, loading, onLongPress]);
+  
+  // Render button content
   const renderContent = () => {
     if (loading) {
       return (
-        <ActivityIndicator
-          size={size === 'small' ? 'small' : 'small'}
-          color={variant === 'ghost' || variant === 'outline' ? colors.text : colors.textOnPrimary}
+        <ActivityIndicator 
+          size="small" 
+          color={variant === 'primary' || variant === 'secondary' ? '#FFFFFF' : colors.brand.primaryBlue} 
         />
       );
     }
     
-    return (
+    const content = (
       <>
-        {icon && iconPosition === 'left' && (
-          <View style={styles.iconContainer}>
-            {icon}
-          </View>
-        )}
-        {children || (title && <Text style={[textStyles, textStyle]}>{title}</Text>)}
-        {icon && iconPosition === 'right' && (
-          <View style={[styles.iconContainer, styles.iconRight]}>
-            {icon}
-          </View>
-        )}
+        {icon && iconPosition === 'left' && icon}
+        {title && <Text style={[getTextStyles(), textStyle]}>{title}</Text>}
+        {children}
+        {icon && iconPosition === 'right' && icon}
       </>
+    );
+    
+    return content;
+  };
+  
+  // Render button based on variant
+  const renderButton = () => {
+    const buttonProps = {
+      style: [getButtonStyles(), animatedStyle, style],
+      onPress: handlePress,
+      onLongPress: handleLongPress,
+      onPressIn: handlePressIn,
+      onPressOut: handlePressOut,
+      disabled: disabled || loading,
+      activeOpacity: 1,
+    };
+    
+    if (variant === 'primary') {
+      return (
+        <LinearGradient
+          colors={['#0057FF', '#003FCC']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[getButtonStyles(), { backgroundColor: 'transparent' }]}
+        >
+          <AnimatedTouchable {...buttonProps} style={[buttonProps.style, { backgroundColor: 'transparent' }]}>
+            {renderContent()}
+          </AnimatedTouchable>
+        </LinearGradient>
+      );
+    }
+    
+    return (
+      <AnimatedTouchable {...buttonProps}>
+        {renderContent()}
+      </AnimatedTouchable>
     );
   };
   
   return (
-    <View style={containerStyle}>
-      <AnimatedTouchable
-        style={[buttonStyles, animatedStyle, style]}
-        onPress={handlePress}
-        onLongPress={onLongPress ? handleLongPress : undefined}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        disabled={disabled || loading}
-        activeOpacity={0.8}
-      >
-        {renderContent()}
-      </AnimatedTouchable>
+    <View style={[styles.container, containerStyle]}>
+      {renderButton()}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  iconContainer: {
-    marginRight: theme.spacing.component.iconSpacing,
-  },
-  iconRight: {
-    marginRight: 0,
-    marginLeft: theme.spacing.component.iconSpacing,
+  container: {
+    // Container styles
   },
 });
-
-export default Button;

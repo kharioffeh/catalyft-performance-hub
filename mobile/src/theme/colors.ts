@@ -1,84 +1,70 @@
 /**
- * Catalyft Fitness App - Color System
- * Energetic colors for a fitness-focused experience
+ * Catalyft Fitness App - Enhanced Color System
+ * Modern design system with light/dark mode support
  */
 
-export interface ColorPalette {
-  // Primary - Energetic Blue
-  primary50: string;
-  primary100: string;
-  primary200: string;
-  primary300: string;
-  primary400: string;
-  primary500: string;
-  primary600: string;
-  primary700: string;
-  primary800: string;
-  primary900: string;
-
-  // Secondary - Vibrant Orange
-  secondary50: string;
-  secondary100: string;
-  secondary200: string;
-  secondary300: string;
-  secondary400: string;
-  secondary500: string;
-  secondary600: string;
-  secondary700: string;
-  secondary800: string;
-  secondary900: string;
-
-  // Success - Fresh Green
-  success50: string;
-  success100: string;
-  success200: string;
-  success300: string;
-  success400: string;
-  success500: string;
-  success600: string;
-  success700: string;
-  success800: string;
-  success900: string;
-
-  // Warning - Warm Yellow
-  warning50: string;
-  warning100: string;
-  warning200: string;
-  warning300: string;
-  warning400: string;
-  warning500: string;
-  warning600: string;
-  warning700: string;
-  warning800: string;
-  warning900: string;
-
-  // Error - Alert Red
-  error50: string;
-  error100: string;
-  error200: string;
-  error300: string;
-  error400: string;
-  error500: string;
-  error600: string;
-  error700: string;
-  error800: string;
-  error900: string;
-
-  // Neutral - Grays
-  neutral50: string;
-  neutral100: string;
-  neutral200: string;
-  neutral300: string;
-  neutral400: string;
-  neutral500: string;
-  neutral600: string;
-  neutral700: string;
-  neutral800: string;
-  neutral900: string;
-  neutral950: string;
+export interface ColorScheme {
+  brand: {
+    primaryBlue: string;
+    primaryGreen: string;
+    accentOrange: string;
+    dangerRed: string;
+  };
+  neutral: {
+    background: string;
+    surface: string;
+    border: string;
+    slate: string;
+    textHeading: string;
+    textBody: string;
+    textMuted: string;
+  };
 }
 
-export const baseColors: ColorPalette = {
+export interface ColorPalette {
+  light: ColorScheme;
+  dark: ColorScheme;
+}
+
+export const colors: ColorPalette = {
+  light: {
+    brand: {
+      primaryBlue: "#0057FF",
+      primaryGreen: "#00C853",
+      accentOrange: "#FF6B00",
+      dangerRed: "#FF1744"
+    },
+    neutral: {
+      background: "#FFFFFF",
+      surface: "#F5F7FA",
+      border: "#E0E0E0",
+      slate: "#2E2E2E",
+      textHeading: "#2E2E2E",
+      textBody: "#4F4F4F",
+      textMuted: "#9E9E9E"
+    }
+  },
+  dark: {
+    brand: {
+      primaryBlue: "#4A9EFF",
+      primaryGreen: "#4CAF50",
+      accentOrange: "#FF8A65",
+      dangerRed: "#FF5252"
+    },
+    neutral: {
+      background: "#121212",
+      surface: "#1E1E1E",
+      border: "#333333",
+      slate: "#E0E0E0",
+      textHeading: "#FFFFFF",
+      textBody: "#E0E0E0",
+      textMuted: "#9E9E9E"
+    }
+  }
+};
+
+// Legacy color support for backward compatibility
+export const baseColors = {
   // Primary - Energetic Blue
   primary50: '#EBF5FF',
   primary100: '#D1E9FF',
@@ -109,23 +95,23 @@ export const baseColors: ColorPalette = {
   success200: '#BBF7D0',
   success300: '#86EFAC',
   success400: '#4ADE80',
-  success500: '#22C55E', // Positive green
+  success500: '#22C55E', // Success green
   success600: '#16A34A',
   success700: '#15803D',
   success800: '#166534',
   success900: '#14532D',
 
   // Warning - Warm Yellow
-  warning50: '#FEFCE8',
-  warning100: '#FEF9C3',
-  warning200: '#FEF08A',
-  warning300: '#FDE047',
-  warning400: '#FACC15',
-  warning500: '#EAB308', // Alert yellow
-  warning600: '#CA8A04',
-  warning700: '#A16207',
-  warning800: '#854D0E',
-  warning900: '#713F12',
+  warning50: '#FFFBEB',
+  warning100: '#FEF3C7',
+  warning200: '#FDE68A',
+  warning300: '#FCD34D',
+  warning400: '#FBBF24',
+  warning500: '#F59E0B', // Warning yellow
+  warning600: '#D97706',
+  warning700: '#B45309',
+  warning800: '#92400E',
+  warning900: '#78350F',
 
   // Error - Alert Red
   error50: '#FEF2F2',
@@ -133,24 +119,24 @@ export const baseColors: ColorPalette = {
   error200: '#FECACA',
   error300: '#FCA5A5',
   error400: '#F87171',
-  error500: '#EF4444', // Critical red
+  error500: '#EF4444', // Error red
   error600: '#DC2626',
   error700: '#B91C1C',
   error800: '#991B1B',
   error900: '#7F1D1D',
 
   // Neutral - Grays
-  neutral50: '#FAFAFA',
-  neutral100: '#F5F5F5',
-  neutral200: '#E5E5E5',
-  neutral300: '#D4D4D4',
-  neutral400: '#A3A3A3',
-  neutral500: '#737373',
-  neutral600: '#525252',
-  neutral700: '#404040',
-  neutral800: '#262626',
-  neutral900: '#171717',
-  neutral950: '#0A0A0A',
+  neutral50: '#F9FAFB',
+  neutral100: '#F3F4F6',
+  neutral200: '#E5E7EB',
+  neutral300: '#D1D5DB',
+  neutral400: '#9CA3AF',
+  neutral500: '#6B7280',
+  neutral600: '#4B5563',
+  neutral700: '#374151',
+  neutral800: '#1F2937',
+  neutral900: '#111827',
+  neutral950: '#030712',
 };
 
 export interface ThemeColors {

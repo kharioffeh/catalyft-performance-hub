@@ -1,6 +1,6 @@
 /**
- * Catalyft Fitness App - Typography System
- * Consistent font scales and text styles
+ * Catalyft Fitness App - Enhanced Typography System
+ * Modern design system with consistent font scales
  */
 
 import { Platform, TextStyle } from 'react-native';
@@ -47,7 +47,44 @@ export const fontWeights = {
   black: '900' as TextStyle['fontWeight'],
 };
 
-// Font sizes
+// Enhanced typography scale as per requirements
+export const typography = {
+  h1: { 
+    fontSize: 32, 
+    fontWeight: '800' as TextStyle['fontWeight'], 
+    letterSpacing: -0.5,
+    lineHeight: 40
+  },
+  h2: { 
+    fontSize: 24, 
+    fontWeight: '700' as TextStyle['fontWeight'], 
+    letterSpacing: -0.3,
+    lineHeight: 32
+  },
+  h3: { 
+    fontSize: 20, 
+    fontWeight: '600' as TextStyle['fontWeight'],
+    lineHeight: 28
+  },
+  body: { 
+    fontSize: 16, 
+    lineHeight: 24,
+    fontWeight: '400' as TextStyle['fontWeight']
+  },
+  caption: { 
+    fontSize: 14, 
+    lineHeight: 20,
+    fontWeight: '400' as TextStyle['fontWeight']
+  },
+  label: { 
+    fontSize: 12, 
+    fontWeight: '600' as TextStyle['fontWeight'], 
+    textTransform: 'uppercase' as TextStyle['textTransform'],
+    letterSpacing: 0.5
+  }
+};
+
+// Legacy font sizes for backward compatibility
 export const fontSizes = {
   // Display sizes
   display1: 56,
@@ -96,209 +133,208 @@ export const letterSpacing = {
   widest: 1.6,
 };
 
-// Text styles
+// Enhanced text styles with new design system
 export const textStyles = {
-  // Display styles
-  display1: {
-    fontFamily: fontFamilies.bold,
-    fontSize: fontSizes.display1,
-    fontWeight: fontWeights.bold,
-    lineHeight: fontSizes.display1 * lineHeights.tight,
-    letterSpacing: letterSpacing.tight,
-  } as TextStyle,
-
-  display2: {
-    fontFamily: fontFamilies.bold,
-    fontSize: fontSizes.display2,
-    fontWeight: fontWeights.bold,
-    lineHeight: fontSizes.display2 * lineHeights.tight,
-    letterSpacing: letterSpacing.tight,
-  } as TextStyle,
-
-  display3: {
-    fontFamily: fontFamilies.bold,
-    fontSize: fontSizes.display3,
-    fontWeight: fontWeights.bold,
-    lineHeight: fontSizes.display3 * lineHeights.tight,
-    letterSpacing: letterSpacing.tight,
-  } as TextStyle,
-
-  // Heading styles
+  // Headings
   h1: {
+    ...typography.h1,
     fontFamily: fontFamilies.bold,
-    fontSize: fontSizes.h1,
-    fontWeight: fontWeights.bold,
-    lineHeight: fontSizes.h1 * lineHeights.snug,
-    letterSpacing: letterSpacing.tight,
-  } as TextStyle,
-
+    color: '#2E2E2E', // textHeading color
+  },
   h2: {
-    fontFamily: fontFamilies.semibold,
-    fontSize: fontSizes.h2,
-    fontWeight: fontWeights.semibold,
-    lineHeight: fontSizes.h2 * lineHeights.snug,
-    letterSpacing: letterSpacing.tight,
-  } as TextStyle,
-
+    ...typography.h2,
+    fontFamily: fontFamilies.bold,
+    color: '#2E2E2E', // textHeading color
+  },
   h3: {
+    ...typography.h3,
     fontFamily: fontFamilies.semibold,
-    fontSize: fontSizes.h3,
-    fontWeight: fontWeights.semibold,
-    lineHeight: fontSizes.h3 * lineHeights.snug,
-    letterSpacing: letterSpacing.normal,
-  } as TextStyle,
-
-  h4: {
-    fontFamily: fontFamilies.medium,
-    fontSize: fontSizes.h4,
-    fontWeight: fontWeights.medium,
-    lineHeight: fontSizes.h4 * lineHeights.normal,
-    letterSpacing: letterSpacing.normal,
-  } as TextStyle,
-
-  h5: {
-    fontFamily: fontFamilies.medium,
-    fontSize: fontSizes.h5,
-    fontWeight: fontWeights.medium,
-    lineHeight: fontSizes.h5 * lineHeights.normal,
-    letterSpacing: letterSpacing.normal,
-  } as TextStyle,
-
-  h6: {
-    fontFamily: fontFamilies.medium,
-    fontSize: fontSizes.h6,
-    fontWeight: fontWeights.medium,
-    lineHeight: fontSizes.h6 * lineHeights.normal,
-    letterSpacing: letterSpacing.normal,
-  } as TextStyle,
-
-  // Body styles
-  bodyLarge: {
+    color: '#2E2E2E', // textHeading color
+  },
+  
+  // Body text
+  body: {
+    ...typography.body,
     fontFamily: fontFamilies.regular,
-    fontSize: fontSizes.large,
-    fontWeight: fontWeights.regular,
-    lineHeight: fontSizes.large * lineHeights.relaxed,
-    letterSpacing: letterSpacing.normal,
-  } as TextStyle,
-
-  bodyMedium: {
-    fontFamily: fontFamilies.regular,
-    fontSize: fontSizes.medium,
-    fontWeight: fontWeights.regular,
-    lineHeight: fontSizes.medium * lineHeights.relaxed,
-    letterSpacing: letterSpacing.normal,
-  } as TextStyle,
-
-  bodyRegular: {
-    fontFamily: fontFamilies.regular,
-    fontSize: fontSizes.regular,
-    fontWeight: fontWeights.regular,
-    lineHeight: fontSizes.regular * lineHeights.relaxed,
-    letterSpacing: letterSpacing.normal,
-  } as TextStyle,
-
-  bodySmall: {
-    fontFamily: fontFamilies.regular,
-    fontSize: fontSizes.small,
-    fontWeight: fontWeights.regular,
-    lineHeight: fontSizes.small * lineHeights.relaxed,
-    letterSpacing: letterSpacing.normal,
-  } as TextStyle,
-
-  // Special styles
-  button: {
-    fontFamily: fontFamilies.semibold,
-    fontSize: fontSizes.button,
-    fontWeight: fontWeights.semibold,
-    lineHeight: fontSizes.button * lineHeights.normal,
-    letterSpacing: letterSpacing.wide,
-    textTransform: 'none',
-  } as TextStyle,
-
-  buttonSmall: {
-    fontFamily: fontFamilies.semibold,
-    fontSize: fontSizes.regular,
-    fontWeight: fontWeights.semibold,
-    lineHeight: fontSizes.regular * lineHeights.normal,
-    letterSpacing: letterSpacing.wide,
-    textTransform: 'none',
-  } as TextStyle,
-
-  label: {
-    fontFamily: fontFamilies.medium,
-    fontSize: fontSizes.label,
-    fontWeight: fontWeights.medium,
-    lineHeight: fontSizes.label * lineHeights.normal,
-    letterSpacing: letterSpacing.normal,
-  } as TextStyle,
-
+    color: '#4F4F4F', // textBody color
+  },
+  
+  // Captions and labels
   caption: {
+    ...typography.caption,
     fontFamily: fontFamilies.regular,
-    fontSize: fontSizes.caption,
-    fontWeight: fontWeights.regular,
-    lineHeight: fontSizes.caption * lineHeights.normal,
-    letterSpacing: letterSpacing.normal,
-  } as TextStyle,
-
-  overline: {
+    color: '#9E9E9E', // textMuted color
+  },
+  
+  label: {
+    ...typography.label,
     fontFamily: fontFamilies.semibold,
-    fontSize: fontSizes.overline,
+    color: '#4F4F4F', // textBody color
+  },
+  
+  // Interactive elements
+  button: {
+    fontSize: 16,
     fontWeight: fontWeights.semibold,
-    lineHeight: fontSizes.overline * lineHeights.normal,
-    letterSpacing: letterSpacing.widest,
-    textTransform: 'uppercase',
-  } as TextStyle,
-
+    fontFamily: fontFamilies.semibold,
+    color: '#FFFFFF',
+    textAlign: 'center' as TextStyle['textAlign'],
+  },
+  
   link: {
-    fontFamily: fontFamilies.regular,
-    fontSize: fontSizes.regular,
-    fontWeight: fontWeights.regular,
-    lineHeight: fontSizes.regular * lineHeights.relaxed,
-    letterSpacing: letterSpacing.normal,
-    textDecorationLine: 'underline',
-  } as TextStyle,
-
-  mono: {
-    fontFamily: fontFamilies.mono,
-    fontSize: fontSizes.regular,
-    fontWeight: fontWeights.regular,
-    lineHeight: fontSizes.regular * lineHeights.normal,
-    letterSpacing: letterSpacing.normal,
-  } as TextStyle,
-
-  // Fitness-specific styles
-  metric: {
-    fontFamily: fontFamilies.bold,
-    fontSize: fontSizes.h2,
-    fontWeight: fontWeights.bold,
-    lineHeight: fontSizes.h2 * lineHeights.tight,
-    letterSpacing: letterSpacing.tight,
-  } as TextStyle,
-
-  metricLabel: {
-    fontFamily: fontFamilies.medium,
-    fontSize: fontSizes.caption,
+    fontSize: 16,
     fontWeight: fontWeights.medium,
-    lineHeight: fontSizes.caption * lineHeights.normal,
-    letterSpacing: letterSpacing.wide,
-    textTransform: 'uppercase',
-  } as TextStyle,
-
-  timer: {
+    fontFamily: fontFamilies.medium,
+    color: '#0057FF', // primaryBlue color
+    textDecorationLine: 'underline' as TextStyle['textDecorationLine'],
+  },
+  
+  // Form elements
+  input: {
+    fontSize: 16,
+    fontWeight: fontWeights.regular,
+    fontFamily: fontFamilies.regular,
+    color: '#2E2E2E', // textHeading color
+  },
+  
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: fontWeights.medium,
+    fontFamily: fontFamilies.medium,
+    color: '#4F4F4F', // textBody color
+  },
+  
+  inputError: {
+    fontSize: 12,
+    fontWeight: fontWeights.regular,
+    fontFamily: fontFamilies.regular,
+    color: '#FF1744', // dangerRed color
+  },
+  
+  // Status messages
+  success: {
+    fontSize: 14,
+    fontWeight: fontWeights.medium,
+    fontFamily: fontFamilies.medium,
+    color: '#00C853', // primaryGreen color
+  },
+  
+  warning: {
+    fontSize: 14,
+    fontWeight: fontWeights.medium,
+    fontFamily: fontFamilies.medium,
+    color: '#FF6B00', // accentOrange color
+  },
+  
+  error: {
+    fontSize: 14,
+    fontWeight: fontWeights.medium,
+    fontFamily: fontFamilies.medium,
+    color: '#FF1744', // dangerRed color
+  },
+  
+  // Navigation
+  navTitle: {
+    fontSize: 18,
+    fontWeight: fontWeights.semibold,
+    fontFamily: fontFamilies.semibold,
+    color: '#2E2E2E', // textHeading color
+  },
+  
+  navSubtitle: {
+    fontSize: 14,
+    fontWeight: fontWeights.regular,
+    fontFamily: fontFamilies.regular,
+    color: '#9E9E9E', // textMuted color
+  },
+  
+  // Cards and lists
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: fontWeights.semibold,
+    fontFamily: fontFamilies.semibold,
+    color: '#2E2E2E', // textHeading color
+  },
+  
+  cardSubtitle: {
+    fontSize: 14,
+    fontWeight: fontWeights.regular,
+    fontFamily: fontFamilies.regular,
+    color: '#4F4F4F', // textBody color
+  },
+  
+  listItemTitle: {
+    fontSize: 16,
+    fontWeight: fontWeights.medium,
+    fontFamily: fontFamilies.medium,
+    color: '#2E2E2E', // textHeading color
+  },
+  
+  listItemSubtitle: {
+    fontSize: 14,
+    fontWeight: fontWeights.regular,
+    fontFamily: fontFamilies.regular,
+    color: '#4F4F4F', // textBody color
+  },
+  
+  // Badges and tags
+  badge: {
+    fontSize: 12,
+    fontWeight: fontWeights.semibold,
+    fontFamily: fontFamilies.semibold,
+    color: '#FFFFFF',
+    textAlign: 'center' as TextStyle['textAlign'],
+  },
+  
+  tag: {
+    fontSize: 12,
+    fontWeight: fontWeights.medium,
+    fontFamily: fontFamilies.medium,
+    color: '#4F4F4F', // textBody color
+  },
+  
+  // Timestamps and metadata
+  timestamp: {
+    fontSize: 12,
+    fontWeight: fontWeights.regular,
+    fontFamily: fontFamilies.regular,
+    color: '#9E9E9E', // textMuted color
+  },
+  
+  metadata: {
+    fontSize: 12,
+    fontWeight: fontWeights.regular,
+    fontFamily: fontFamilies.regular,
+    color: '#9E9E9E', // textMuted color
+  },
+  
+  // Code and technical text
+  code: {
+    fontSize: 14,
+    fontWeight: fontWeights.regular,
     fontFamily: fontFamilies.mono,
-    fontSize: fontSizes.display3,
-    fontWeight: fontWeights.bold,
-    lineHeight: fontSizes.display3 * lineHeights.tight,
-    letterSpacing: letterSpacing.normal,
-  } as TextStyle,
-
-  counter: {
-    fontFamily: fontFamilies.bold,
-    fontSize: fontSizes.display1,
-    fontWeight: fontWeights.black,
-    lineHeight: fontSizes.display1 * lineHeights.tight,
-    letterSpacing: letterSpacing.tighter,
-  } as TextStyle,
+    color: '#2E2E2E', // textHeading color
+    backgroundColor: '#F5F7FA', // surface color
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  
+  // Quotes and highlights
+  quote: {
+    fontSize: 16,
+    fontWeight: fontWeights.medium,
+    fontFamily: fontFamilies.medium,
+    color: '#4F4F4F', // textBody color
+    fontStyle: 'italic' as TextStyle['fontStyle'],
+  },
+  
+  highlight: {
+    fontSize: 16,
+    fontWeight: fontWeights.semibold,
+    fontFamily: fontFamilies.semibold,
+    color: '#0057FF', // primaryBlue color
+  },
 };
 
 // Text alignment
