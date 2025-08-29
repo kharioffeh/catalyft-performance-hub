@@ -1,121 +1,518 @@
 /**
- * Catalyft Fitness App - Spacing System
- * Consistent spacing scale for layout and components
+ * Catalyft Fitness App - Enhanced Spacing System
+ * Consistent spacing scale for modern design system
  */
 
-// Base unit (4px)
-const BASE_UNIT = 4;
-
-// Spacing scale
 export const spacing = {
-  // Micro spacing
-  xxs: BASE_UNIT * 0.5, // 2px
-  xs: BASE_UNIT * 1,     // 4px
-  sm: BASE_UNIT * 2,     // 8px
-  md: BASE_UNIT * 3,     // 12px
-  lg: BASE_UNIT * 4,     // 16px
-  xl: BASE_UNIT * 5,     // 20px
-  xxl: BASE_UNIT * 6,    // 24px
-  xxxl: BASE_UNIT * 8,   // 32px
-  
-  // Layout spacing
-  s0: 0,
-  s1: BASE_UNIT * 1,     // 4px
-  s2: BASE_UNIT * 2,     // 8px
-  s3: BASE_UNIT * 3,     // 12px
-  s4: BASE_UNIT * 4,     // 16px
-  s5: BASE_UNIT * 5,     // 20px
-  s6: BASE_UNIT * 6,     // 24px
-  s7: BASE_UNIT * 7,     // 28px
-  s8: BASE_UNIT * 8,     // 32px
-  s9: BASE_UNIT * 9,     // 36px
-  s10: BASE_UNIT * 10,   // 40px
-  s11: BASE_UNIT * 11,   // 44px
-  s12: BASE_UNIT * 12,   // 48px
-  s14: BASE_UNIT * 14,   // 56px
-  s16: BASE_UNIT * 16,   // 64px
-  s20: BASE_UNIT * 20,   // 80px
-  s24: BASE_UNIT * 24,   // 96px
-  s28: BASE_UNIT * 28,   // 112px
-  s32: BASE_UNIT * 32,   // 128px
-  s36: BASE_UNIT * 36,   // 144px
-  s40: BASE_UNIT * 40,   // 160px
-  s44: BASE_UNIT * 44,   // 176px
-  s48: BASE_UNIT * 48,   // 192px
-  s52: BASE_UNIT * 52,   // 208px
-  s56: BASE_UNIT * 56,   // 224px
-  s60: BASE_UNIT * 60,   // 240px
-  s64: BASE_UNIT * 64,   // 256px
-  s72: BASE_UNIT * 72,   // 288px
-  s80: BASE_UNIT * 80,   // 320px
-  s96: BASE_UNIT * 96,   // 384px
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  xxl: 48
 };
 
-// Component-specific spacing
+// Legacy spacing support for backward compatibility
 export const componentSpacing = {
-  // Button padding
-  buttonPaddingHorizontal: spacing.s4,
-  buttonPaddingVertical: spacing.s3,
-  buttonPaddingHorizontalSmall: spacing.s3,
-  buttonPaddingVerticalSmall: spacing.s2,
-  buttonPaddingHorizontalLarge: spacing.s5,
-  buttonPaddingVerticalLarge: spacing.s4,
-  
-  // Input padding
-  inputPaddingHorizontal: spacing.s4,
-  inputPaddingVertical: spacing.s3,
-  inputPaddingHorizontalSmall: spacing.s3,
-  inputPaddingVerticalSmall: spacing.s2,
-  inputPaddingHorizontalLarge: spacing.s5,
-  inputPaddingVerticalLarge: spacing.s4,
-  
-  // Card padding
-  cardPadding: spacing.s4,
-  cardPaddingSmall: spacing.s3,
-  cardPaddingLarge: spacing.s5,
-  
-  // Modal padding
-  modalPadding: spacing.s5,
-  modalPaddingSmall: spacing.s4,
-  modalPaddingLarge: spacing.s6,
-  
-  // List item spacing
-  listItemPadding: spacing.s4,
-  listItemSpacing: spacing.s2,
-  listSectionSpacing: spacing.s6,
-  
-  // Icon spacing
-  iconSpacing: spacing.s2,
-  iconSpacingSmall: spacing.s1,
-  iconSpacingLarge: spacing.s3,
-  
-  // Section spacing
-  sectionSpacing: spacing.s8,
-  sectionSpacingSmall: spacing.s6,
-  sectionSpacingLarge: spacing.s10,
-};
+  // Button spacing
+  buttonPaddingHorizontal: 24,
+  buttonPaddingHorizontalSmall: 16,
+  buttonPaddingHorizontalLarge: 32,
+  buttonPaddingVertical: 12,
+  buttonPaddingVerticalSmall: 8,
+  buttonPaddingVerticalLarge: 16,
+  buttonGap: 8,
+  buttonIconSize: 20,
 
-// Layout spacing
-export const layoutSpacing = {
-  // Screen padding
-  screenPadding: spacing.s4,
-  screenPaddingSmall: spacing.s3,
-  screenPaddingLarge: spacing.s5,
-  
-  // Container padding
-  containerPadding: spacing.s4,
-  containerPaddingSmall: spacing.s3,
-  containerPaddingLarge: spacing.s5,
-  
+  // Card spacing
+  cardPadding: 20,
+  cardPaddingSmall: 16,
+  cardPaddingLarge: 24,
+  cardGap: 16,
+  cardHeaderGap: 12,
+
+  // Input spacing
+  inputPaddingHorizontal: 16,
+  inputPaddingVertical: 16,
+  inputGap: 8,
+  inputIconSize: 20,
+  inputBorderWidth: 1,
+  inputBorderRadius: 12,
+
+  // List spacing
+  listItemPadding: 16,
+  listItemGap: 12,
+  listSectionGap: 24,
+  listHeaderGap: 16,
+
+  // Modal spacing
+  modalPadding: 24,
+  modalHeaderGap: 16,
+  modalContentGap: 20,
+  modalFooterGap: 24,
+
+  // Navigation spacing
+  tabBarPadding: 16,
+  tabBarItemGap: 8,
+  headerPadding: 16,
+  headerGap: 12,
+
+  // Screen spacing
+  screenPadding: 20,
+  screenPaddingSmall: 16,
+  screenPaddingLarge: 24,
+  screenGap: 24,
+  screenSectionGap: 32,
+
+  // Form spacing
+  formGroupGap: 20,
+  formFieldGap: 16,
+  formLabelGap: 8,
+  formErrorGap: 8,
+
+  // Avatar spacing
+  avatarSize: 40,
+  avatarSizeSmall: 32,
+  avatarSizeLarge: 56,
+  avatarSizeXLarge: 80,
+  avatarGap: 12,
+
+  // Icon spacing
+  iconSize: 24,
+  iconSizeSmall: 16,
+  iconSizeLarge: 32,
+  iconSizeXLarge: 48,
+  iconGap: 8,
+
+  // Badge spacing
+  badgePaddingHorizontal: 8,
+  badgePaddingVertical: 4,
+  badgeGap: 4,
+  badgeBorderRadius: 12,
+
+  // Tooltip spacing
+  tooltipPadding: 8,
+  tooltipGap: 4,
+  tooltipBorderRadius: 6,
+
+  // Divider spacing
+  dividerGap: 16,
+  dividerThickness: 1,
+
+  // Chip spacing
+  chipPaddingHorizontal: 12,
+  chipPaddingVertical: 6,
+  chipGap: 8,
+  chipBorderRadius: 16,
+
+  // Progress spacing
+  progressHeight: 8,
+  progressBorderRadius: 4,
+  progressGap: 8,
+
+  // Switch spacing
+  switchWidth: 44,
+  switchHeight: 24,
+  switchThumbSize: 20,
+  switchTrackPadding: 2,
+
+  // Checkbox spacing
+  checkboxSize: 20,
+  checkboxGap: 8,
+  checkboxBorderWidth: 2,
+
+  // Radio spacing
+  radioSize: 20,
+  radioGap: 8,
+  radioBorderWidth: 2,
+
+  // Slider spacing
+  sliderHeight: 4,
+  sliderThumbSize: 20,
+  sliderTrackPadding: 8,
+
+  // Stepper spacing
+  stepperGap: 16,
+  stepperIconSize: 24,
+  stepperLineHeight: 2,
+
+  // Timeline spacing
+  timelineGap: 16,
+  timelineLineWidth: 2,
+  timelineDotSize: 12,
+
+  // Calendar spacing
+  calendarDaySize: 40,
+  calendarDayGap: 4,
+  calendarWeekGap: 8,
+  calendarMonthGap: 24,
+
+  // Rating spacing
+  ratingStarSize: 24,
+  ratingStarGap: 4,
+  ratingGap: 8,
+
+  // Tag spacing
+  tagPaddingHorizontal: 8,
+  tagPaddingVertical: 4,
+  tagGap: 4,
+  tagBorderRadius: 6,
+
+  // Alert spacing
+  alertPadding: 16,
+  alertGap: 12,
+  alertIconSize: 20,
+  alertBorderRadius: 8,
+
+  // Toast spacing
+  toastPadding: 16,
+  toastGap: 12,
+  toastIconSize: 20,
+  toastBorderRadius: 8,
+
+  // Skeleton spacing
+  skeletonGap: 8,
+  skeletonBorderRadius: 4,
+
+  // Shimmer spacing
+  shimmerGap: 8,
+  shimmerBorderRadius: 4,
+
+  // Loading spacing
+  loadingGap: 16,
+  loadingSpinnerSize: 24,
+
+  // Empty state spacing
+  emptyStateGap: 24,
+  emptyStateIconSize: 64,
+  emptyStateTextGap: 16,
+
+  // Error state spacing
+  errorStateGap: 24,
+  errorStateIconSize: 64,
+  errorStateTextGap: 16,
+
+  // Success state spacing
+  successStateGap: 24,
+  successStateIconSize: 64,
+  successStateTextGap: 16,
+
+  // Onboarding spacing
+  onboardingGap: 32,
+  onboardingImageGap: 24,
+  onboardingTextGap: 16,
+  onboardingButtonGap: 16,
+
+  // Profile spacing
+  profileHeaderGap: 24,
+  profileSectionGap: 32,
+  profileItemGap: 16,
+  profileAvatarGap: 16,
+
+  // Settings spacing
+  settingsSectionGap: 32,
+  settingsItemGap: 16,
+  settingsHeaderGap: 24,
+  settingsFooterGap: 32,
+
+  // Workout spacing
+  workoutCardGap: 16,
+  workoutItemGap: 12,
+  workoutTimerGap: 24,
+  workoutProgressGap: 16,
+
+  // Nutrition spacing
+  nutritionCardGap: 16,
+  nutritionItemGap: 12,
+  nutritionChartGap: 24,
+  nutritionMacroGap: 16,
+
+  // Social spacing
+  socialPostGap: 16,
+  socialCommentGap: 12,
+  socialActionGap: 16,
+  socialAvatarGap: 12,
+
+  // Chat spacing
+  chatMessageGap: 8,
+  chatBubbleGap: 12,
+  chatInputGap: 16,
+  chatHeaderGap: 16,
+
+  // Notification spacing
+  notificationItemGap: 12,
+  notificationIconGap: 16,
+  notificationTimeGap: 8,
+  notificationActionGap: 16,
+
+  // Search spacing
+  searchInputGap: 16,
+  searchResultGap: 12,
+  searchFilterGap: 16,
+  searchHistoryGap: 12,
+
+  // Filter spacing
+  filterChipGap: 8,
+  filterSectionGap: 24,
+  filterOptionGap: 12,
+  filterButtonGap: 16,
+
+  // Sort spacing
+  sortOptionGap: 12,
+  sortButtonGap: 16,
+  sortIconGap: 8,
+
+  // Pagination spacing
+  paginationGap: 8,
+  paginationButtonGap: 4,
+  paginationInfoGap: 16,
+
+  // Breadcrumb spacing
+  breadcrumbGap: 8,
+  breadcrumbSeparatorGap: 8,
+  breadcrumbItemGap: 4,
+
+  // Tab spacing
+  tabGap: 0,
+  tabPadding: 16,
+  tabIndicatorGap: 0,
+  tabContentGap: 24,
+
+  // Accordion spacing
+  accordionHeaderGap: 16,
+  accordionContentGap: 16,
+  accordionItemGap: 8,
+
+  // Collapse spacing
+  collapseHeaderGap: 16,
+  collapseContentGap: 16,
+  collapseItemGap: 8,
+
+  // Drawer spacing
+  drawerHeaderGap: 24,
+  drawerContentGap: 16,
+  drawerFooterGap: 24,
+  drawerItemGap: 12,
+
+  // Sidebar spacing
+  sidebarHeaderGap: 24,
+  sidebarContentGap: 16,
+  sidebarFooterGap: 24,
+  sidebarItemGap: 12,
+
+  // Toolbar spacing
+  toolbarHeight: 48,
+  toolbarPadding: 12,
+  toolbarGap: 8,
+  toolbarIconGap: 12,
+
+  // FAB spacing
+  fabSize: 56,
+  fabPadding: 16,
+  fabGap: 8,
+  fabIconSize: 24,
+
+  // Speed dial spacing
+  speedDialGap: 16,
+  speedDialItemGap: 8,
+  speedDialIconSize: 24,
+
+  // Menu spacing
+  menuItemGap: 8,
+  menuPadding: 8,
+  menuGap: 4,
+  menuIconGap: 12,
+
+  // Dropdown spacing
+  dropdownItemGap: 8,
+  dropdownPadding: 8,
+  dropdownGap: 4,
+  dropdownIconGap: 12,
+
+  // Popover spacing
+  popoverPadding: 16,
+  popoverGap: 12,
+  popoverArrowSize: 8,
+
+  // Modal spacing
+  modalPadding: 24,
+  modalHeaderGap: 16,
+  modalContentGap: 20,
+  modalFooterGap: 24,
+  modalOverlayOpacity: 0.5,
+
+  // Dialog spacing
+  dialogPadding: 24,
+  dialogHeaderGap: 16,
+  dialogContentGap: 20,
+  dialogFooterGap: 24,
+  dialogOverlayOpacity: 0.5,
+
+  // Sheet spacing
+  sheetPadding: 24,
+  sheetHeaderGap: 16,
+  sheetContentGap: 20,
+  sheetFooterGap: 24,
+  sheetHandleHeight: 4,
+
+  // Bottom sheet spacing
+  bottomSheetPadding: 24,
+  bottomSheetHeaderGap: 16,
+  bottomSheetContentGap: 20,
+  bottomSheetFooterGap: 24,
+  bottomSheetHandleHeight: 4,
+
+  // Top sheet spacing
+  topSheetPadding: 24,
+  topSheetHeaderGap: 16,
+  topSheetContentGap: 20,
+  topSheetFooterGap: 24,
+  topSheetHandleHeight: 4,
+
+  // Left sheet spacing
+  leftSheetPadding: 24,
+  leftSheetHeaderGap: 16,
+  leftSheetContentGap: 20,
+  leftSheetFooterGap: 24,
+  leftSheetHandleHeight: 4,
+
+  // Right sheet spacing
+  rightSheetPadding: 24,
+  rightSheetHeaderGap: 16,
+  rightSheetContentGap: 20,
+  rightSheetFooterGap: 24,
+  rightSheetHandleHeight: 4,
+
+  // Carousel spacing
+  carouselGap: 16,
+  carouselPadding: 20,
+  carouselIndicatorGap: 8,
+  carouselArrowGap: 16,
+
+  // Gallery spacing
+  galleryGap: 8,
+  galleryPadding: 20,
+  galleryThumbnailSize: 80,
+  galleryThumbnailGap: 8,
+
+  // Image spacing
+  imageGap: 16,
+  imagePadding: 20,
+  imageBorderRadius: 12,
+  imageShadowOffset: 4,
+
+  // Video spacing
+  videoGap: 16,
+  videoPadding: 20,
+  videoBorderRadius: 12,
+  videoShadowOffset: 4,
+
+  // Audio spacing
+  audioGap: 16,
+  audioPadding: 20,
+  audioBorderRadius: 12,
+  audioShadowOffset: 4,
+
+  // File spacing
+  fileGap: 16,
+  filePadding: 20,
+  fileBorderRadius: 12,
+  fileShadowOffset: 4,
+
+  // Link spacing
+  linkGap: 8,
+  linkPadding: 4,
+  linkBorderRadius: 4,
+  linkUnderlineOffset: 2,
+
+  // Code spacing
+  codeGap: 16,
+  codePadding: 16,
+  codeBorderRadius: 8,
+  codeFontSize: 14,
+
+  // Quote spacing
+  quoteGap: 16,
+  quotePadding: 20,
+  quoteBorderRadius: 8,
+  quoteBorderWidth: 4,
+
+  // Divider spacing
+  dividerGap: 16,
+  dividerThickness: 1,
+
+  // Spacer spacing
+  spacerGap: 16,
+  spacerHeight: 1,
+  spacerMargin: 8,
+
   // Grid spacing
-  gridGap: spacing.s4,
-  gridGapSmall: spacing.s2,
-  gridGapLarge: spacing.s6,
-  
+  gridGap: 16,
+  gridPadding: 20,
+  gridColumnGap: 16,
+  gridRowGap: 16,
+
+  // Flex spacing
+  flexGap: 16,
+  flexPadding: 20,
+  flexItemGap: 8,
+  flexWrapGap: 16,
+
   // Stack spacing
-  stackSpacing: spacing.s4,
-  stackSpacingSmall: spacing.s2,
-  stackSpacingLarge: spacing.s6,
+  stackGap: 16,
+  stackPadding: 20,
+  stackItemGap: 8,
+  stackDividerGap: 16,
+
+  // Cluster spacing
+  clusterGap: 8,
+  clusterPadding: 20,
+  clusterItemGap: 4,
+  clusterWrapGap: 8,
+
+  // Center spacing
+  centerGap: 16,
+  centerPadding: 20,
+  centerContentGap: 8,
+
+  // Box spacing
+  boxPadding: 20,
+  boxBorderRadius: 12,
+  boxShadowOffset: 4,
+  boxBorderWidth: 1,
+
+  // Container spacing
+  containerPadding: 20,
+  containerMaxWidth: 1200,
+  containerGap: 24,
+  containerBorderRadius: 12,
+
+  // Section spacing
+  sectionPadding: 32,
+  sectionGap: 24,
+  sectionHeaderGap: 16,
+  sectionContentGap: 20,
+
+  // Layout spacing
+  layoutPadding: 20,
+  layoutGap: 24,
+  layoutHeaderGap: 16,
+  layoutContentGap: 20,
+  layoutFooterGap: 24,
+
+  // Page spacing
+  pagePadding: 20,
+  pageGap: 24,
+  pageHeaderGap: 16,
+  pageContentGap: 20,
+  pageFooterGap: 24,
+
+  // App spacing
+  appPadding: 20,
+  appGap: 24,
+  appHeaderGap: 16,
+  appContentGap: 20,
+  appFooterGap: 24,
 };
 
 // Border radius

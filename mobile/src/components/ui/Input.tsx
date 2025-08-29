@@ -1,9 +1,9 @@
 /**
- * Catalyft Fitness App - Input Component
- * Text input with validation, icons, and various states
+ * Catalyft Fitness App - Enhanced Input Component
+ * Modern design system input with floating labels and states
  */
 
-import React, { useState, useCallback, useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import {
   View,
   TextInput,
@@ -22,230 +22,216 @@ import Animated, {
   withTiming,
   withSpring,
   interpolate,
-  interpolateColor,
-} from '../../utils/reanimated-mock';
+  Extrapolate,
+} from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
 
-const AnimatedView = Animated.createAnimatedComponent(View);
-
-export type InputSize = 'small' | 'medium' | 'large';
-export type InputVariant = 'outlined' | 'filled' | 'underlined';
+const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
+const AnimatedText = Animated.createAnimatedComponent(Text);
 
 export interface InputProps extends Omit<TextInputProps, 'style'> {
-  // Label and placeholder
+  // Content
   label?: string;
   placeholder?: string;
-  helperText?: string;
-  
-  // Icons
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
-  onRightIconPress?: () => void;
-  
-  // Validation
-  error?: boolean;
-  errorMessage?: string;
-  success?: boolean;
-  successMessage?: string;
-  required?: boolean;
+  value?: string;
   
   // Appearance
-  variant?: InputVariant;
-  size?: InputSize;
+  variant?: 'default' | 'outlined' | 'filled';
+  size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
+  
+  // States
+  error?: string;
+  success?: boolean;
   disabled?: boolean;
   
+  // Features
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
+  clearable?: boolean;
+  
   // Style overrides
-  containerStyle?: ViewStyle;
+  style?: ViewStyle;
   inputStyle?: TextStyle;
   labelStyle?: TextStyle;
-  
-  // Callbacks
-  onFocus?: () => void;
-  onBlur?: () => void;
-  onChangeText?: (text: string) => void;
+  errorStyle?: TextStyle;
+  containerStyle?: ViewStyle;
 }
 
-export interface InputRef {
-  focus: () => void;
-  blur: () => void;
-  clear: () => void;
-  isFocused: () => boolean;
-}
-
-export const Input = forwardRef<InputRef, InputProps>(({
+export const Input: React.FC<InputProps> = ({
   label,
   placeholder,
-  helperText,
+  value = '',
+  variant = 'default',
+  size = 'md',
+  fullWidth = false,
+  error,
+  success = false,
+  disabled = false,
   leftIcon,
   rightIcon,
-  onRightIconPress,
-  error = false,
-  errorMessage,
-  success = false,
-  successMessage,
-  required = false,
-  variant = 'outlined',
-  size = 'medium',
-  fullWidth = true,
-  disabled = false,
-  containerStyle,
+  clearable = false,
+  style,
   inputStyle,
   labelStyle,
+  errorStyle,
+  containerStyle,
+  onChangeText,
   onFocus,
   onBlur,
-  onChangeText,
-  value,
-  ...textInputProps
-}, ref) => {
+  ...inputProps
+}) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const colors = isDark ? theme.colors.dark : theme.colors.light;
   
-  const inputRef = useRef<TextInput>(null);
+  // State
   const [isFocused, setIsFocused] = useState(false);
-  const [localValue, setLocalValue] = useState(value || '');
+  const [hasValue, setHasValue] = useState(!!value);
+  const inputRef = useRef<TextInput>(null);
   
   // Animation values
-  const focusAnimation = useSharedValue(0);
-  const labelAnimation = useSharedValue(localValue ? 1 : 0);
+  const labelPosition = useSharedValue(hasValue ? 1 : 0);
+  const borderColor = useSharedValue(colors.neutral.border);
+  const shakeOffset = useSharedValue(0);
   
-  // Expose methods via ref
-  useImperativeHandle(ref, () => ({
-    focus: () => inputRef.current?.focus(),
-    blur: () => inputRef.current?.blur(),
-    clear: () => {
-      setLocalValue('');
-      onChangeText?.('');
-    },
-    isFocused: () => inputRef.current?.isFocused() || false,
-  }));
+  // Get input dimensions based on size
+  const getInputDimensions = useCallback((): { height: number; paddingHorizontal: number } => {
+    switch (size) {
+      case 'sm':
+        return { height: 40, paddingHorizontal: 12 };
+      case 'md':
+        return { height: 56, paddingHorizontal: 16 };
+      case 'lg':
+        return { height: 64, paddingHorizontal: 20 };
+      default:
+        return { height: 56, paddingHorizontal: 16 };
+    }
+  }, [size]);
+  
+  // Get input styles based on variant and state
+  const getInputStyles = useCallback((): ViewStyle => {
+    const { height, paddingHorizontal } = getInputDimensions();
+    
+    const baseStyle: ViewStyle = {
+      height,
+      paddingHorizontal,
+      borderRadius: theme.borderRadius.input,
+      borderWidth: 1,
+      borderColor: borderColor.value,
+      backgroundColor: colors.neutral.surface,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    };
+    
+    if (fullWidth) {
+      baseStyle.width = '100%';
+    }
+    
+    if (disabled) {
+      baseStyle.opacity = 0.5;
+      baseStyle.backgroundColor = colors.neutral.surface;
+    }
+    
+    if (error) {
+      baseStyle.borderColor = colors.brand.dangerRed;
+    } else if (success) {
+      baseStyle.borderColor = colors.brand.primaryGreen;
+    } else if (isFocused) {
+      baseStyle.borderColor = colors.brand.primaryBlue;
+    }
+    
+    return baseStyle;
+  }, [variant, size, fullWidth, disabled, error, success, isFocused, colors, getInputDimensions, borderColor]);
+  
+  // Get label styles
+  const getLabelStyles = useCallback((): TextStyle => {
+    const baseLabelStyle: TextStyle = {
+      ...theme.typography.caption,
+      color: colors.neutral.textMuted,
+      position: 'absolute',
+      left: getInputDimensions().paddingHorizontal,
+      zIndex: 1,
+    };
+    
+    if (error) {
+      baseLabelStyle.color = colors.brand.dangerRed;
+    } else if (success) {
+      baseLabelStyle.color = colors.brand.primaryGreen;
+    } else if (isFocused) {
+      baseLabelStyle.color = colors.brand.primaryBlue;
+    }
+    
+    return baseLabelStyle;
+  }, [error, success, isFocused, colors, getInputDimensions]);
   
   // Handle focus
-  const handleFocus = useCallback(() => {
+  const handleFocus = useCallback((event: any) => {
     setIsFocused(true);
-    focusAnimation.value = withSpring(1, theme.animation.spring.snappy);
-    if (!localValue) {
-      labelAnimation.value = withSpring(1, theme.animation.spring.snappy);
-    }
-    onFocus?.();
-  }, [focusAnimation, labelAnimation, localValue, onFocus]);
+    labelPosition.value = withSpring(1, { damping: 15, stiffness: 300 });
+    borderColor.value = withTiming(colors.brand.primaryBlue, { duration: 200 });
+    onFocus?.(event);
+  }, [colors.brand.primaryBlue, onFocus, labelPosition, borderColor]);
   
   // Handle blur
-  const handleBlur = useCallback(() => {
+  const handleBlur = useCallback((event: any) => {
     setIsFocused(false);
-    focusAnimation.value = withSpring(0, theme.animation.spring.snappy);
-    if (!localValue) {
-      labelAnimation.value = withSpring(0, theme.animation.spring.snappy);
+    if (!hasValue) {
+      labelPosition.value = withSpring(0, { damping: 15, stiffness: 300 });
     }
-    onBlur?.();
-  }, [focusAnimation, labelAnimation, localValue, onBlur]);
+    borderColor.value = withTiming(colors.neutral.border, { duration: 200 });
+    onBlur?.(event);
+  }, [hasValue, colors.neutral.border, onBlur, labelPosition, borderColor]);
   
   // Handle text change
-  const handleChangeText = useCallback((text: string) => {
-    setLocalValue(text);
-    if (text && labelAnimation.value === 0) {
-      labelAnimation.value = withSpring(1, theme.animation.spring.snappy);
-    } else if (!text && !isFocused) {
-      labelAnimation.value = withSpring(0, theme.animation.spring.snappy);
+  const handleTextChange = useCallback((text: string) => {
+    const newHasValue = !!text;
+    setHasValue(newHasValue);
+    
+    if (newHasValue && !hasValue) {
+      labelPosition.value = withSpring(1, { damping: 15, stiffness: 300 });
+    } else if (!newHasValue && hasValue) {
+      labelPosition.value = withSpring(0, { damping: 15, stiffness: 300 });
     }
+    
     onChangeText?.(text);
-  }, [labelAnimation, isFocused, onChangeText]);
+  }, [hasValue, onChangeText, labelPosition]);
   
-  // Get container styles based on variant
-  const getContainerStyles = (): ViewStyle => {
-    const baseStyle: ViewStyle = {
-      width: fullWidth ? '100%' : undefined,
-    };
-    
-    if (variant === 'underlined') {
-      return {
-        ...baseStyle,
-        borderBottomWidth: theme.borderWidth.thin,
-        borderBottomColor: error 
-          ? colors.error 
-          : success 
-          ? colors.success 
-          : isFocused 
-          ? colors.primary 
-          : colors.border,
-        paddingBottom: theme.spacing.s2,
-      };
+  // Handle clear
+  const handleClear = useCallback(() => {
+    handleTextChange('');
+    inputRef.current?.focus();
+  }, [handleTextChange]);
+  
+  // Handle error shake animation
+  const triggerErrorShake = useCallback(() => {
+    if (error) {
+      shakeOffset.value = withSpring(10, { damping: 10, stiffness: 100 });
+      setTimeout(() => {
+        shakeOffset.value = withSpring(-10, { damping: 10, stiffness: 100 });
+        setTimeout(() => {
+          shakeOffset.value = withSpring(0, { damping: 10, stiffness: 100 });
+        }, 100);
+      }, 100);
     }
-    
-    const containerHeight = size === 'small'
-      ? theme.dimensions.inputHeightSmall
-      : size === 'large'
-      ? theme.dimensions.inputHeightLarge
-      : theme.dimensions.inputHeight;
-    
-    const paddingHorizontal = size === 'small'
-      ? theme.spacing.component.inputPaddingHorizontalSmall
-      : size === 'large'
-      ? theme.spacing.component.inputPaddingHorizontalLarge
-      : theme.spacing.component.inputPaddingHorizontal;
-    
-    const paddingVertical = size === 'small'
-      ? theme.spacing.component.inputPaddingVerticalSmall
-      : size === 'large'
-      ? theme.spacing.component.inputPaddingVerticalLarge
-      : theme.spacing.component.inputPaddingVertical;
-    
-    return {
-      ...baseStyle,
-      minHeight: containerHeight,
-      paddingHorizontal,
-      paddingVertical,
-      backgroundColor: variant === 'filled' 
-        ? colors.surfaceSecondary 
-        : 'transparent',
-      borderWidth: variant === 'outlined' ? theme.borderWidth.thin : 0,
-      borderColor: error 
-        ? colors.error 
-        : success 
-        ? colors.success 
-        : isFocused 
-        ? colors.primary 
-        : colors.border,
-      borderRadius: theme.borderRadius.input,
-    };
-  };
+  }, [error, shakeOffset]);
   
-  // Get text input styles
-  const getInputStyles = (): TextStyle => {
-    const fontSize = size === 'small'
-      ? theme.typography.sizes.small
-      : size === 'large'
-      ? theme.typography.sizes.large
-      : theme.typography.sizes.medium;
-    
-    return {
-      flex: 1,
-      fontSize,
-      color: disabled ? colors.textDisabled : colors.text,
-      paddingVertical: Platform.OS === 'ios' ? 0 : theme.spacing.s1,
-      ...theme.typography.styles.bodyMedium,
-    };
-  };
-  
-  // Animated label styles
+  // Animated styles
   const animatedLabelStyle = useAnimatedStyle(() => {
     const translateY = interpolate(
-      labelAnimation.value,
+      labelPosition.value,
       [0, 1],
-      [0, -24]
+      [0, -20],
+      Extrapolate.CLAMP
     );
     
     const scale = interpolate(
-      labelAnimation.value,
+      labelPosition.value,
       [0, 1],
-      [1, 0.85]
-    );
-    
-    const color = interpolateColor(
-      focusAnimation.value,
-      [0, 1],
-      [colors.textSecondary, colors.primary]
+      [1, 0.85],
+      Extrapolate.CLAMP
     );
     
     return {
@@ -253,126 +239,135 @@ export const Input = forwardRef<InputRef, InputProps>(({
         { translateY },
         { scale },
       ],
-      color: error ? colors.error : success ? colors.success : color,
     };
   });
   
-  // Animated container styles
-  const animatedContainerStyle = useAnimatedStyle(() => {
-    if (variant !== 'outlined') return {};
-    
-    const borderWidth = interpolate(
-      focusAnimation.value,
-      [0, 1],
-      [theme.borderWidth.thin, theme.borderWidth.medium]
-    );
+  const animatedInputStyle = useAnimatedStyle(() => {
+    const translateX = shakeOffset.value;
     
     return {
-      borderWidth,
+      transform: [{ translateX }],
     };
   });
   
-  return (
-    <View style={[styles.wrapper, containerStyle]}>
-      {label && variant !== 'underlined' && (
-        <Animated.Text style={[styles.label, labelStyle, animatedLabelStyle]}>
-          {label}{required && ' *'}
-        </Animated.Text>
-      )}
-      
-      <AnimatedView style={[getContainerStyles(), animatedContainerStyle, styles.container]}>
-        {leftIcon && (
-          <View style={styles.leftIcon}>
-            {leftIcon}
-          </View>
-        )}
-        
-        {label && variant === 'underlined' && (
-          <Animated.Text style={[styles.floatingLabel, labelStyle, animatedLabelStyle]}>
-            {label}{required && ' *'}
-          </Animated.Text>
-        )}
-        
-        <TextInput
-          ref={inputRef}
-          style={[getInputStyles(), inputStyle]}
-          placeholder={isFocused || localValue ? '' : placeholder}
-          placeholderTextColor={colors.textTertiary}
-          value={localValue}
-          onChangeText={handleChangeText}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          editable={!disabled}
-          {...textInputProps}
-        />
-        
-        {rightIcon && (
+  // Render left icon
+  const renderLeftIcon = () => {
+    if (!leftIcon) return null;
+    
+    return (
+      <View style={styles.iconContainer}>
+        {leftIcon}
+      </View>
+    );
+  };
+  
+  // Render right icon
+  const renderRightIcon = () => {
+    if (!rightIcon && !clearable) return null;
+    
+    return (
+      <View style={styles.iconContainer}>
+        {rightIcon}
+        {clearable && hasValue && (
           <TouchableOpacity
-            style={styles.rightIcon}
-            onPress={onRightIconPress}
-            disabled={!onRightIconPress}
+            onPress={handleClear}
+            style={styles.clearButton}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            {rightIcon}
+            <Ionicons name="close-circle" size={20} color={colors.neutral.textMuted} />
           </TouchableOpacity>
         )}
-      </AnimatedView>
+      </View>
+    );
+  };
+  
+  // Render success icon
+  const renderSuccessIcon = () => {
+    if (!success) return null;
+    
+    return (
+      <View style={styles.iconContainer}>
+        <Ionicons name="checkmark-circle" size={20} color={colors.brand.primaryGreen} />
+      </View>
+    );
+  };
+  
+  return (
+    <View style={[styles.container, containerStyle]}>
+      {/* Floating Label */}
+      {label && (
+        <AnimatedText style={[getLabelStyles(), animatedLabelStyle, labelStyle]}>
+          {label}
+        </AnimatedText>
+      )}
       
-      {(helperText || errorMessage || successMessage) && (
-        <Text style={[
-          styles.helperText,
-          error && styles.errorText,
-          success && styles.successText,
-          { color: error ? colors.error : success ? colors.success : colors.textSecondary }
-        ]}>
-          {errorMessage || successMessage || helperText}
-        </Text>
+      {/* Input Container */}
+      <Animated.View style={[getInputStyles(), animatedInputStyle, style]}>
+        {renderLeftIcon()}
+        
+        <AnimatedTextInput
+          ref={inputRef}
+          style={[
+            styles.input,
+            {
+              color: colors.neutral.textHeading,
+              fontSize: theme.typography.body.fontSize,
+              flex: 1,
+            },
+            inputStyle,
+          ]}
+          value={value}
+          onChangeText={handleTextChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          placeholder={!label ? placeholder : undefined}
+          placeholderTextColor={colors.neutral.textMuted}
+          editable={!disabled}
+          {...inputProps}
+        />
+        
+        {renderSuccessIcon()}
+        {renderRightIcon()}
+      </Animated.View>
+      
+      {/* Error Message */}
+      {error && (
+        <Animated.View style={styles.errorContainer}>
+          <Ionicons name="alert-circle" size={16} color={colors.brand.dangerRed} />
+          <Text style={[styles.errorText, { color: colors.brand.dangerRed }, errorStyle]}>
+            {error}
+          </Text>
+        </Animated.View>
       )}
     </View>
   );
-});
-
-Input.displayName = 'Input';
+};
 
 const styles = StyleSheet.create({
-  wrapper: {
-    marginBottom: theme.spacing.s4,
-  },
   container: {
+    position: 'relative',
+  },
+  input: {
+    padding: 0,
+    margin: 0,
+  },
+  iconContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 4,
   },
-  label: {
-    position: 'absolute',
-    left: theme.spacing.s4,
-    top: theme.spacing.s4,
-    zIndex: 1,
-    backgroundColor: 'transparent',
-    paddingHorizontal: theme.spacing.s1,
-    ...theme.typography.styles.label,
+  clearButton: {
+    padding: 4,
   },
-  floatingLabel: {
-    position: 'absolute',
-    left: 0,
-    top: theme.spacing.s4,
-    ...theme.typography.styles.label,
-  },
-  leftIcon: {
-    marginRight: theme.spacing.component.iconSpacing,
-  },
-  rightIcon: {
-    marginLeft: theme.spacing.component.iconSpacing,
-  },
-  helperText: {
-    marginTop: theme.spacing.s1,
-    marginLeft: theme.spacing.s4,
-    ...theme.typography.styles.caption,
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 6,
+    marginLeft: 4,
   },
   errorText: {
-    fontWeight: theme.typography.weights.medium,
-  },
-  successText: {
-    fontWeight: theme.typography.weights.medium,
+    ...theme.typography.caption,
+    flex: 1,
   },
 });
-
-export default Input;
