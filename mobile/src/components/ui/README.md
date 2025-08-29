@@ -62,7 +62,7 @@ Flexible container with elevation, borders, and glass effects.
 
 **Features:**
 - Elevated variant with shadow: `0 4px 12px rgba(0,0,0,0.08)`
-- Glass variant with blur effect using expo-blur
+- Glass variant with semi-transparent background and subtle shadows
 - Press animation with scale transform
 - Border radius: 16px
 - Haptic feedback on press
@@ -197,7 +197,7 @@ spacing.xxl  // 48px
 The design system uses these dependencies:
 
 ```bash
-npm install react-native-reanimated react-native-svg expo-linear-gradient expo-blur react-native-haptic-feedback
+npm install react-native-reanimated react-native-svg expo-linear-gradient react-native-haptic-feedback
 ```
 
 ## 📱 Demo

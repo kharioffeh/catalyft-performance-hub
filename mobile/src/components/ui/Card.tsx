@@ -19,12 +19,10 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import { BlurView } from 'expo-blur';
 import HapticFeedback from 'react-native-haptic-feedback';
 import { theme } from '../../theme';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
-const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 
 export type CardVariant = 'elevated' | 'outlined' | 'glass';
 export type CardSize = 'small' | 'medium' | 'large';
@@ -112,9 +110,25 @@ export const Card: React.FC<CardProps> = ({
       case 'glass':
         return {
           ...baseStyle,
-          backgroundColor: 'transparent',
+          backgroundColor: isDark 
+            ? 'rgba(255, 255, 255, 0.05)' 
+            : 'rgba(255, 255, 255, 0.8)',
           borderWidth: 1,
-          borderColor: 'rgba(255, 255, 255, 0.2)',
+          borderColor: isDark 
+            ? 'rgba(255, 255, 255, 0.1)' 
+            : 'rgba(255, 255, 255, 0.3)',
+          // Alternative glass effect using backdrop filter simulation
+          ...Platform.select({
+            ios: {
+              shadowColor: isDark ? '#FFFFFF' : '#000000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: isDark ? 0.1 : 0.05,
+              shadowRadius: 8,
+            },
+            android: {
+              elevation: 4,
+            },
+          }),
         };
       
       default:
@@ -180,25 +194,11 @@ export const Card: React.FC<CardProps> = ({
   
   // Render card content
   const renderCardContent = () => {
-    const cardContent = (
+    return (
       <View style={[getCardStyles(), contentStyle]}>
         {children}
       </View>
     );
-    
-    if (variant === 'glass') {
-      return (
-        <AnimatedBlurView
-          intensity={isDark ? 20 : 40}
-          tint={isDark ? 'dark' : 'light'}
-          style={[getCardStyles(), contentStyle]}
-        >
-          {children}
-        </AnimatedBlurView>
-      );
-    }
-    
-    return cardContent;
   };
   
   // Render card based on interaction

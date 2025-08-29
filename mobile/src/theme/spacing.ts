@@ -95,10 +95,6 @@ export const componentSpacing = {
   tooltipGap: 4,
   tooltipBorderRadius: 6,
 
-  // Divider spacing
-  dividerGap: 16,
-  dividerThickness: 1,
-
   // Chip spacing
   chipPaddingHorizontal: 12,
   chipPaddingVertical: 6,
@@ -335,10 +331,6 @@ export const componentSpacing = {
   popoverArrowSize: 8,
 
   // Modal spacing
-  modalPadding: 24,
-  modalHeaderGap: 16,
-  modalContentGap: 20,
-  modalFooterGap: 24,
   modalOverlayOpacity: 0.5,
 
   // Dialog spacing
@@ -436,10 +428,6 @@ export const componentSpacing = {
   quotePadding: 20,
   quoteBorderRadius: 8,
   quoteBorderWidth: 4,
-
-  // Divider spacing
-  dividerGap: 16,
-  dividerThickness: 1,
 
   // Spacer spacing
   spacerGap: 16,
