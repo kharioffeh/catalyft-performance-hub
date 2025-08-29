@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   Alert,
   Platform,
+  StyleSheet,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -377,26 +378,24 @@ export const PrivacySettingsScreen: React.FC = () => {
     value: boolean,
     onChange: (value: boolean) => void
   ) => (
-    <View style={{
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingVertical: 12,
-    }}>
-      <View style={{ flex: 1, marginRight: 12 }}>
-        <Text style={{ fontSize: 16, color: '#333' }}>{setting.label}</Text>
-        {setting.description && (
-          <Text style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
-            {setting.description}
-          </Text>
-        )}
+    <View style={styles.settingItem}>
+      <View style={styles.settingLeft}>
+        <View style={styles.settingIcon}>
+          <Icon name="shield-outline" size={20} color="#007AFF" />
+        </View>
+        <View style={styles.settingInfo}>
+          <Text style={styles.settingTitle}>{setting.label}</Text>
+          {setting.description && (
+            <Text style={styles.settingDescription}>{setting.description}</Text>
+          )}
+        </View>
       </View>
       <Switch
         value={value}
         onValueChange={onChange}
-        trackColor={{ false: '#E0E0E0', true: '#FFB6B6' }}
-        thumbColor={value ? '#FF6B6B' : '#f4f3f4'}
-        ios_backgroundColor="#E0E0E0"
+        trackColor={{ false: '#E5E5EA', true: '#007AFF' }}
+        thumbColor={value ? '#FFFFFF' : '#FFFFFF'}
+        ios_backgroundColor="#E5E5EA"
       />
     </View>
   );
@@ -406,249 +405,148 @@ export const PrivacySettingsScreen: React.FC = () => {
     value: string,
     onChange: (value: string) => void
   ) => (
-    <View style={{ paddingVertical: 12 }}>
-      <Text style={{ fontSize: 16, color: '#333', marginBottom: 8 }}>
-        {setting.label}
-      </Text>
-      {setting.description && (
-        <Text style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>
-          {setting.description}
+    <View style={styles.settingItem}>
+      <View style={styles.settingLeft}>
+        <View style={styles.settingIcon}>
+          <Icon name="options-outline" size={20} color="#007AFF" />
+        </View>
+        <View style={styles.settingInfo}>
+          <Text style={styles.settingTitle}>{setting.label}</Text>
+          {setting.description && (
+            <Text style={styles.settingDescription}>{setting.description}</Text>
+          )}
+        </View>
+      </View>
+      <View style={styles.selectContainer}>
+        <Text style={styles.selectValue}>
+          {setting.options?.find((opt: any) => opt.value === value)?.label}
         </Text>
-      )}
-      <View style={{ flexDirection: 'row', gap: 8 }}>
-        {setting.options?.map((option: any) => (
-          <TouchableOpacity
-            key={option.value}
-            onPress={() => onChange(option.value)}
-            style={{
-              flex: 1,
-              paddingVertical: 8,
-              paddingHorizontal: 12,
-              borderRadius: 8,
-              backgroundColor: value === option.value ? '#FF6B6B' : '#F0F0F0',
-            }}
-          >
-            <Text style={{
-              color: value === option.value ? 'white' : '#333',
-              textAlign: 'center',
-              fontSize: 12,
-              fontWeight: value === option.value ? '600' : '400',
-            }}>
-              {option.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        <Icon name="chevron-forward" size={20} color="#C7C7CC" />
       </View>
     </View>
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
+    <View style={styles.container}>
       {/* Header */}
-      <View style={{
-        backgroundColor: 'white',
-        paddingTop: Platform.OS === 'ios' ? 50 : 20,
-        paddingBottom: 12,
-        paddingHorizontal: 16,
-        borderBottomWidth: 1,
-        borderColor: '#F0F0F0',
-      }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
-            style={{ padding: 8, margin: -8 }}
+            style={styles.backButton}
           >
-            <Icon name="arrow-back" size={24} color="#333" />
+            <Icon name="arrow-back" size={24} color="#007AFF" />
           </TouchableOpacity>
-          <Text style={{ fontSize: 20, fontWeight: 'bold', marginLeft: 16 }}>
-            Privacy Settings
-          </Text>
+          <Text style={styles.headerTitle}>Privacy Settings</Text>
+          {hasChanges && (
+            <TouchableOpacity
+              onPress={handleSave}
+              disabled={saving}
+              style={styles.saveButton}
+            >
+              <Text style={styles.saveButtonText}>
+                {saving ? 'Saving...' : 'Save'}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
-        
-        {hasChanges && (
-          <TouchableOpacity
-            onPress={handleSave}
-            disabled={saving}
-            style={{
-              position: 'absolute',
-              right: 16,
-              bottom: 12,
-              backgroundColor: '#FF6B6B',
-              paddingHorizontal: 16,
-              paddingVertical: 6,
-              borderRadius: 16,
-            }}
-          >
-            <Text style={{ color: 'white', fontWeight: '600' }}>
-              {saving ? 'Saving...' : 'Save'}
-            </Text>
-          </TouchableOpacity>
-        )}
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
         {/* Quick Privacy Presets */}
-        <View style={{
-          backgroundColor: 'white',
-          margin: 16,
-          borderRadius: 12,
-          padding: 16,
-        }}>
-          <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 12 }}>
-            Quick Privacy Presets
-          </Text>
-          <View style={{ flexDirection: 'row', gap: 8 }}>
+        <View style={styles.presetsSection}>
+          <Text style={styles.presetsTitle}>Quick Privacy Presets</Text>
+          <View style={styles.presetsContainer}>
             <TouchableOpacity
               onPress={() => handleQuickPrivacy('public')}
-              style={{
-                flex: 1,
-                paddingVertical: 12,
-                borderRadius: 8,
-                backgroundColor: '#E8F5E9',
-                alignItems: 'center',
-              }}
+              style={[styles.presetButton, styles.presetPublic]}
             >
               <Icon name="earth" size={24} color="#4CAF50" />
-              <Text style={{ marginTop: 4, fontWeight: '600', color: '#4CAF50' }}>
+              <Text style={[styles.presetText, styles.presetTextPublic]}>
                 Public
               </Text>
-              <Text style={{ fontSize: 10, color: '#666', marginTop: 2 }}>
-                Share openly
-              </Text>
+              <Text style={styles.presetSubtext}>Share openly</Text>
             </TouchableOpacity>
             
             <TouchableOpacity
               onPress={() => handleQuickPrivacy('friends')}
-              style={{
-                flex: 1,
-                paddingVertical: 12,
-                borderRadius: 8,
-                backgroundColor: '#FFF3E0',
-                alignItems: 'center',
-              }}
+              style={[styles.presetButton, styles.presetFriends]}
             >
               <Icon name="people" size={24} color="#FF9800" />
-              <Text style={{ marginTop: 4, fontWeight: '600', color: '#FF9800' }}>
+              <Text style={[styles.presetText, styles.presetTextFriends]}>
                 Friends
               </Text>
-              <Text style={{ fontSize: 10, color: '#666', marginTop: 2 }}>
-                Followers only
-              </Text>
+              <Text style={styles.presetSubtext}>Followers only</Text>
             </TouchableOpacity>
             
             <TouchableOpacity
               onPress={() => handleQuickPrivacy('private')}
-              style={{
-                flex: 1,
-                paddingVertical: 12,
-                borderRadius: 8,
-                backgroundColor: '#FFEBEE',
-                alignItems: 'center',
-              }}
+              style={[styles.presetButton, styles.presetPrivate]}
             >
               <Icon name="lock-closed" size={24} color="#F44336" />
-              <Text style={{ marginTop: 4, fontWeight: '600', color: '#F44336' }}>
+              <Text style={[styles.presetText, styles.presetTextPrivate]}>
                 Private
               </Text>
-              <Text style={{ fontSize: 10, color: '#666', marginTop: 2 }}>
-                Maximum privacy
-              </Text>
+              <Text style={styles.presetSubtext}>Maximum privacy</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Privacy Sections */}
         {sections.map((section, index) => (
-          <View
-            key={index}
-            style={{
-              backgroundColor: 'white',
-              marginHorizontal: 16,
-              marginBottom: 16,
-              borderRadius: 12,
-              padding: 16,
-            }}
-          >
-            <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 4 }}>
-              {section.title}
-            </Text>
-            {section.description && (
-              <Text style={{ fontSize: 12, color: '#666', marginBottom: 12 }}>
-                {section.description}
-              </Text>
-            )}
+          <View key={index} style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>{section.title}</Text>
+              {section.description && (
+                <Text style={styles.sectionDescription}>{section.description}</Text>
+              )}
+            </View>
             
-            {section.settings.map((setting) => (
-              <View key={setting.key}>
-                {setting.type === 'toggle' ? (
-                  renderToggle(
-                    setting,
-                    privacySettings[setting.key] as boolean,
-                    (value) => handleToggle(setting.key, value)
-                  )
-                ) : (
-                  renderSelect(
-                    setting,
-                    privacySettings[setting.key] as string,
-                    (value) => handleSelect(setting.key, value)
-                  )
-                )}
-              </View>
-            ))}
+            <View style={styles.sectionContent}>
+              {section.settings.map((setting) => (
+                <View key={setting.key}>
+                  {setting.type === 'toggle' ? (
+                    renderToggle(
+                      setting,
+                      privacySettings[setting.key] as boolean,
+                      (value) => handleToggle(setting.key, value)
+                    )
+                  ) : (
+                    renderSelect(
+                      setting,
+                      privacySettings[setting.key] as string,
+                      (value) => handleSelect(setting.key, value)
+                    )
+                  )}
+                </View>
+              ))}
+            </View>
           </View>
         ))}
 
         {/* Blocked Users */}
-        <TouchableOpacity
-          style={{
-            backgroundColor: 'white',
-            marginHorizontal: 16,
-            marginBottom: 16,
-            borderRadius: 12,
-            padding: 16,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Icon name="ban" size={24} color="#F44336" />
-            <View style={{ marginLeft: 12 }}>
-              <Text style={{ fontSize: 16, fontWeight: '600' }}>
-                Blocked Users
-              </Text>
-              <Text style={{ fontSize: 12, color: '#666' }}>
+        <TouchableOpacity style={styles.blockedUsersSection}>
+          <View style={styles.settingLeft}>
+            <View style={styles.settingIcon}>
+              <Icon name="ban" size={20} color="#FF3B30" />
+            </View>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingTitle}>Blocked Users</Text>
+              <Text style={styles.settingDescription}>
                 {privacySettings.blockedUsers?.length || 0} blocked
               </Text>
             </View>
           </View>
-          <Icon name="chevron-forward" size={20} color="#666" />
+          <Icon name="chevron-forward" size={20} color="#C7C7CC" />
         </TouchableOpacity>
 
         {/* Privacy Info */}
-        <View style={{
-          margin: 16,
-          padding: 16,
-          backgroundColor: '#E3F2FD',
-          borderRadius: 12,
-        }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Icon name="information-circle" size={24} color="#2196F3" />
-            <Text style={{
-              marginLeft: 8,
-              fontSize: 14,
-              fontWeight: '600',
-              color: '#2196F3',
-            }}>
-              Privacy First
-            </Text>
+        <View style={styles.infoSection}>
+          <View style={styles.infoHeader}>
+            <Icon name="information-circle" size={24} color="#007AFF" />
+            <Text style={styles.infoTitle}>Privacy First</Text>
           </View>
-          <Text style={{
-            marginTop: 8,
-            fontSize: 12,
-            color: '#666',
-            lineHeight: 18,
-          }}>
+          <Text style={styles.infoText}>
             Your privacy is important to us. These settings give you full control over what information you share. You can participate in challenges and earn achievements without sharing sensitive personal data like weight or body measurements.
           </Text>
         </View>
@@ -658,3 +556,224 @@ export const PrivacySettingsScreen: React.FC = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F2F2F7',
+  },
+  header: {
+    backgroundColor: '#FFFFFF',
+    paddingTop: Platform.OS === 'ios' ? 50 : 20,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5EA',
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+  },
+  backButton: {
+    padding: 8,
+    margin: -8,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#000000',
+    flex: 1,
+    textAlign: 'center',
+    marginRight: 40, // Compensate for back button
+  },
+  saveButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 16,
+  },
+  saveButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 15,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  presetsSection: {
+    backgroundColor: '#FFFFFF',
+    margin: 16,
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  presetsTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000000',
+    marginBottom: 16,
+  },
+  presetsContainer: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  presetButton: {
+    flex: 1,
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+  },
+  presetPublic: {
+    backgroundColor: '#F0FDF4',
+    borderColor: '#10B981',
+  },
+  presetFriends: {
+    backgroundColor: '#FFF8E1',
+    borderColor: '#F59E0B',
+  },
+  presetPrivate: {
+    backgroundColor: '#FEF2F2',
+    borderColor: '#EF4444',
+  },
+  presetText: {
+    marginTop: 8,
+    fontWeight: '600',
+    fontSize: 15,
+  },
+  presetTextPublic: {
+    color: '#10B981',
+  },
+  presetTextFriends: {
+    color: '#F59E0B',
+  },
+  presetTextPrivate: {
+    color: '#EF4444',
+  },
+  presetSubtext: {
+    fontSize: 12,
+    color: '#8E8E93',
+    marginTop: 2,
+  },
+  section: {
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 12,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  sectionHeader: {
+    padding: 20,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F2F2F7',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000000',
+    marginBottom: 4,
+  },
+  sectionDescription: {
+    fontSize: 15,
+    color: '#8E8E93',
+    fontWeight: '400',
+  },
+  sectionContent: {
+    paddingHorizontal: 20,
+  },
+  settingItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F2F2F7',
+  },
+  settingLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  settingIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: '#F2F2F7',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  settingInfo: {
+    flex: 1,
+  },
+  settingTitle: {
+    fontSize: 17,
+    fontWeight: '400',
+    color: '#000000',
+    marginBottom: 2,
+  },
+  settingDescription: {
+    fontSize: 15,
+    color: '#8E8E93',
+    fontWeight: '400',
+  },
+  selectContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  selectValue: {
+    fontSize: 17,
+    color: '#007AFF',
+    marginRight: 8,
+  },
+  blockedUsersSection: {
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 12,
+    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  infoSection: {
+    margin: 16,
+    padding: 20,
+    backgroundColor: '#F0F8FF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E1F5FE',
+  },
+  infoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  infoTitle: {
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#007AFF',
+  },
+  infoText: {
+    fontSize: 15,
+    color: '#666666',
+    lineHeight: 22,
+  },
+});
