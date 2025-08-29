@@ -7,10 +7,11 @@ import {
   TouchableOpacity,
   RefreshControl,
   Dimensions,
+  Animated,
 } from 'react-native';
-import { LineChart, BarChart, PieChart } from 'react-native-chart-kit';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Svg, Circle, Rect, Line, Path, Text as SvgText } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
 
@@ -51,9 +52,15 @@ const AnalyticsDashboard: React.FC = () => {
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
   const [refreshing, setRefreshing] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<'users' | 'engagement' | 'revenue' | 'retention'>('users');
+  const [fadeAnim] = useState(new Animated.Value(0));
 
   useEffect(() => {
     fetchAnalytics();
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
   }, [timeRange]);
 
   const fetchAnalytics = async () => {
@@ -180,38 +187,59 @@ const AnalyticsDashboard: React.FC = () => {
   const renderEngagementChart = () => (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Daily Active Users</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <LineChart
-          data={{
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-            datasets: [
-              {
-                data: data?.engagementMetrics.dailyActiveUsers || [0],
-              },
-            ],
-          }}
-          width={width - 40}
-          height={200}
-          chartConfig={{
-            backgroundColor: '#FFF',
-            backgroundGradientFrom: '#FFF',
-            backgroundGradientTo: '#FFF',
-            decimalPlaces: 0,
-            color: (opacity = 1) => `rgba(108, 99, 255, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(102, 102, 102, ${opacity})`,
-            style: {
-              borderRadius: 16,
-            },
-            propsForDots: {
-              r: '6',
-              strokeWidth: '2',
-              stroke: '#6C63FF',
-            },
-          }}
-          bezier
-          style={styles.chart}
-        />
-      </ScrollView>
+      <View style={styles.chartContainer}>
+        <Svg width={width - 80} height={200}>
+          {/* Background grid */}
+          {[0, 1, 2, 3, 4].map((i) => (
+            <Line
+              key={i}
+              x1={0}
+              y1={40 + i * 30}
+              x2={width - 80}
+              y2={40 + i * 30}
+              stroke="#E5E7EB"
+              strokeWidth={1}
+            />
+          ))}
+          
+          {/* DAU line */}
+          <Path
+            d={data?.engagementMetrics.dailyActiveUsers.map((value, i) => {
+              const x = 30 + i * 50;
+              const y = 40 + (5000 - value) * 0.032;
+              return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+            }).join(' ') || ''}
+            stroke="#6C63FF"
+            strokeWidth={3}
+            fill="transparent"
+          />
+          
+          {/* Data points */}
+          {data?.engagementMetrics.dailyActiveUsers.map((value, i) => (
+            <Circle
+              key={i}
+              cx={30 + i * 50}
+              cy={40 + (5000 - value) * 0.032}
+              r={5}
+              fill="#6C63FF"
+            />
+          ))}
+          
+          {/* Day labels */}
+          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, index) => (
+            <SvgText
+              key={index}
+              x={30 + index * 50}
+              y={190}
+              fontSize={10}
+              textAnchor="middle"
+              fill="#666"
+            >
+              {day}
+            </SvgText>
+          ))}
+        </Svg>
+      </View>
     </View>
   );
 
@@ -301,7 +329,12 @@ const AnalyticsDashboard: React.FC = () => {
       }
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.header}>
+      <Animated.View 
+        style={[
+          styles.header, 
+          { opacity: fadeAnim }
+        ]}
+      >
         <Text style={styles.title}>Analytics Dashboard</Text>
         <View style={styles.timeRangeContainer}>
           {(['7d', '30d', '90d'] as const).map((range) => (
@@ -324,7 +357,7 @@ const AnalyticsDashboard: React.FC = () => {
             </TouchableOpacity>
           ))}
         </View>
-      </View>
+      </Animated.View>
 
       {renderUserMetrics()}
       {renderEngagementChart()}
@@ -428,9 +461,9 @@ const styles = StyleSheet.create({
     color: 'white',
     opacity: 0.9,
   },
-  chart: {
+  chartContainer: {
+    alignItems: 'center',
     marginVertical: 8,
-    borderRadius: 16,
   },
   retentionContainer: {
     flexDirection: 'row',
