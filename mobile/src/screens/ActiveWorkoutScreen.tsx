@@ -6,11 +6,10 @@ import {
   ScrollView,
   TouchableOpacity,
   Animated,
-  PanGestureHandler,
-  State,
   Dimensions,
   Alert,
   TextInput,
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useWorkoutStore } from '../store/slices/workoutSlice';
@@ -256,24 +255,33 @@ export default function ActiveWorkoutScreen() {
 
   const renderExerciseCard = (exercise: WorkoutExercise, exerciseIndex: number) => (
     <View key={exercise.id} style={styles.exerciseCard}>
+      {/* Large Exercise Display with Video */}
       <View style={styles.exerciseHeader}>
-        <View style={styles.exerciseInfo}>
-          <Text style={styles.exerciseName}>{exercise.exercise.name}</Text>
-          <Text style={styles.exerciseCategory}>
-            {exercise.exercise.muscleGroup} • {exercise.exercise.equipment}
-          </Text>
+        <View style={styles.exerciseVideoContainer}>
+          {exercise.exercise.videoUrl ? (
+            <Image 
+              source={{ uri: exercise.exercise.videoUrl }} 
+              style={styles.exerciseVideo}
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={styles.exerciseVideoPlaceholder}>
+              <Ionicons name="fitness-outline" size={48} color={theme.colors.light.textTertiary} />
+            </View>
+          )}
+          <LinearGradient 
+            colors={['transparent', 'rgba(0,0,0,0.8)']} 
+            style={styles.exerciseVideoOverlay}
+          >
+            <Text style={styles.exerciseName}>{exercise.exercise.name}</Text>
+            <Text style={styles.targetMuscles}>{exercise.exercise.muscleGroup}</Text>
+          </LinearGradient>
         </View>
-        <TouchableOpacity
-          style={styles.addSetButton}
-          onPress={() => handleAddSet(exercise.id)}
-        >
-          <Ionicons name="add-circle" size={32} color={theme.colors.light.primary} />
-        </TouchableOpacity>
       </View>
 
       <View style={styles.setsContainer}>
         {exercise.sets.map((set, setIndex) => (
-          <SetCard
+          <EnhancedSetCard
             key={set.id}
             set={set}
             exerciseId={exercise.id}
@@ -283,6 +291,21 @@ export default function ActiveWorkoutScreen() {
           />
         ))}
       </View>
+
+      <TouchableOpacity
+        style={styles.addSetButton}
+        onPress={() => handleAddSet(exercise.id)}
+      >
+        <LinearGradient
+          colors={theme.gradients.primary}
+          style={styles.addSetGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+        >
+          <Ionicons name="add" size={24} color="white" />
+          <Text style={styles.addSetText}>Add Set</Text>
+        </LinearGradient>
+      </TouchableOpacity>
     </View>
   );
 
@@ -387,8 +410,8 @@ export default function ActiveWorkoutScreen() {
   );
 }
 
-// Set Card Component with Swipe Gestures
-const SetCard = ({ set, exerciseId, onComplete, onUpdate, isActive }) => {
+// Enhanced Set Card Component with Large Touch-Friendly Inputs
+const EnhancedSetCard = ({ set, exerciseId, onComplete, onUpdate, isActive }) => {
   const [weight, setWeight] = useState(set.weight?.toString() || '');
   const [reps, setReps] = useState(set.reps?.toString() || '');
   const [rpe, setRpe] = useState(set.rpe?.toString() || '');
@@ -405,69 +428,130 @@ const SetCard = ({ set, exerciseId, onComplete, onUpdate, isActive }) => {
     }
   };
 
+  const incrementWeight = () => {
+    const currentWeight = parseFloat(weight) || 0;
+    setWeight((currentWeight + 2.5).toString());
+  };
+
+  const decrementWeight = () => {
+    const currentWeight = parseFloat(weight) || 0;
+    if (currentWeight >= 2.5) {
+      setWeight((currentWeight - 2.5).toString());
+    }
+  };
+
+  const incrementReps = () => {
+    const currentReps = parseInt(reps) || 0;
+    setReps((currentReps + 1).toString());
+  };
+
+  const decrementReps = () => {
+    const currentReps = parseInt(reps) || 0;
+    if (currentReps > 0) {
+      setReps((currentReps - 1).toString());
+    }
+  };
+
   return (
-    <View style={[styles.setCard, isActive && styles.activeSetCard]}>
+    <View style={[styles.enhancedSetCard, isActive && styles.activeSetCard]}>
       <View style={styles.setHeader}>
         <Text style={styles.setNumber}>Set {set.setNumber}</Text>
         {set.completed && (
           <View style={styles.completedBadge}>
-            <Ionicons name="checkmark-circle" size={16} color={theme.colors.light.success} />
+            <Ionicons name="checkmark-circle" size={20} color={theme.colors.light.success} />
+            <Text style={styles.completedText}>Completed</Text>
           </View>
         )}
       </View>
 
-      <View style={styles.setInputs}>
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Weight (kg)</Text>
-          <TextInput
-            style={styles.input}
-            value={weight}
-            onChangeText={setWeight}
-            keyboardType="numeric"
-            placeholder="0"
-            editable={!set.completed}
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Reps</Text>
-          <TextInput
-            style={styles.input}
-            value={reps}
-            onChangeText={setReps}
-            keyboardType="numeric"
-            placeholder="0"
-            editable={!set.completed}
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>RPE</Text>
-          <TextInput
-            style={styles.input}
-            value={rpe}
-            onChangeText={setRpe}
-            keyboardType="numeric"
-            placeholder="0"
-            editable={!set.completed}
-          />
-        </View>
-      </View>
-
       {!set.completed && (
-        <TouchableOpacity
-          style={styles.completeSetButton}
-          onPress={handleComplete}
-        >
-          <LinearGradient
-            colors={theme.gradients.success}
-            style={styles.gradientButton}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
+        <>
+          {/* Big Touch-Friendly Weight Input */}
+          <View style={styles.setTracker}>
+            <Text style={styles.setLabel}>Weight (LBS)</Text>
+            
+            <View style={styles.inputRow}>
+              <TouchableOpacity 
+                style={styles.decrementBtn} 
+                onPress={decrementWeight}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.btnText}>-</Text>
+              </TouchableOpacity>
+              
+              <View style={styles.valueDisplay}>
+                <Text style={styles.value}>{weight || '0'}</Text>
+                <Text style={styles.unit}>LBS</Text>
+              </View>
+              
+              <TouchableOpacity 
+                style={styles.incrementBtn} 
+                onPress={incrementWeight}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.btnText}>+</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Big Touch-Friendly Reps Input */}
+          <View style={styles.setTracker}>
+            <Text style={styles.setLabel}>Reps</Text>
+            
+            <View style={styles.inputRow}>
+              <TouchableOpacity 
+                style={styles.decrementBtn} 
+                onPress={decrementReps}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.btnText}>-</Text>
+              </TouchableOpacity>
+              
+              <View style={styles.valueDisplay}>
+                <Text style={styles.value}>{reps || '0'}</Text>
+                <Text style={styles.unit}>REPS</Text>
+              </View>
+              
+              <TouchableOpacity 
+                style={styles.incrementBtn} 
+                onPress={incrementReps}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.btnText}>+</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* RPE Input */}
+          <View style={styles.rpeContainer}>
+            <Text style={styles.setLabel}>RPE (Rate of Perceived Exertion)</Text>
+            <TextInput
+              style={styles.rpeInput}
+              value={rpe}
+              onChangeText={setRpe}
+              keyboardType="numeric"
+              placeholder="1-10"
+              placeholderTextColor={theme.colors.light.textTertiary}
+              maxLength={2}
+            />
+          </View>
+
+          {/* Large Complete Button */}
+          <TouchableOpacity 
+            style={styles.completeButton}
+            onPress={handleComplete}
+            activeOpacity={0.8}
           >
-            <Text style={styles.completeSetButtonText}>Complete Set</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+            <LinearGradient 
+              colors={['#10B981', '#059669']} 
+              style={styles.completeButtonGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <Text style={styles.buttonText}>Complete Set</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </>
       )}
     </View>
   );
@@ -519,9 +603,9 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   timerButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -620,7 +704,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.light.surface,
     borderRadius: 16,
     padding: 20,
-    marginBottom: 16,
+    marginBottom: 20,
     elevation: 4,
     shadowColor: theme.colors.light.shadow,
     shadowOffset: { width: 0, height: 2 },
@@ -628,34 +712,52 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
   },
   exerciseHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
   },
-  exerciseInfo: {
-    flex: 1,
+  exerciseVideoContainer: {
+    height: 200,
+    borderRadius: 16,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  exerciseVideo: {
+    width: '100%',
+    height: '100%',
+  },
+  exerciseVideoPlaceholder: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: theme.colors.light.backgroundSecondary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  exerciseVideoOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 20,
+    paddingTop: 40,
   },
   exerciseName: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: theme.colors.light.text,
+    color: 'white',
     marginBottom: 4,
   },
-  exerciseCategory: {
-    fontSize: 14,
-    color: theme.colors.light.textSecondary,
-  },
-  addSetButton: {
-    padding: 8,
+  targetMuscles: {
+    fontSize: 16,
+    color: 'white',
+    opacity: 0.9,
   },
   setsContainer: {
-    gap: 12,
+    gap: 16,
+    marginBottom: 20,
   },
-  setCard: {
+  enhancedSetCard: {
     backgroundColor: theme.colors.light.backgroundSecondary,
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 16,
+    padding: 20,
     borderWidth: 2,
     borderColor: 'transparent',
   },
@@ -667,59 +769,158 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 20,
   },
   setNumber: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: 'bold',
     color: theme.colors.light.text,
   },
   completedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 8,
   },
-  setInputs: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 16,
+  completedText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.light.success,
   },
-  inputGroup: {
-    flex: 1,
+  setTracker: {
+    marginBottom: 24,
   },
-  inputLabel: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: theme.colors.light.textSecondary,
-    marginBottom: 4,
-  },
-  input: {
-    backgroundColor: theme.colors.light.surface,
-    borderRadius: 8,
-    padding: 12,
+  setLabel: {
     fontSize: 16,
     fontWeight: '600',
     color: theme.colors.light.text,
+    marginBottom: 12,
     textAlign: 'center',
   },
-  completeSetButton: {
-    borderRadius: 12,
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 16,
+  },
+  decrementBtn: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: theme.colors.light.error,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: theme.colors.light.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  incrementBtn: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: theme.colors.light.success,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: theme.colors.light.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  btnText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  valueDisplay: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    backgroundColor: theme.colors.light.surface,
+    borderRadius: 16,
     elevation: 2,
     shadowColor: theme.colors.light.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 2,
   },
-  gradientButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 12,
+  value: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: theme.colors.light.text,
+    marginBottom: 4,
+  },
+  unit: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: theme.colors.light.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  rpeContainer: {
+    marginBottom: 24,
+  },
+  rpeInput: {
+    backgroundColor: theme.colors.light.surface,
+    borderRadius: 16,
+    padding: 16,
+    fontSize: 18,
+    fontWeight: '600',
+    color: theme.colors.light.text,
+    textAlign: 'center',
+    borderWidth: 2,
+    borderColor: theme.colors.light.border,
+  },
+  completeButton: {
+    borderRadius: 16,
+    elevation: 6,
+    shadowColor: theme.colors.light.shadow,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  completeButtonGradient: {
+    paddingVertical: 20,
+    paddingHorizontal: 32,
+    borderRadius: 16,
     alignItems: 'center',
   },
-  completeSetButtonText: {
+  buttonText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  addSetButton: {
+    borderRadius: 16,
+    elevation: 4,
+    shadowColor: theme.colors.light.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+  },
+  addSetGradient: {
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  addSetText: {
+    color: 'white',
+    fontSize: 16,
     fontWeight: '600',
+  },
+  gradientButton: {
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 8,
   },
   finishWorkoutButton: {
     margin: 20,
