@@ -9,3 +9,8 @@ export { UserAvatar } from './UserAvatar';
 export { ShareWorkoutModal } from './ShareWorkoutModal';
 export { PrivacyAwareContent } from './PrivacyAwareContent';
 export { PrivacyFilteredPost } from './PrivacyFilteredPost';
+export { StoryBubble } from './StoryBubble';
+export { AnimatedLikeButton } from './AnimatedLikeButton';
+export { WorkoutSummary } from './WorkoutSummary';
+export { EngagementBar } from './EngagementBar';
+export { FeedScreenDemo } from './FeedScreenDemo';

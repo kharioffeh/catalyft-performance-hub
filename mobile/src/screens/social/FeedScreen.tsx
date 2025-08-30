@@ -17,6 +17,7 @@ import {
   Alert,
   Image,
   Dimensions,
+  ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -27,6 +28,10 @@ import { ActivityPost, REACTION_EMOJIS } from '../../types/social';
 import { formatRelativeTime, formatNumber, formatCalories, formatDuration } from '../../utils/formatters';
 import { PostCard } from '../../components/social/PostCard';
 import { ShareWorkoutModal } from '../../components/social/ShareWorkoutModal';
+import { StoryBubble } from '../../components/social/StoryBubble';
+import { WorkoutSummary } from '../../components/social/WorkoutSummary';
+import { EngagementBar } from '../../components/social/EngagementBar';
+import { mockStories } from '../../data/mockStories';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -132,16 +137,19 @@ export const FeedScreen: React.FC = () => {
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 12,
+        padding: 16,
+        backgroundColor: '#FAFAFA',
       }}
     >
       <View style={{
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         backgroundColor: '#E0E0E0',
         marginRight: 12,
         overflow: 'hidden',
+        borderWidth: 2,
+        borderColor: '#F0F0F0',
       }}>
         {post.user?.profilePicture ? (
           <Image
@@ -155,7 +163,7 @@ export const FeedScreen: React.FC = () => {
             alignItems: 'center',
             backgroundColor: '#FF6B6B',
           }}>
-            <Text style={{ color: 'white', fontWeight: 'bold' }}>
+            <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>
               {post.user?.fullName?.[0]?.toUpperCase() || '?'}
             </Text>
           </View>
@@ -163,18 +171,18 @@ export const FeedScreen: React.FC = () => {
       </View>
       <View style={{ flex: 1 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={{ fontWeight: '600', fontSize: 14 }}>
+          <Text style={{ fontWeight: '700', fontSize: 15, color: '#333' }}>
             {post.user?.fullName || 'Unknown User'}
           </Text>
           {post.user?.isVerified && (
-            <Icon name="checkmark-circle" size={14} color="#4ECDC4" style={{ marginLeft: 4 }} />
+            <Icon name="checkmark-circle" size={16} color="#4ECDC4" style={{ marginLeft: 6 }} />
           )}
         </View>
-        <Text style={{ color: '#666', fontSize: 12 }}>
+        <Text style={{ color: '#888', fontSize: 13, marginTop: 2 }}>
           {formatRelativeTime(post.createdAt)}
         </Text>
       </View>
-      <TouchableOpacity style={{ padding: 4 }}>
+      <TouchableOpacity style={{ padding: 8 }}>
         <Icon name="ellipsis-horizontal" size={20} color="#666" />
       </TouchableOpacity>
     </TouchableOpacity>
@@ -200,81 +208,41 @@ export const FeedScreen: React.FC = () => {
   const renderWorkoutPost = (post: ActivityPost) => (
     <View>
       {post.content && (
-        <Text style={{ paddingHorizontal: 12, marginBottom: 8 }}>
+        <Text style={{ 
+          paddingHorizontal: 16, 
+          marginBottom: 12, 
+          fontSize: 15, 
+          lineHeight: 22,
+          color: '#333',
+          fontWeight: '400',
+        }}>
           {post.content}
         </Text>
       )}
-      <LinearGradient
-        colors={['#FF6B6B', '#4ECDC4']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{
-          margin: 12,
-          borderRadius: 12,
-          padding: 16,
-        }}
-      >
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-          <Icon name="barbell" size={24} color="white" />
-          <Text style={{
-            color: 'white',
-            fontSize: 18,
-            fontWeight: 'bold',
-            marginLeft: 8,
-          }}>
-            {post.workoutData?.name || 'Workout'}
-          </Text>
-        </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-          <View style={{ alignItems: 'center' }}>
-            <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12 }}>Duration</Text>
-            <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
-              {formatDuration(post.workoutData?.duration || 0)}
-            </Text>
-          </View>
-          <View style={{ alignItems: 'center' }}>
-            <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12 }}>Exercises</Text>
-            <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
-              {post.workoutData?.exercises || 0}
-            </Text>
-          </View>
-          <View style={{ alignItems: 'center' }}>
-            <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12 }}>Calories</Text>
-            <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
-              {formatCalories(post.workoutData?.caloriesBurned || 0)}
-            </Text>
-          </View>
-        </View>
-        {post.workoutData?.muscleGroups && post.workoutData.muscleGroups.length > 0 && (
-          <View style={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            marginTop: 12,
-            gap: 6,
-          }}>
-            {post.workoutData.muscleGroups.map((muscle, index) => (
-              <View
-                key={index}
-                style={{
-                  backgroundColor: 'rgba(255,255,255,0.2)',
-                  paddingHorizontal: 8,
-                  paddingVertical: 4,
-                  borderRadius: 12,
-                }}
-              >
-                <Text style={{ color: 'white', fontSize: 12 }}>{muscle}</Text>
-              </View>
-            ))}
-          </View>
-        )}
-      </LinearGradient>
+      
+      <WorkoutSummary
+        duration={post.workoutData?.duration || 0}
+        exercises={post.workoutData?.exercises || 0}
+        calories={post.workoutData?.caloriesBurned || 0}
+        muscleGroups={post.workoutData?.muscleGroups || []}
+        intensity={post.workoutData?.intensity || 'medium'}
+        gradient={['#10B981', '#059669']}
+        name={post.workoutData?.name}
+      />
     </View>
   );
 
   const renderMealPost = (post: ActivityPost) => (
     <View>
       {post.content && (
-        <Text style={{ paddingHorizontal: 12, marginBottom: 8 }}>
+        <Text style={{ 
+          paddingHorizontal: 16, 
+          marginBottom: 12, 
+          fontSize: 15, 
+          lineHeight: 22,
+          color: '#333',
+          fontWeight: '400',
+        }}>
           {post.content}
         </Text>
       )}
@@ -289,37 +257,40 @@ export const FeedScreen: React.FC = () => {
         />
       )}
       <View style={{
-        backgroundColor: '#F5F5F5',
-        margin: 12,
-        borderRadius: 12,
-        padding: 12,
+        backgroundColor: '#F8F9FA',
+        margin: 16,
+        borderRadius: 16,
+        padding: 16,
+        borderWidth: 1,
+        borderColor: '#E9ECEF',
       }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-          <Icon name="restaurant" size={20} color="#4CAF50" />
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+          <Icon name="restaurant" size={22} color="#4CAF50" />
           <Text style={{
-            fontSize: 16,
+            fontSize: 17,
             fontWeight: '600',
-            marginLeft: 8,
+            marginLeft: 10,
+            color: '#333',
           }}>
             {post.mealData?.name || 'Meal'}
           </Text>
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <View>
-            <Text style={{ color: '#666', fontSize: 12 }}>Calories</Text>
-            <Text style={{ fontWeight: '600' }}>{post.mealData?.calories || 0}</Text>
+          <View style={{ alignItems: 'center' }}>
+            <Text style={{ color: '#666', fontSize: 12, marginBottom: 4 }}>Calories</Text>
+            <Text style={{ fontWeight: '700', fontSize: 16, color: '#333' }}>{post.mealData?.calories || 0}</Text>
           </View>
-          <View>
-            <Text style={{ color: '#666', fontSize: 12 }}>Protein</Text>
-            <Text style={{ fontWeight: '600' }}>{post.mealData?.protein || 0}g</Text>
+          <View style={{ alignItems: 'center' }}>
+            <Text style={{ color: '#666', fontSize: 12, marginBottom: 4 }}>Protein</Text>
+            <Text style={{ fontWeight: '700', fontSize: 16, color: '#333' }}>{post.mealData?.protein || 0}g</Text>
           </View>
-          <View>
-            <Text style={{ color: '#666', fontSize: 12 }}>Carbs</Text>
-            <Text style={{ fontWeight: '600' }}>{post.mealData?.carbs || 0}g</Text>
+          <View style={{ alignItems: 'center' }}>
+            <Text style={{ color: '#666', fontSize: 12, marginBottom: 4 }}>Carbs</Text>
+            <Text style={{ fontWeight: '700', fontSize: 16, color: '#333' }}>{post.mealData?.carbs || 0}g</Text>
           </View>
-          <View>
-            <Text style={{ color: '#666', fontSize: 12 }}>Fats</Text>
-            <Text style={{ fontWeight: '600' }}>{post.mealData?.fats || 0}g</Text>
+          <View style={{ alignItems: 'center' }}>
+            <Text style={{ color: '#666', fontSize: 12, marginBottom: 4 }}>Fats</Text>
+            <Text style={{ fontWeight: '700', fontSize: 16, color: '#333' }}>{post.mealData?.fats || 0}g</Text>
           </View>
         </View>
       </View>
@@ -335,28 +306,53 @@ export const FeedScreen: React.FC = () => {
     };
 
     return (
-      <View style={{ alignItems: 'center', padding: 20 }}>
+      <View style={{ alignItems: 'center', padding: 24 }}>
         <View style={{
-          width: 100,
-          height: 100,
-          borderRadius: 50,
+          width: 120,
+          height: 120,
+          borderRadius: 60,
           backgroundColor: rarityColors[post.achievementData?.rarity || 'common'],
           justifyContent: 'center',
           alignItems: 'center',
-          marginBottom: 12,
+          marginBottom: 16,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.2,
+          shadowRadius: 8,
+          elevation: 8,
         }}>
-          <Text style={{ fontSize: 48 }}>
+          <Text style={{ fontSize: 56 }}>
             {post.achievementData?.icon || '🏆'}
           </Text>
         </View>
-        <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 4 }}>
+        <Text style={{ 
+          fontSize: 20, 
+          fontWeight: 'bold', 
+          marginBottom: 8,
+          color: '#333',
+          textAlign: 'center',
+        }}>
           {post.achievementData?.name || 'Achievement Unlocked!'}
         </Text>
-        <Text style={{ color: '#666', textAlign: 'center' }}>
+        <Text style={{ 
+          color: '#666', 
+          textAlign: 'center',
+          fontSize: 14,
+          lineHeight: 20,
+          paddingHorizontal: 20,
+        }}>
           {post.achievementData?.description}
         </Text>
         {post.content && (
-          <Text style={{ marginTop: 12, textAlign: 'center' }}>
+          <Text style={{ 
+            marginTop: 16, 
+            textAlign: 'center',
+            fontSize: 15,
+            lineHeight: 22,
+            color: '#333',
+            fontWeight: '400',
+            paddingHorizontal: 20,
+          }}>
             {post.content}
           </Text>
         )}
@@ -365,114 +361,151 @@ export const FeedScreen: React.FC = () => {
   };
 
   const renderPRPost = (post: ActivityPost) => (
-    <View style={{ padding: 12 }}>
+    <View style={{ padding: 16 }}>
       <View style={{
         backgroundColor: '#FFD700',
         alignSelf: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 20,
-        marginBottom: 12,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 24,
+        marginBottom: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        elevation: 4,
       }}>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>
+        <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 15 }}>
           🎉 NEW PERSONAL RECORD! 🎉
         </Text>
       </View>
       <View style={{
         backgroundColor: '#FFF9E6',
-        padding: 16,
-        borderRadius: 12,
+        padding: 20,
+        borderRadius: 16,
         alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#FFE5B4',
       }}>
-        <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 8 }}>
+        <Text style={{ 
+          fontSize: 18, 
+          fontWeight: '600', 
+          marginBottom: 12,
+          color: '#333',
+        }}>
           {post.prData?.exerciseName}
         </Text>
         <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-          <Text style={{ fontSize: 32, fontWeight: 'bold', color: '#FFD700' }}>
+          <Text style={{ fontSize: 36, fontWeight: 'bold', color: '#FFD700' }}>
             {post.prData?.newRecord}
           </Text>
-          <Text style={{ fontSize: 16, marginLeft: 4 }}>
+          <Text style={{ fontSize: 18, marginLeft: 6, color: '#666' }}>
             {post.prData?.unit}
           </Text>
         </View>
-        <Text style={{ color: '#666', marginTop: 8 }}>
+        <Text style={{ color: '#666', marginTop: 12, fontSize: 14 }}>
           Previous: {post.prData?.previousRecord} {post.prData?.unit}
         </Text>
         <View style={{
           backgroundColor: '#4CAF50',
-          paddingHorizontal: 12,
-          paddingVertical: 4,
-          borderRadius: 12,
-          marginTop: 8,
+          paddingHorizontal: 16,
+          paddingVertical: 6,
+          borderRadius: 16,
+          marginTop: 12,
         }}>
-          <Text style={{ color: 'white', fontWeight: '600' }}>
+          <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>
             +{post.prData?.improvement}% improvement
           </Text>
         </View>
       </View>
       {post.content && (
-        <Text style={{ marginTop: 12 }}>{post.content}</Text>
+        <Text style={{ 
+          marginTop: 16,
+          fontSize: 15,
+          lineHeight: 22,
+          color: '#333',
+          fontWeight: '400',
+        }}>
+          {post.content}
+        </Text>
       )}
     </View>
   );
 
   const renderChallengePost = (post: ActivityPost) => (
-    <View style={{ padding: 12 }}>
+    <View style={{ padding: 16 }}>
       <TouchableOpacity
         style={{
-          backgroundColor: '#F5F5F5',
-          borderRadius: 12,
-          padding: 16,
+          backgroundColor: '#F8F9FA',
+          borderRadius: 16,
+          padding: 20,
+          borderWidth: 1,
+          borderColor: '#E9ECEF',
         }}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-          <Icon name="trophy" size={24} color="#FFD700" />
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+          <Icon name="trophy" size={28} color="#FFD700" />
           <Text style={{
-            fontSize: 16,
+            fontSize: 18,
             fontWeight: 'bold',
-            marginLeft: 8,
+            marginLeft: 12,
             flex: 1,
+            color: '#333',
           }}>
             {post.challengeData?.name || 'Challenge'}
           </Text>
         </View>
-        <View style={{ marginBottom: 8 }}>
+        <View style={{ marginBottom: 12 }}>
           <View style={{
-            height: 8,
-            backgroundColor: '#E0E0E0',
-            borderRadius: 4,
+            height: 10,
+            backgroundColor: '#E9ECEF',
+            borderRadius: 5,
             overflow: 'hidden',
           }}>
             <View style={{
               width: `${post.challengeData?.progress || 0}%`,
               height: '100%',
               backgroundColor: '#4ECDC4',
+              borderRadius: 5,
             }} />
           </View>
-          <Text style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
+          <Text style={{ fontSize: 13, color: '#666', marginTop: 6, fontWeight: '500' }}>
             {post.challengeData?.progress || 0}% Complete
           </Text>
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Text style={{ color: '#666', fontSize: 12 }}>
+          <Text style={{ color: '#666', fontSize: 13, fontWeight: '500' }}>
             {post.challengeData?.participantsCount || 0} participants
           </Text>
           {post.challengeData?.rank && (
-            <Text style={{ fontWeight: '600', fontSize: 12 }}>
+            <Text style={{ fontWeight: '600', fontSize: 13, color: '#4ECDC4' }}>
               Rank #{post.challengeData.rank}
             </Text>
           )}
         </View>
       </TouchableOpacity>
       {post.content && (
-        <Text style={{ marginTop: 12 }}>{post.content}</Text>
+        <Text style={{ 
+          marginTop: 16,
+          fontSize: 15,
+          lineHeight: 22,
+          color: '#333',
+          fontWeight: '400',
+        }}>
+          {post.content}
+        </Text>
       )}
     </View>
   );
 
   const renderTextPost = (post: ActivityPost) => (
-    <View style={{ padding: 12 }}>
-      <Text style={{ fontSize: 14, lineHeight: 20 }}>
+    <View style={{ padding: 16 }}>
+      <Text style={{ 
+        fontSize: 15, 
+        lineHeight: 22,
+        color: '#333',
+        fontWeight: '400',
+      }}>
         {post.content}
       </Text>
       {post.images && post.images.length > 0 && (
@@ -484,7 +517,7 @@ export const FeedScreen: React.FC = () => {
               style={{
                 width: '100%',
                 height: 200,
-                borderRadius: 8,
+                borderRadius: 12,
                 marginBottom: 8,
               }}
             />
@@ -500,93 +533,51 @@ export const FeedScreen: React.FC = () => {
       <View style={{
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingHorizontal: 12,
-        paddingVertical: 8,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        backgroundColor: '#FAFAFA',
+        borderTopWidth: 1,
+        borderTopColor: '#F0F0F0',
       }}>
         <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }}>
           {post.likesCount > 0 && (
             <>
               <Icon name="heart" size={16} color="#FF6B6B" />
-              <Text style={{ marginLeft: 4, fontSize: 12, color: '#666' }}>
-                {formatNumber(post.likesCount)}
+              <Text style={{ marginLeft: 6, fontSize: 13, color: '#666', fontWeight: '500' }}>
+                {formatNumber(post.likesCount)} likes
               </Text>
             </>
           )}
         </TouchableOpacity>
-        <View style={{ flexDirection: 'row', gap: 16 }}>
+        <View style={{ flexDirection: 'row', gap: 20 }}>
           {post.commentsCount > 0 && (
-            <Text style={{ fontSize: 12, color: '#666' }}>
+            <Text style={{ fontSize: 13, color: '#666', fontWeight: '500' }}>
               {formatNumber(post.commentsCount)} comments
             </Text>
           )}
           {post.sharesCount > 0 && (
-            <Text style={{ fontSize: 12, color: '#666' }}>
+            <Text style={{ fontSize: 13, color: '#666', fontWeight: '500' }}>
               {formatNumber(post.sharesCount)} shares
             </Text>
           )}
         </View>
       </View>
 
-      {/* Action Buttons */}
-      <View style={{
-        flexDirection: 'row',
-        borderTopWidth: 1,
-        borderColor: '#F0F0F0',
-        paddingVertical: 8,
-      }}>
-        <TouchableOpacity
-          onPress={() => handleLike(post)}
-          onLongPress={() => setShowReactionPicker(post.id)}
-          style={{
-            flex: 1,
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-            paddingVertical: 8,
-          }}
-        >
-          <Icon
-            name={post.isLiked ? 'heart' : 'heart-outline'}
-            size={20}
-            color={post.isLiked ? '#FF6B6B' : '#666'}
-          />
-          <Text style={{
-            marginLeft: 4,
-            color: post.isLiked ? '#FF6B6B' : '#666',
-            fontWeight: post.isLiked ? '600' : '400',
-          }}>
-            Like
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          onPress={() => handleComment(post.id)}
-          style={{
-            flex: 1,
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-            paddingVertical: 8,
-          }}
-        >
-          <Icon name="chatbubble-outline" size={20} color="#666" />
-          <Text style={{ marginLeft: 4, color: '#666' }}>Comment</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          onPress={() => handleShare(post)}
-          style={{
-            flex: 1,
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-            paddingVertical: 8,
-          }}
-        >
-          <Icon name="share-outline" size={20} color="#666" />
-          <Text style={{ marginLeft: 4, color: '#666' }}>Share</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Enhanced Engagement Bar */}
+      <EngagementBar
+        liked={post.isLiked || false}
+        likeCount={post.likesCount}
+        commentCount={post.commentsCount}
+        shareCount={post.sharesCount}
+        onLike={() => handleLike(post)}
+        onComment={() => handleComment(post.id)}
+        onShare={() => handleShare(post)}
+        onDoubleTap={() => {
+          if (!post.isLiked) {
+            handleLike(post);
+          }
+        }}
+      />
 
       {/* Reaction Picker */}
       {showReactionPicker === post.id && (
@@ -622,10 +613,26 @@ export const FeedScreen: React.FC = () => {
   const renderPost = ({ item }: { item: ActivityPost }) => (
     <View style={{
       backgroundColor: 'white',
-      marginBottom: 8,
+      marginBottom: 12,
+      borderRadius: 12,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+      overflow: 'hidden',
     }}>
       {renderPostHeader(item)}
-      {renderPostContent(item)}
+      <TouchableOpacity
+        activeOpacity={1}
+        onPress={() => {
+          // Handle single tap if needed
+        }}
+        onLongPress={() => setShowReactionPicker(item.id)}
+        style={{ flex: 1 }}
+      >
+        {renderPostContent(item)}
+      </TouchableOpacity>
       {renderPostActions(item)}
     </View>
   );
@@ -724,6 +731,34 @@ export const FeedScreen: React.FC = () => {
             <Icon name="add" size={24} color="white" />
           </TouchableOpacity>
         </View>
+      </View>
+
+      {/* Stories Bar */}
+      <View style={{
+        backgroundColor: 'white',
+        paddingVertical: 16,
+        borderBottomWidth: 1,
+        borderColor: '#F0F0F0',
+      }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 16 }}
+        >
+          {mockStories.map(story => (
+            <StoryBubble
+              key={story.id}
+              avatar={story.avatar}
+              viewed={story.viewed}
+              gradient={!story.viewed ? ['#8B5CF6', '#3B82F6'] : null}
+              username={story.username}
+              onPress={() => {
+                // Handle story tap - could navigate to story view
+                console.log('Story tapped:', story.id);
+              }}
+            />
+          ))}
+        </ScrollView>
       </View>
 
       {/* Feed */}
