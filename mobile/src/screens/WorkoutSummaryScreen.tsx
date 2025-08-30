@@ -16,7 +16,6 @@ import { Workout, PersonalRecord } from '../types/workout';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { VictoryChart, VictoryLine, VictoryArea, VictoryAxis, VictoryBar, VictoryPie } from 'victory-native';
-import LottieView from 'lottie-react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -332,14 +331,18 @@ export default function WorkoutSummaryScreen() {
     if (!celebrationVisible) return null;
 
     return (
-      <View style={styles.confettiContainer}>
-        <LottieView
-          source={require('../assets/animations/confetti.json')}
-          autoPlay
-          loop={false}
-          style={styles.confetti}
-        />
-      </View>
+      <Animated.View style={[styles.confettiContainer, { opacity: fadeAnim }]}>
+        <LinearGradient
+          colors={['rgba(0,0,0,0.8)', 'rgba(0,0,0,0.9)']}
+          style={styles.confettiGradient}
+        >
+          <Ionicons name="trophy" size={64} color="white" />
+          <Text style={styles.confettiTitle}>🎉 New PRs!</Text>
+          <Text style={styles.confettiSubtitle}>
+            You've set {newPersonalRecords.length} new personal record{newPersonalRecords.length > 1 ? 's' : ''}!
+          </Text>
+        </LinearGradient>
+      </Animated.View>
     );
   };
 
@@ -685,10 +688,28 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 999,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  confetti: {
-    width: '100%',
-    height: '100%',
+  confettiGradient: {
+    padding: 40,
+    borderRadius: 24,
+    alignItems: 'center',
+    maxWidth: width - 80,
+  },
+  confettiTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: 'white',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  confettiSubtitle: {
+    fontSize: 16,
+    color: 'white',
+    opacity: 0.9,
+    textAlign: 'center',
+    lineHeight: 22,
   },
   shareButton: {
     margin: 20,

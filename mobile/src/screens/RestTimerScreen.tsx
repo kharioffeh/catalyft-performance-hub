@@ -8,7 +8,6 @@ import {
   Animated,
   Vibration,
   Alert,
-  Modal,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useWorkoutStore } from '../store/slices/workoutSlice';
@@ -16,7 +15,6 @@ import { theme } from '../theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Circle } from 'react-native-svg';
-import { BlurView } from 'expo-blur';
 
 const { width, height } = Dimensions.get('window');
 const CIRCLE_SIZE = Math.min(width, height) * 0.6;
@@ -389,56 +387,56 @@ export default function RestTimerScreen() {
         </View>
       </LinearGradient>
 
-      {/* Rest Timer Modal Overlay */}
-      <Modal visible={isActive && !isPaused} transparent animationType="fade">
-        <BlurView intensity={90} style={styles.restOverlay}>
-          <View style={styles.restContent}>
-            <Text style={styles.restTitle}>Rest Time</Text>
-            <View style={styles.modalCircularProgress}>
-              <Svg width={200} height={200}>
-                {/* Background Circle */}
-                <Circle
-                  cx={100}
-                  cy={100}
-                  r={90}
-                  stroke="rgba(255,255,255,0.2)"
-                  strokeWidth={8}
-                  fill="transparent"
-                />
-                
-                {/* Progress Circle */}
-                <Circle
-                  cx={100}
-                  cy={100}
-                  r={90}
-                  stroke="#0057FF"
-                  strokeWidth={8}
-                  fill="transparent"
-                  strokeDasharray={565.48}
-                  strokeDashoffset={progressAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [565.48, 0],
-                  })}
-                  strokeLinecap="round"
-                  transform="rotate(-90 100 100)"
-                />
-              </Svg>
+      {/* Rest Timer Overlay */}
+      {isActive && !isPaused && (
+        <View style={styles.restOverlay}>
+        <View style={styles.restContent}>
+          <Text style={styles.restTitle}>Rest Time</Text>
+          <View style={styles.modalCircularProgress}>
+            <Svg width={200} height={200}>
+              {/* Background Circle */}
+              <Circle
+                cx={100}
+                cy={100}
+                r={90}
+                stroke="rgba(255,255,255,0.2)"
+                strokeWidth={8}
+                fill="transparent"
+              />
               
-              {/* Time Display */}
-              <View style={styles.modalTimeDisplay}>
-                <Text style={styles.modalTimeText}>{formatTime(timeLeft)}</Text>
-              </View>
-            </View>
+              {/* Progress Circle */}
+              <Circle
+                cx={100}
+                cy={100}
+                r={90}
+                stroke="#0057FF"
+                strokeWidth={8}
+                fill="transparent"
+                strokeDasharray={565.48}
+                strokeDashoffset={progressAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [565.48, 0],
+                })}
+                strokeLinecap="round"
+                transform="rotate(-90 100 100)"
+              />
+            </Svg>
             
-            <TouchableOpacity style={styles.skipButton} onPress={skipRest}>
-              <Text style={styles.skipText}>Skip Rest</Text>
-            </TouchableOpacity>
+            {/* Time Display */}
+            <View style={styles.modalTimeDisplay}>
+              <Text style={styles.modalTimeText}>{formatTime(timeLeft)}</Text>
+            </View>
           </View>
-        </BlurView>
-      </Modal>
-    </View>
-  );
-}
+          
+                     <TouchableOpacity style={styles.skipButton} onPress={skipRest}>
+             <Text style={styles.skipText}>Skip Rest</Text>
+           </TouchableOpacity>
+         </View>
+       </View>
+       )}
+     </View>
+   );
+ }
 
 const styles = StyleSheet.create({
   container: {

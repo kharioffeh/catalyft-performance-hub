@@ -18,8 +18,6 @@ import { WorkoutExercise, WorkoutSet } from '../types/workout';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Video, ResizeMode } from 'expo-av';
-import * as Haptics from 'expo-haptics';
 
 const { width, height } = Dimensions.get('window');
 
@@ -257,17 +255,13 @@ export default function ActiveWorkoutScreen() {
 
   const renderExerciseCard = (exercise: WorkoutExercise, exerciseIndex: number) => (
     <View key={exercise.id} style={styles.exerciseCard}>
-      {/* Large Exercise Display with Video */}
+      {/* Large Exercise Display with Enhanced Image */}
       <View style={styles.exerciseSection}>
         {exercise.exercise.videoUrl ? (
-          <Video
+          <Image
             source={{ uri: exercise.exercise.videoUrl }}
             style={styles.exerciseVideo}
-            repeat
-            muted
-            resizeMode={ResizeMode.COVER}
-            shouldPlay
-            isLooping
+            resizeMode="cover"
           />
         ) : (
           <View style={styles.exerciseVideoPlaceholder}>
@@ -480,10 +474,7 @@ const EnhancedSetCard = ({ set, exerciseId, onComplete, onUpdate, isActive }) =>
                 <View style={styles.inputRow}>
                   <TouchableOpacity 
                     style={styles.controlButton}
-                    onPress={() => {
-                      decrementWeight();
-                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                    }}
+                    onPress={decrementWeight}
                   >
                     <Text style={styles.controlButtonText}>-</Text>
                   </TouchableOpacity>
@@ -495,10 +486,7 @@ const EnhancedSetCard = ({ set, exerciseId, onComplete, onUpdate, isActive }) =>
                   
                   <TouchableOpacity 
                     style={styles.controlButton}
-                    onPress={() => {
-                      incrementWeight();
-                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                    }}
+                    onPress={incrementWeight}
                   >
                     <Text style={styles.controlButtonText}>+</Text>
                   </TouchableOpacity>
@@ -515,10 +503,7 @@ const EnhancedSetCard = ({ set, exerciseId, onComplete, onUpdate, isActive }) =>
                 <View style={styles.inputRow}>
                   <TouchableOpacity 
                     style={styles.controlButton}
-                    onPress={() => {
-                      decrementReps();
-                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                    }}
+                    onPress={decrementReps}
                   >
                     <Text style={styles.controlButtonText}>-</Text>
                   </TouchableOpacity>
@@ -530,10 +515,7 @@ const EnhancedSetCard = ({ set, exerciseId, onComplete, onUpdate, isActive }) =>
                   
                   <TouchableOpacity 
                     style={styles.controlButton}
-                    onPress={() => {
-                      incrementReps();
-                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                    }}
+                    onPress={incrementReps}
                   >
                     <Text style={styles.controlButtonText}>+</Text>
                   </TouchableOpacity>
