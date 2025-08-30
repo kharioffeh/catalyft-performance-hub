@@ -3,24 +3,17 @@
  * Interactive counter for tracking exercise repetitions
  */
 
-import React, { useState, useCallback, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
-  ViewStyle,
-  useColorScheme,
+  TouchableOpacity,
+  Animated,
+  Dimensions,
 } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-  withSequence,
-  runOnJS,
-} from '../../utils/reanimated-mock';
-import HapticFeedback from 'react-native-haptic-feedback';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
@@ -83,7 +76,7 @@ export const RepCounter = forwardRef<RepCounterRef, RepCounterProps>(({
     onCountChange?.(newCount);
     
     // Haptic feedback
-    HapticFeedback.trigger('impactLight');
+    // HapticFeedback.trigger('impactLight'); // Removed for compatibility
     
     // Animate counter
     scale.value = withSequence(
@@ -96,7 +89,7 @@ export const RepCounter = forwardRef<RepCounterRef, RepCounterProps>(({
     
     // Check if set is complete
     if (newCount >= targetCount) {
-      HapticFeedback.trigger('notificationSuccess');
+      // HapticFeedback.trigger('notificationSuccess'); // Removed for compatibility
       celebrationScale.value = withSequence(
         withSpring(1.5, theme.animation.spring.bouncy),
         withSpring(0, { ...theme.animation.spring.standard, damping: 20 })
@@ -124,7 +117,7 @@ export const RepCounter = forwardRef<RepCounterRef, RepCounterProps>(({
       onCountChange?.(newCount);
       
       // Haptic feedback
-      HapticFeedback.trigger('impactLight');
+      // HapticFeedback.trigger('impactLight'); // Removed for compatibility
       
       // Animate counter
       scale.value = withSequence(
@@ -150,7 +143,7 @@ export const RepCounter = forwardRef<RepCounterRef, RepCounterProps>(({
       withTiming(0, { duration: 0 })
     );
     
-    HapticFeedback.trigger('impactMedium');
+    // HapticFeedback.trigger('impactMedium'); // Removed for compatibility
   }, [initialCount, scale, rotation, progressScale]);
   
   // Move to next set
@@ -167,7 +160,7 @@ export const RepCounter = forwardRef<RepCounterRef, RepCounterProps>(({
         withTiming(0, { duration: 0 })
       );
       
-      HapticFeedback.trigger('impactMedium');
+      // HapticFeedback.trigger('impactMedium'); // Removed for compatibility
     }
   }, [currentSet, totalSets, rotation, progressScale]);
   
