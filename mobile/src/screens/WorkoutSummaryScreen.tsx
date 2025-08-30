@@ -16,6 +16,7 @@ import { Workout, PersonalRecord } from '../types/workout';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { VictoryChart, VictoryLine, VictoryArea, VictoryAxis, VictoryBar, VictoryPie } from 'victory-native';
+import LottieView from 'lottie-react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -131,25 +132,21 @@ export default function WorkoutSummaryScreen() {
           
           <View style={styles.statsGrid}>
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>{workout?.exercises.length || 0}</Text>
-              <Text style={styles.statLabel}>Exercises</Text>
-            </View>
-            
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{workout?.totalSets || 0}</Text>
-              <Text style={styles.statLabel}>Total Sets</Text>
-            </View>
-            
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{Math.round(workout?.totalVolume || 0)}kg</Text>
-              <Text style={styles.statLabel}>Volume</Text>
-            </View>
-            
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>
-                {Math.floor((workout?.durationSeconds || 0) / 60)}m
-              </Text>
+              <Text style={styles.statIcon}>⏱</Text>
+              <Text style={styles.statValue}>{Math.floor((workout?.durationSeconds || 0) / 60)}m</Text>
               <Text style={styles.statLabel}>Duration</Text>
+            </View>
+            
+            <View style={styles.statItem}>
+              <Text style={styles.statIcon}>💪</Text>
+              <Text style={styles.statValue}>{workout?.totalSets || 0}</Text>
+              <Text style={styles.statLabel}>Sets</Text>
+            </View>
+            
+            <View style={styles.statItem}>
+              <Text style={styles.statIcon}>🔥</Text>
+              <Text style={styles.statValue}>{Math.round(workout?.totalVolume || 0)}kg</Text>
+              <Text style={styles.statLabel}>Calories</Text>
             </View>
           </View>
         </View>
@@ -331,6 +328,21 @@ export default function WorkoutSummaryScreen() {
     );
   };
 
+  const renderConfetti = () => {
+    if (!celebrationVisible) return null;
+
+    return (
+      <View style={styles.confettiContainer}>
+        <LottieView
+          source={require('../assets/animations/confetti.json')}
+          autoPlay
+          loop={false}
+          style={styles.confetti}
+        />
+      </View>
+    );
+  };
+
   const renderActionButtons = () => (
     <Animated.View
       style={[
@@ -399,9 +411,18 @@ export default function WorkoutSummaryScreen() {
         {renderPersonalRecords()}
         {renderActionButtons()}
         
+        {/* Share Button */}
+        <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
+          <LinearGradient colors={['#0057FF', '#003FCC']} style={styles.shareButtonGradient}>
+            <Ionicons name="share" size={20} color="white" />
+            <Text style={styles.shareText}>Share Workout</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+        
         <View style={styles.bottomSpacing} />
       </ScrollView>
 
+      {renderConfetti()}
       {renderCelebration()}
     </View>
   );
@@ -651,5 +672,45 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,
     color: theme.colors.light.textSecondary,
+  },
+  // New Component Styles
+  statIcon: {
+    fontSize: 24,
+    marginBottom: 8,
+  },
+  confettiContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999,
+  },
+  confetti: {
+    width: '100%',
+    height: '100%',
+  },
+  shareButton: {
+    margin: 20,
+    borderRadius: 16,
+    elevation: 4,
+    shadowColor: theme.colors.light.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+  },
+  shareButtonGradient: {
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  shareText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

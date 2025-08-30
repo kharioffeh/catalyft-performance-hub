@@ -8,6 +8,7 @@ import {
   Animated,
   Vibration,
   Alert,
+  Modal,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useWorkoutStore } from '../store/slices/workoutSlice';
@@ -15,6 +16,7 @@ import { theme } from '../theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Circle } from 'react-native-svg';
+import { BlurView } from 'expo-blur';
 
 const { width, height } = Dimensions.get('window');
 const CIRCLE_SIZE = Math.min(width, height) * 0.6;
@@ -386,6 +388,54 @@ export default function RestTimerScreen() {
           </Animated.View>
         </View>
       </LinearGradient>
+
+      {/* Rest Timer Modal Overlay */}
+      <Modal visible={isActive && !isPaused} transparent animationType="fade">
+        <BlurView intensity={90} style={styles.restOverlay}>
+          <View style={styles.restContent}>
+            <Text style={styles.restTitle}>Rest Time</Text>
+            <View style={styles.modalCircularProgress}>
+              <Svg width={200} height={200}>
+                {/* Background Circle */}
+                <Circle
+                  cx={100}
+                  cy={100}
+                  r={90}
+                  stroke="rgba(255,255,255,0.2)"
+                  strokeWidth={8}
+                  fill="transparent"
+                />
+                
+                {/* Progress Circle */}
+                <Circle
+                  cx={100}
+                  cy={100}
+                  r={90}
+                  stroke="#0057FF"
+                  strokeWidth={8}
+                  fill="transparent"
+                  strokeDasharray={565.48}
+                  strokeDashoffset={progressAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [565.48, 0],
+                  })}
+                  strokeLinecap="round"
+                  transform="rotate(-90 100 100)"
+                />
+              </Svg>
+              
+              {/* Time Display */}
+              <View style={styles.modalTimeDisplay}>
+                <Text style={styles.modalTimeText}>{formatTime(timeLeft)}</Text>
+              </View>
+            </View>
+            
+            <TouchableOpacity style={styles.skipButton} onPress={skipRest}>
+              <Text style={styles.skipText}>Skip Rest</Text>
+            </TouchableOpacity>
+          </View>
+        </BlurView>
+      </Modal>
     </View>
   );
 }
@@ -518,6 +568,52 @@ const styles = StyleSheet.create({
   },
   skipButtonText: {
     color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  // Modal Overlay Styles
+  restOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  restContent: {
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    borderRadius: 24,
+    padding: 32,
+    alignItems: 'center',
+    elevation: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+  },
+  restTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#2E2E2E',
+    marginBottom: 24,
+  },
+  modalCircularProgress: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+  modalTimeDisplay: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalTimeText: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: '#2E2E2E',
+    fontFamily: 'monospace',
+  },
+  skipText: {
+    color: '#0057FF',
     fontSize: 16,
     fontWeight: '600',
   },
