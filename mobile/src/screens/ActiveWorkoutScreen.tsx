@@ -255,28 +255,26 @@ export default function ActiveWorkoutScreen() {
 
   const renderExerciseCard = (exercise: WorkoutExercise, exerciseIndex: number) => (
     <View key={exercise.id} style={styles.exerciseCard}>
-      {/* Large Exercise Display with Video */}
-      <View style={styles.exerciseHeader}>
-        <View style={styles.exerciseVideoContainer}>
-          {exercise.exercise.videoUrl ? (
-            <Image 
-              source={{ uri: exercise.exercise.videoUrl }} 
-              style={styles.exerciseVideo}
-              resizeMode="cover"
-            />
-          ) : (
-            <View style={styles.exerciseVideoPlaceholder}>
-              <Ionicons name="fitness-outline" size={48} color={theme.colors.light.textTertiary} />
-            </View>
-          )}
-          <LinearGradient 
-            colors={['transparent', 'rgba(0,0,0,0.8)']} 
-            style={styles.exerciseVideoOverlay}
-          >
-            <Text style={styles.exerciseName}>{exercise.exercise.name}</Text>
-            <Text style={styles.targetMuscles}>{exercise.exercise.muscleGroup}</Text>
-          </LinearGradient>
-        </View>
+      {/* Large Exercise Display with Enhanced Image */}
+      <View style={styles.exerciseSection}>
+        {exercise.exercise.videoUrl ? (
+          <Image
+            source={{ uri: exercise.exercise.videoUrl }}
+            style={styles.exerciseVideo}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={styles.exerciseVideoPlaceholder}>
+            <Ionicons name="fitness-outline" size={48} color={theme.colors.light.textTertiary} />
+          </View>
+        )}
+        <LinearGradient 
+          colors={['transparent', 'rgba(0,0,0,0.8)']}
+          style={styles.videoOverlay}
+        >
+          <Text style={styles.exerciseName}>{exercise.exercise.name}</Text>
+          <Text style={styles.targetMuscles}>{exercise.exercise.muscleGroup}</Text>
+        </LinearGradient>
       </View>
 
       <View style={styles.setsContainer}>
@@ -466,59 +464,63 @@ const EnhancedSetCard = ({ set, exerciseId, onComplete, onUpdate, isActive }) =>
 
       {!set.completed && (
         <>
-          {/* Big Touch-Friendly Weight Input */}
+          {/* Large Weight Input Controls */}
           <View style={styles.setTracker}>
-            <Text style={styles.setLabel}>Weight (LBS)</Text>
+            <Text style={styles.setIndicator}>Set {set.setNumber} of {exercise.sets.length}</Text>
             
-            <View style={styles.inputRow}>
-              <TouchableOpacity 
-                style={styles.decrementBtn} 
-                onPress={decrementWeight}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.btnText}>-</Text>
-              </TouchableOpacity>
-              
-              <View style={styles.valueDisplay}>
-                <Text style={styles.value}>{weight || '0'}</Text>
-                <Text style={styles.unit}>LBS</Text>
+            <View style={styles.inputGroup}>
+              <View style={styles.inputControl}>
+                <Text style={styles.inputLabel}>WEIGHT</Text>
+                <View style={styles.inputRow}>
+                  <TouchableOpacity 
+                    style={styles.controlButton}
+                    onPress={decrementWeight}
+                  >
+                    <Text style={styles.controlButtonText}>-</Text>
+                  </TouchableOpacity>
+                  
+                  <View style={styles.valueDisplay}>
+                    <Text style={styles.mainValue}>{weight || '0'}</Text>
+                    <Text style={styles.unit}>lbs</Text>
+                  </View>
+                  
+                  <TouchableOpacity 
+                    style={styles.controlButton}
+                    onPress={incrementWeight}
+                  >
+                    <Text style={styles.controlButtonText}>+</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-              
-              <TouchableOpacity 
-                style={styles.incrementBtn} 
-                onPress={incrementWeight}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.btnText}>+</Text>
-              </TouchableOpacity>
             </View>
           </View>
 
-          {/* Big Touch-Friendly Reps Input */}
+          {/* Large Reps Input Controls */}
           <View style={styles.setTracker}>
-            <Text style={styles.setLabel}>Reps</Text>
-            
-            <View style={styles.inputRow}>
-              <TouchableOpacity 
-                style={styles.decrementBtn} 
-                onPress={decrementReps}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.btnText}>-</Text>
-              </TouchableOpacity>
-              
-              <View style={styles.valueDisplay}>
-                <Text style={styles.value}>{reps || '0'}</Text>
-                <Text style={styles.unit}>REPS</Text>
+            <View style={styles.inputGroup}>
+              <View style={styles.inputControl}>
+                <Text style={styles.inputLabel}>REPS</Text>
+                <View style={styles.inputRow}>
+                  <TouchableOpacity 
+                    style={styles.controlButton}
+                    onPress={decrementReps}
+                  >
+                    <Text style={styles.controlButtonText}>-</Text>
+                  </TouchableOpacity>
+                  
+                  <View style={styles.valueDisplay}>
+                    <Text style={styles.mainValue}>{reps || '0'}</Text>
+                    <Text style={styles.unit}>reps</Text>
+                  </View>
+                  
+                  <TouchableOpacity 
+                    style={styles.controlButton}
+                    onPress={incrementReps}
+                  >
+                    <Text style={styles.controlButtonText}>+</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-              
-              <TouchableOpacity 
-                style={styles.incrementBtn} 
-                onPress={incrementReps}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.btnText}>+</Text>
-              </TouchableOpacity>
             </View>
           </View>
 
@@ -543,7 +545,7 @@ const EnhancedSetCard = ({ set, exerciseId, onComplete, onUpdate, isActive }) =>
             activeOpacity={0.8}
           >
             <LinearGradient 
-              colors={['#10B981', '#059669']} 
+              colors={['#00C853', '#00A041']} 
               style={styles.completeButtonGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
@@ -711,18 +713,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
   },
-  exerciseHeader: {
-    marginBottom: 20,
-  },
-  exerciseVideoContainer: {
-    height: 200,
+  exerciseSection: {
+    height: 250,
     borderRadius: 16,
     overflow: 'hidden',
     position: 'relative',
+    marginBottom: 20,
   },
   exerciseVideo: {
+    height: 250,
     width: '100%',
-    height: '100%',
+    backgroundColor: '#000',
   },
   exerciseVideoPlaceholder: {
     width: '100%',
@@ -731,7 +732,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  exerciseVideoOverlay: {
+  videoOverlay: {
     position: 'absolute',
     bottom: 0,
     left: 0,
@@ -789,12 +790,26 @@ const styles = StyleSheet.create({
   setTracker: {
     marginBottom: 24,
   },
-  setLabel: {
-    fontSize: 16,
+  setIndicator: {
+    fontSize: 18,
     fontWeight: '600',
     color: theme.colors.light.text,
-    marginBottom: 12,
+    marginBottom: 20,
     textAlign: 'center',
+  },
+  inputGroup: {
+    gap: 24,
+  },
+  inputControl: {
+    alignItems: 'center',
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: theme.colors.light.textSecondary,
+    marginBottom: 16,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   inputRow: {
     flexDirection: 'row',
@@ -802,11 +817,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 16,
   },
-  decrementBtn: {
+  controlButton: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: theme.colors.light.error,
+    backgroundColor: '#F5F7FA',
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 4,
@@ -815,26 +830,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
-  incrementBtn: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: theme.colors.light.success,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 4,
-    shadowColor: theme.colors.light.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-  },
-  btnText: {
+  controlButtonText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'white',
+    color: theme.colors.light.text,
   },
   valueDisplay: {
-    flex: 1,
+    minWidth: 100,
     alignItems: 'center',
     paddingVertical: 16,
     paddingHorizontal: 24,
@@ -846,10 +848,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
-  value: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: theme.colors.light.text,
+  mainValue: {
+    fontSize: 48,
+    fontWeight: '700',
+    color: '#2E2E2E',
     marginBottom: 4,
   },
   unit: {
@@ -874,7 +876,10 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.light.border,
   },
   completeButton: {
-    borderRadius: 16,
+    marginHorizontal: 20,
+    height: 64,
+    borderRadius: 32,
+    overflow: 'hidden',
     elevation: 6,
     shadowColor: theme.colors.light.shadow,
     shadowOffset: { width: 0, height: 3 },
@@ -884,8 +889,10 @@ const styles = StyleSheet.create({
   completeButtonGradient: {
     paddingVertical: 20,
     paddingHorizontal: 32,
-    borderRadius: 16,
+    borderRadius: 32,
     alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
   },
   buttonText: {
     color: 'white',

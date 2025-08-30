@@ -21,7 +21,6 @@ import Animated, {
   withTiming,
   interpolate,
 } from '../../utils/reanimated-mock';
-import HapticFeedback from 'react-native-haptic-feedback';
 import { theme } from '../../theme';
 import Card from './Card';
 import ProgressRing from './ProgressRing';
@@ -109,7 +108,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
     expandAnimation.value = withSpring(newExpanded ? 1 : 0, theme.animation.spring.standard);
     
     if (newExpanded) {
-      HapticFeedback.trigger('impactLight');
+      // HapticFeedback.trigger('impactLight'); // Removed haptic feedback
     }
   }, [expanded, expandAnimation]);
   
@@ -121,7 +120,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
         scaleAnimation.value = withSpring(1, theme.animation.spring.snappy);
       }, 100);
       
-      HapticFeedback.trigger('impactLight');
+      // HapticFeedback.trigger('impactLight'); // Removed haptic feedback
       onPress(exercise);
     } else {
       toggleExpanded();
@@ -130,7 +129,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
   
   // Handle set completion
   const handleSetComplete = useCallback((setIndex: number) => {
-    HapticFeedback.trigger('impactMedium');
+    // HapticFeedback.trigger('impactMedium'); // Removed haptic feedback
     onCompleteSet?.(exercise.id, setIndex);
     setSelectedSet(setIndex);
     

@@ -25,7 +25,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import HapticFeedback from 'react-native-haptic-feedback';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
@@ -203,12 +203,10 @@ export const Button: React.FC<ButtonProps> = ({
     });
     
     if (haptic) {
-      HapticFeedback.trigger(hapticType, {
-        enableVibrateFallback: true,
-        ignoreAndroidSystemSettings: false,
-      });
+      // Haptic feedback is removed, so this block is effectively removed.
+      // If haptic feedback is needed, it must be re-implemented.
     }
-  }, [disabled, loading, haptic, hapticType, scale]);
+  }, [disabled, loading, haptic, scale]);
   
   const handlePressOut = useCallback(() => {
     if (disabled || loading) return;

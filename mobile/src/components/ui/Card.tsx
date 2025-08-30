@@ -19,7 +19,6 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import HapticFeedback from 'react-native-haptic-feedback';
 import { theme } from '../../theme';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
@@ -153,10 +152,8 @@ export const Card: React.FC<CardProps> = ({
     }
     
     if (haptic) {
-      HapticFeedback.trigger('impactLight', {
-        enableVibrateFallback: true,
-        ignoreAndroidSystemSettings: false,
-      });
+      // Haptic feedback is removed, so this block is effectively removed.
+      // If haptic feedback is needed, it must be re-added and implemented.
     }
   }, [disabled, variant, haptic, scale, elevation]);
   

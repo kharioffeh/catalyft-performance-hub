@@ -23,7 +23,6 @@ import Animated, {
   interpolateColor,
   Easing,
 } from '../../utils/reanimated-mock';
-import HapticFeedback from 'react-native-haptic-feedback';
 import { theme } from '../../theme';
 import Button from './Button';
 
@@ -170,7 +169,7 @@ export const WorkoutTimer = forwardRef<WorkoutTimerRef, WorkoutTimerProps>(({
             
             // Check completion
             if (newTime === 0) {
-              HapticFeedback.trigger('notificationSuccess');
+              // HapticFeedback.trigger('notificationSuccess'); // Removed
               onComplete?.();
               pause();
             }
@@ -187,7 +186,7 @@ export const WorkoutTimer = forwardRef<WorkoutTimerRef, WorkoutTimerProps>(({
             
             // Check interval completion
             if (newTime === 0) {
-              HapticFeedback.trigger('impactMedium');
+              // HapticFeedback.trigger('impactMedium'); // Removed
               
               const nextIndex = currentIntervalIndex + 1;
               if (nextIndex < intervals.length) {
@@ -201,7 +200,7 @@ export const WorkoutTimer = forwardRef<WorkoutTimerRef, WorkoutTimerProps>(({
                   { duration: 500 }
                 );
               } else {
-                HapticFeedback.trigger('notificationSuccess');
+                // HapticFeedback.trigger('notificationSuccess'); // Removed
                 onComplete?.();
                 pause();
               }

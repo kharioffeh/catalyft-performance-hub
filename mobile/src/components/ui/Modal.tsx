@@ -3,34 +3,21 @@
  * Versatile modal with bottom sheet, center, and full screen variants
  */
 
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
-  ViewStyle,
-  useColorScheme,
+  TouchableOpacity,
+  Animated,
   Dimensions,
-  Platform,
+  Modal as RNModal,
   ScrollView,
   KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-  runOnJS,
-  interpolate,
-  Extrapolate,
-} from '../../utils/reanimated-mock';
-import {
-  Gesture,
-  GestureDetector,
-  GestureHandlerRootView,
-} from 'react-native-gesture-handler';
-import HapticFeedback from 'react-native-haptic-feedback';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -147,7 +134,7 @@ export const Modal: React.FC<ModalProps> = ({
   // Handle backdrop press
   const handleBackdropPress = useCallback(() => {
     if (closeOnBackdrop) {
-      HapticFeedback.trigger('impactLight');
+              // HapticFeedback.trigger('impactLight'); // Removed for compatibility
       hide();
     }
   }, [closeOnBackdrop, hide]);

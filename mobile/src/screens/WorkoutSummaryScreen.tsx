@@ -131,25 +131,21 @@ export default function WorkoutSummaryScreen() {
           
           <View style={styles.statsGrid}>
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>{workout?.exercises.length || 0}</Text>
-              <Text style={styles.statLabel}>Exercises</Text>
-            </View>
-            
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{workout?.totalSets || 0}</Text>
-              <Text style={styles.statLabel}>Total Sets</Text>
-            </View>
-            
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{Math.round(workout?.totalVolume || 0)}kg</Text>
-              <Text style={styles.statLabel}>Volume</Text>
-            </View>
-            
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>
-                {Math.floor((workout?.durationSeconds || 0) / 60)}m
-              </Text>
+              <Text style={styles.statIcon}>⏱</Text>
+              <Text style={styles.statValue}>{Math.floor((workout?.durationSeconds || 0) / 60)}m</Text>
               <Text style={styles.statLabel}>Duration</Text>
+            </View>
+            
+            <View style={styles.statItem}>
+              <Text style={styles.statIcon}>💪</Text>
+              <Text style={styles.statValue}>{workout?.totalSets || 0}</Text>
+              <Text style={styles.statLabel}>Sets</Text>
+            </View>
+            
+            <View style={styles.statItem}>
+              <Text style={styles.statIcon}>🔥</Text>
+              <Text style={styles.statValue}>{Math.round(workout?.totalVolume || 0)}kg</Text>
+              <Text style={styles.statLabel}>Calories</Text>
             </View>
           </View>
         </View>
@@ -331,6 +327,25 @@ export default function WorkoutSummaryScreen() {
     );
   };
 
+  const renderConfetti = () => {
+    if (!celebrationVisible) return null;
+
+    return (
+      <Animated.View style={[styles.confettiContainer, { opacity: fadeAnim }]}>
+        <LinearGradient
+          colors={['rgba(0,0,0,0.8)', 'rgba(0,0,0,0.9)']}
+          style={styles.confettiGradient}
+        >
+          <Ionicons name="trophy" size={64} color="white" />
+          <Text style={styles.confettiTitle}>🎉 New PRs!</Text>
+          <Text style={styles.confettiSubtitle}>
+            You've set {newPersonalRecords.length} new personal record{newPersonalRecords.length > 1 ? 's' : ''}!
+          </Text>
+        </LinearGradient>
+      </Animated.View>
+    );
+  };
+
   const renderActionButtons = () => (
     <Animated.View
       style={[
@@ -399,9 +414,18 @@ export default function WorkoutSummaryScreen() {
         {renderPersonalRecords()}
         {renderActionButtons()}
         
+        {/* Share Button */}
+        <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
+          <LinearGradient colors={['#0057FF', '#003FCC']} style={styles.shareButtonGradient}>
+            <Ionicons name="share" size={20} color="white" />
+            <Text style={styles.shareText}>Share Workout</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+        
         <View style={styles.bottomSpacing} />
       </ScrollView>
 
+      {renderConfetti()}
       {renderCelebration()}
     </View>
   );
@@ -651,5 +675,63 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,
     color: theme.colors.light.textSecondary,
+  },
+  // New Component Styles
+  statIcon: {
+    fontSize: 24,
+    marginBottom: 8,
+  },
+  confettiContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  confettiGradient: {
+    padding: 40,
+    borderRadius: 24,
+    alignItems: 'center',
+    maxWidth: width - 80,
+  },
+  confettiTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: 'white',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  confettiSubtitle: {
+    fontSize: 16,
+    color: 'white',
+    opacity: 0.9,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  shareButton: {
+    margin: 20,
+    borderRadius: 16,
+    elevation: 4,
+    shadowColor: theme.colors.light.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+  },
+  shareButtonGradient: {
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  shareText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

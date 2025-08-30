@@ -3,29 +3,18 @@
  * Notification system for user feedback
  */
 
-import React, { useEffect, useCallback, useImperativeHandle, forwardRef } from 'react';
+import React, { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
-  ViewStyle,
-  useColorScheme,
+  TouchableOpacity,
+  Animated,
   Dimensions,
   Platform,
 } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-  withDelay,
-  runOnJS,
-  interpolate,
-  Extrapolate,
-} from '../../utils/reanimated-mock';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import HapticFeedback from 'react-native-haptic-feedback';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -65,19 +54,19 @@ export const Toast = forwardRef<ToastRef, ToastProps>(({
   offsetTop = 0,
   offsetBottom = 0,
 }, ref) => {
-  const colorScheme = useColorScheme();
+  const colorScheme = React.useColorScheme();
   const isDark = colorScheme === 'dark';
   const colors = isDark ? theme.colors.dark : theme.colors.light;
-  const insets = useSafeAreaInsets();
+  const insets = React.useSafeAreaInsets();
   
   // State
   const [config, setConfig] = React.useState<ToastConfig | null>(null);
   const [isVisible, setIsVisible] = React.useState(false);
   
   // Animation values
-  const translateY = useSharedValue(100);
-  const opacity = useSharedValue(0);
-  const scale = useSharedValue(0.9);
+  const translateY = React.useSharedValue(100);
+  const opacity = React.useSharedValue(0);
+  const scale = React.useSharedValue(0.9);
   
   // Get duration in milliseconds
   const getDuration = (duration: ToastDuration = defaultDuration): number => {
@@ -117,7 +106,7 @@ export const Toast = forwardRef<ToastRef, ToastProps>(({
   };
   
   // Show toast
-  const show = useCallback((toastConfig: ToastConfig) => {
+  const show = React.useCallback((toastConfig: ToastConfig) => {
     setConfig(toastConfig);
     setIsVisible(true);
     
@@ -126,7 +115,7 @@ export const Toast = forwardRef<ToastRef, ToastProps>(({
       const hapticType = toastConfig.type === 'error' ? 'notificationError' 
         : toastConfig.type === 'success' ? 'notificationSuccess'
         : 'impactLight';
-      HapticFeedback.trigger(hapticType);
+      // HapticFeedback.trigger(hapticType); // Removed react-native-haptic-feedback
     }
     
     // Animate in
@@ -152,7 +141,7 @@ export const Toast = forwardRef<ToastRef, ToastProps>(({
   }, [defaultPosition, translateY, scale, opacity]);
   
   // Hide toast
-  const hide = useCallback(() => {
+  const hide = React.useCallback(() => {
     const position = config?.position || defaultPosition;
     
     if (position === 'top') {
@@ -177,7 +166,7 @@ export const Toast = forwardRef<ToastRef, ToastProps>(({
   }));
   
   // Animated styles
-  const animatedStyle = useAnimatedStyle(() => {
+  const animatedStyle = React.useAnimatedStyle(() => {
     const position = config?.position || defaultPosition;
     
     if (position === 'center') {
