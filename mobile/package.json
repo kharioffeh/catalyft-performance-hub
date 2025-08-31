@@ -91,6 +91,7 @@
     "expo-updates": "~0.25.18",
     "expo-web-browser": "~13.0.3",
     "firebase": "^11.1.0",
+    "lottie-react-native": "^7.3.3",
     "mixpanel-react-native": "^3.0.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,80 +8,65 @@ import {
   SafeAreaView,
   Dimensions,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import EnhancedAnalyticsService, { EVENTS } from '../../services/analytics.enhanced';
-import SupabaseAnalyticsService from '../../services/supabaseAnalytics';
-import { supabase } from '../../config/supabase';
+import AnalyticsService, { EVENTS } from '../../services/analytics';
+import ProgressBar from '../../components/onboarding/ProgressBar';
+import Icon from '../../components/ui/Icon';
 
 const { width, height } = Dimensions.get('window');
 
 interface Goal {
   id: string;
-  title: string;
-  description: string;
-  icon: string;
+  label: string;
+  emoji: string;
   color: string;
-  motivation: string;
 }
 
 const goals: Goal[] = [
   {
     id: 'lose_weight',
-    title: 'Lose Weight',
-    description: 'Burn calories and shed pounds',
-    icon: 'scale-outline',
+    label: 'Lose Weight',
+    emoji: '⚖️',
     color: '#FF6B6B',
-    motivation: 'Every step counts towards your goal!',
   },
   {
     id: 'build_muscle',
-    title: 'Build Muscle',
-    description: 'Gain strength and muscle mass',
-    icon: 'barbell-outline',
+    label: 'Build Muscle',
+    emoji: '💪',
     color: '#4ECDC4',
-    motivation: 'Strength comes from consistency!',
   },
   {
     id: 'get_stronger',
-    title: 'Get Stronger',
-    description: 'Increase your overall strength',
-    icon: 'fitness-outline',
+    label: 'Get Stronger',
+    emoji: '🏋️',
     color: '#6C63FF',
-    motivation: 'Push your limits, grow stronger!',
   },
   {
     id: 'improve_endurance',
-    title: 'Improve Endurance',
-    description: 'Boost stamina and cardiovascular health',
-    icon: 'heart-outline',
+    label: 'Improve Endurance',
+    emoji: '❤️',
     color: '#FF9F1C',
-    motivation: 'Endurance builds resilience!',
   },
   {
     id: 'general_fitness',
-    title: 'General Fitness',
-    description: 'Overall health and wellness',
-    icon: 'body-outline',
+    label: 'General Fitness',
+    emoji: '🌟',
     color: '#A8E6CF',
-    motivation: 'Health is wealth, fitness is freedom!',
   },
   {
     id: 'sport_specific',
-    title: 'Sport Specific',
-    description: 'Train for a specific sport or activity',
-    icon: 'football-outline',
+    label: 'Sport Specific',
+    emoji: '⚽',
     color: '#FFD93D',
-    motivation: 'Master your sport, master yourself!',
   },
 ];
 
 const GoalSelectionScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
-  const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 5; // Assuming 5 onboarding steps
+  const currentStep = 1;
+  const totalSteps = 5;
 
   const toggleGoal = (goalId: string) => {
     setSelectedGoals(prev => {
@@ -95,214 +80,100 @@ const GoalSelectionScreen: React.FC = () => {
 
   const handleContinue = async () => {
     if (selectedGoals.length === 0) {
-      // Show error or prompt to select at least one goal
       return;
     }
 
-    EnhancedAnalyticsService.trackGoalSelected(selectedGoals);
-    
-    // Save to Supabase
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      await SupabaseAnalyticsService.initialize(user.id);
-      await SupabaseAnalyticsService.saveOnboardingProgress('goals', {
-        goals: selectedGoals,
-      });
-      await SupabaseAnalyticsService.saveUserProfile({
-        goals: selectedGoals,
-      });
-    }
+    AnalyticsService.trackGoalSelected(selectedGoals);
 
     navigation.navigate('PlanSelection');
   };
 
-  const getProgressPercentage = () => {
-    return (currentStep / totalSteps) * 100;
-  };
-
-  const getMotivationalMessage = () => {
-    const messages = [
-      "You're taking the first step towards greatness!",
-      "Every expert was once a beginner. You've got this!",
-      "Your future self will thank you for starting today!",
-      "Small progress is still progress. Keep going!",
-      "You're building habits that will last a lifetime!"
-    ];
-    return messages[Math.floor(Math.random() * messages.length)];
-  };
-
   return (
-    <LinearGradient
-      colors={['#121212', '#1a1a1a', '#0f0f0f']}
-      style={styles.container}
-    >
-      <SafeAreaView style={styles.safeArea}>
-        {/* Header with Progress */}
-        <View style={styles.header}>
-          <View style={styles.progressContainer}>
-            <View style={styles.progressRing}>
-              <View style={[styles.progressFill, { width: `${getProgressPercentage()}%` }]} />
-              <View style={styles.progressCenter}>
-                <Text style={styles.progressText}>{currentStep}/{totalSteps}</Text>
-              </View>
-            </View>
-          </View>
-          <Text style={styles.title}>What are your fitness goals?</Text>
-          <Text style={styles.subtitle}>Select all that apply to get personalized recommendations</Text>
-          
-          {/* Motivational Message */}
-          <View style={styles.motivationContainer}>
-            <Ionicons name="star" size={16} color="#00D4FF" />
-            <Text style={styles.motivationText}>{getMotivationalMessage()}</Text>
-          </View>
-        </View>
-
-        {/* Goals Grid */}
-        <ScrollView 
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.goalsGrid}>
-            {goals.map((goal) => (
-              <TouchableOpacity
-                key={goal.id}
-                style={[
-                  styles.goalCard,
-                  selectedGoals.includes(goal.id) && styles.selectedGoalCard,
-                  { borderColor: goal.color }
-                ]}
-                onPress={() => toggleGoal(goal.id)}
-                activeOpacity={0.8}
-              >
-                <View style={[
-                  styles.goalIcon,
-                  { backgroundColor: selectedGoals.includes(goal.id) ? goal.color : 'rgba(255, 255, 255, 0.1)' }
-                ]}>
-                  <Ionicons 
-                    name={goal.icon as any} 
-                    size={24} 
-                    color={selectedGoals.includes(goal.id) ? '#FFFFFF' : goal.color} 
-                  />
-                </View>
-                <Text style={styles.goalTitle}>{goal.title}</Text>
-                <Text style={styles.goalDescription}>{goal.description}</Text>
+    <View style={styles.container}>
+      <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
+      
+      <View style={styles.header}>
+        <Text style={styles.questionTitle}>What brings you here?</Text>
+        <Text style={styles.questionSubtitle}>Select all that apply</Text>
+      </View>
+      
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.goalsGrid}>
+          {goals.map(goal => (
+            <TouchableOpacity
+              key={goal.id}
+              style={[
+                styles.goalCard,
+                selectedGoals.includes(goal.id) && styles.goalCardSelected
+              ]}
+              onPress={() => toggleGoal(goal.id)}
+              activeOpacity={0.8}
+            >
+              <View style={styles.goalContent}>
+                <Text style={styles.goalEmoji}>{goal.emoji}</Text>
+                <Text style={styles.goalText}>{goal.label}</Text>
                 {selectedGoals.includes(goal.id) && (
-                  <View style={styles.motivationBubble}>
-                    <Text style={styles.motivationBubbleText}>{goal.motivation}</Text>
+                  <View style={styles.checkmark}>
+                    <Icon name="check" size={16} color="white" />
                   </View>
                 )}
-              </TouchableOpacity>
-            ))}
-          </View>
-        </ScrollView>
-
-        {/* Bottom Action */}
-        <View style={styles.bottomContainer}>
-          <TouchableOpacity
-            style={[
-              styles.continueButton,
-              selectedGoals.length === 0 && styles.disabledButton
-            ]}
-            onPress={handleContinue}
-            disabled={selectedGoals.length === 0}
-            activeOpacity={0.8}
-          >
-            <LinearGradient
-              colors={['#00D4FF', '#00FF88']}
-              style={styles.gradientButton}
-            >
-              <Text style={styles.continueButtonText}>
-                Continue ({selectedGoals.length} selected)
-              </Text>
-            </LinearGradient>
-          </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          ))}
         </View>
-      </SafeAreaView>
-    </LinearGradient>
+      </ScrollView>
+      
+      <View style={styles.bottomContainer}>
+        <TouchableOpacity 
+          style={[
+            styles.continueButton, 
+            !selectedGoals.length && styles.buttonDisabled
+          ]}
+          onPress={handleContinue}
+          disabled={!selectedGoals.length}
+          activeOpacity={0.8}
+        >
+          <LinearGradient 
+            colors={['#0057FF', '#003FCC']} 
+            style={styles.buttonGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+          >
+            <Text style={styles.buttonText}>Continue</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  safeArea: {
-    flex: 1,
+    backgroundColor: '#FFFFFF',
   },
   header: {
     paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 24,
+    paddingBottom: 32,
     alignItems: 'center',
   },
-  progressContainer: {
-    marginBottom: 24,
-  },
-  progressRing: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-    borderWidth: 4,
-    borderColor: 'rgba(0, 212, 255, 0.3)',
-  },
-  progressFill: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    height: '100%',
-    backgroundColor: '#00D4FF',
-    borderRadius: 36,
-    width: '0%',
-  },
-  progressCenter: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#121212',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  progressText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  title: {
+  questionTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#1A1A1A',
     textAlign: 'center',
     marginBottom: 12,
     lineHeight: 36,
   },
-  subtitle: {
+  questionSubtitle: {
     fontSize: 16,
-    color: '#888888',
+    color: '#666666',
     textAlign: 'center',
     lineHeight: 24,
-    marginBottom: 20,
-  },
-  motivationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 212, 255, 0.1)',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 212, 255, 0.3)',
-  },
-  motivationText: {
-    color: '#00D4FF',
-    fontSize: 14,
-    fontWeight: '500',
-    marginLeft: 8,
-    fontStyle: 'italic',
   },
   scrollView: {
     flex: 1,
@@ -318,81 +189,73 @@ const styles = StyleSheet.create({
   },
   goalCard: {
     width: (width - 64) / 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: '#F8F9FA',
     borderRadius: 16,
-    padding: 16,
+    padding: 20,
     marginBottom: 16,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    minHeight: 140,
+    borderColor: '#E9ECEF',
+    minHeight: 120,
+    position: 'relative',
   },
-  selectedGoalCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderColor: '#00D4FF',
-    shadowColor: '#00D4FF',
+  goalCardSelected: {
+    backgroundColor: '#F0F8FF',
+    borderColor: '#0057FF',
+    shadowColor: '#0057FF',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.15,
     shadowRadius: 8,
-    elevation: 8,
+    elevation: 4,
   },
-  goalIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
+  goalContent: {
     alignItems: 'center',
+    width: '100%',
+  },
+  goalEmoji: {
+    fontSize: 32,
     marginBottom: 12,
   },
-  goalTitle: {
+  goalText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-  goalDescription: {
-    fontSize: 12,
-    color: '#888888',
-    textAlign: 'center',
-    lineHeight: 16,
-  },
-  motivationBubble: {
-    position: 'absolute',
-    bottom: -8,
-    backgroundColor: '#00D4FF',
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    maxWidth: '90%',
-  },
-  motivationBubbleText: {
-    color: '#FFFFFF',
-    fontSize: 10,
     fontWeight: '600',
+    color: '#1A1A1A',
     textAlign: 'center',
+    lineHeight: 20,
+  },
+  checkmark: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#0057FF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   bottomContainer: {
     paddingHorizontal: 24,
     paddingBottom: 24,
+    paddingTop: 16,
   },
   continueButton: {
     borderRadius: 16,
     overflow: 'hidden',
-    elevation: 8,
-    shadowColor: '#00D4FF',
+    elevation: 4,
+    shadowColor: '#0057FF',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.15,
     shadowRadius: 8,
   },
-  disabledButton: {
+  buttonDisabled: {
     opacity: 0.5,
   },
-  gradientButton: {
+  buttonGradient: {
     paddingVertical: 18,
     alignItems: 'center',
   },
-  continueButtonText: {
+  buttonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
