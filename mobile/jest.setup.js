@@ -4,6 +4,13 @@ import '@testing-library/jest-native/extend-expect';
 jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
 jest.mock('react-native/Libraries/EventEmitter/NativeEventEmitter');
 
+// Mock React Native Platform
+jest.mock('react-native/Libraries/Utilities/Platform', () => ({
+  OS: 'ios',
+  Version: '15.0',
+  select: jest.fn((obj) => obj.ios),
+}));
+
 // Mock React Native Gesture Handler
 jest.mock('react-native-gesture-handler', () => {
   const View = require('react-native/Libraries/Components/View/View');
@@ -77,12 +84,16 @@ jest.mock('@segment/analytics-react-native', () => ({
 
 // Mock Mixpanel
 jest.mock('mixpanel-react-native', () => ({
-  Mixpanel: {
+  Mixpanel: jest.fn().mockImplementation(() => ({
     init: jest.fn(),
     track: jest.fn(),
     identify: jest.fn(),
     set: jest.fn(),
-  },
+    getPeople: jest.fn(() => ({
+      set: jest.fn(),
+    })),
+    reset: jest.fn(),
+  })),
 }));
 
 // Mock Firebase
