@@ -12,8 +12,8 @@ import {
   Modal,
   TextInput,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import LinearGradient from 'react-native-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../../store';
 import { Challenge } from '../../types/social';
 import { formatNumber, formatDuration } from '../../utils/formatters';
@@ -63,7 +63,8 @@ export const ChallengesScreen: React.FC = () => {
   };
 
   const navigateToChallengeDetails = (challenge: Challenge) => {
-    navigation.navigate('ChallengeDetails', { challengeId: challenge.id });
+    // navigation.navigate('ChallengeDetails', { challengeId: challenge.id });
+    console.log('Navigate to challenge:', challenge.id);
   };
 
   const getFilteredChallenges = () => {
@@ -98,7 +99,7 @@ export const ChallengesScreen: React.FC = () => {
         >
           <View style={styles.challengeHeader}>
             <View style={styles.challengeIconContainer}>
-              <Icon name={getChallengeIcon(item.type)} size={24} color="white" />
+              <Ionicons name={getChallengeIcon(item.type)} size={24} color="white" />
             </View>
             <View style={styles.challengeInfo}>
               <Text style={styles.challengeName}>{item.name}</Text>
@@ -110,15 +111,15 @@ export const ChallengesScreen: React.FC = () => {
 
           <View style={styles.challengeStats}>
             <View style={styles.statItem}>
-              <Icon name="people" size={16} color="rgba(255,255,255,0.8)" />
+              <Ionicons name="people" size={16} color="rgba(255,255,255,0.8)" />
               <Text style={styles.statText}>{formatNumber(item.participantsCount || 0)}</Text>
             </View>
             <View style={styles.statItem}>
-              <Icon name="calendar" size={16} color="rgba(255,255,255,0.8)" />
+              <Ionicons name="calendar" size={16} color="rgba(255,255,255,0.8)" />
               <Text style={styles.statText}>{daysLeft}d left</Text>
             </View>
             <View style={styles.statItem}>
-              <Icon name="trophy" size={16} color="rgba(255,255,255,0.8)" />
+              <Ionicons name="trophy" size={16} color="rgba(255,255,255,0.8)" />
               <Text style={styles.statText}>{item.points} pts</Text>
             </View>
           </View>
@@ -162,8 +163,8 @@ export const ChallengesScreen: React.FC = () => {
     return gradients[category] || gradients.default;
   };
 
-  const getChallengeIcon = (type: string): string => {
-    const icons: { [key: string]: string } = {
+  const getChallengeIcon = (type: string): keyof typeof Ionicons.glyphMap => {
+    const icons: { [key: string]: keyof typeof Ionicons.glyphMap } = {
       workouts: 'fitness',
       distance: 'walk',
       calories: 'flame',
@@ -186,7 +187,7 @@ export const ChallengesScreen: React.FC = () => {
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Create Challenge</Text>
             <TouchableOpacity onPress={() => setShowCreateModal(false)}>
-              <Icon name="close" size={24} color="#333" />
+              <Ionicons name="close" size={24} color="#333" />
             </TouchableOpacity>
           </View>
 
@@ -277,7 +278,7 @@ export const ChallengesScreen: React.FC = () => {
           style={styles.createChallengeButton}
           onPress={() => setShowCreateModal(true)}
         >
-          <Icon name="add-circle" size={28} color="#4CAF50" />
+          <Ionicons name="add-circle" size={28} color="#4CAF50" />
         </TouchableOpacity>
       </View>
 
@@ -350,7 +351,7 @@ export const ChallengesScreen: React.FC = () => {
           }
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Icon name="trophy-outline" size={64} color="#CCC" />
+              <Ionicons name="trophy-outline" size={64} color="#CCC" />
               <Text style={styles.emptyText}>No challenges found</Text>
               <Text style={styles.emptySubtext}>
                 {activeTab === 'active' 
@@ -387,7 +388,7 @@ export const ChallengesScreen: React.FC = () => {
                   colors={getChallengeGradient(challenge.category)}
                   style={styles.miniChallengeGradient}
                 >
-                  <Icon name={getChallengeIcon(challenge.type)} size={20} color="white" />
+                  <Ionicons name={getChallengeIcon(challenge.type)} size={20} color="white" />
                   <Text style={styles.miniChallengeName}>{challenge.name}</Text>
                   <View style={styles.miniProgressBar}>
                     <View

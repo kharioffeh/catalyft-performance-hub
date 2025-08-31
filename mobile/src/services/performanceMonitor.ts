@@ -170,7 +170,7 @@ class PerformanceMonitor {
     const traceName = `network_${method}_${this.sanitizeUrl(url)}`;
     
     // Start Firebase trace
-    const trace = await performance().startHttpMetric(url, method);
+    const trace = await performance().startTrace(`network_${method}_${this.sanitizeUrl(url)}`);
     trace.putAttribute('method', method);
     
     // Return callback to stop tracking

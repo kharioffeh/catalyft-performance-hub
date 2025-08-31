@@ -495,7 +495,7 @@ class SupabaseAnalyticsService {
       // Get A/B test results
       const { data: abTests } = await supabase
         .from('ab_test_assignments')
-        .select('test_id, variant, converted');
+        .select('test_id, variant, converted, user_id, assigned_at');
       
       return {
         totalEvents: eventCount || 0,

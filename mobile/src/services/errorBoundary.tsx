@@ -68,7 +68,7 @@ class ErrorBoundary extends Component<Props, State> {
     crashlytics().log('Error boundary triggered');
     crashlytics().setAttributes({
       error_boundary: 'true',
-      component_stack: errorInfo.componentStack,
+      component_stack: errorInfo.componentStack || 'unknown',
       error_count: newCount,
     });
 

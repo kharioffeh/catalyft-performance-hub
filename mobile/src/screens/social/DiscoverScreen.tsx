@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 import { useStore } from '../../store';
 import { UserProfile } from '../../types/social';
 import { formatNumber } from '../../utils/formatters';
@@ -29,7 +29,7 @@ export const DiscoverScreen: React.FC = () => {
     searchResults,
     isLoading,
     searchUsers,
-    getSuggestedUsers,
+    loadSuggestedUsers,
     followUser,
     unfollowUser,
     loadUserProfile,
@@ -67,7 +67,8 @@ export const DiscoverScreen: React.FC = () => {
   };
 
   const navigateToProfile = (userId: string) => {
-    navigation.navigate('Profile', { userId });
+    // navigation.navigate('Profile', { userId });
+    console.log('Navigate to profile:', userId);
   };
 
   const renderUserCard = ({ item }: { item: UserProfile }) => (
@@ -85,7 +86,7 @@ export const DiscoverScreen: React.FC = () => {
         <View style={styles.userHeader}>
           <Text style={styles.userName}>{item.fullName || item.username}</Text>
           {item.isVerified && (
-            <Icon name="checkmark-circle" size={16} color="#4CAF50" />
+            <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
           )}
         </View>
         
@@ -132,7 +133,7 @@ export const DiscoverScreen: React.FC = () => {
         {['30 Day Abs', 'Morning Run Club', 'Push-up Challenge', 'Yoga Flow'].map((challenge, index) => (
           <TouchableOpacity key={index} style={styles.trendingCard}>
             <View style={styles.trendingCardContent}>
-              <Icon name="trophy" size={24} color="#FFD700" />
+              <Ionicons name="trophy" size={24} color="#FFD700" />
               <Text style={styles.trendingTitle}>{challenge}</Text>
               <Text style={styles.trendingParticipants}>
                 {formatNumber(Math.floor(Math.random() * 10000))} participants
@@ -147,10 +148,10 @@ export const DiscoverScreen: React.FC = () => {
         {['HIIT Blast', 'Strength Training', 'Cardio Mix', 'Flexibility Flow'].map((workout, index) => (
           <TouchableOpacity key={index} style={styles.workoutCard}>
             <View style={styles.workoutCardContent}>
-              <Icon name="fitness" size={24} color="#FF6B6B" />
+              <Ionicons name="fitness" size={24} color="#FF6B6B" />
               <Text style={styles.workoutTitle}>{workout}</Text>
               <View style={styles.workoutStats}>
-                <Icon name="flame" size={14} color="#FF6B6B" />
+                                  <Ionicons name="flame" size={14} color="#FF6B6B" />
                 <Text style={styles.workoutCalories}>
                   {200 + Math.floor(Math.random() * 300)} cal
                 </Text>
@@ -165,7 +166,7 @@ export const DiscoverScreen: React.FC = () => {
   const renderNearbyUsers = () => (
     <View style={styles.nearbySection}>
       <View style={styles.locationHeader}>
-        <Icon name="location" size={20} color="#4CAF50" />
+        <Ionicons name="location" size={20} color="#4CAF50" />
         <Text style={styles.locationText}>San Francisco, CA</Text>
         <TouchableOpacity>
           <Text style={styles.changeLocation}>Change</Text>
@@ -185,7 +186,7 @@ export const DiscoverScreen: React.FC = () => {
         />
       ) : (
         <View style={styles.emptyState}>
-          <Icon name="people" size={48} color="#CCC" />
+          <Ionicons name="people" size={48} color="#CCC" />
           <Text style={styles.emptyText}>No nearby users found</Text>
           <Text style={styles.emptySubtext}>Try expanding your search radius</Text>
         </View>
@@ -199,7 +200,7 @@ export const DiscoverScreen: React.FC = () => {
     <View style={styles.container}>
       {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <Icon name="search" size={20} color="#666" style={styles.searchIcon} />
+        <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search users, workouts, or challenges..."
@@ -209,7 +210,7 @@ export const DiscoverScreen: React.FC = () => {
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => setSearchQuery('')}>
-            <Icon name="close-circle" size={20} color="#666" />
+            <Ionicons name="close-circle" size={20} color="#666" />
           </TouchableOpacity>
         )}
       </View>
@@ -258,7 +259,7 @@ export const DiscoverScreen: React.FC = () => {
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Icon name="search" size={48} color="#CCC" />
+              <Ionicons name="search" size={48} color="#CCC" />
               <Text style={styles.emptyText}>No results found</Text>
               <Text style={styles.emptySubtext}>Try searching for something else</Text>
             </View>
@@ -280,7 +281,7 @@ export const DiscoverScreen: React.FC = () => {
               contentContainerStyle={styles.listContent}
               ListEmptyComponent={
                 <View style={styles.emptyState}>
-                  <Icon name="people" size={48} color="#CCC" />
+                  <Ionicons name="people" size={48} color="#CCC" />
                   <Text style={styles.emptyText}>No suggestions yet</Text>
                   <Text style={styles.emptySubtext}>Complete your profile to get personalized suggestions</Text>
                 </View>

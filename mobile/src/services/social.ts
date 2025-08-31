@@ -776,7 +776,7 @@ class SocialService {
         .eq('user_id', user.id);
 
       if (error) throw error;
-      return data?.map(d => d.challenge) || [];
+      return (data?.map(d => d.challenge as Challenge) || []) as Challenge[];
     } catch (error: any) {
       console.error('Error fetching user challenges:', error);
       throw error;
@@ -991,11 +991,11 @@ class SocialService {
         .eq('user_id', userId);
 
       if (error) throw error;
-      return data?.map(d => ({
+      return (data?.map(d => ({
         ...d.achievement,
         isUnlocked: true,
         unlockedAt: d.unlocked_at,
-      })) || [];
+      })) || []) as Achievement[];
     } catch (error: any) {
       console.error('Error fetching user achievements:', error);
       throw error;
@@ -1027,7 +1027,7 @@ class SocialService {
         ...data.achievement,
         isUnlocked: true,
         unlockedAt: new Date(),
-      };
+      } as Achievement;
     } catch (error: any) {
       console.error('Error unlocking achievement:', error);
       throw error;

@@ -11,6 +11,7 @@ import { UserSlice, createUserSlice } from './slices/userSlice';
 import { WorkoutSlice, createWorkoutSlice } from './slices/workoutSlice';
 import { NutritionSlice, createNutritionSlice } from './slices/nutritionSlice';
 import { SocialSlice, createSocialSlice } from './slices/socialSlice';
+import { Achievement } from '../types/social';
 
 // Initialize MMKV for store persistence
 const storage = new MMKV({
@@ -33,7 +34,9 @@ const mmkvStorage: StateStorage = {
 };
 
 // Combined store type
-export type StoreState = UserSlice & WorkoutSlice & NutritionSlice & SocialSlice & {
+export type StoreState = Omit<UserSlice, 'achievements'> & WorkoutSlice & NutritionSlice & SocialSlice & {
+  // Override achievements to use the social slice version
+  achievements: Achievement[];
   // Global state
   isOnline: boolean;
   isSyncing: boolean;
