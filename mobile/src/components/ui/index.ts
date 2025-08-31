@@ -27,6 +27,11 @@ export { WorkoutTimer } from './WorkoutTimer';
 export { EmptyState } from './EmptyState';
 export { ErrorBoundary } from './ErrorBoundary';
 
+// Navigation Components
+export { default as AnimatedTabBar } from './AnimatedTabBar';
+export { default as AdvancedAnimatedTabBar } from './AdvancedAnimatedTabBar';
+export { default as TabBarDemo } from './TabBarDemo';
+
 // Component Types
 export type { ButtonProps, ButtonVariant, ButtonSize } from './Button';
 export type { CardProps, CardVariant, CardSize } from './Card';
