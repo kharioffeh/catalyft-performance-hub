@@ -81,6 +81,46 @@ export const typography = {
     fontWeight: '600' as TextStyle['fontWeight'], 
     textTransform: 'uppercase' as TextStyle['textTransform'],
     letterSpacing: 0.5
+  },
+  
+  // Additional properties for screens
+  sizes: {
+    h1: 32,
+    h2: 28,
+    h3: 24,
+    h4: 20,
+    h5: 18,
+    h6: 16,
+    display1: 56,
+    display2: 48,
+    display3: 40,
+    large: 18,
+    regular: 16,
+    medium: 16,
+    small: 14,
+    button: 16,
+  },
+  weights: {
+    thin: '100' as TextStyle['fontWeight'],
+    light: '300' as TextStyle['fontWeight'],
+    regular: '400' as TextStyle['fontWeight'],
+    medium: '500' as TextStyle['fontWeight'],
+    semibold: '600' as TextStyle['fontWeight'],
+    bold: '700' as TextStyle['fontWeight'],
+    extraBold: '800' as TextStyle['fontWeight'],
+    black: '900' as TextStyle['fontWeight'],
+  },
+  lineHeights: {
+    tight: 1.2,
+    normal: 1.4,
+    relaxed: 1.6,
+    loose: 1.8,
+  },
+  letterSpacing: {
+    tight: -0.5,
+    normal: 0,
+    wide: 0.5,
+    wider: 1,
   }
 };
 

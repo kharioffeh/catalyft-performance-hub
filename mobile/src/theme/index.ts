@@ -20,6 +20,14 @@ export const theme = {
   spacing,
   typography,
   componentSpacing,
+  gradients: {
+    primary: ['#0057FF', '#4A9EFF'],
+    secondary: ['#FF6B00', '#FF8A65'],
+    success: ['#00C853', '#4CAF50'],
+    workout: ['#FF6B00', '#FF8A65'],
+    warning: ['#FF9800', '#FFB74D'],
+    rest: ['#9C27B0', '#BA68C8']
+  },
   
   // Border radius system
   borderRadius: {

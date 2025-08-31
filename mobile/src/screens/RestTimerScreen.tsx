@@ -52,7 +52,8 @@ export default function RestTimerScreen() {
       Animated.spring(scaleAnim, {
         toValue: 1,
         useNativeDriver: true,
-        ...theme.animation.spring.bouncy,
+        tension: 100,
+        friction: 8,
       }),
       Animated.timing(glowAnim, {
         toValue: 1,

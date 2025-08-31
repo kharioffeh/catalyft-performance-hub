@@ -10,7 +10,7 @@ import {
   Linking,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 
 export const HelpSupportScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -123,12 +123,12 @@ export const HelpSupportScreen: React.FC = () => {
     >
       <View style={styles.faqHeader}>
         <View style={styles.faqIcon}>
-          <Icon name={faq.icon} size={20} color="#007AFF" />
+          <Ionicons name={faq.icon} size={20} color="#007AFF" />
         </View>
         <View style={styles.faqQuestion}>
           <Text style={styles.faqQuestionText}>{faq.question}</Text>
         </View>
-        <Icon 
+        <Ionicons 
           name={expandedFAQ === faq.id ? 'chevron-up' : 'chevron-down'} 
           size={20} 
           color="#C7C7CC" 
@@ -151,14 +151,14 @@ export const HelpSupportScreen: React.FC = () => {
     >
       <View style={styles.supportOptionLeft}>
         <View style={styles.supportOptionIcon}>
-          <Icon name={option.icon} size={20} color="#007AFF" />
+          <Ionicons name={option.icon} size={20} color="#007AFF" />
         </View>
         <View style={styles.supportOptionInfo}>
           <Text style={styles.supportOptionTitle}>{option.title}</Text>
           <Text style={styles.supportOptionSubtitle}>{option.subtitle}</Text>
         </View>
       </View>
-      <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+      <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
     </TouchableOpacity>
   );
 
@@ -169,7 +169,7 @@ export const HelpSupportScreen: React.FC = () => {
       onPress={action.action}
     >
       <View style={styles.quickActionIcon}>
-        <Icon name={action.icon} size={24} color="#007AFF" />
+        <Ionicons name={action.icon} size={24} color="#007AFF" />
       </View>
       <Text style={styles.quickActionTitle}>{action.title}</Text>
       <Text style={styles.quickActionSubtitle}>{action.subtitle}</Text>
@@ -185,7 +185,7 @@ export const HelpSupportScreen: React.FC = () => {
             onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
-            <Icon name="arrow-back" size={24} color="#007AFF" />
+            <Ionicons name="arrow-back" size={24} color="#007AFF" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Help & Support</Text>
           <View style={{ width: 40 }} />
@@ -197,7 +197,7 @@ export const HelpSupportScreen: React.FC = () => {
         <View style={styles.overviewSection}>
           <View style={styles.overviewHeader}>
             <View style={styles.overviewIcon}>
-              <Icon name="help-circle" size={32} color="#007AFF" />
+              <Ionicons name="help-circle" size={32} color="#007AFF" />
             </View>
             <View style={styles.overviewInfo}>
               <Text style={styles.overviewTitle}>How can we help you?</Text>
@@ -239,7 +239,7 @@ export const HelpSupportScreen: React.FC = () => {
             <TouchableOpacity style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="globe-outline" size={20} color="#007AFF" />
+                  <Ionicons name="globe-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Website</Text>
@@ -248,13 +248,13 @@ export const HelpSupportScreen: React.FC = () => {
                   </Text>
                 </View>
               </View>
-              <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="logo-youtube" size={20} color="#007AFF" />
+                  <Ionicons name="logo-youtube" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>YouTube Channel</Text>
@@ -263,13 +263,13 @@ export const HelpSupportScreen: React.FC = () => {
                   </Text>
                 </View>
               </View>
-              <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="logo-twitter" size={20} color="#007AFF" />
+                  <Ionicons name="logo-twitter" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Social Media</Text>
@@ -278,7 +278,7 @@ export const HelpSupportScreen: React.FC = () => {
                   </Text>
                 </View>
               </View>
-              <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
             </TouchableOpacity>
           </View>
         </View>
@@ -290,7 +290,7 @@ export const HelpSupportScreen: React.FC = () => {
             <TouchableOpacity style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="star-outline" size={20} color="#007AFF" />
+                  <Ionicons name="star-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Rate the App</Text>
@@ -299,13 +299,13 @@ export const HelpSupportScreen: React.FC = () => {
                   </Text>
                 </View>
               </View>
-              <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="chatbox-outline" size={20} color="#007AFF" />
+                  <Ionicons name="chatbox-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Send Feedback</Text>
@@ -314,13 +314,13 @@ export const HelpSupportScreen: React.FC = () => {
                   </Text>
                 </View>
               </View>
-              <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="bug-outline" size={20} color="#007AFF" />
+                  <Ionicons name="bug-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Report a Bug</Text>
@@ -329,7 +329,7 @@ export const HelpSupportScreen: React.FC = () => {
                   </Text>
                 </View>
               </View>
-              <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
             </TouchableOpacity>
           </View>
         </View>
@@ -337,7 +337,7 @@ export const HelpSupportScreen: React.FC = () => {
         {/* Support Info */}
         <View style={styles.infoSection}>
           <View style={styles.infoHeader}>
-            <Icon name="information-circle" size={24} color="#007AFF" />
+            <Ionicons name="information-circle" size={24} color="#007AFF" />
             <Text style={styles.infoTitle}>Support Hours</Text>
           </View>
           <Text style={styles.infoText}>

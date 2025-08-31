@@ -95,13 +95,13 @@ export default function ExerciseDetailScreen() {
       }
     } else if (exercise) {
       // Start new workout
-      navigation.navigate('CreateWorkout', { selectedExercise: exercise });
+      navigation.navigate('CreateWorkout');
     }
   };
 
   const handleStartWorkout = () => {
     if (exercise) {
-      navigation.navigate('CreateWorkout', { selectedExercise: exercise });
+      navigation.navigate('CreateWorkout');
     }
   };
 
@@ -113,13 +113,13 @@ export default function ExerciseDetailScreen() {
       shoulders: theme.colors.light.warning,
       arms: theme.colors.light.error,
       core: theme.colors.light.info,
-      full_body: theme.colors.light.neutral600,
+      full_body: theme.colors.light.neutral.slate,
     };
-    return colors[muscleGroup as keyof typeof colors] || theme.colors.light.neutral500;
+    return colors[muscleGroup as keyof typeof colors] || theme.colors.light.neutral.slate;
   };
 
-  const getEquipmentIcon = (equipment: string) => {
-    const icons = {
+  const getEquipmentIcon = (equipment: string): keyof typeof Ionicons.glyphMap => {
+    const icons: { [key: string]: keyof typeof Ionicons.glyphMap } = {
       barbell: 'barbell-outline',
       dumbbell: 'fitness-outline',
       machine: 'settings-outline',
@@ -145,7 +145,7 @@ export default function ExerciseDetailScreen() {
           style={[
             styles.heroPlaceholder,
             {
-              backgroundColor: exercise ? getMuscleGroupColor(exercise.muscleGroup) : theme.colors.light.neutral400,
+              backgroundColor: exercise ? getMuscleGroupColor(exercise.muscleGroup) : theme.colors.light.neutral.slate,
               transform: [{ scale: imageScale }],
             },
           ]}
@@ -211,7 +211,7 @@ export default function ExerciseDetailScreen() {
             color={exercise ? getMuscleGroupColor(exercise.muscleGroup) : theme.colors.light.textSecondary}
           />
           <Text style={[styles.metaText, { color: exercise ? getMuscleGroupColor(exercise.muscleGroup) : theme.colors.light.textSecondary }]}>
-            {exercise?.muscleGroup.replace('_', ' ').charAt(0).toUpperCase() + exercise?.muscleGroup.replace('_', ' ').slice(1)}
+            {exercise?.muscleGroup?.replace('_', ' ').charAt(0).toUpperCase() + exercise?.muscleGroup?.replace('_', ' ').slice(1)}
           </Text>
         </View>
         
@@ -222,14 +222,14 @@ export default function ExerciseDetailScreen() {
             color={theme.colors.light.textSecondary}
           />
           <Text style={styles.metaText}>
-            {exercise?.equipment.charAt(0).toUpperCase() + exercise?.equipment.slice(1)}
+            {exercise?.equipment?.charAt(0).toUpperCase() + exercise?.equipment?.slice(1)}
           </Text>
         </View>
         
         <View style={styles.metaItem}>
           <Ionicons name="fitness-outline" size={16} color={theme.colors.light.textSecondary} />
           <Text style={styles.metaText}>
-            {exercise?.category.charAt(0).toUpperCase() + exercise?.category.slice(1)}
+            {exercise?.category?.charAt(0).toUpperCase() + exercise?.category?.slice(1)}
           </Text>
         </View>
       </View>
@@ -333,7 +333,7 @@ export default function ExerciseDetailScreen() {
             <TouchableOpacity
               key={relatedExercise.id}
               style={styles.relatedCard}
-              onPress={() => navigation.push('ExerciseDetail', { exerciseId: relatedExercise.id })}
+              onPress={() => navigation.navigate('ExerciseDetail', { exerciseId: relatedExercise.id })}
             >
               {relatedExercise.imageUrl ? (
                 <Image

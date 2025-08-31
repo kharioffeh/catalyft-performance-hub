@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch, Alert } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function SettingsScreen() {
   const [offlineMode, setOfflineMode] = React.useState(false);
@@ -38,7 +38,7 @@ export default function SettingsScreen() {
       id: 'notifications',
       title: 'Push Notifications',
       subtitle: 'Workout reminders and updates',
-      icon: 'notifications-outline',
+      icon: 'notifications-outline' as keyof typeof Ionicons.glyphMap,
       value: notifications,
       onToggle: setNotifications,
       type: 'toggle'
@@ -47,7 +47,7 @@ export default function SettingsScreen() {
       id: 'autoSync',
       title: 'Auto Sync',
       subtitle: 'Automatically sync when online',
-      icon: 'sync-outline',
+      icon: 'sync-outline' as keyof typeof Ionicons.glyphMap,
       value: autoSync,
       onToggle: setAutoSync,
       type: 'toggle'
@@ -56,7 +56,7 @@ export default function SettingsScreen() {
       id: 'darkMode',
       title: 'Dark Mode',
       subtitle: 'Use dark theme',
-      icon: 'moon-outline',
+      icon: 'moon-outline' as keyof typeof Ionicons.glyphMap,
       value: darkMode,
       onToggle: setDarkMode,
       type: 'toggle'
@@ -68,7 +68,7 @@ export default function SettingsScreen() {
       id: 'account',
       title: 'Account Settings',
       subtitle: 'Profile, privacy, and security',
-      icon: 'person-outline',
+      icon: 'person-outline' as keyof typeof Ionicons.glyphMap,
       onPress: () => Alert.alert('Account Settings', 'Navigate to account settings'),
       type: 'navigation'
     },
@@ -76,7 +76,7 @@ export default function SettingsScreen() {
       id: 'appearance',
       title: 'Appearance',
       subtitle: 'Theme and display preferences',
-      icon: 'color-palette-outline',
+      icon: 'color-palette-outline' as keyof typeof Ionicons.glyphMap,
       onPress: () => Alert.alert('Appearance', 'Navigate to appearance settings'),
       type: 'navigation'
     },
@@ -84,7 +84,7 @@ export default function SettingsScreen() {
       id: 'units',
       title: 'Units & Measurements',
       subtitle: 'Imperial or metric system',
-      icon: 'scale-outline',
+      icon: 'scale-outline' as keyof typeof Ionicons.glyphMap,
       onPress: () => Alert.alert('Units', 'Navigate to units settings'),
       type: 'navigation'
     },
@@ -92,7 +92,7 @@ export default function SettingsScreen() {
       id: 'export',
       title: 'Export Data',
       subtitle: 'Download your fitness data',
-      icon: 'download-outline',
+      icon: 'download-outline' as keyof typeof Ionicons.glyphMap,
       onPress: () => Alert.alert('Export', 'Navigate to data export'),
       type: 'navigation'
     },
@@ -100,7 +100,7 @@ export default function SettingsScreen() {
       id: 'help',
       title: 'Help & Support',
       subtitle: 'Get help and contact support',
-      icon: 'help-circle-outline',
+      icon: 'help-circle-outline' as keyof typeof Ionicons.glyphMap,
       onPress: () => Alert.alert('Help', 'Navigate to help and support'),
       type: 'navigation'
     },
@@ -108,7 +108,7 @@ export default function SettingsScreen() {
       id: 'about',
       title: 'About',
       subtitle: 'App version and information',
-      icon: 'information-circle-outline',
+      icon: 'information-circle-outline' as keyof typeof Ionicons.glyphMap,
       onPress: () => Alert.alert('About', 'Navigate to about screen'),
       type: 'navigation'
     }
@@ -130,7 +130,7 @@ export default function SettingsScreen() {
         >
           <View style={styles.premiumHeader}>
             <View style={styles.premiumIconContainer}>
-              <Icon name="star" size={24} color="#FFD700" />
+              <Ionicons name="star" size={24} color="#FFD700" />
             </View>
             <View style={styles.premiumInfo}>
               <Text style={styles.premiumTitle}>Premium Status</Text>
@@ -157,7 +157,7 @@ export default function SettingsScreen() {
         <View style={styles.settingItem} testID="offline-setting">
           <View style={styles.settingLeft}>
             <View style={styles.settingIcon}>
-              <Icon name="wifi-outline" size={20} color="#007AFF" />
+              <Ionicons name="wifi-outline" size={20} color="#007AFF" />
             </View>
             <View style={styles.settingInfo}>
               <Text style={styles.settingTitle}>Offline Mode</Text>
@@ -180,13 +180,13 @@ export default function SettingsScreen() {
         <View style={styles.statusContainer}>
           {offlineMode ? (
             <View style={styles.offlineStatus} testID="offline-mode-active">
-              <Icon name="alert-circle-outline" size={20} color="#F59E0B" />
+              <Ionicons name="alert-circle-outline" size={20} color="#F59E0B" />
               <Text style={styles.statusText}>📶 Offline Mode Active</Text>
               <Text style={styles.queueText}>{queuedActions} actions queued</Text>
             </View>
           ) : (
             <View style={styles.onlineStatus} testID="offline-mode-inactive">
-              <Icon name="checkmark-circle-outline" size={20} color="#10B981" />
+              <Ionicons name="checkmark-circle-outline" size={20} color="#10B981" />
               <Text style={styles.statusText}>🌐 Online</Text>
               <View testID="sync-completed" style={{ opacity: 0 }}>
                 <Text>Sync completed</Text>
@@ -203,7 +203,7 @@ export default function SettingsScreen() {
         >
           <View style={styles.settingLeft}>
             <View style={styles.settingIcon}>
-              <Icon name="list-outline" size={20} color="#007AFF" />
+              <Ionicons name="list-outline" size={20} color="#007AFF" />
             </View>
             <View style={styles.settingInfo}>
               <Text style={styles.queueTitle}>Action Queue</Text>
@@ -212,7 +212,7 @@ export default function SettingsScreen() {
               </Text>
             </View>
           </View>
-          <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+          <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
         </TouchableOpacity>
 
         {isQueueVisible && (
@@ -238,7 +238,7 @@ export default function SettingsScreen() {
           <View key={item.id} style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <View style={styles.settingIcon}>
-                <Icon name={item.icon} size={20} color="#007AFF" />
+                <Ionicons name={item.icon} size={20} color="#007AFF" />
               </View>
               <View style={styles.settingInfo}>
                 <Text style={styles.settingTitle}>{item.title}</Text>
@@ -269,18 +269,18 @@ export default function SettingsScreen() {
             key={item.id} 
             style={styles.settingItem}
             onPress={item.onPress}
-            testID={item.testID}
+
           >
             <View style={styles.settingLeft}>
               <View style={styles.settingIcon}>
-                <Icon name={item.icon} size={20} color="#007AFF" />
+                <Ionicons name={item.icon} size={20} color="#007AFF" />
               </View>
               <View style={styles.settingInfo}>
                 <Text style={styles.settingTitle}>{item.title}</Text>
                 <Text style={styles.settingSubtitle}>{item.subtitle}</Text>
               </View>
             </View>
-            <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
           </TouchableOpacity>
         ))}
       </View>

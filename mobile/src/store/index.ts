@@ -11,7 +11,8 @@ import { UserSlice, createUserSlice } from './slices/userSlice';
 import { WorkoutSlice, createWorkoutSlice } from './slices/workoutSlice';
 import { NutritionSlice, createNutritionSlice } from './slices/nutritionSlice';
 import { SocialSlice, createSocialSlice } from './slices/socialSlice';
-import { Achievement } from '../types/social';
+import { Achievement, UserProfile } from '../types/social';
+import { Food } from '../types/nutrition';
 
 // Initialize MMKV for store persistence
 const storage = new MMKV({
@@ -34,9 +35,10 @@ const mmkvStorage: StateStorage = {
 };
 
 // Combined store type
-export type StoreState = Omit<UserSlice, 'achievements'> & WorkoutSlice & NutritionSlice & SocialSlice & {
+export type StoreState = Omit<UserSlice, 'achievements'> & WorkoutSlice & NutritionSliceWithFoodSearch & Omit<SocialSlice, 'searchResults'> & {
   // Override achievements to use the social slice version
   achievements: Achievement[];
+
   // Global state
   isOnline: boolean;
   isSyncing: boolean;
@@ -52,6 +54,16 @@ export type StoreState = Omit<UserSlice, 'achievements'> & WorkoutSlice & Nutrit
   syncData: () => Promise<void>;
   clearAllData: () => void;
   resetStore: () => void;
+};
+
+// Create a type for the social slice that overrides searchResults
+type SocialSliceWithFoodSearch = Omit<SocialSlice, 'searchResults'> & {
+  searchResults: UserProfile[];
+};
+
+// Create a type for the nutrition slice that overrides searchResults
+type NutritionSliceWithFoodSearch = Omit<NutritionSlice, 'searchResults'> & {
+  searchResults: Food[];
 };
 
 // Initial state
@@ -105,7 +117,14 @@ export const useStore = create<StoreState>()(
           ...createUserSlice(set as any, get, api as any),
           ...createWorkoutSlice(),  // No parameters needed since it returns static object
           ...createNutritionSlice(set as any, get, api as any),
-          ...createSocialSlice(set as any, get, api as any),
+          ...(() => {
+            const socialSlice = createSocialSlice(set as any, get, api as any);
+            // Override searchResults to be Food[] for nutrition compatibility
+            return {
+              ...socialSlice,
+              searchResults: [] as Food[],
+            };
+          })(),
           
           // Global actions
           setIsOnline: (isOnline: boolean) => set({ isOnline }),

@@ -194,7 +194,7 @@ export const DiscoverScreen: React.FC = () => {
     </View>
   );
 
-  const displayUsers = searchQuery.trim() ? searchResults : suggestedUsers;
+  const displayUsers = searchQuery.trim() ? (searchResults as UserProfile[]) : suggestedUsers;
 
   return (
     <View style={styles.container}>

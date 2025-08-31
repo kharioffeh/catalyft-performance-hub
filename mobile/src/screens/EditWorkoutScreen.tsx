@@ -50,13 +50,7 @@ export default function EditWorkoutScreen() {
   }, [workoutId, workoutHistory]);
 
   const handleAddExercise = () => {
-    navigation.navigate('ExerciseLibrary', { 
-      mode: 'select',
-      onSelect: (exercise: Exercise) => {
-        setSelectedExercises(prev => [...prev, exercise]);
-        navigation.goBack();
-      }
-    });
+    navigation.navigate('ExerciseLibrary');
   };
 
   const handleRemoveExercise = (index: number) => {

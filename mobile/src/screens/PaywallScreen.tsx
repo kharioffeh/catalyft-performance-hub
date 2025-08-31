@@ -73,7 +73,7 @@ export const PaywallScreen: React.FC = () => {
       {/* Hero Section */}
       <View style={styles.heroSection}>
         <LinearGradient
-          colors={theme.colors.light.gradients.workout}
+          colors={theme.gradients.workout}
           style={styles.heroGradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -151,7 +151,7 @@ export const PaywallScreen: React.FC = () => {
           
           <TouchableOpacity style={styles.upgradeButton} onPress={handleUpgrade}>
             <LinearGradient
-              colors={theme.colors.light.gradients.primary}
+              colors={theme.gradients.primary}
               style={styles.upgradeButtonGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}

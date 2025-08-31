@@ -49,7 +49,7 @@ export default function WorkoutListScreen() {
       case 'planned':
         return theme.colors.light.info;
       default:
-        return theme.colors.light.neutral400;
+        return theme.colors.light.neutral.slate;
     }
   };
 
@@ -92,9 +92,9 @@ export default function WorkoutListScreen() {
       shoulders: theme.colors.light.warning,
       arms: theme.colors.light.error,
       core: theme.colors.light.info,
-      full_body: theme.colors.light.neutral600,
+      full_body: theme.colors.light.neutral.slate,
     };
-    return colors[muscleGroup as keyof typeof colors] || theme.colors.light.neutral500;
+    return colors[muscleGroup as keyof typeof colors] || theme.colors.light.neutral.slate;
   };
 
   const renderWorkoutCard = (workout: Workout, index: number) => {
@@ -123,7 +123,7 @@ export default function WorkoutListScreen() {
       >
         <TouchableOpacity
           style={styles.cardContent}
-          onPress={() => navigation.navigate('WorkoutDetail', { workoutId: workout.id })}
+          onPress={() => navigation.navigate('WorkoutSummary', { workoutId: workout.id })}
           activeOpacity={0.9}
         >
           {/* Header with status and date */}
@@ -212,14 +212,14 @@ export default function WorkoutListScreen() {
           <View style={styles.actionButtons}>
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={() => navigation.navigate('WorkoutDetail', { workoutId: workout.id })}
+              onPress={() => navigation.navigate('WorkoutSummary', { workoutId: workout.id })}
             >
               <Text style={styles.actionButtonText}>View Details</Text>
             </TouchableOpacity>
             {workout.status === 'completed' && (
               <TouchableOpacity
                 style={[styles.actionButton, styles.shareButton]}
-                onPress={() => navigation.navigate('ShareWorkout', { workoutId: workout.id })}
+                onPress={() => navigation.navigate('WorkoutSummary', { workoutId: workout.id })}
               >
                 <Ionicons name="share-outline" size={16} color={theme.colors.light.primary} />
                 <Text style={[styles.actionButtonText, { color: theme.colors.light.primary }]}>Share</Text>
@@ -434,7 +434,7 @@ const styles = StyleSheet.create({
   moreTags: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: theme.colors.light.neutral200,
+    backgroundColor: theme.colors.light.neutral.slate,
     borderRadius: 16,
   },
   moreTagsText: {

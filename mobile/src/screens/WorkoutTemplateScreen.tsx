@@ -12,6 +12,8 @@ import {
   Animated,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../types/navigation';
 import { useWorkoutStore } from '../store/slices/workoutSlice';
 import { theme } from '../theme';
 import { WorkoutTemplate, Exercise } from '../types/workout';
@@ -21,7 +23,7 @@ import { Ionicons } from '@expo/vector-icons';
 const { width } = Dimensions.get('window');
 
 export default function WorkoutTemplateScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { templates, loadTemplates, createTemplate, deleteWorkout, startWorkoutFromTemplate } = useWorkoutStore();
   
   const [searchQuery, setSearchQuery] = useState('');
@@ -51,7 +53,7 @@ export default function WorkoutTemplateScreen() {
   }, [searchQuery, templates]);
 
   const handleCreateTemplate = () => {
-    navigation.navigate('CreateTemplate');
+    navigation.navigate('CreateWorkout');
   };
 
   const handleUseTemplate = async (template: WorkoutTemplate) => {
@@ -64,7 +66,7 @@ export default function WorkoutTemplateScreen() {
   };
 
   const handleEditTemplate = (template: WorkoutTemplate) => {
-    navigation.navigate('EditTemplate', { templateId: template.id });
+    navigation.navigate('WorkoutSummary', { workoutId: template.id });
   };
 
   const handleDeleteTemplate = (template: WorkoutTemplate) => {
@@ -101,9 +103,9 @@ export default function WorkoutTemplateScreen() {
       'upper': theme.colors.light.warning,
       'lower': theme.colors.light.error,
       'full_body': theme.colors.light.info,
-      'custom': theme.colors.light.neutral600,
+      'custom': theme.colors.light.neutral.slate,
     };
-    return colors[category as keyof typeof colors] || theme.colors.light.neutral500;
+    return colors[category as keyof typeof colors] || theme.colors.light.neutral.slate;
   };
 
   const renderTemplateCard = ({ item: template, index }: { item: WorkoutTemplate; index: number }) => (
