@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { ChatHeader, ChatMessage, ChatInput, TypingIndicator, WelcomeMessage } from '../../components/aria';
 import { ariaService } from '../../services/ai/openai';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface ChatMessage {
   id: string;
@@ -20,6 +21,7 @@ export const AriaChatScreen = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const flatListRef = useRef<FlatList>(null);
+  const { user } = useAuth();
 
   const sendMessage = useCallback(async (text?: string) => {
     const messageText = text || message.trim();
@@ -94,7 +96,12 @@ export const AriaChatScreen = () => {
 
   const renderContent = () => {
     if (messages.length === 0) {
-      return <WelcomeMessage onSuggestionPress={handleSuggestionPress} />;
+      return (
+        <WelcomeMessage 
+          onSuggestionPress={handleSuggestionPress}
+          userName={user?.fullName}
+        />
+      );
     }
 
     return (

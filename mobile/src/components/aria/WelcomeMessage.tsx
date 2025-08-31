@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 interface WelcomeMessageProps {
   onSuggestionPress: (suggestion: string) => void;
+  userName?: string;
 }
 
 const WELCOME_SUGGESTIONS = [
@@ -15,21 +16,39 @@ const WELCOME_SUGGESTIONS = [
   "What's my progress like?",
 ];
 
-export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ onSuggestionPress }) => {
+export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ 
+  onSuggestionPress, 
+  userName 
+}) => {
+  const getWelcomeTitle = () => {
+    if (userName) {
+      return `Welcome back, ${userName}!`;
+    }
+    return 'Welcome to ARIA';
+  };
+
+  const getWelcomeSubtitle = () => {
+    if (userName) {
+      return `Great to see you again! Your AI fitness coach is here to help you stay on track with your goals. What would you like to work on today?`;
+    }
+    return `Your AI fitness coach is here to help you achieve your goals. Ask me anything about training, nutrition, or recovery.`;
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
         <Ionicons name="fitness" size={48} color="#0057FF" />
       </View>
       
-      <Text style={styles.title}>Welcome to ARIA</Text>
+      <Text style={styles.title}>{getWelcomeTitle()}</Text>
       <Text style={styles.subtitle}>
-        Your AI fitness coach is here to help you achieve your goals. 
-        Ask me anything about training, nutrition, or recovery.
+        {getWelcomeSubtitle()}
       </Text>
       
       <View style={styles.suggestionsContainer}>
-        <Text style={styles.suggestionsTitle}>Try asking:</Text>
+        <Text style={styles.suggestionsTitle}>
+          {userName ? 'Try asking:' : 'Get started with:'}
+        </Text>
         <View style={styles.suggestionsGrid}>
           {WELCOME_SUGGESTIONS.map((suggestion, index) => (
             <TouchableOpacity

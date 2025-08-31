@@ -107,13 +107,39 @@ describe('ARIA Chat Components', () => {
   });
 
   describe('WelcomeMessage', () => {
-    it('renders welcome message and suggestions', () => {
+    it('renders default welcome message when no userName provided', () => {
       const { getByText } = render(
         <WelcomeMessage onSuggestionPress={jest.fn()} />
       );
       expect(getByText('Welcome to ARIA')).toBeTruthy();
+      expect(getByText('Your AI fitness coach is here to help you achieve your goals. Ask me anything about training, nutrition, or recovery.')).toBeTruthy();
+      expect(getByText('Get started with:')).toBeTruthy();
+      expect(getByText('How can I improve my fitness?')).toBeTruthy();
+    });
+
+    it('renders personalized welcome message when userName is provided', () => {
+      const { getByText } = render(
+        <WelcomeMessage 
+          onSuggestionPress={jest.fn()} 
+          userName="John"
+        />
+      );
+      expect(getByText('Welcome back, John!')).toBeTruthy();
+      expect(getByText('Great to see you again! Your AI fitness coach is here to help you stay on track with your goals. What would you like to work on today?')).toBeTruthy();
       expect(getByText('Try asking:')).toBeTruthy();
       expect(getByText('How can I improve my fitness?')).toBeTruthy();
+    });
+
+    it('renders all suggestion chips', () => {
+      const { getByText } = render(
+        <WelcomeMessage onSuggestionPress={jest.fn()} />
+      );
+      expect(getByText('How can I improve my fitness?')).toBeTruthy();
+      expect(getByText('What should I eat today?')).toBeTruthy();
+      expect(getByText('Am I overtraining?')).toBeTruthy();
+      expect(getByText('Show me a workout plan')).toBeTruthy();
+      expect(getByText('How can I recover better?')).toBeTruthy();
+      expect(getByText("What's my progress like?")).toBeTruthy();
     });
   });
 });

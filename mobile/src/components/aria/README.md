@@ -36,10 +36,11 @@ Animated typing indicator with three dots that pulse in sequence.
 - `isVisible: boolean` - Whether to show the typing indicator
 
 ### WelcomeMessage
-Welcome screen displayed when there are no messages, with fitness-related suggestions.
+Welcome screen displayed when there are no messages, with fitness-related suggestions and **personalized user greeting**.
 
 **Props:**
 - `onSuggestionPress: (suggestion: string) => void` - Callback for suggestion selection
+- `userName?: string` - User's name for personalized welcome message
 
 ## Usage
 
@@ -57,7 +58,10 @@ import {
   <ChatHeader />
   
   {messages.length === 0 ? (
-    <WelcomeMessage onSuggestionPress={handleSuggestion} />
+    <WelcomeMessage 
+      onSuggestionPress={handleSuggestion}
+      userName="John" // Optional: provides personalized greeting
+    />
   ) : (
     <FlatList
       data={messages}
@@ -87,9 +91,25 @@ import {
 - **Responsive Layout**: Adapts to different screen sizes and orientations
 - **Suggestion Chips**: Interactive suggestion buttons for better user engagement
 - **Typing Indicators**: Animated indicators when AI is responding
+- **Personalized Welcome**: **User's name is displayed for a personal touch**
 - **Welcome Screen**: Engaging first-time user experience with fitness suggestions
 - **Accessibility**: Proper touch targets and visual feedback
 - **Performance**: Optimized with useCallback and proper component separation
+
+## Personalization Features
+
+### Welcome Message Personalization
+The `WelcomeMessage` component automatically adapts based on whether a `userName` is provided:
+
+**Without userName:**
+- "Welcome to ARIA"
+- "Your AI fitness coach is here to help you achieve your goals..."
+
+**With userName:**
+- "Welcome back, [Name]!"
+- "Great to see you again! Your AI fitness coach is here to help you stay on track..."
+
+This creates a more engaging and personal experience that makes users feel recognized and valued.
 
 ## Styling
 
@@ -110,3 +130,21 @@ The components use a consistent design system with:
 ## Customization
 
 All components can be customized through their props and styles. The design system is built to be flexible while maintaining consistency across the chat interface.
+
+## Integration with Auth
+
+The chat components integrate seamlessly with your existing authentication system:
+
+```tsx
+import { useAuth } from '../contexts/AuthContext';
+
+const { user } = useAuth();
+
+// Pass the user's name for personalization
+<WelcomeMessage 
+  onSuggestionPress={handleSuggestion}
+  userName={user?.fullName}
+/>
+```
+
+This automatically provides personalized greetings for authenticated users while maintaining a great experience for anonymous users.
