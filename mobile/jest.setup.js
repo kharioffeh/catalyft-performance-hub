@@ -48,7 +48,10 @@ jest.mock('react-native-gesture-handler', () => {
 
 // Mock expo modules
 jest.mock('expo-linear-gradient', () => ({
-  LinearGradient: 'LinearGradient',
+  LinearGradient: ({ children, ...props }) => {
+    const React = require('react');
+    return React.createElement('View', props, children);
+  },
 }));
 
 jest.mock('expo-file-system', () => ({
@@ -59,6 +62,14 @@ jest.mock('expo-file-system', () => ({
 jest.mock('expo-sharing', () => ({
   isAvailableAsync: jest.fn().mockResolvedValue(true),
   shareAsync: jest.fn(),
+}));
+
+// Mock lottie-react-native
+jest.mock('lottie-react-native', () => ({
+  default: ({ children, ...props }) => {
+    const React = require('react');
+    return React.createElement('View', props, children);
+  },
 }));
 
 // Mock @expo/vector-icons
@@ -140,6 +151,13 @@ jest.mock('@react-navigation/native', () => ({
   }),
 }));
 
+jest.mock('@react-navigation/stack', () => ({
+  createStackNavigator: () => ({
+    Navigator: ({ children }) => children,
+    Screen: ({ children }) => children,
+  }),
+}));
+
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
@@ -171,6 +189,27 @@ jest.mock('./src/services/supabase', () => ({
     })),
   },
 }));
+
+// Mock react-native-safe-area-context
+jest.mock('react-native-safe-area-context', () => ({
+  SafeAreaProvider: ({ children }) => children,
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+}));
+
+// Mock analytics service
+jest.mock('./src/services/analytics', () => ({
+  default: {
+    track: jest.fn(),
+    identify: jest.fn(),
+    screen: jest.fn(),
+  },
+  EVENTS: {
+    ONBOARDING_STARTED: 'onboarding_started',
+    ONBOARDING_COMPLETED: 'onboarding_completed',
+  },
+}));
+
+// Note: Onboarding component mocks are handled in the individual test files
 
 // Global test utilities
 global.__DEV__ = true;
