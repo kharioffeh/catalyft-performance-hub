@@ -23,7 +23,7 @@ jest.mock('@segment/analytics-react-native', () => ({
   flush: jest.fn(),
 }));
 
-jest.mock('../config/supabase', () => ({
+jest.mock('../services/supabase', () => ({
   supabase: {
     from: jest.fn(() => ({
       select: jest.fn().mockReturnThis(),

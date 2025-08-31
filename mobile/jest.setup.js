@@ -4,6 +4,41 @@ import '@testing-library/jest-native/extend-expect';
 jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
 jest.mock('react-native/Libraries/EventEmitter/NativeEventEmitter');
 
+// Mock React Native Gesture Handler
+jest.mock('react-native-gesture-handler', () => {
+  const View = require('react-native/Libraries/Components/View/View');
+  return {
+    Swipeable: View,
+    DrawerLayout: View,
+    State: {},
+    ScrollView: View,
+    Slider: View,
+    Switch: View,
+    TextInput: View,
+    ToolbarAndroid: View,
+    ViewPagerAndroid: View,
+    DrawerLayoutAndroid: View,
+    WebView: View,
+    NativeViewGestureHandler: View,
+    TapGestureHandler: View,
+    FlingGestureHandler: View,
+    ForceTouchGestureHandler: View,
+    LongPressGestureHandler: View,
+    PanGestureHandler: View,
+    PinchGestureHandler: View,
+    RotationGestureHandler: View,
+    State: {},
+    Directions: {},
+    gestureHandlerRootHOC: jest.fn((el) => el),
+    Swipeable: View,
+    DrawerLayout: View,
+    TouchableHighlight: View,
+    TouchableNativeFeedback: View,
+    TouchableOpacity: View,
+    TouchableWithoutFeedback: View,
+  };
+});
+
 // Mock expo modules
 jest.mock('expo-linear-gradient', () => ({
   LinearGradient: 'LinearGradient',
@@ -17,6 +52,37 @@ jest.mock('expo-file-system', () => ({
 jest.mock('expo-sharing', () => ({
   isAvailableAsync: jest.fn().mockResolvedValue(true),
   shareAsync: jest.fn(),
+}));
+
+// Mock @expo/vector-icons
+jest.mock('@expo/vector-icons', () => ({
+  Ionicons: 'Ionicons',
+  AntDesign: 'AntDesign',
+  MaterialIcons: 'MaterialIcons',
+  FontAwesome: 'FontAwesome',
+  Feather: 'Feather',
+}));
+
+// Mock @segment/analytics-react-native
+jest.mock('@segment/analytics-react-native', () => ({
+  default: {
+    setup: jest.fn(),
+    track: jest.fn(),
+    identify: jest.fn(),
+    screen: jest.fn(),
+    reset: jest.fn(),
+    flush: jest.fn(),
+  },
+}));
+
+// Mock Mixpanel
+jest.mock('mixpanel-react-native', () => ({
+  Mixpanel: {
+    init: jest.fn(),
+    track: jest.fn(),
+    identify: jest.fn(),
+    set: jest.fn(),
+  },
 }));
 
 // Mock Firebase
@@ -76,7 +142,7 @@ jest.mock('react-native-config', () => ({
 }));
 
 // Mock Supabase
-jest.mock('./src/config/supabase', () => ({
+jest.mock('./src/services/supabase', () => ({
   supabase: {
     auth: {
       getUser: jest.fn().mockResolvedValue({ data: { user: { id: 'test_user_id' } } }),

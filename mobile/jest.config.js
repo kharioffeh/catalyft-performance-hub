@@ -27,8 +27,12 @@ module.exports = {
       statements: 60,
     },
   },
-  testEnvironment: 'jsdom',
+  // Remove testEnvironment to use React Native default
   globals: {
     __DEV__: true,
+  },
+  // Enable fake timers globally
+  fakeTimers: {
+    enableGlobally: true,
   },
 };
