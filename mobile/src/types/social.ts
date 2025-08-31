@@ -397,7 +397,7 @@ export interface PrivacySettings {
   showNutritionDetails: boolean;
   showLocation: boolean;
   allowTagging: boolean;
-  allowMessages: 'everyone' | 'followers' | 'none';
+  allowMessages: 'everyone' | 'following' | 'none';
   blockedUsers: string[];
   
   // Granular workout privacy

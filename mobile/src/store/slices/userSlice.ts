@@ -34,7 +34,7 @@ export interface UserSlice {
   // Profile actions
   updateProfile: (updates: any) => Promise<void>;
   updatePreferences: (preferences: Partial<UserPreferences>) => Promise<void>;
-  uploadProfilePicture: (uri: string) => Promise<void>;
+  uploadProfilePicture: (uri: string) => Promise<string>;
   
   // Stats actions
   updateStats: (stats: Partial<UserStats>) => Promise<void>;
@@ -233,6 +233,9 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
 
       // Update user profile
       await get().updateProfile({ profile_picture: publicUrl });
+      
+      set({ isLoading: false });
+      return publicUrl;
     } catch (error: any) {
       set({ 
         error: error.message || 'Failed to upload profile picture',

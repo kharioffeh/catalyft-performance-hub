@@ -40,14 +40,14 @@ export const DiscoverScreen: React.FC = () => {
   }, []);
 
   const loadInitialData = async () => {
-    await getSuggestedUsers();
+    await loadSuggestedUsers();
   };
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    await getSuggestedUsers();
+    await loadSuggestedUsers();
     setRefreshing(false);
-  }, [getSuggestedUsers]);
+  }, [loadSuggestedUsers]);
 
   const handleSearch = useCallback(async (query: string) => {
     setSearchQuery(query);

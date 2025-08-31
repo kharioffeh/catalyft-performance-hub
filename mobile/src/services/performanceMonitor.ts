@@ -178,9 +178,9 @@ class PerformanceMonitor {
       const duration = Date.now() - startTime;
       
       // Set HTTP metric attributes
-      trace.setHttpResponseCode(statusCode);
-      trace.setRequestPayloadSize(requestSize);
-      trace.setResponsePayloadSize(responseSize);
+      trace.putAttribute('http_response_code', statusCode.toString());
+      trace.putAttribute('request_payload_size', requestSize.toString());
+      trace.putAttribute('response_payload_size', responseSize.toString());
       
       if (error) {
         trace.putAttribute('error', error.message);

@@ -776,7 +776,7 @@ class SocialService {
         .eq('user_id', user.id);
 
       if (error) throw error;
-      return (data?.map(d => d.challenge as Challenge) || []) as Challenge[];
+      return (data?.map(d => (d.challenge as any[])[0] as Challenge) || []) as Challenge[];
     } catch (error: any) {
       console.error('Error fetching user challenges:', error);
       throw error;
@@ -907,6 +907,8 @@ class SocialService {
         user: p.user,
         value: p.progress,
         unit: 'points', // This should be dynamic based on challenge type
+        username: p.user?.username || 'Unknown',
+        score: p.progress,
       }));
     } catch (error: any) {
       console.error('Error fetching challenge leaderboard:', error);
@@ -986,13 +988,14 @@ class SocialService {
       const { data, error } = await supabase
         .from('user_achievements')
         .select(`
-          achievement:achievements(*)
+          achievement:achievements(*),
+          unlocked_at
         `)
         .eq('user_id', userId);
 
       if (error) throw error;
       return (data?.map(d => ({
-        ...d.achievement,
+        ...(d.achievement as any[])[0],
         isUnlocked: true,
         unlockedAt: d.unlocked_at,
       })) || []) as Achievement[];
@@ -1014,7 +1017,8 @@ class SocialService {
           achievement_id: achievementId,
         })
         .select(`
-          achievement:achievements(*)
+          achievement:achievements(*),
+          unlocked_at
         `)
         .single();
 
@@ -1024,7 +1028,7 @@ class SocialService {
       await this.shareAchievement(achievementId);
 
       return {
-        ...data.achievement,
+        ...(data.achievement as any[])[0],
         isUnlocked: true,
         unlockedAt: new Date(),
       } as Achievement;

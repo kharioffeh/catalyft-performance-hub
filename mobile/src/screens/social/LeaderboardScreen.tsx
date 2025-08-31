@@ -195,7 +195,7 @@ export const LeaderboardScreen: React.FC = () => {
             style={[styles.topThreeItem, styles.firstPlace]}
             onPress={() => navigateToProfile(topThree[0].userId)}
           >
-            <Ionicons name="crown" size={32} color="#FFD700" style={styles.crown} />
+            <Ionicons name="star" size={32} color="#FFD700" style={styles.crown} />
             <View style={styles.goldMedal}>
               <Text style={styles.medalNumber}>1</Text>
             </View>

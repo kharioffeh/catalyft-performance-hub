@@ -40,7 +40,7 @@ export const PrivacySettingsScreen: React.FC = () => {
     showNutritionDetails: false,
     showLocation: false,
     allowTagging: true,
-    allowMessages: 'followers',
+    allowMessages: 'following',
     blockedUsers: [],
     
     // Additional granular settings
