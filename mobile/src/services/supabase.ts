@@ -11,6 +11,9 @@ import {
   Friend, Achievement, UserAchievement, Notification 
 } from '../types/models';
 
+// Ensure Database type is properly exported
+export type { Database, Tables, Insertable, Updatable };
+
 // Initialize MMKV for auth storage
 const authStorage = new MMKV({
   id: 'supabase-auth',
