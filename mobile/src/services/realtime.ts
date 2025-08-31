@@ -138,7 +138,7 @@ export class RealtimeService {
     const channel = supabase
       .channel(channelName)
       .on(
-        ('postgres_changes' as any),
+        (('postgres_changes' as any) as any),
         {
           event: '*',
           schema: 'public',
@@ -150,7 +150,7 @@ export class RealtimeService {
         }
       )
       .on(
-        ('postgres_changes' as any),
+        (('postgres_changes' as any) as any),
         {
           event: '*',
           schema: 'public',
@@ -178,7 +178,7 @@ export class RealtimeService {
     const channel = supabase
       .channel(channelName)
       .on(
-        ('postgres_changes' as any),
+        (('postgres_changes' as any) as any),
         {
           event: '*',
           schema: 'public',

@@ -49,7 +49,7 @@ const customAuthStorage = {
 };
 
 // Create typed Supabase client
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     storage: customAuthStorage,
     autoRefreshToken: true,
@@ -65,7 +65,7 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, 
 
 // Type-safe database operations
 export class SupabaseService {
-  public client: SupabaseClient<Database>;
+  public client: SupabaseClient;
   private realtimeChannels: Map<string, RealtimeChannel> = new Map();
 
   constructor() {
@@ -504,7 +504,7 @@ export class SupabaseService {
     const channel = this.client
       .channel(`workouts:${userId}`)
       .on(
-        ('postgres_changes' as any),
+        (('postgres_changes' as any) as any),
         {
           event: '*',
           schema: 'public',
@@ -526,7 +526,7 @@ export class SupabaseService {
     const channel = this.client
       .channel(`nutrition:${userId}`)
       .on(
-        ('postgres_changes' as any),
+        (('postgres_changes' as any) as any),
         {
           event: '*',
           schema: 'public',
@@ -548,7 +548,7 @@ export class SupabaseService {
     const channel = this.client
       .channel(`notifications:${userId}`)
       .on(
-        ('postgres_changes' as any),
+        (('postgres_changes' as any) as any),
         {
           event: 'INSERT',
           schema: 'public',
@@ -570,7 +570,7 @@ export class SupabaseService {
     const channel = this.client
       .channel(`challenge:${challengeId}`)
       .on(
-        ('postgres_changes' as any),
+        (('postgres_changes' as any) as any),
         {
           event: '*',
           schema: 'public',
