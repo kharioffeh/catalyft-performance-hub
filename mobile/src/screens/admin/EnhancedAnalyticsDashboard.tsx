@@ -366,6 +366,8 @@ ${alerts.map(a => `⚠️ ${a.title}: ${a.message}`).join('\n')}
         }}
         style={styles.chart}
         showValuesOnTopOfBars
+        yAxisLabel=""
+        yAxisSuffix=""
       />
       
       <View style={styles.funnelStats}>

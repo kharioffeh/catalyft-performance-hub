@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 import { AnimatedLikeButton } from './AnimatedLikeButton';
 
 interface EngagementBarProps {
@@ -39,7 +39,7 @@ export const EngagementBar: React.FC<EngagementBarProps> = ({
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <Icon
+      <Ionicons
         name={icon}
         size={20}
         color={iconColor || (isActive ? '#FF6B6B' : '#666')}

@@ -7,7 +7,7 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 import LinearGradient from 'react-native-linear-gradient';
 import { ActivityPost } from '../../types/social';
 import { formatRelativeTime, formatNumber, formatDuration } from '../../utils/formatters';
@@ -63,13 +63,13 @@ export const PostCard: React.FC<PostCardProps> = ({
             {post.userProfile?.fullName || post.userProfile?.username || 'Unknown User'}
           </Text>
           {post.userProfile?.isVerified && (
-            <Icon name="checkmark-circle" size={14} color="#4CAF50" />
+            <Ionicons name="checkmark-circle" size={14} color="#4CAF50" />
           )}
         </View>
         <Text style={styles.timestamp}>{formatRelativeTime(post.createdAt)}</Text>
       </View>
       {post.visibility === 'private' && (
-        <Icon name="lock-closed" size={16} color="#999" />
+        <Ionicons name="lock-closed" size={16} color="#999" />
       )}
     </TouchableOpacity>
   );
@@ -85,25 +85,25 @@ export const PostCard: React.FC<PostCardProps> = ({
         end={{ x: 1, y: 1 }}
       >
         <View style={styles.workoutHeader}>
-          <Icon name="fitness" size={24} color="white" />
+          <Ionicons name="fitness" size={24} color="white" />
           <Text style={styles.workoutTitle}>{post.workoutData.name}</Text>
         </View>
         
         <View style={styles.workoutStats}>
           <View style={styles.workoutStat}>
-            <Icon name="time-outline" size={16} color="rgba(255,255,255,0.8)" />
+            <Ionicons name="time-outline" size={16} color="rgba(255,255,255,0.8)" />
             <Text style={styles.workoutStatText}>
               {formatDuration(post.workoutData.duration)}
             </Text>
           </View>
           <View style={styles.workoutStat}>
-            <Icon name="flame-outline" size={16} color="rgba(255,255,255,0.8)" />
+            <Ionicons name="flame-outline" size={16} color="rgba(255,255,255,0.8)" />
             <Text style={styles.workoutStatText}>
               {post.workoutData.caloriesBurned} cal
             </Text>
           </View>
           <View style={styles.workoutStat}>
-            <Icon name="barbell-outline" size={16} color="rgba(255,255,255,0.8)" />
+            <Ionicons name="barbell-outline" size={16} color="rgba(255,255,255,0.8)" />
             <Text style={styles.workoutStatText}>
               {post.workoutData.exercises} exercises
             </Text>
@@ -129,7 +129,7 @@ export const PostCard: React.FC<PostCardProps> = ({
     return (
       <View style={styles.mealCard}>
         <View style={styles.mealHeader}>
-          <Icon name="restaurant" size={20} color="#FF6B6B" />
+          <Ionicons name="restaurant" size={20} color="#FF6B6B" />
           <Text style={styles.mealTitle}>{post.mealData.name}</Text>
           <Text style={styles.mealType}>{post.mealData.mealType}</Text>
         </View>
@@ -192,7 +192,7 @@ export const PostCard: React.FC<PostCardProps> = ({
     return (
       <View style={styles.prCard}>
         <View style={styles.prHeader}>
-          <Icon name="trending-up" size={24} color="#4CAF50" />
+          <Ionicons name="trending-up" size={24} color="#4CAF50" />
           <Text style={styles.prTitle}>New Personal Record!</Text>
         </View>
         
@@ -204,7 +204,7 @@ export const PostCard: React.FC<PostCardProps> = ({
             <Text style={styles.prLabel}>Previous</Text>
           </View>
           
-          <Icon name="arrow-forward" size={24} color="#4CAF50" />
+          <Ionicons name="arrow-forward" size={24} color="#4CAF50" />
           
           <View style={styles.prStat}>
             <Text style={styles.prNewValue}>{post.prData.newRecord}</Text>
@@ -213,7 +213,7 @@ export const PostCard: React.FC<PostCardProps> = ({
         </View>
         
         <View style={styles.prImprovement}>
-          <Icon name="arrow-up" size={16} color="#4CAF50" />
+          <Ionicons name="arrow-up" size={16} color="#4CAF50" />
           <Text style={styles.prImprovementText}>
             {improvement.toFixed(1)}% improvement
           </Text>
@@ -228,7 +228,7 @@ export const PostCard: React.FC<PostCardProps> = ({
     return (
       <View style={styles.challengeCard}>
         <View style={styles.challengeHeader}>
-          <Icon name="trophy" size={20} color="#FFD700" />
+          <Ionicons name="trophy" size={20} color="#FFD700" />
           <Text style={styles.challengeTitle}>{post.challengeData.name}</Text>
         </View>
         
@@ -317,7 +317,7 @@ export const PostCard: React.FC<PostCardProps> = ({
             onPress={() => onLike(post.id)}
             onLongPress={() => setShowReactions(!showReactions)}
           >
-            <Icon
+            <Ionicons
               name={post.isLiked ? 'heart' : 'heart-outline'}
               size={20}
               color={post.isLiked ? '#FF6B6B' : '#666'}
@@ -331,7 +331,7 @@ export const PostCard: React.FC<PostCardProps> = ({
             style={styles.actionButton}
             onPress={() => onComment(post.id)}
           >
-            <Icon name="chatbubble-outline" size={20} color="#666" />
+            <Ionicons name="chatbubble-outline" size={20} color="#666" />
             <Text style={styles.actionText}>Comment</Text>
           </TouchableOpacity>
 
@@ -339,7 +339,7 @@ export const PostCard: React.FC<PostCardProps> = ({
             style={styles.actionButton}
             onPress={() => onShare(post.id)}
           >
-            <Icon name="share-outline" size={20} color="#666" />
+            <Ionicons name="share-outline" size={20} color="#666" />
             <Text style={styles.actionText}>Share</Text>
           </TouchableOpacity>
         </View>

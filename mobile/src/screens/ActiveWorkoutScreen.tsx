@@ -283,6 +283,7 @@ export default function ActiveWorkoutScreen() {
             key={set.id}
             set={set}
             exerciseId={exercise.id}
+            exercise={exercise}
             onComplete={handleSetComplete}
             onUpdate={handleSetUpdate}
             isActive={exerciseIndex === currentExerciseIndex && setIndex === currentSetIndex}
@@ -409,7 +410,14 @@ export default function ActiveWorkoutScreen() {
 }
 
 // Enhanced Set Card Component with Large Touch-Friendly Inputs
-const EnhancedSetCard = ({ set, exerciseId, onComplete, onUpdate, isActive }) => {
+const EnhancedSetCard = ({ set, exerciseId, exercise, onComplete, onUpdate, isActive }: {
+  set: any;
+  exerciseId: string;
+  exercise: any;
+  onComplete: (exerciseId: string, setId: string) => void;
+  onUpdate: (exerciseId: string, setId: string, updates: any) => void;
+  isActive: boolean;
+}) => {
   const [weight, setWeight] = useState(set.weight?.toString() || '');
   const [reps, setReps] = useState(set.reps?.toString() || '');
   const [rpe, setRpe] = useState(set.rpe?.toString() || '');
@@ -975,5 +983,12 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  setLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.light.textSecondary,
+    marginBottom: 12,
+    textAlign: 'center',
   },
 });

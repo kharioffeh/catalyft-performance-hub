@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { LinearGradient } from 'react-native-linear-gradient';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -72,10 +72,10 @@ export const WorkoutSummary: React.FC<WorkoutSummaryProps> = ({
       {/* Header */}
       {name && (
         <View style={styles.header}>
-          <Icon name="barbell" size={24} color="white" />
+          <Ionicons name="barbell" size={24} color="white" />
           <Text style={styles.workoutName}>{name}</Text>
           <View style={[styles.intensityBadge, { backgroundColor: getIntensityColor() }]}>
-            <Icon name={getIntensityIcon()} size={12} color="white" />
+            <Ionicons name={getIntensityIcon()} size={12} color="white" />
             <Text style={styles.intensityText}>{intensity.toUpperCase()}</Text>
           </View>
         </View>
@@ -84,19 +84,19 @@ export const WorkoutSummary: React.FC<WorkoutSummaryProps> = ({
       {/* Stats Grid */}
       <View style={styles.statsGrid}>
         <View style={styles.statItem}>
-          <Icon name="time-outline" size={20} color="rgba(255,255,255,0.8)" />
+          <Ionicons name="time-outline" size={20} color="rgba(255,255,255,0.8)" />
           <Text style={styles.statValue}>{formatDuration(duration)}</Text>
           <Text style={styles.statLabel}>Duration</Text>
         </View>
         
         <View style={styles.statItem}>
-          <Icon name="fitness-outline" size={20} color="rgba(255,255,255,0.8)" />
+          <Ionicons name="fitness-outline" size={20} color="rgba(255,255,255,0.8)" />
           <Text style={styles.statValue}>{exercises}</Text>
           <Text style={styles.statLabel}>Exercises</Text>
         </View>
         
         <View style={styles.statItem}>
-          <Icon name="flame-outline" size={20} color="rgba(255,255,255,0.8)" />
+          <Ionicons name="flame-outline" size={20} color="rgba(255,255,255,0.8)" />
           <Text style={styles.statValue}>{formatCalories(calories)}</Text>
           <Text style={styles.statLabel}>Calories</Text>
         </View>

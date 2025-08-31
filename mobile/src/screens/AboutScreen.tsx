@@ -10,7 +10,7 @@ import {
   Linking,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 
 export const AboutScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -144,14 +144,14 @@ export const AboutScreen: React.FC = () => {
     >
       <View style={styles.settingLeft}>
         <View style={styles.settingIcon}>
-          <Icon name={link.icon} size={20} color="#007AFF" />
+          <Ionicons name={link.icon} size={20} color="#007AFF" />
         </View>
         <View style={styles.settingInfo}>
           <Text style={styles.settingTitle}>{link.title}</Text>
           <Text style={styles.settingSubtitle}>{link.subtitle}</Text>
         </View>
       </View>
-      <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+      <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
     </TouchableOpacity>
   );
 
@@ -163,14 +163,14 @@ export const AboutScreen: React.FC = () => {
     >
       <View style={styles.settingLeft}>
         <View style={styles.settingIcon}>
-          <Icon name={link.icon} size={20} color="#007AFF" />
+          <Ionicons name={link.icon} size={20} color="#007AFF" />
         </View>
         <View style={styles.settingInfo}>
           <Text style={styles.settingTitle}>{link.title}</Text>
           <Text style={styles.settingSubtitle}>{link.subtitle}</Text>
         </View>
       </View>
-      <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+      <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
     </TouchableOpacity>
   );
 
@@ -190,7 +190,7 @@ export const AboutScreen: React.FC = () => {
   const renderFeature = (feature: any) => (
     <View key={feature.id} style={styles.feature}>
       <View style={styles.featureIcon}>
-        <Icon name={feature.icon} size={24} color="#007AFF" />
+        <Ionicons name={feature.icon} size={24} color="#007AFF" />
       </View>
       <View style={styles.featureInfo}>
         <Text style={styles.featureTitle}>{feature.title}</Text>
@@ -208,7 +208,7 @@ export const AboutScreen: React.FC = () => {
             onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
-            <Icon name="arrow-back" size={24} color="#007AFF" />
+            <Ionicons name="arrow-back" size={24} color="#007AFF" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>About</Text>
           <View style={{ width: 40 }} />
@@ -220,7 +220,7 @@ export const AboutScreen: React.FC = () => {
         <View style={styles.appHeaderSection}>
           <View style={styles.appHeader}>
             <View style={styles.appIcon}>
-              <Icon name="fitness" size={48} color="#FFFFFF" />
+              <Ionicons name="fitness" size={48} color="#FFFFFF" />
             </View>
             <View style={styles.appInfo}>
               <Text style={styles.appName}>{appInfo.name}</Text>
@@ -275,7 +275,7 @@ export const AboutScreen: React.FC = () => {
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="business-outline" size={20} color="#007AFF" />
+                  <Ionicons name="business-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Developer</Text>
@@ -287,7 +287,7 @@ export const AboutScreen: React.FC = () => {
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="calendar-outline" size={20} color="#007AFF" />
+                  <Ionicons name="calendar-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Release Date</Text>
@@ -299,7 +299,7 @@ export const AboutScreen: React.FC = () => {
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="phone-portrait-outline" size={20} color="#007AFF" />
+                  <Ionicons name="phone-portrait-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Platform</Text>
@@ -311,7 +311,7 @@ export const AboutScreen: React.FC = () => {
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="language-outline" size={20} color="#007AFF" />
+                  <Ionicons name="language-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Languages</Text>

@@ -35,16 +35,14 @@ const mmkvStorage: StateStorage = {
 };
 
 // Combined store type
-export type StoreState = Omit<UserSlice, 'achievements'> & WorkoutSlice & NutritionSliceWithFoodSearch & Omit<SocialSlice, 'searchResults'> & {
+export type StoreState = Omit<UserSlice, 'achievements'> & WorkoutSlice & NutritionSliceWithFoodSearch & SocialSliceWithUserSearch & {
   // Override achievements to use the social slice version
   achievements: Achievement[];
-
   // Global state
   isOnline: boolean;
   isSyncing: boolean;
   lastSyncTime: Date | null;
   syncErrors: string[];
-  
   // Global actions
   setIsOnline: (isOnline: boolean) => void;
   setIsSyncing: (isSyncing: boolean) => void;
@@ -57,7 +55,7 @@ export type StoreState = Omit<UserSlice, 'achievements'> & WorkoutSlice & Nutrit
 };
 
 // Create a type for the social slice that overrides searchResults
-type SocialSliceWithFoodSearch = Omit<SocialSlice, 'searchResults'> & {
+type SocialSliceWithUserSearch = Omit<SocialSlice, 'searchResults'> & {
   searchResults: UserProfile[];
 };
 
@@ -114,15 +112,15 @@ export const useStore = create<StoreState>()(
           ...initialState,
           
           // Merge slices
-          ...createUserSlice(set as any, get, api as any),
+          ...createUserSlice(set, get, api),
           ...createWorkoutSlice(),  // No parameters needed since it returns static object
-          ...createNutritionSlice(set as any, get, api as any),
+          ...createNutritionSlice(set, get, api),
           ...(() => {
-            const socialSlice = createSocialSlice(set as any, get, api as any);
-            // Override searchResults to be Food[] for nutrition compatibility
+            const socialSlice = createSocialSlice(set, get, api);
+            // Override searchResults to be UserProfile[] for social compatibility
             return {
               ...socialSlice,
-              searchResults: [] as Food[],
+              searchResults: [] as UserProfile[],
             };
           })(),
           

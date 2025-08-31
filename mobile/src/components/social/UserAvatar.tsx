@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Text,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 import LinearGradient from 'react-native-linear-gradient';
 
 interface UserAvatarProps {
@@ -94,7 +94,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
               },
             ]}
           >
-            <Icon name="checkmark-circle" size={size === 'xlarge' ? 24 : 16} color="#4CAF50" />
+            <Ionicons name="checkmark-circle" size={size === 'xlarge' ? 24 : 16} color="#4CAF50" />
           </View>
         )}
       </View>

@@ -37,13 +37,14 @@ export interface InputProps extends Omit<TextInputProps, 'style'> {
   value?: string;
   
   // Appearance
-  variant?: 'default' | 'outlined' | 'filled';
+  variant?: 'default' | 'outlined' | 'filled' | 'underlined';
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
   
   // States
   error?: string;
   success?: boolean;
+  successMessage?: string;
   disabled?: boolean;
   
   // Features
@@ -128,6 +129,24 @@ export const Input: React.FC<InputProps> = ({
     
     if (fullWidth) {
       baseStyle.width = '100%';
+    }
+    
+    // Apply variant-specific styles
+    switch (variant) {
+      case 'underlined':
+        baseStyle.borderWidth = 0;
+        baseStyle.borderBottomWidth = 2;
+        baseStyle.borderRadius = 0;
+        baseStyle.backgroundColor = 'transparent';
+        break;
+      case 'filled':
+        baseStyle.backgroundColor = colors.neutral.surface;
+        break;
+      case 'outlined':
+        baseStyle.backgroundColor = 'transparent';
+        break;
+      default:
+        baseStyle.backgroundColor = colors.neutral.surface;
     }
     
     if (disabled) {

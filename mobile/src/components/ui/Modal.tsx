@@ -3,7 +3,7 @@
  * Versatile modal with bottom sheet, center, and full screen variants
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback, useColorScheme } from 'react';
 import {
   View,
   Text,
@@ -15,10 +15,23 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ViewStyle,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
+import {
+  useSharedValue,
+  withSpring,
+  withTiming,
+  useAnimatedStyle,
+  interpolate,
+  Extrapolate,
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+  runOnJS,
+} from '../../utils/reanimated-mock';
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
@@ -108,27 +121,27 @@ export const Modal: React.FC<ModalProps> = ({
   const show = useCallback(() => {
     'worklet';
     if (type === 'bottom-sheet') {
-      translateY.value = withSpring(0, theme.animation.spring.standard);
+      translateY.value = withSpring(0, { tension: 100, friction: 8 });
     } else if (type === 'center') {
-      scale.value = withSpring(1, theme.animation.spring.bouncy);
+      scale.value = withSpring(1, { tension: 100, friction: 8 });
     }
-    backdropOpacity.value = withTiming(1, theme.animation.timing.standard);
+    backdropOpacity.value = withTiming(1, { duration: 300 });
   }, [type, translateY, scale, backdropOpacity]);
   
   // Hide modal
   const hide = useCallback(() => {
     'worklet';
     if (type === 'bottom-sheet') {
-      translateY.value = withSpring(modalHeight, theme.animation.spring.standard);
+      translateY.value = withSpring(modalHeight, { tension: 100, friction: 8 });
     } else if (type === 'center') {
-      scale.value = withSpring(0.9, theme.animation.spring.standard);
+      scale.value = withSpring(0.9, { tension: 100, friction: 8 });
     }
-    backdropOpacity.value = withTiming(0, theme.animation.timing.fast);
+    backdropOpacity.value = withTiming(0, { duration: 200 });
     
     // Call onClose after animation
     setTimeout(() => {
       runOnJS(onClose)();
-    }, theme.animation.duration.normal);
+    }, 300);
   }, [type, translateY, scale, backdropOpacity, modalHeight, onClose]);
   
   // Handle backdrop press
@@ -151,7 +164,7 @@ export const Modal: React.FC<ModalProps> = ({
       if (event.translationY > modalHeight * 0.2) {
         runOnJS(hide)();
       } else {
-        translateY.value = withSpring(0, theme.animation.spring.standard);
+        translateY.value = withSpring(0, { tension: 100, friction: 8 });
       }
     });
   
@@ -310,11 +323,11 @@ const styles = StyleSheet.create({
   },
   handleContainer: {
     alignItems: 'center',
-    paddingVertical: theme.spacing.s2,
+    paddingVertical: theme.spacing.sm,
   },
   handle: {
-    width: theme.dimensions.bottomSheetHandleWidth,
-    height: theme.dimensions.bottomSheetHandle,
+    width: 40,
+    height: 4,
     borderRadius: theme.borderRadius.full,
   },
   header: {
@@ -322,7 +335,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: theme.spacing.component.modalPadding,
-    paddingVertical: theme.spacing.s3,
+    paddingVertical: theme.spacing.md,
     borderBottomWidth: theme.borderWidth.hairline,
   },
   title: {
@@ -330,7 +343,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   closeButton: {
-    padding: theme.spacing.s2,
+    padding: theme.spacing.sm,
   },
   closeIcon: {
     fontSize: 20,

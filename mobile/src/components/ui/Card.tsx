@@ -23,7 +23,7 @@ import { theme } from '../../theme';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
-export type CardVariant = 'elevated' | 'outlined' | 'glass';
+export type CardVariant = 'elevated' | 'outlined' | 'glass' | 'filled';
 export type CardSize = 'small' | 'medium' | 'large';
 
 export interface CardProps {
@@ -128,6 +128,13 @@ export const Card: React.FC<CardProps> = ({
               elevation: 4,
             },
           }),
+        };
+      
+      case 'filled':
+        return {
+          ...baseStyle,
+          backgroundColor: colors.neutral.surface,
+          borderWidth: 0,
         };
       
       default:

@@ -44,13 +44,7 @@ export default function CreateWorkoutScreen() {
   }, [selectedExercise]);
 
   const handleAddExercise = () => {
-    navigation.navigate('ExerciseLibrary', { 
-      mode: 'select',
-      onSelect: (exercise: Exercise) => {
-        setSelectedExercises(prev => [...prev, exercise]);
-        navigation.goBack();
-      }
-    });
+    navigation.navigate('ExerciseLibrary');
   };
 
   const handleRemoveExercise = (index: number) => {
@@ -213,7 +207,7 @@ export default function CreateWorkoutScreen() {
             <DraggableFlatList
               data={selectedExercises}
               onDragEnd={handleReorderExercises}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item: Exercise) => item.id}
               renderItem={renderExerciseItem}
               contentContainerStyle={styles.exerciseList}
             />

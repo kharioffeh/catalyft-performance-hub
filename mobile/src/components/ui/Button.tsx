@@ -31,8 +31,8 @@ import { theme } from '../../theme';
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
-export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
-export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'success' | 'warning' | 'error';
+export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl' | 'small' | 'large';
 
 export interface ButtonProps {
   // Content
@@ -96,10 +96,12 @@ export const Button: React.FC<ButtonProps> = ({
   const getButtonDimensions = useCallback((): { height: number; paddingHorizontal: number } => {
     switch (size) {
       case 'sm':
+      case 'small':
         return { height: 40, paddingHorizontal: 16 };
       case 'md':
         return { height: 48, paddingHorizontal: 24 };
       case 'lg':
+      case 'large':
         return { height: 56, paddingHorizontal: 32 };
       case 'xl':
         return { height: 64, paddingHorizontal: 40 };
@@ -150,6 +152,24 @@ export const Button: React.FC<ButtonProps> = ({
           backgroundColor: 'transparent',
         };
       
+      case 'success':
+        return {
+          ...baseStyle,
+          backgroundColor: colors.success,
+        };
+      
+      case 'warning':
+        return {
+          ...baseStyle,
+          backgroundColor: colors.warning,
+        };
+      
+      case 'error':
+        return {
+          ...baseStyle,
+          backgroundColor: colors.error,
+        };
+      
       default:
         return baseStyle;
     }
@@ -186,6 +206,24 @@ export const Button: React.FC<ButtonProps> = ({
         return {
           ...baseTextStyle,
           color: colors.brand.primaryBlue,
+        };
+      
+      case 'success':
+        return {
+          ...baseTextStyle,
+          color: '#FFFFFF',
+        };
+      
+      case 'warning':
+        return {
+          ...baseTextStyle,
+          color: '#FFFFFF',
+        };
+      
+      case 'error':
+        return {
+          ...baseTextStyle,
+          color: '#FFFFFF',
         };
       
       default:

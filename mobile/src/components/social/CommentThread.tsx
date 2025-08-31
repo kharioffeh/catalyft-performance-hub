@@ -11,7 +11,7 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 import { Comment } from '../../types/social';
 import { formatRelativeTime } from '../../utils/formatters';
 
@@ -94,7 +94,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
               </Text>
             </TouchableOpacity>
             {item.userProfile?.isVerified && (
-              <Icon name="checkmark-circle" size={12} color="#4CAF50" />
+              <Ionicons name="checkmark-circle" size={12} color="#4CAF50" />
             )}
             <Text style={styles.timestamp}>{formatRelativeTime(item.createdAt)}</Text>
           </View>
@@ -106,7 +106,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
               style={styles.actionButton}
               onPress={() => onLikeComment(item.id)}
             >
-              <Icon
+              <Ionicons
                 name={item.isLiked ? 'heart' : 'heart-outline'}
                 size={16}
                 color={item.isLiked ? '#FF6B6B' : '#666'}
@@ -121,7 +121,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
                 style={styles.actionButton}
                 onPress={() => handleReply(item)}
               >
-                <Icon name="chatbubble-outline" size={16} color="#666" />
+                <Ionicons name="chatbubble-outline" size={16} color="#666" />
                 <Text style={styles.actionText}>Reply</Text>
               </TouchableOpacity>
             )}
@@ -131,7 +131,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
                 style={styles.actionButton}
                 onPress={() => onDeleteComment(item.id)}
               >
-                <Icon name="trash-outline" size={16} color="#666" />
+                <Ionicons name="trash-outline" size={16} color="#666" />
               </TouchableOpacity>
             )}
 
@@ -140,7 +140,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
                 style={styles.actionButton}
                 onPress={() => toggleReplies(item.id)}
               >
-                <Icon
+                <Ionicons
                   name={areRepliesExpanded ? 'chevron-up' : 'chevron-down'}
                   size={16}
                   color="#666"
@@ -180,7 +180,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
         </View>
       ) : comments.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Icon name="chatbubble-outline" size={48} color="#CCC" />
+          <Ionicons name="chatbubble-outline" size={48} color="#CCC" />
           <Text style={styles.emptyText}>No comments yet</Text>
           <Text style={styles.emptySubtext}>Be the first to comment!</Text>
         </View>
@@ -201,7 +201,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
               Replying to {comments.find(c => c.id === replyingTo)?.userProfile?.username}
             </Text>
             <TouchableOpacity onPress={() => setReplyingTo(null)}>
-              <Icon name="close-circle" size={18} color="#666" />
+              <Ionicons name="close-circle" size={18} color="#666" />
             </TouchableOpacity>
           </View>
         )}
@@ -232,7 +232,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
             {isSubmitting ? (
               <ActivityIndicator size="small" color="white" />
             ) : (
-              <Icon name="send" size={20} color="white" />
+              <Ionicons name="send" size={20} color="white" />
             )}
           </TouchableOpacity>
         </View>

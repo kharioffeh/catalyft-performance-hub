@@ -12,9 +12,11 @@ import {
   Animated,
   Dimensions,
   Platform,
+  useColorScheme,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../../theme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -54,19 +56,19 @@ export const Toast = forwardRef<ToastRef, ToastProps>(({
   offsetTop = 0,
   offsetBottom = 0,
 }, ref) => {
-  const colorScheme = React.useColorScheme();
+  const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const colors = isDark ? theme.colors.dark : theme.colors.light;
-  const insets = React.useSafeAreaInsets();
+  const insets = useSafeAreaInsets();
   
   // State
   const [config, setConfig] = React.useState<ToastConfig | null>(null);
   const [isVisible, setIsVisible] = React.useState(false);
   
-  // Animation values
-  const translateY = React.useSharedValue(100);
-  const opacity = React.useSharedValue(0);
-  const scale = React.useSharedValue(0.9);
+  // Animation values using regular Animated
+  const translateY = React.useRef(new Animated.Value(100)).current;
+  const opacity = React.useRef(new Animated.Value(0)).current;
+  const scale = React.useRef(new Animated.Value(0.9)).current;
   
   // Get duration in milliseconds
   const getDuration = (duration: ToastDuration = defaultDuration): number => {
@@ -98,8 +100,8 @@ export const Toast = forwardRef<ToastRef, ToastProps>(({
       case 'info':
       default:
         return {
-          background: isDark ? colors.surfaceElevated : colors.text,
-          text: isDark ? colors.text : colors.textInverse,
+          background: colors.info,
+          text: colors.textOnPrimary,
           icon: 'i',
         };
     }
@@ -110,26 +112,35 @@ export const Toast = forwardRef<ToastRef, ToastProps>(({
     setConfig(toastConfig);
     setIsVisible(true);
     
-    // Haptic feedback
-    if (toastConfig.haptic !== false) {
-      const hapticType = toastConfig.type === 'error' ? 'notificationError' 
-        : toastConfig.type === 'success' ? 'notificationSuccess'
-        : 'impactLight';
-      // HapticFeedback.trigger(hapticType); // Removed react-native-haptic-feedback
-    }
-    
     // Animate in
     const position = toastConfig.position || defaultPosition;
     if (position === 'top') {
-      translateY.value = withSpring(-100, theme.animation.spring.bouncy);
-      translateY.value = withSpring(0, theme.animation.spring.bouncy);
+      Animated.spring(translateY, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 100,
+        friction: 8,
+      }).start();
     } else if (position === 'bottom') {
-      translateY.value = withSpring(100, theme.animation.spring.bouncy);
-      translateY.value = withSpring(0, theme.animation.spring.bouncy);
+      Animated.spring(translateY, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 100,
+        friction: 8,
+      }).start();
     } else {
-      scale.value = withSpring(1, theme.animation.spring.bouncy);
+      Animated.spring(scale, {
+        toValue: 1,
+        useNativeDriver: true,
+        tension: 100,
+        friction: 8,
+      }).start();
     }
-    opacity.value = withTiming(1, theme.animation.timing.fast);
+    Animated.timing(opacity, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
     
     // Auto hide
     const duration = getDuration(toastConfig.duration);
@@ -145,18 +156,34 @@ export const Toast = forwardRef<ToastRef, ToastProps>(({
     const position = config?.position || defaultPosition;
     
     if (position === 'top') {
-      translateY.value = withTiming(-100, theme.animation.timing.fast);
+      Animated.timing(translateY, {
+        toValue: -100,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
     } else if (position === 'bottom') {
-      translateY.value = withTiming(100, theme.animation.timing.fast);
+      Animated.timing(translateY, {
+        toValue: 100,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
     } else {
-      scale.value = withTiming(0.9, theme.animation.timing.fast);
+      Animated.timing(scale, {
+        toValue: 0.9,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
     }
-    opacity.value = withTiming(0, theme.animation.timing.fast);
+    Animated.timing(opacity, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
     
     setTimeout(() => {
       setIsVisible(false);
       setConfig(null);
-    }, theme.animation.duration.fast);
+    }, 200);
   }, [config, defaultPosition, translateY, scale, opacity]);
   
   // Expose methods via ref
@@ -166,21 +193,12 @@ export const Toast = forwardRef<ToastRef, ToastProps>(({
   }));
   
   // Animated styles
-  const animatedStyle = React.useAnimatedStyle(() => {
-    const position = config?.position || defaultPosition;
-    
-    if (position === 'center') {
-      return {
-        opacity: opacity.value,
-        transform: [{ scale: scale.value }],
-      };
-    }
-    
-    return {
-      opacity: opacity.value,
-      transform: [{ translateY: translateY.value }],
-    };
-  });
+  const animatedStyle = {
+    opacity: opacity,
+    transform: [
+      ...(config?.position === 'center' ? [{ scale: scale }] : [{ translateY: translateY }]),
+    ],
+  };
   
   if (!isVisible || !config) return null;
   
@@ -188,12 +206,12 @@ export const Toast = forwardRef<ToastRef, ToastProps>(({
   const toastColors = getToastColors(config.type);
   
   // Get position styles
-  const getPositionStyles = (): ViewStyle => {
-    const baseStyle: ViewStyle = {
+  const getPositionStyles = (): any => {
+    const baseStyle: any = {
       position: 'absolute',
-      left: theme.spacing.s4,
-      right: theme.spacing.s4,
-      maxWidth: SCREEN_WIDTH - theme.spacing.s8,
+      left: theme.spacing.md,
+      right: theme.spacing.md,
+      maxWidth: SCREEN_WIDTH - theme.spacing.xxl,
       alignSelf: 'center',
     };
     
@@ -201,12 +219,12 @@ export const Toast = forwardRef<ToastRef, ToastProps>(({
       case 'top':
         return {
           ...baseStyle,
-          top: insets.top + theme.spacing.s4 + offsetTop,
+          top: insets.top + theme.spacing.md + offsetTop,
         };
       case 'bottom':
         return {
           ...baseStyle,
-          bottom: insets.bottom + theme.spacing.s4 + offsetBottom,
+          bottom: insets.bottom + theme.spacing.md + offsetBottom,
         };
       case 'center':
       default:
@@ -301,8 +319,8 @@ export { ToastManager };
 const styles = StyleSheet.create({
   container: {
     borderRadius: theme.borderRadius.lg,
-    paddingHorizontal: theme.spacing.s4,
-    paddingVertical: theme.spacing.s3,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
     minHeight: 48,
     ...Platform.select({
       ios: {
@@ -321,24 +339,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconContainer: {
-    marginRight: theme.spacing.s3,
+    marginRight: theme.spacing.md,
   },
   icon: {
-    fontSize: 18,
+    fontSize: theme.typography.sizes.h6,
     fontWeight: theme.typography.weights.bold,
   },
   message: {
     flex: 1,
-    ...theme.typography.styles.bodyMedium,
+    fontSize: theme.typography.sizes.h6,
+    fontWeight: theme.typography.weights.medium,
+    color: theme.colors.light.text,
   },
   actionButton: {
-    marginLeft: theme.spacing.s3,
-    paddingHorizontal: theme.spacing.s3,
-    paddingVertical: theme.spacing.s1,
+    marginLeft: theme.spacing.md,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
   },
   actionLabel: {
-    ...theme.typography.styles.button,
-    fontSize: theme.typography.sizes.small,
+    fontSize: theme.typography.sizes.h6,
+    fontWeight: theme.typography.weights.medium,
+    color: theme.colors.light.textOnPrimary,
   },
 });
 

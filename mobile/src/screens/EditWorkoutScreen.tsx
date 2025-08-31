@@ -74,8 +74,8 @@ export default function EditWorkoutScreen() {
 
     try {
       // Update workout name
-      if (workout) {
-        await updateWorkout(workout.id, { name: workoutName });
+      if (workout && updateWorkout) {
+        await updateWorkout(workout.id, { ...workout, name: workoutName });
       }
       
       // Handle exercise changes
@@ -205,7 +205,7 @@ export default function EditWorkoutScreen() {
             <DraggableFlatList
               data={selectedExercises}
               onDragEnd={handleReorderExercises}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item: Exercise) => item.id}
               renderItem={renderExerciseItem}
               contentContainerStyle={styles.exerciseList}
             />

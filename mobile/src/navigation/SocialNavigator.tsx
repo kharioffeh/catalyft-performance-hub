@@ -1,7 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 
 // Import screens
 import { FeedScreen } from '../screens/social/FeedScreen';
@@ -63,7 +63,7 @@ const SocialTabs: React.FC = () => {
               iconName = 'ellipse';
           }
 
-          return <Icon name={iconName} size={size} color={color} />;
+          return <Ionicons name={iconName as keyof typeof Ionicons.glyphMap} size={size} color={color} />;
         },
         tabBarActiveTintColor: '#4CAF50',
         tabBarInactiveTintColor: '#666',

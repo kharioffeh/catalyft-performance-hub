@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { View, Text } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 import { UserProfile, PrivacySettings } from '../../types/social';
 
 interface PrivacyAwareContentProps {
@@ -120,7 +120,7 @@ const PrivacyPlaceholder: React.FC<PrivacyPlaceholderProps> = ({ type }) => {
       backgroundColor: '#F5F5F5',
       borderRadius: 8,
     }}>
-      <Icon name={getIcon()} size={24} color="#999" />
+      <Ionicons name={getIcon()} size={24} color="#999" />
       <Text style={{
         marginTop: 8,
         color: '#999',
