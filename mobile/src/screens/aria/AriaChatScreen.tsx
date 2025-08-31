@@ -1,46 +1,156 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, ScrollView, StyleSheet } from 'react-native';
+import React, { useState, useRef, useCallback } from 'react';
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  SafeAreaView,
+} from 'react-native';
+import { ChatHeader, ChatMessage, ChatInput, TypingIndicator, WelcomeMessage } from '../../components/aria';
 import { ariaService } from '../../services/ai/openai';
+import { useAuth } from '../../contexts/AuthContext';
+
+interface ChatMessage {
+  id: string;
+  text: string;
+  isUser: boolean;
+  suggestions?: string[];
+}
 
 export const AriaChatScreen = () => {
   const [message, setMessage] = useState('');
-  const [chat, setChat] = useState<string[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const flatListRef = useRef<FlatList>(null);
+  const { user } = useAuth();
 
-  const sendMessage = async () => {
-    if (!message.trim()) return;
-    
-    setChat(prev => [...prev, `You: ${message}`]);
-    const response = await ariaService.chat(message);
-    setChat(prev => [...prev, `ARIA: ${response}`]);
+  const sendMessage = useCallback(async (text?: string) => {
+    const messageText = text || message.trim();
+    if (!messageText) return;
+
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      text: messageText,
+      isUser: true,
+    };
+
+    setMessages(prev => [...prev, userMessage]);
     setMessage('');
+    setIsLoading(true);
+
+    try {
+      const response = await ariaService.chat(messageText);
+      
+      // Generate suggestions based on the response
+      const suggestions = generateSuggestions(response);
+      
+      const ariaMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        text: response,
+        isUser: false,
+        suggestions,
+      };
+
+      setMessages(prev => [...prev, ariaMessage]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        text: 'Sorry, I encountered an error. Please try again.',
+        isUser: false,
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [message]);
+
+  const generateSuggestions = (response: string): string[] => {
+    // Generate contextual suggestions based on the response
+    const suggestions = [
+      'Tell me more about that',
+      'How can I improve?',
+      'What should I do next?',
+      'Can you explain further?',
+      'Show me examples',
+      'What are the benefits?',
+    ];
+    
+    // Randomly select 2-3 suggestions
+    return suggestions.sort(() => 0.5 - Math.random()).slice(0, 2 + Math.floor(Math.random() * 2));
+  };
+
+  const handleSuggestionPress = useCallback((suggestion: string) => {
+    sendMessage(suggestion);
+  }, [sendMessage]);
+
+  const renderMessage = useCallback(({ item }: { item: ChatMessage }) => (
+    <ChatMessage 
+      message={item} 
+      onSuggestionPress={handleSuggestionPress}
+    />
+  ), [handleSuggestionPress]);
+
+  const handleSendMessage = useCallback(() => {
+    sendMessage();
+  }, [sendMessage]);
+
+  const renderContent = () => {
+    if (messages.length === 0) {
+      return (
+        <WelcomeMessage 
+          onSuggestionPress={handleSuggestionPress}
+          userName={user?.fullName}
+        />
+      );
+    }
+
+    return (
+      <>
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          inverted
+          renderItem={renderMessage}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.messagesList}
+          showsVerticalScrollIndicator={false}
+        />
+        {isLoading && <TypingIndicator isVisible={isLoading} />}
+      </>
+    );
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>ARIA - AI Fitness Coach</Text>
-      <ScrollView style={styles.chatArea}>
-        {chat.map((msg, idx) => (
-          <Text key={idx} style={styles.message}>{msg}</Text>
-        ))}
-      </ScrollView>
-      <View style={styles.inputArea}>
-        <TextInput
-          style={styles.input}
-          value={message}
-          onChangeText={setMessage}
-          placeholder="Ask ARIA anything..."
-        />
-        <Button title="Send" onPress={sendMessage} />
+    <SafeAreaView style={styles.container}>
+      {/* Clean header */}
+      <ChatHeader />
+
+      {/* Content area */}
+      <View style={styles.content}>
+        {renderContent()}
       </View>
-    </View>
+
+      {/* Modern input bar */}
+      <ChatInput
+        message={message}
+        onMessageChange={setMessage}
+        onSendMessage={handleSendMessage}
+        isLoading={isLoading}
+      />
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
-  chatArea: { flex: 1, marginBottom: 20 },
-  message: { marginVertical: 5 },
-  inputArea: { flexDirection: 'row' },
-  input: { flex: 1, borderWidth: 1, padding: 10, marginRight: 10 },
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  content: {
+    flex: 1,
+  },
+  messagesList: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
 });
