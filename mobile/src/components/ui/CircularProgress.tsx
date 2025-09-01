@@ -71,10 +71,6 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
   const isDark = colorScheme === 'dark';
   const colors = isDark ? theme.colors.dark : theme.colors.light;
   
-  // Animation values
-  const animatedProgress = useSharedValue(0);
-  const rotation = useSharedValue(0);
-  
   // Get size dimensions
   const getSizeDimensions = useMemo((): { size: number; radius: number } => {
     switch (size) {
@@ -106,37 +102,24 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
   const { size: svgSize, radius } = getSizeDimensions;
   const circumference = 2 * Math.PI * radius;
   const strokeDasharray = circumference;
-  const strokeDashoffset = circumference * (1 - progress);
   
-  // Animate progress
+  // SVG-compatible animated values (no useAnimatedStyle for SVG)
+  const animatedStrokeDashoffset = useSharedValue(circumference);
+  const animatedRotation = useSharedValue(0);
+  
+  // Update animated values
   useEffect(() => {
     if (animated) {
-      animatedProgress.value = withTiming(progress, { duration });
-      rotation.value = withSpring(360, { damping: 15, stiffness: 100 });
+      animatedStrokeDashoffset.value = withTiming(
+        circumference * (1 - progress),
+        { duration }
+      );
+      animatedRotation.value = withSpring(360, { damping: 15, stiffness: 100 });
     } else {
-      animatedProgress.value = progress;
+      animatedStrokeDashoffset.value = circumference * (1 - progress);
+      animatedRotation.value = 0;
     }
-  }, [progress, animated, duration, animatedProgress, rotation]);
-  
-  // Animated styles
-  const animatedCircleStyle = useAnimatedStyle(() => {
-    const animatedStrokeDashoffset = interpolate(
-      animatedProgress.value,
-      [0, 1],
-      [circumference, 0],
-      Extrapolate.CLAMP
-    );
-    
-    return {
-      strokeDashoffset: animatedStrokeDashoffset,
-    };
-  });
-  
-  const animatedRotationStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ rotate: `${rotation.value}deg` }],
-    };
-  });
+  }, [progress, animated, duration, circumference]);
   
   // Render center content
   const renderCenterContent = () => {
@@ -186,7 +169,8 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
         >
           <AnimatedCircle
             {...circleProps}
-            style={[animatedCircleStyle, animatedRotationStyle]}
+            strokeDashoffset={animatedStrokeDashoffset}
+            transform={`rotate(${animatedRotation.value} ${svgSize / 2} ${svgSize / 2})`}
           />
         </LinearGradient>
       );
@@ -195,7 +179,8 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
     return (
       <AnimatedCircle
         {...circleProps}
-        style={[animatedCircleStyle, animatedRotationStyle]}
+        strokeDashoffset={animatedStrokeDashoffset}
+        transform={`rotate(${animatedRotation.value} ${svgSize / 2} ${svgSize / 2})`}
       />
     );
   };
