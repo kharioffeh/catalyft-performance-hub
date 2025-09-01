@@ -33,7 +33,7 @@ jest.mock('../config/supabase', () => ({
       eq: jest.fn().mockReturnThis(),
       gte: jest.fn().mockReturnThis(),
       lte: jest.fn().mockReturnThis(),
-      single: jest.fn().mockResolvedValue({ data: null, error: null }),
+      single: jest.fn().mockResolvedValue({ data: null, error: null } as any),
     })),
   },
 }));
@@ -303,7 +303,7 @@ describe('Analytics Services Test Suite', () => {
         { event_name: 'event2', event_properties: {}, timestamp: '2024-01-02' },
       ];
       
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(JSON.stringify(queuedEvents));
+      (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce(JSON.stringify(queuedEvents) as any);
       
       await SupabaseAnalyticsService.syncQueuedEvents();
       

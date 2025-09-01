@@ -32,7 +32,6 @@ export interface NutritionSlice {
   nutritionGoals: NutritionGoals | null;
   
   // Food search
-  searchResults: Food[];
   searchLoading: boolean;
   searchFilters: FoodSearchFilters;
   selectedFood: Food | null;
@@ -147,7 +146,6 @@ export const createNutritionSlice = (set: any, get: any, api: any): NutritionSli
   todaysFoodLogs: [],
   dailySummary: null,
   nutritionGoals: null,
-  searchResults: [],
   searchLoading: false,
   searchFilters: {},
   selectedFood: null,
@@ -203,7 +201,6 @@ export const createNutritionSlice = (set: any, get: any, api: any): NutritionSli
     try {
       const results = await nutritionService.searchFoods(query, filters);
       set((state: NutritionSlice) => {
-        state.searchResults = results;
         state.searchLoading = false;
       });
     } catch (error: any) {
@@ -215,7 +212,6 @@ export const createNutritionSlice = (set: any, get: any, api: any): NutritionSli
   },
 
   clearSearch: () => set((state: NutritionSlice) => {
-    state.searchResults = [];
     state.searchFilters = {};
     state.selectedFood = null;
   }),
@@ -558,7 +554,6 @@ export const createNutritionSlice = (set: any, get: any, api: any): NutritionSli
       const foods = await nutritionService.searchFoods('', { barcode });
       
       set((state: NutritionSlice) => {
-        state.searchResults = foods;
         state.isLoading = false;
         if (foods.length === 1) {
           state.selectedFood = foods[0];
