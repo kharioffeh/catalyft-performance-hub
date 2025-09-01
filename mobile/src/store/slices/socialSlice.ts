@@ -13,9 +13,9 @@ import {
   Challenge, 
   ChallengeParticipant,
   LeaderboardEntry,
-  Achievement,
   SocialNotification
 } from '../../types/social';
+import { UserAchievement, Achievement } from '../../types/models';
 
 export interface SocialSlice {
   // State
@@ -34,12 +34,12 @@ export interface SocialSlice {
   userChallenges: Challenge[];
   challengeParticipants: Map<string, ChallengeParticipant[]>;
   leaderboard: LeaderboardEntry[];
-  achievements: Achievement[];
+  achievements: UserAchievement[];
   userAchievements: Map<string, Achievement[]>;
   socialNotifications: SocialNotification[];
   unreadNotificationCount: number;
   suggestedUsers: UserProfile[];
-  searchResults: UserProfile[];
+  userSearchResults: UserProfile[];
   isLoading: boolean;
   error: string | null;
 
@@ -128,7 +128,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
   socialNotifications: [],
   unreadNotificationCount: 0,
   suggestedUsers: [],
-  searchResults: [],
+  userSearchResults: [],
   isLoading: false,
   error: null,
 
@@ -279,7 +279,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
   searchUsers: async (query) => {
     try {
       const results = await socialService.searchUsers(query);
-      set({ searchResults: results });
+      set({ userSearchResults: results });
     } catch (error: any) {
       set({ error: error.message });
     }
@@ -599,7 +599,27 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
   loadAchievements: async () => {
     try {
       const achievements = await socialService.getAchievements();
-      set({ achievements });
+      // Convert Achievement[] to UserAchievement[] format
+      const userAchievements: UserAchievement[] = achievements.map(achievement => ({
+        id: `temp-${achievement.id}`,
+        userId: '', // Will be set when user unlocks it
+        achievementId: achievement.id,
+        achievement: {
+          id: achievement.id,
+          name: achievement.name,
+          description: achievement.description,
+          category: achievement.category === 'challenge' ? 'milestone' : achievement.category as any,
+          icon: achievement.icon,
+          requiredValue: achievement.requirement?.target || 0,
+          unit: 'count',
+          points: achievement.points,
+          rarity: achievement.rarity,
+        },
+        unlockedAt: new Date(),
+        progress: 0,
+        isUnlocked: false,
+      }));
+      set({ achievements: userAchievements });
     } catch (error: any) {
       set({ error: error.message });
     }
@@ -607,7 +627,19 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
 
   loadUserAchievements: async (userId: string) => {
     try {
-      const achievements = await socialService.getUserAchievements(userId);
+      const socialAchievements = await socialService.getUserAchievements(userId);
+      // Convert social.ts Achievement to models.ts Achievement
+      const achievements: Achievement[] = socialAchievements.map(achievement => ({
+        id: achievement.id,
+        name: achievement.name,
+        description: achievement.description,
+        category: achievement.category === 'challenge' ? 'milestone' : achievement.category as any,
+        icon: achievement.icon,
+        requiredValue: achievement.requirement?.target || 0,
+        unit: 'count', // Default unit since social.ts doesn't have unit
+        points: achievement.points,
+        rarity: achievement.rarity,
+      }));
       set((state) => {
         const userAchievements = new Map(state.userAchievements);
         userAchievements.set(userId, achievements);
@@ -620,7 +652,19 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
 
   unlockAchievement: async (achievementId: string) => {
     try {
-      const achievement = await socialService.unlockAchievement(achievementId);
+      const socialAchievement = await socialService.unlockAchievement(achievementId);
+      // Convert social.ts Achievement to models.ts Achievement
+      const achievement: Achievement = {
+        id: socialAchievement.id,
+        name: socialAchievement.name,
+        description: socialAchievement.description,
+        category: socialAchievement.category === 'challenge' ? 'milestone' : socialAchievement.category as any,
+        icon: socialAchievement.icon,
+        requiredValue: socialAchievement.requirement?.target || 0,
+        unit: 'count',
+        points: socialAchievement.points,
+        rarity: socialAchievement.rarity,
+      };
       const userId = get().currentUserProfile?.id;
       if (userId) {
         set((state) => {
@@ -695,7 +739,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
       socialNotifications: [],
       unreadNotificationCount: 0,
       suggestedUsers: [],
-      searchResults: [],
+      userSearchResults: [],
       isLoading: false,
       error: null
     });
