@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabaseService } from './supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Database table interfaces
@@ -157,7 +157,7 @@ class SupabaseAnalyticsService {
     if (!this.userId) return;
     
     try {
-      const { data: existing, error: fetchError } = await supabase
+      const { data: existing, error: fetchError } = await supabaseService.client
         .from('onboarding_progress')
         .select('*')
         .eq('user_id', this.userId)
@@ -165,7 +165,7 @@ class SupabaseAnalyticsService {
       
       if (existing) {
         // Update existing progress
-        const { error } = await supabase
+        const { error } = await supabaseService.client
           .from('onboarding_progress')
           .update({
             current_step: step,
@@ -178,7 +178,7 @@ class SupabaseAnalyticsService {
         if (error) throw error;
       } else {
         // Create new progress record
-        const { error } = await supabase
+        const { error } = await supabaseService.client
           .from('onboarding_progress')
           .insert({
             user_id: this.userId,
@@ -214,7 +214,7 @@ class SupabaseAnalyticsService {
     if (!this.userId) return;
     
     try {
-      const { error } = await supabase
+      const { error } = await supabaseService.client
         .from('onboarding_progress')
         .update({
           completed: true,
@@ -240,7 +240,7 @@ class SupabaseAnalyticsService {
     sessionId?: string
   ): Promise<void> {
     try {
-      const { error } = await supabase
+      const { error } = await supabaseService.client
         .from('analytics_events')
         .insert({
           user_id: this.userId,
@@ -309,7 +309,7 @@ class SupabaseAnalyticsService {
     if (!this.userId) return;
     
     try {
-      const { error } = await supabase
+      const { error } = await supabaseService.client
         .from('user_profiles')
         .upsert({
           id: this.userId,
@@ -328,7 +328,7 @@ class SupabaseAnalyticsService {
     if (!this.userId) return;
     
     try {
-      const { error } = await supabase
+      const { error } = await supabaseService.client
         .from('user_profiles')
         .update({
           ...updates,
@@ -347,7 +347,7 @@ class SupabaseAnalyticsService {
     if (!this.userId) return null;
     
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseService.client
         .from('user_profiles')
         .select('*')
         .eq('id', this.userId)
@@ -369,7 +369,7 @@ class SupabaseAnalyticsService {
     if (!this.userId) return;
     
     try {
-      const { error } = await supabase
+      const { error } = await supabaseService.client
         .from('ab_test_assignments')
         .upsert({
           user_id: this.userId,
@@ -392,7 +392,7 @@ class SupabaseAnalyticsService {
     if (!this.userId) return;
     
     try {
-      const { error } = await supabase
+      const { error } = await supabaseService.client
         .from('ab_test_assignments')
         .update({
           converted: true,
@@ -413,7 +413,7 @@ class SupabaseAnalyticsService {
     endDate?: Date
   ): Promise<any> {
     try {
-      let query = supabase
+      let query = supabaseService.client
         .from('onboarding_progress')
         .select('*');
       
@@ -468,7 +468,7 @@ class SupabaseAnalyticsService {
   ): Promise<any> {
     try {
       // Get event counts
-      let eventsQuery = supabase
+      let eventsQuery = supabaseService.client
         .from('analytics_events')
         .select('event_name', { count: 'exact' });
       
@@ -483,19 +483,19 @@ class SupabaseAnalyticsService {
       const { data: events, count: eventCount } = await eventsQuery;
       
       // Get user counts
-      const { count: totalUsers } = await supabase
+      const { count: totalUsers } = await supabaseService.client
         .from('user_profiles')
         .select('*', { count: 'exact' });
       
-      const { count: completedOnboarding } = await supabase
+      const { count: completedOnboarding } = await supabaseService.client
         .from('user_profiles')
         .select('*', { count: 'exact' })
         .eq('onboarding_completed', true);
       
       // Get A/B test results
-      const { data: abTests } = await supabase
+      const { data: abTests } = await supabaseService.client
         .from('ab_test_assignments')
-        .select('test_id, variant, converted, user_id, assigned_at');
+        .select('test_id, variant, converted');
       
       return {
         totalEvents: eventCount || 0,

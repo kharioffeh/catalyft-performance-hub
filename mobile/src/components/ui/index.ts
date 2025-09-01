@@ -33,6 +33,11 @@ export { EmptyState } from './EmptyState';
 export { withErrorBoundary } from './ErrorBoundary';
 export { ExerciseCard } from './ExerciseCard';
 
+// Navigation Components
+export { default as AnimatedTabBar } from './AnimatedTabBar';
+export { default as AdvancedAnimatedTabBar } from './AdvancedAnimatedTabBar';
+export { default as TabBarDemo } from './TabBarDemo';
+
 // Component Types
 export type { ButtonProps, ButtonVariant, ButtonSize } from './Button';
 export type { InputProps } from './Input';

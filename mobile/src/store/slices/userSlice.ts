@@ -55,7 +55,7 @@ export interface UserSlice {
   
   // Achievements actions
   loadAchievements: () => Promise<void>;
-  unlockAchievement: (achievementId: string) => Promise<void>;
+  unlockAchievement: (achievementId: string) => void;
   
   // Notifications actions
   loadNotifications: () => Promise<void>;
@@ -77,13 +77,13 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
   unreadNotificationCount: 0,
 
   // Basic setters
-  setCurrentUser: (user) => set({ currentUser: user, isAuthenticated: !!user }),
-  setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
-  setIsLoading: (isLoading) => set({ isLoading }),
-  setError: (error) => set({ error }),
+  setCurrentUser: (user: User | null) => set({ currentUser: user, isAuthenticated: !!user }),
+  setIsAuthenticated: (isAuthenticated: boolean) => set({ isAuthenticated }),
+  setIsLoading: (isLoading: boolean) => set({ isLoading }),
+  setError: (error: string | null) => set({ error }),
 
   // Auth actions
-  signIn: async (email, password) => {
+  signIn: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
     try {
       const { user, session } = await supabaseService.signIn(email, password);
@@ -113,7 +113,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
     }
   },
 
-  signUp: async (email, password, userData) => {
+  signUp: async (email: string, password: string, userData: Partial<User>) => {
     set({ isLoading: true, error: null });
     try {
       const { user } = await supabaseService.signUp(email, password, userData);
@@ -171,7 +171,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
   },
 
   // Profile actions
-  updateProfile: async (updates) => {
+  updateProfile: async (updates: Partial<User>) => {
     const { currentUser } = get();
     if (!currentUser) throw new Error('No user logged in');
 
@@ -183,7 +183,13 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
         throw new Error(validation.error.issues[0].message);
       }
 
-      const updatedUser = await supabaseService.updateUser(currentUser.id, updates);
+      // Convert UserPreferences to JSON-compatible format
+      const dbUpdates = { ...updates };
+      if (updates.preferences) {
+        dbUpdates.preferences = updates.preferences as any;
+      }
+      
+      const updatedUser = await supabaseService.updateUser(currentUser.id, dbUpdates);
       set({ 
         currentUser: updatedUser,
         isLoading: false 
@@ -197,7 +203,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
     }
   },
 
-  updatePreferences: async (preferences) => {
+  updatePreferences: async (preferences: Partial<UserPreferences>) => {
     const { currentUser } = get();
     if (!currentUser) throw new Error('No user logged in');
 
@@ -209,7 +215,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
     await get().updateProfile({ preferences: updatedPreferences });
   },
 
-  uploadProfilePicture: async (uri) => {
+  uploadProfilePicture: async (uri: string) => {
     const { currentUser } = get();
     if (!currentUser) throw new Error('No user logged in');
 
@@ -246,14 +252,14 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
   },
 
   // Stats actions
-  updateStats: async (stats) => {
+  updateStats: async (stats: Partial<UserStats>) => {
     const { currentUser } = get();
     if (!currentUser) throw new Error('No user logged in');
 
     try {
       await supabaseService.client
         .from('user_stats')
-        .update(stats)
+        .update(stats as any)
         .eq('user_id', currentUser.id);
 
       // Refresh user data to get updated stats
@@ -284,7 +290,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
     get().updateStats({ totalWorkouts: updatedStats.totalWorkouts }).catch(console.error);
   },
 
-  updateStreak: (currentStreak) => {
+  updateStreak: (currentStreak: number) => {
     const { currentUser } = get();
     if (!currentUser || !currentUser.stats) return;
 
@@ -321,14 +327,23 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
     }
   },
 
-  createGoal: async (goal) => {
+  createGoal: async (goal: Omit<Goal, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => {
     const { currentUser } = get();
     if (!currentUser) throw new Error('No user logged in');
 
     try {
       const newGoal = await supabaseService.createGoal({
-        ...goal,
         user_id: currentUser.id,
+        type: goal.type,
+        title: goal.title,
+        description: goal.description,
+        target_value: goal.targetValue,
+        current_value: goal.currentValue,
+        unit: goal.unit,
+        deadline: goal.deadline?.toISOString(),
+        status: goal.status,
+        priority: goal.priority,
+        milestones: goal.milestones ? JSON.stringify(goal.milestones) : null,
       });
       
       set(state => ({
@@ -340,9 +355,21 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
     }
   },
 
-  updateGoal: async (goalId, updates) => {
+  updateGoal: async (goalId: string, updates: Partial<Goal>) => {
     try {
-      const updatedGoal = await supabaseService.updateGoal(goalId, updates);
+      const dbUpdates: any = {};
+      if (updates.type) dbUpdates.type = updates.type;
+      if (updates.title) dbUpdates.title = updates.title;
+      if (updates.description !== undefined) dbUpdates.description = updates.description;
+      if (updates.targetValue !== undefined) dbUpdates.target_value = updates.targetValue;
+      if (updates.currentValue !== undefined) dbUpdates.current_value = updates.currentValue;
+      if (updates.unit) dbUpdates.unit = updates.unit;
+      if (updates.deadline !== undefined) dbUpdates.deadline = updates.deadline?.toISOString();
+      if (updates.status) dbUpdates.status = updates.status;
+      if (updates.priority) dbUpdates.priority = updates.priority;
+      if (updates.milestones !== undefined) dbUpdates.milestones = updates.milestones ? JSON.stringify(updates.milestones) : null;
+      
+      const updatedGoal = await supabaseService.updateGoal(goalId, dbUpdates);
       
       set(state => ({
         goals: state.goals.map(g => g.id === goalId ? updatedGoal : g),
@@ -353,7 +380,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
     }
   },
 
-  deleteGoal: async (goalId) => {
+  deleteGoal: async (goalId: string) => {
     try {
       await supabaseService.client
         .from('goals')
@@ -382,7 +409,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
     }
   },
 
-  sendFriendRequest: async (friendId) => {
+  sendFriendRequest: async (friendId: string) => {
     const { currentUser } = get();
     if (!currentUser) throw new Error('No user logged in');
 
@@ -396,7 +423,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
     }
   },
 
-  acceptFriendRequest: async (requestId) => {
+  acceptFriendRequest: async (requestId: string) => {
     try {
       await supabaseService.acceptFriendRequest(requestId);
       await get().loadFriends();
@@ -406,7 +433,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
     }
   },
 
-  removeFriend: async (friendId) => {
+  removeFriend: async (friendId: string) => {
     try {
       await supabaseService.client
         .from('friends')
@@ -435,7 +462,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
     }
   },
 
-  unlockAchievement: async (achievementId) => {
+  unlockAchievement: (achievementId: string) => {
     set(state => ({
       achievements: state.achievements.map(a => 
         a.achievementId === achievementId 
@@ -463,7 +490,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
     }
   },
 
-  markNotificationAsRead: async (notificationId) => {
+  markNotificationAsRead: async (notificationId: string) => {
     try {
       await supabaseService.markNotificationAsRead(notificationId);
       

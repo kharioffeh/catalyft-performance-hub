@@ -27,6 +27,7 @@ export interface UserPreferences {
   privacy: PrivacySettings;
   theme: 'light' | 'dark' | 'system';
   language: string;
+  [key: string]: any; // Make it compatible with Json type
 }
 
 export interface NotificationSettings {
