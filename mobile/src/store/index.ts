@@ -7,10 +7,11 @@ import { devtools, persist, subscribeWithSelector } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { MMKV } from 'react-native-mmkv';
 import { StateStorage } from 'zustand/middleware';
-import { UserSlice, createUserSlice } from './slices/userSlice';
+import { StoreState, UserSlice, SocialSlice } from './types';
+import { createUserSlice } from './slices/userSlice';
 import { WorkoutSlice, createWorkoutSlice } from './slices/workoutSlice';
 import { NutritionSlice, createNutritionSlice } from './slices/nutritionSlice';
-import { SocialSlice, createSocialSlice } from './slices/socialSlice';
+import { createSocialSlice } from './slices/socialSlice';
 
 // Initialize MMKV for store persistence
 const storage = new MMKV({
@@ -32,24 +33,7 @@ const mmkvStorage: StateStorage = {
   },
 };
 
-// Combined store type
-export type StoreState = UserSlice & WorkoutSlice & NutritionSlice & SocialSlice & {
-  // Global state
-  isOnline: boolean;
-  isSyncing: boolean;
-  lastSyncTime: Date | null;
-  syncErrors: string[];
-  
-  // Global actions
-  setIsOnline: (isOnline: boolean) => void;
-  setIsSyncing: (isSyncing: boolean) => void;
-  setLastSyncTime: (time: Date) => void;
-  addSyncError: (error: string) => void;
-  clearSyncErrors: () => void;
-  syncData: () => Promise<void>;
-  clearAllData: () => void;
-  resetStore: () => void;
-};
+// Store state is now defined in types.ts
 
 // Initial state
 const initialState = {
@@ -58,17 +42,26 @@ const initialState = {
   isAuthenticated: false,
   friends: [],
   goals: [],
-  achievements: [],
+  userAchievements: [],
   notifications: [],
-  unreadNotificationCount: 0,
+  userUnreadNotificationCount: 0,
   
   // Workout slice
-  workouts: [],
+  workoutHistory: [],
+  workoutHistoryLoading: false,
   exercises: [],
+  exercisesLoading: false,
+  favoriteExercises: [],
+  recentExercises: [],
+  exerciseSearchFilters: {},
+  templates: [],
+  templatesLoading: false,
+  personalRecords: [],
+  newPersonalRecords: [],
+  workoutStats: null,
+  workoutGoals: [],
+  workoutSettings: {},
   currentWorkout: null,
-  activeWorkout: null,
-  workoutTemplates: [],
-  workoutFilters: {},
   workoutTimer: { 
     isRunning: false, 
     startTime: undefined, 
@@ -77,11 +70,49 @@ const initialState = {
     currentDuration: 0,
     restTimerActive: false
   },
+  restTimer: null,
   
-  // Nutrition slice - removed old properties, will come from createNutritionSlice
-  foods: [],
+  // Nutrition slice
+  currentDate: new Date(),
+  todaysFoodLogs: [],
+  dailySummary: null,
+  nutritionGoals: null,
+  searchResults: [],
+  searchLoading: false,
+  searchFilters: {},
+  selectedFood: null,
   favoriteFoods: [],
   recentFoods: [],
+  customFoods: [],
+  todaysWaterLogs: [],
+  waterGoal: 2000,
+  quickWaterPresets: [],
+  recipes: [],
+  mealPlans: [],
+  nutritionAnalytics: null,
+  
+  // Social slice
+  userProfiles: new Map(),
+  currentUserProfile: null,
+  following: [],
+  followers: [],
+  activityFeed: [],
+  feedLoading: false,
+  feedHasMore: true,
+  feedPage: 1,
+  userPosts: new Map(),
+  comments: new Map(),
+  reactions: new Map(),
+  challenges: [],
+  userChallenges: [],
+  challengeParticipants: new Map(),
+  leaderboard: [],
+  socialAchievements: [],
+  socialUserAchievements: new Map(),
+  socialNotifications: [],
+  socialUnreadNotificationCount: 0,
+  suggestedUsers: [],
+  socialSearchResults: [],
   
   // Global state
   isOnline: true,
@@ -103,6 +134,10 @@ export const useStore = create<StoreState>()(
           ...createWorkoutSlice(),  // No parameters needed since it returns static object
           ...createNutritionSlice(set as any, get, api as any),
           ...createSocialSlice(set as any, get, api as any),
+          
+          // Backward compatibility properties
+          get achievements() { return get().userAchievements; },
+          get unreadNotificationCount() { return get().userUnreadNotificationCount; },
           
           // Global actions
           setIsOnline: (isOnline: boolean) => set({ isOnline }),
@@ -135,7 +170,7 @@ export const useStore = create<StoreState>()(
                   state.refreshUser?.(),
                   state.loadFriends?.(),
                   state.loadGoals?.(),
-                  state.loadAchievements?.(),
+                  state.loadUserAchievements?.(),
                   state.loadNotifications?.(),
                 ]);
               }
@@ -158,13 +193,13 @@ export const useStore = create<StoreState>()(
               // Preserve auth state
               currentUser: get().currentUser,
               isAuthenticated: get().isAuthenticated,
-            });
+            } as any);
           },
           
           resetStore: () => {
-            set(initialState);
+            set(initialState as any);
           },
-        }))
+        } as any))
       ),
       {
         name: 'catalyft-store',
@@ -173,7 +208,7 @@ export const useStore = create<StoreState>()(
           // Persist only essential data
           currentUser: state.currentUser,
           isAuthenticated: state.isAuthenticated,
-          workoutTemplates: state.workoutTemplates,
+          templates: state.templates,
           favoriteFoods: state.favoriteFoods,
           lastSyncTime: state.lastSyncTime,
           nutritionGoals: state.nutritionGoals,
@@ -190,7 +225,7 @@ export const useStore = create<StoreState>()(
 // Selectors for common use cases
 export const useCurrentUser = () => useStore(state => state.currentUser);
 export const useIsAuthenticated = () => useStore(state => state.isAuthenticated);
-export const useWorkouts = () => useStore(state => state.workouts || []);
+export const useWorkouts = () => useStore(state => state.workoutHistory || []);
 export const useCurrentWorkout = () => useStore(state => state.currentWorkout);
 export const useTodaysFoodLogs = () => useStore(state => state.todaysFoodLogs || []);
 export const useNutritionGoals = () => useStore(state => state.nutritionGoals);
@@ -227,7 +262,7 @@ useStore.subscribe(
     } else {
       // Clear sensitive data when logged out
       useStore.setState({
-        workouts: [],
+        workoutHistory: [],
         todaysFoodLogs: [],
         friends: [],
         notifications: [],

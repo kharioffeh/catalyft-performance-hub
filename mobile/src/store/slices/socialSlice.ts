@@ -2,111 +2,10 @@
  * Social features state slice for Zustand store
  */
 
-import { StateCreator } from 'zustand';
 import { socialService } from '../../services/social';
-import { 
-  UserProfile, 
-  Follow, 
-  ActivityPost, 
-  Comment, 
-  Reaction, 
-  Challenge, 
-  ChallengeParticipant,
-  LeaderboardEntry,
-  Achievement,
-  SocialNotification
-} from '../../types/social';
+import { SocialSliceCreator } from '../types';
 
-export interface SocialSlice {
-  // State
-  userProfiles: Map<string, UserProfile>;
-  currentUserProfile: UserProfile | null;
-  following: Follow[];
-  followers: Follow[];
-  activityFeed: ActivityPost[];
-  feedLoading: boolean;
-  feedHasMore: boolean;
-  feedPage: number;
-  userPosts: Map<string, ActivityPost[]>;
-  comments: Map<string, Comment[]>;
-  reactions: Map<string, Reaction[]>;
-  challenges: Challenge[];
-  userChallenges: Challenge[];
-  challengeParticipants: Map<string, ChallengeParticipant[]>;
-  leaderboard: LeaderboardEntry[];
-  achievements: Achievement[];
-  userAchievements: Map<string, Achievement[]>;
-  socialNotifications: SocialNotification[];
-  unreadNotificationCount: number;
-  suggestedUsers: UserProfile[];
-  searchResults: UserProfile[];
-  isLoading: boolean;
-  error: string | null;
-
-  // Profile Actions
-  loadUserProfile: (userId: string) => Promise<void>;
-  updateUserProfile: (updates: Partial<UserProfile>) => Promise<void>;
-  uploadProfilePicture: (uri: string) => Promise<string>;
-  updateProfileStats: (stats: any) => Promise<void>;
-
-  // Follow System Actions
-  followUser: (userId: string) => Promise<void>;
-  unfollowUser: (userId: string) => Promise<void>;
-  loadFollowers: (userId?: string) => Promise<void>;
-  loadFollowing: (userId?: string) => Promise<void>;
-  loadSuggestedUsers: () => Promise<void>;
-  searchUsers: (query: string) => Promise<void>;
-
-  // Activity Feed Actions
-  loadActivityFeed: (refresh?: boolean) => Promise<void>;
-  loadMoreFeed: () => Promise<void>;
-  loadUserPosts: (userId: string) => Promise<void>;
-  createPost: (post: Partial<ActivityPost>) => Promise<void>;
-  deletePost: (postId: string) => Promise<void>;
-  shareWorkout: (workoutId: string, caption?: string) => Promise<void>;
-  shareMeal: (mealId: string, caption?: string, imageUrl?: string) => Promise<void>;
-  shareAchievement: (achievementId: string, caption?: string) => Promise<void>;
-
-  // Engagement Actions
-  likePost: (postId: string) => Promise<void>;
-  unlikePost: (postId: string) => Promise<void>;
-  addReaction: (postId: string, type: string) => Promise<void>;
-  removeReaction: (postId: string) => Promise<void>;
-  loadComments: (postId: string) => Promise<void>;
-  addComment: (postId: string, text: string, parentId?: string) => Promise<void>;
-  deleteComment: (commentId: string) => Promise<void>;
-
-  // Challenge Actions
-  loadChallenges: () => Promise<void>;
-  loadUserChallenges: () => Promise<void>;
-  createChallenge: (challenge: Partial<Challenge>) => Promise<void>;
-  joinChallenge: (challengeId: string) => Promise<void>;
-  leaveChallenge: (challengeId: string) => Promise<void>;
-  updateChallengeProgress: (challengeId: string, progress: any) => Promise<void>;
-  loadChallengeParticipants: (challengeId: string) => Promise<void>;
-  loadChallengeLeaderboard: (challengeId: string) => Promise<void>;
-
-  // Leaderboard Actions
-  loadGlobalLeaderboard: (category: string, timeframe: string) => Promise<void>;
-  loadFriendsLeaderboard: (category: string, timeframe: string) => Promise<void>;
-
-  // Achievement Actions
-  loadAchievements: () => Promise<void>;
-  loadUserAchievements: (userId: string) => Promise<void>;
-  unlockAchievement: (achievementId: string) => Promise<void>;
-
-  // Notification Actions
-  loadSocialNotifications: () => Promise<void>;
-  markNotificationRead: (notificationId: string) => Promise<void>;
-  markAllNotificationsRead: () => Promise<void>;
-
-  // Utility Actions
-  clearSocialData: () => void;
-  setError: (error: string | null) => void;
-  setLoading: (loading: boolean) => void;
-}
-
-export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
+export const createSocialSlice: SocialSliceCreator = (set, get) => ({
   // Initial state
   userProfiles: new Map(),
   currentUserProfile: null,
@@ -123,12 +22,12 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
   userChallenges: [],
   challengeParticipants: new Map(),
   leaderboard: [],
-  achievements: [],
-  userAchievements: new Map(),
+  socialAchievements: [],
+  socialUserAchievements: new Map(),
   socialNotifications: [],
-  unreadNotificationCount: 0,
+  socialUnreadNotificationCount: 0,
   suggestedUsers: [],
-  searchResults: [],
+  socialSearchResults: [],
   isLoading: false,
   error: null,
 
@@ -279,7 +178,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
   searchUsers: async (query) => {
     try {
       const results = await socialService.searchUsers(query);
-      set({ searchResults: results });
+      set({ socialSearchResults: results });
     } catch (error: any) {
       set({ error: error.message });
     }
@@ -596,38 +495,38 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
   },
 
   // Achievement Actions
-  loadAchievements: async () => {
+  loadSocialAchievements: async () => {
     try {
       const achievements = await socialService.getAchievements();
-      set({ achievements });
+      set({ socialAchievements: achievements });
     } catch (error: any) {
       set({ error: error.message });
     }
   },
 
-  loadUserAchievements: async (userId) => {
+  loadSocialUserAchievements: async (userId) => {
     try {
       const achievements = await socialService.getUserAchievements(userId);
       set((state) => {
-        const userAchievements = new Map(state.userAchievements);
-        userAchievements.set(userId, achievements);
-        return { userAchievements };
+        const socialUserAchievements = new Map(state.socialUserAchievements);
+        socialUserAchievements.set(userId, achievements);
+        return { socialUserAchievements };
       });
     } catch (error: any) {
       set({ error: error.message });
     }
   },
 
-  unlockAchievement: async (achievementId) => {
+  unlockSocialAchievement: async (achievementId) => {
     try {
       const achievement = await socialService.unlockAchievement(achievementId);
       const userId = get().currentUserProfile?.id;
       if (userId) {
         set((state) => {
-          const userAchievements = new Map(state.userAchievements);
-          const current = userAchievements.get(userId) || [];
-          userAchievements.set(userId, [...current, achievement]);
-          return { userAchievements };
+          const socialUserAchievements = new Map(state.socialUserAchievements);
+          const current = socialUserAchievements.get(userId) || [];
+          socialUserAchievements.set(userId, [...current, achievement]);
+          return { socialUserAchievements };
         });
       }
     } catch (error: any) {
@@ -640,7 +539,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
     try {
       const notifications = await socialService.getSocialNotifications();
       const unreadCount = notifications.filter(n => !n.isRead).length;
-      set({ socialNotifications: notifications, unreadNotificationCount: unreadCount });
+      set({ socialNotifications: notifications, socialUnreadNotificationCount: unreadCount });
     } catch (error: any) {
       set({ error: error.message });
     }
@@ -653,7 +552,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
         socialNotifications: state.socialNotifications.map(n => 
           n.id === notificationId ? { ...n, isRead: true } : n
         ),
-        unreadNotificationCount: Math.max(state.unreadNotificationCount - 1, 0)
+        socialUnreadNotificationCount: Math.max(state.socialUnreadNotificationCount - 1, 0)
       }));
     } catch (error: any) {
       set({ error: error.message });
@@ -665,7 +564,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
       await socialService.markAllNotificationsRead();
       set((state) => ({
         socialNotifications: state.socialNotifications.map(n => ({ ...n, isRead: true })),
-        unreadNotificationCount: 0
+        socialUnreadNotificationCount: 0
       }));
     } catch (error: any) {
       set({ error: error.message });
@@ -690,12 +589,12 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
       userChallenges: [],
       challengeParticipants: new Map(),
       leaderboard: [],
-      achievements: [],
-      userAchievements: new Map(),
+      socialAchievements: [],
+      socialUserAchievements: new Map(),
       socialNotifications: [],
-      unreadNotificationCount: 0,
+      socialUnreadNotificationCount: 0,
       suggestedUsers: [],
-      searchResults: [],
+      socialSearchResults: [],
       isLoading: false,
       error: null
     });

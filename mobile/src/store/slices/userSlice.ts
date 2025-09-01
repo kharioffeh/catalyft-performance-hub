@@ -2,69 +2,12 @@
  * User state slice for Zustand store
  */
 
-import { StateCreator } from 'zustand';
 import { User, UserPreferences, UserStats, Goal, Friend, UserAchievement, Notification } from '../../types/models';
 import { supabaseService } from '../../services/supabase';
 import { safeValidateData, UserProfileUpdateSchema } from '../../utils/validators';
+import { UserSliceCreator } from '../types';
 
-export interface UserSlice {
-  // State
-  currentUser: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
-  friends: Friend[];
-  goals: Goal[];
-  achievements: UserAchievement[];
-  notifications: Notification[];
-  unreadNotificationCount: number;
-
-  // Actions
-  setCurrentUser: (user: User | null) => void;
-  setIsAuthenticated: (isAuthenticated: boolean) => void;
-  setIsLoading: (isLoading: boolean) => void;
-  setError: (error: string | null) => void;
-  
-  // Auth actions
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, userData: any) => Promise<void>;
-  signOut: () => Promise<void>;
-  refreshUser: () => Promise<void>;
-  
-  // Profile actions
-  updateProfile: (updates: any) => Promise<void>;
-  updatePreferences: (preferences: Partial<UserPreferences>) => Promise<void>;
-  uploadProfilePicture: (uri: string) => Promise<void>;
-  
-  // Stats actions
-  updateStats: (stats: Partial<UserStats>) => Promise<void>;
-  incrementWorkoutCount: () => void;
-  updateStreak: (currentStreak: number) => void;
-  
-  // Goals actions
-  loadGoals: () => Promise<void>;
-  createGoal: (goal: any) => Promise<void>;
-  updateGoal: (goalId: string, updates: any) => Promise<void>;
-  deleteGoal: (goalId: string) => Promise<void>;
-  
-  // Friends actions
-  loadFriends: () => Promise<void>;
-  sendFriendRequest: (friendId: string) => Promise<void>;
-  acceptFriendRequest: (requestId: string) => Promise<void>;
-  removeFriend: (friendId: string) => Promise<void>;
-  
-  // Achievements actions
-  loadAchievements: () => Promise<void>;
-  unlockAchievement: (achievementId: string) => void;
-  
-  // Notifications actions
-  loadNotifications: () => Promise<void>;
-  markNotificationAsRead: (notificationId: string) => Promise<void>;
-  markAllNotificationsAsRead: () => Promise<void>;
-  clearNotifications: () => void;
-}
-
-export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
+export const createUserSlice: UserSliceCreator = (set, get) => ({
   // Initial state
   currentUser: null,
   isAuthenticated: false,
@@ -72,9 +15,9 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
   error: null,
   friends: [],
   goals: [],
-  achievements: [],
+  userAchievements: [],
   notifications: [],
-  unreadNotificationCount: 0,
+  userUnreadNotificationCount: 0,
 
   // Basic setters
   setCurrentUser: (user) => set({ currentUser: user, isAuthenticated: !!user }),
@@ -99,7 +42,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
         await Promise.all([
           get().loadGoals(),
           get().loadFriends(),
-          get().loadAchievements(),
+          get().loadUserAchievements(),
           get().loadNotifications(),
         ]);
       }
@@ -143,9 +86,9 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
         isAuthenticated: false,
         friends: [],
         goals: [],
-        achievements: [],
+        userAchievements: [],
         notifications: [],
-        unreadNotificationCount: 0,
+        userUnreadNotificationCount: 0,
         isLoading: false,
         error: null,
       });
@@ -248,7 +191,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
     if (!currentUser) throw new Error('No user logged in');
 
     try {
-      await supabaseService.client
+      await (supabaseService.client as any)
         .from('user_stats')
         .update(stats)
         .eq('user_id', currentUser.id);
@@ -420,21 +363,21 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
   },
 
   // Achievements actions
-  loadAchievements: async () => {
+  loadUserAchievements: async () => {
     const { currentUser } = get();
     if (!currentUser) return;
 
     try {
       const achievements = await supabaseService.getUserAchievements(currentUser.id);
-      set({ achievements });
+      set({ userAchievements: achievements });
     } catch (error: any) {
       set({ error: error.message || 'Failed to load achievements' });
     }
   },
 
-  unlockAchievement: (achievementId) => {
+  unlockUserAchievement: (achievementId) => {
     set(state => ({
-      achievements: state.achievements.map(a => 
+      userAchievements: state.userAchievements.map(a => 
         a.achievementId === achievementId 
           ? { ...a, isUnlocked: true, unlockedAt: new Date() }
           : a
@@ -453,7 +396,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
       
       set({ 
         notifications,
-        unreadNotificationCount: unreadCount,
+        userUnreadNotificationCount: unreadCount,
       });
     } catch (error: any) {
       set({ error: error.message || 'Failed to load notifications' });
@@ -468,7 +411,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
         notifications: state.notifications.map(n => 
           n.id === notificationId ? { ...n, isRead: true } : n
         ),
-        unreadNotificationCount: Math.max(0, state.unreadNotificationCount - 1),
+        userUnreadNotificationCount: Math.max(0, state.userUnreadNotificationCount - 1),
       }));
     } catch (error: any) {
       set({ error: error.message || 'Failed to mark notification as read' });
@@ -485,7 +428,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
       
       set(state => ({
         notifications: state.notifications.map(n => ({ ...n, isRead: true })),
-        unreadNotificationCount: 0,
+        userUnreadNotificationCount: 0,
       }));
     } catch (error: any) {
       set({ error: error.message || 'Failed to mark all notifications as read' });
@@ -496,7 +439,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
   clearNotifications: () => {
     set({ 
       notifications: [],
-      unreadNotificationCount: 0,
+      userUnreadNotificationCount: 0,
     });
   },
 });
