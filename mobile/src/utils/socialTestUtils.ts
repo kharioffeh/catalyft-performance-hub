@@ -80,7 +80,7 @@ export const mockDataGenerators = {
     showWorkoutStats: true,
     showNutritionStats: true,
     showAchievements: true,
-    allowMessages: 'followers',
+    allowMessages: 'following',
     
     privacySettings: overrides?.privacySettings || createDefaultPrivacySettings(),
     

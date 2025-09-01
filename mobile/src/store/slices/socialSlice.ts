@@ -451,7 +451,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
     }
   },
 
-  addComment: async (postId, text, parentId) => {
+  addComment: async (postId: string, text: string, parentId?: string) => {
     try {
       const comment = await socialService.addComment(postId, text, parentId);
       set((state) => {
@@ -473,7 +473,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
     }
   },
 
-  deleteComment: async (commentId) => {
+  deleteComment: async (commentId: string) => {
     try {
       await socialService.deleteComment(commentId);
       set((state) => {
@@ -507,7 +507,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
     }
   },
 
-  createChallenge: async (challenge) => {
+  createChallenge: async (challenge: Partial<Challenge>) => {
     try {
       const newChallenge = await socialService.createChallenge(challenge);
       set((state) => ({
@@ -519,7 +519,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
     }
   },
 
-  joinChallenge: async (challengeId) => {
+  joinChallenge: async (challengeId: string) => {
     try {
       await socialService.joinChallenge(challengeId);
       const challenge = get().challenges.find(c => c.id === challengeId);
@@ -533,7 +533,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
     }
   },
 
-  leaveChallenge: async (challengeId) => {
+  leaveChallenge: async (challengeId: string) => {
     try {
       await socialService.leaveChallenge(challengeId);
       set((state) => ({
@@ -544,7 +544,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
     }
   },
 
-  updateChallengeProgress: async (challengeId, progress) => {
+  updateChallengeProgress: async (challengeId: string, progress: number) => {
     try {
       await socialService.updateChallengeProgress(challengeId, progress);
       // Reload challenge data
@@ -554,7 +554,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
     }
   },
 
-  loadChallengeParticipants: async (challengeId) => {
+  loadChallengeParticipants: async (challengeId: string) => {
     try {
       const participants = await socialService.getChallengeParticipants(challengeId);
       set((state) => {
@@ -567,7 +567,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
     }
   },
 
-  loadChallengeLeaderboard: async (challengeId) => {
+  loadChallengeLeaderboard: async (challengeId: string) => {
     try {
       const leaderboard = await socialService.getChallengeLeaderboard(challengeId);
       set({ leaderboard });
@@ -577,7 +577,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
   },
 
   // Leaderboard Actions
-  loadGlobalLeaderboard: async (category, timeframe) => {
+  loadGlobalLeaderboard: async (category: string, timeframe: string) => {
     try {
       const leaderboard = await socialService.getGlobalLeaderboard(category, timeframe);
       set({ leaderboard });
@@ -586,7 +586,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
     }
   },
 
-  loadFriendsLeaderboard: async (category, timeframe) => {
+  loadFriendsLeaderboard: async (category: string, timeframe: string) => {
     try {
       const leaderboard = await socialService.getFriendsLeaderboard(category, timeframe);
       set({ leaderboard });
@@ -605,7 +605,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
     }
   },
 
-  loadUserAchievements: async (userId) => {
+  loadUserAchievements: async (userId: string) => {
     try {
       const achievements = await socialService.getUserAchievements(userId);
       set((state) => {
@@ -618,7 +618,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
     }
   },
 
-  unlockAchievement: async (achievementId) => {
+  unlockAchievement: async (achievementId: string) => {
     try {
       const achievement = await socialService.unlockAchievement(achievementId);
       const userId = get().currentUserProfile?.id;
@@ -646,7 +646,7 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
     }
   },
 
-  markNotificationRead: async (notificationId) => {
+  markNotificationRead: async (notificationId: string) => {
     try {
       await socialService.markNotificationRead(notificationId);
       set((state) => ({
@@ -701,6 +701,6 @@ export const createSocialSlice: StateCreator<SocialSlice> = (set, get) => ({
     });
   },
 
-  setError: (error) => set({ error }),
-  setLoading: (loading) => set({ isLoading: loading })
+  setError: (error: string | null) => set({ error }),
+  setLoading: (loading: boolean) => set({ isLoading: loading })
 });

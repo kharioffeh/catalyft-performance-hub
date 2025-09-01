@@ -237,7 +237,7 @@ export class SocialErrorHandler {
   private showAlert(message: string, retryable: boolean): void {
     const buttons = retryable
       ? [
-          { text: 'Cancel', style: 'cancel' },
+          { text: 'Cancel', style: 'cancel' as const },
           { text: 'Retry', onPress: () => this.handleRetry() },
         ]
       : [{ text: 'OK' }];
