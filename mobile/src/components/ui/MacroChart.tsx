@@ -82,9 +82,9 @@ export const MacroChart: React.FC<MacroChartProps> = ({
   
   // Colors for macros
   const macroColors = {
-    protein: colors.protein,
-    carbs: colors.carbs,
-    fat: colors.fat,
+    protein: colors.success,
+    carbs: colors.warning,
+    fat: colors.error,
   };
   
   // Calculate pie chart dimensions
@@ -120,9 +120,9 @@ export const MacroChart: React.FC<MacroChartProps> = ({
     if (animated) {
       animationProgress.value = withTiming(1, {
         duration: theme.animation.duration.slow,
-        easing: theme.animation.easing.easeOutCubic,
+        easing: theme.animation.easing.easeOut,
       });
-      scaleAnimation.value = withSpring(1, theme.animation.spring.bouncy);
+      scaleAnimation.value = withSpring(1, { tension: 100, friction: 8 });
     } else {
       animationProgress.value = 1;
       scaleAnimation.value = 1;
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    marginHorizontal: theme.spacing.s2,
+    marginHorizontal: theme.spacing.sm,
   },
   targetBar: {
     position: 'absolute',
@@ -406,33 +406,33 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.sm,
   },
   barLabel: {
-    marginTop: theme.spacing.s2,
-    ...theme.typography.styles.caption,
+    marginTop: theme.spacing.sm,
+    ...theme.typography.caption,
   },
   barValue: {
-    ...theme.typography.styles.caption,
+    ...theme.typography.caption,
   },
   legend: {
-    marginTop: theme.spacing.s4,
+    marginTop: theme.spacing.md,
     width: '100%',
   },
   legendItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: theme.spacing.s1,
+    marginVertical: theme.spacing.xs,
   },
   legendDot: {
     width: 12,
     height: 12,
     borderRadius: theme.borderRadius.full,
-    marginRight: theme.spacing.s2,
+    marginRight: theme.spacing.sm,
   },
   legendLabel: {
     flex: 1,
-    ...theme.typography.styles.bodySmall,
+    ...theme.typography.body,
   },
   legendValue: {
-    ...theme.typography.styles.bodySmall,
+    ...theme.typography.body,
   },
 });
 

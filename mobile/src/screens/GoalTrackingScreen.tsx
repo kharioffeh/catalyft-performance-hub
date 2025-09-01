@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Svg, Circle, Rect, Line, Path } from 'react-native-svg';
+import { Svg, Circle, Rect, Line, Path, Text as SvgText } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
 
@@ -415,7 +415,7 @@ const GoalTrackingScreen: React.FC = () => {
           
           {/* Week labels */}
           {data?.goalProgress.map((week, index) => (
-            <Text
+            <SvgText
               key={index}
               x={30 + index * 50}
               y={190}
@@ -424,7 +424,7 @@ const GoalTrackingScreen: React.FC = () => {
               fill="#666"
             >
               {week.week}
-            </Text>
+            </SvgText>
           ))}
         </Svg>
         

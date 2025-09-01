@@ -211,7 +211,7 @@ export default function ExerciseDetailScreen() {
             color={exercise ? getMuscleGroupColor(exercise.muscleGroup) : theme.colors.light.textSecondary}
           />
           <Text style={[styles.metaText, { color: exercise ? getMuscleGroupColor(exercise.muscleGroup) : theme.colors.light.textSecondary }]}>
-            {exercise?.muscleGroup?.replace('_', ' ').charAt(0).toUpperCase() + exercise?.muscleGroup?.replace('_', ' ').slice(1)}
+            {exercise?.muscleGroup ? exercise.muscleGroup.replace('_', ' ').charAt(0).toUpperCase() + exercise.muscleGroup.replace('_', ' ').slice(1) : 'Unknown'}
           </Text>
         </View>
         
@@ -222,14 +222,14 @@ export default function ExerciseDetailScreen() {
             color={theme.colors.light.textSecondary}
           />
           <Text style={styles.metaText}>
-            {exercise?.equipment?.charAt(0).toUpperCase() + exercise?.equipment?.slice(1)}
+            {exercise?.equipment ? exercise.equipment.charAt(0).toUpperCase() + exercise.equipment.slice(1) : 'Unknown'}
           </Text>
         </View>
         
         <View style={styles.metaItem}>
           <Ionicons name="fitness-outline" size={16} color={theme.colors.light.textSecondary} />
           <Text style={styles.metaText}>
-            {exercise?.category?.charAt(0).toUpperCase() + exercise?.category?.slice(1)}
+            {exercise?.category ? exercise.category.charAt(0).toUpperCase() + exercise.category.slice(1) : 'Unknown'}
           </Text>
         </View>
       </View>

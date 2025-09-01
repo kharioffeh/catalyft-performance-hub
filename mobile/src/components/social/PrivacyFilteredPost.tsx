@@ -11,7 +11,7 @@ import { usePrivacyCheck } from './PrivacyAwareContent';
 
 interface PrivacyFilteredPostProps {
   post: ActivityPost;
-  userProfile: UserProfile;
+  userProfile?: UserProfile;
   currentUserId?: string;
   isFollowing?: boolean;
 }
@@ -22,6 +22,22 @@ export const PrivacyFilteredPost: React.FC<PrivacyFilteredPostProps> = ({
   currentUserId,
   isFollowing = false,
 }) => {
+  // If no userProfile, show a basic post without privacy filtering
+  if (!userProfile) {
+    return (
+      <View style={{
+        padding: 16,
+        backgroundColor: '#F5F5F5',
+        borderRadius: 8,
+        margin: 12,
+      }}>
+        <Text style={{ color: '#999' }}>
+          Post content unavailable
+        </Text>
+      </View>
+    );
+  }
+  
   const privacySettings = userProfile.privacySettings;
   
   // Check various privacy settings

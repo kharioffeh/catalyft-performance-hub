@@ -20,7 +20,7 @@ import Animated, {
   withTiming,
 } from '../../utils/reanimated-mock';
 import { theme } from '../../theme';
-import Button from './Button';
+import { Button } from './Button';
 
 export type EmptyStateType = 
   | 'no-data'
@@ -144,7 +144,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   useEffect(() => {
     if (animated) {
       // Scale in animation
-      scaleAnimation.value = withSpring(1, theme.animation.spring.bouncy);
+      scaleAnimation.value = withSpring(1, { tension: 100, friction: 8 });
       
       // Rotation animation for emoji
       rotationAnimation.value = withRepeat(
@@ -215,7 +215,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
             <Button
               title={content.actionLabel}
               variant="primary"
-              size="medium"
+              size="large"
               onPress={onAction}
               style={styles.actionButton}
             />
@@ -224,7 +224,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
             <Button
               title={secondaryActionLabel}
               variant="outline"
-              size="medium"
+              size="large"
               onPress={onSecondaryAction}
               style={styles.actionButton}
             />
@@ -269,28 +269,31 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: theme.spacing.s8,
+    padding: theme.spacing.xxl,
   },
   iconContainer: {
-    marginBottom: theme.spacing.s6,
+    marginBottom: theme.spacing.xl,
   },
   emoji: {
-    fontSize: 72,
+    fontSize: theme.typography.sizes.regular,
+    fontWeight: theme.typography.weights.semibold,
   },
   title: {
-    ...theme.typography.styles.h4,
+    fontSize: theme.typography.sizes.h4,
+    fontWeight: theme.typography.weights.semibold,
     textAlign: 'center',
-    marginBottom: theme.spacing.s3,
+    marginBottom: theme.spacing.md,
   },
   message: {
-    ...theme.typography.styles.bodyMedium,
+    fontSize: theme.typography.sizes.regular,
+    fontWeight: theme.typography.weights.regular,
     textAlign: 'center',
-    marginBottom: theme.spacing.s6,
+    marginBottom: theme.spacing.xl,
     maxWidth: 300,
   },
   actions: {
     flexDirection: 'column',
-    gap: theme.spacing.s3,
+    gap: theme.spacing.md,
     width: '100%',
     maxWidth: 250,
   },

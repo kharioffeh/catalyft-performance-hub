@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import LinearGradient from 'react-native-linear-gradient';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ActivityPost } from '../../types/social';
 import { formatRelativeTime, formatNumber, formatDuration } from '../../utils/formatters';
 import { PrivacyFilteredPost } from './PrivacyFilteredPost';
@@ -54,15 +54,15 @@ export const PostCard: React.FC<PostCardProps> = ({
       activeOpacity={0.7}
     >
       <Image
-        source={{ uri: post.userProfile?.profilePicture || 'https://via.placeholder.com/40' }}
+        source={{ uri: post.user?.profilePicture || 'https://via.placeholder.com/40' }}
         style={styles.avatar}
       />
       <View style={styles.headerInfo}>
         <View style={styles.nameRow}>
           <Text style={styles.userName}>
-            {post.userProfile?.fullName || post.userProfile?.username || 'Unknown User'}
+            {post.user?.fullName || post.user?.username || 'Unknown User'}
           </Text>
-          {post.userProfile?.isVerified && (
+          {post.user?.isVerified && (
             <Ionicons name="checkmark-circle" size={14} color="#4CAF50" />
           )}
         </View>
@@ -232,9 +232,14 @@ export const PostCard: React.FC<PostCardProps> = ({
           <Text style={styles.challengeTitle}>{post.challengeData.name}</Text>
         </View>
         
-        <Text style={styles.challengeAction}>
-          {post.challengeData.action || 'Joined challenge'}
-        </Text>
+        {post.challengeData && (
+          <View style={styles.challengeInfo}>
+            <Text style={styles.challengeText}>
+              Joined challenge
+            </Text>
+            <Text style={styles.challengeName}>{post.challengeData.name}</Text>
+          </View>
+        )}
         
         {post.challengeData.progress !== undefined && (
           <View style={styles.challengeProgress}>
@@ -264,7 +269,7 @@ export const PostCard: React.FC<PostCardProps> = ({
         )}
 
         {/* Render type-specific content with privacy filtering */}
-        <PrivacyFilteredPost post={post} userProfile={post.userProfile} />
+        <PrivacyFilteredPost post={post} userProfile={post.user || undefined} />
 
         {/* Render images if any */}
         {post.images && post.images.length > 0 && (
@@ -637,6 +642,19 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
     marginLeft: 8,
+  },
+  challengeInfo: {
+    marginTop: 8,
+  },
+  challengeText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 4,
+  },
+  challengeName: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#333',
   },
   challengeAction: {
     fontSize: 14,

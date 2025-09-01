@@ -55,7 +55,7 @@ export interface UserSlice {
   
   // Achievements actions
   loadAchievements: () => Promise<void>;
-  unlockAchievement: (achievementId: string) => void;
+  unlockAchievement: (achievementId: string) => Promise<void>;
   
   // Notifications actions
   loadNotifications: () => Promise<void>;
@@ -435,7 +435,7 @@ export const createUserSlice: StateCreator<UserSlice> = (set, get) => ({
     }
   },
 
-  unlockAchievement: (achievementId) => {
+  unlockAchievement: async (achievementId) => {
     set(state => ({
       achievements: state.achievements.map(a => 
         a.achievementId === achievementId 

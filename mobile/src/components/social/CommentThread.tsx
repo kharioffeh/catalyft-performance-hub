@@ -81,7 +81,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
       <View style={[styles.commentContainer, isReply && styles.replyContainer]}>
         <TouchableOpacity onPress={() => onProfilePress(item.userId)}>
           <Image
-            source={{ uri: item.userProfile?.profilePicture || 'https://via.placeholder.com/32' }}
+            source={{ uri: item.user?.profilePicture || 'https://via.placeholder.com/32' }}
             style={[styles.avatar, isReply && styles.replyAvatar]}
           />
         </TouchableOpacity>
@@ -90,10 +90,10 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
           <View style={styles.commentHeader}>
             <TouchableOpacity onPress={() => onProfilePress(item.userId)}>
               <Text style={styles.userName}>
-                {item.userProfile?.fullName || item.userProfile?.username || 'Unknown'}
+                {item.user?.fullName || item.user?.username || 'Unknown'}
               </Text>
             </TouchableOpacity>
-            {item.userProfile?.isVerified && (
+            {item.user?.isVerified && (
               <Ionicons name="checkmark-circle" size={12} color="#4CAF50" />
             )}
             <Text style={styles.timestamp}>{formatRelativeTime(item.createdAt)}</Text>
@@ -198,7 +198,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
         {replyingTo && (
           <View style={styles.replyingToContainer}>
             <Text style={styles.replyingToText}>
-              Replying to {comments.find(c => c.id === replyingTo)?.userProfile?.username}
+              Replying to {comments.find(c => c.id === replyingTo)?.user?.username}
             </Text>
             <TouchableOpacity onPress={() => setReplyingTo(null)}>
               <Ionicons name="close-circle" size={18} color="#666" />

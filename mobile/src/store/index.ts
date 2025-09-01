@@ -35,9 +35,11 @@ const mmkvStorage: StateStorage = {
 };
 
 // Combined store type
-export type StoreState = Omit<UserSlice, 'achievements'> & WorkoutSlice & NutritionSliceWithFoodSearch & SocialSliceWithUserSearch & {
+export type StoreState = Omit<UserSlice, 'achievements'> & WorkoutSlice & NutritionSlice & SocialSlice & {
   // Override achievements to use the social slice version
   achievements: Achievement[];
+  // Override searchResults to be UserProfile[] for social compatibility
+  searchResults: UserProfile[];
   // Global state
   isOnline: boolean;
   isSyncing: boolean;
@@ -52,16 +54,6 @@ export type StoreState = Omit<UserSlice, 'achievements'> & WorkoutSlice & Nutrit
   syncData: () => Promise<void>;
   clearAllData: () => void;
   resetStore: () => void;
-};
-
-// Create a type for the social slice that overrides searchResults
-type SocialSliceWithUserSearch = Omit<SocialSlice, 'searchResults'> & {
-  searchResults: UserProfile[];
-};
-
-// Create a type for the nutrition slice that overrides searchResults
-type NutritionSliceWithFoodSearch = Omit<NutritionSlice, 'searchResults'> & {
-  searchResults: Food[];
 };
 
 // Initial state
@@ -108,83 +100,86 @@ export const useStore = create<StoreState>()(
   devtools(
     persist(
       subscribeWithSelector(
-        immer((set, get, api) => ({
-          ...initialState,
+        immer((set, get, api) => {
+          const userSlice = createUserSlice(set, get, api);
+          const workoutSlice = createWorkoutSlice();
+          const nutritionSlice = createNutritionSlice(set, get, api);
+          const socialSlice = createSocialSlice(set, get, api);
           
-          // Merge slices
-          ...createUserSlice(set, get, api),
-          ...createWorkoutSlice(),  // No parameters needed since it returns static object
-          ...createNutritionSlice(set, get, api),
-          ...(() => {
-            const socialSlice = createSocialSlice(set, get, api);
-            // Override searchResults to be UserProfile[] for social compatibility
-            return {
-              ...socialSlice,
-              searchResults: [] as UserProfile[],
-            };
-          })(),
-          
-          // Global actions
-          setIsOnline: (isOnline: boolean) => set({ isOnline }),
-          setIsSyncing: (isSyncing: boolean) => set({ isSyncing }),
-          setLastSyncTime: (time: Date) => set({ lastSyncTime: time }),
-          addSyncError: (error: string) => set((state: any) => ({
-            syncErrors: [...state.syncErrors, error],
-          })),
-          clearSyncErrors: () => set({ syncErrors: [] }),
-          
-          syncData: async () => {
-            set({ isSyncing: true });
+          return {
+            ...initialState,
             
-            try {
-              const state = get();
+            // Merge slices with explicit type handling
+            ...userSlice,
+            ...workoutSlice,
+            ...nutritionSlice,
+            ...socialSlice,
+            
+            // Override searchResults to resolve type conflicts
+            searchResults: [] as UserProfile[],
+            
+            // Global actions
+            setIsOnline: (isOnline: boolean) => set({ isOnline }),
+            setIsSyncing: (isSyncing: boolean) => set({ isSyncing }),
+            setLastSyncTime: (time: Date) => set({ lastSyncTime: time }),
+            addSyncError: (error: string) => set((state: any) => ({
+              syncErrors: [...state.syncErrors, error],
+            })),
+            clearSyncErrors: () => set({ syncErrors: [] }),
+            
+            syncData: async () => {
+              set({ isSyncing: true });
               
-              if (state.currentUser) {
-                // Sync workouts
-                if (state.loadWorkoutHistory) {
-                  await state.loadWorkoutHistory();
+              try {
+                const state = get();
+                
+                if (state.currentUser) {
+                  // Sync workouts
+                  if (state.loadWorkoutHistory) {
+                    await state.loadWorkoutHistory();
+                  }
+                  
+                  // Sync nutrition
+                  if (state.refreshTodaysData) {
+                    await state.refreshTodaysData();
+                  }
+                  
+                  // Sync user data
+                  await Promise.all([
+                    state.refreshUser?.(),
+                    state.loadFriends?.(),
+                    state.loadGoals?.(),
+                    state.loadAchievements?.(),
+                    state.loadNotifications?.(),
+                  ]);
                 }
                 
-                // Sync nutrition
-                if (state.refreshTodaysData) {
-                  await state.refreshTodaysData();
-                }
-                
-                // Sync user data
-                await Promise.all([
-                  state.refreshUser?.(),
-                  state.loadFriends?.(),
-                  state.loadGoals?.(),
-                  state.loadAchievements?.(),
-                  state.loadNotifications?.(),
-                ]);
+                set({
+                  lastSyncTime: new Date(),
+                  isSyncing: false,
+                });
+              } catch (error: any) {
+                set((state: any) => ({
+                  syncErrors: [...state.syncErrors, error.message || 'Sync failed'],
+                  isSyncing: false,
+                }));
               }
-              
+            },
+            
+            clearAllData: () => {
               set({
-                lastSyncTime: new Date(),
-                isSyncing: false,
+                ...initialState,
+                // Preserve auth state
+                currentUser: get().currentUser,
+                isAuthenticated: get().isAuthenticated,
               });
-            } catch (error: any) {
-              set((state: any) => ({
-                syncErrors: [...state.syncErrors, error.message || 'Sync failed'],
-                isSyncing: false,
-              }));
-            }
-          },
-          
-          clearAllData: () => {
-            set({
-              ...initialState,
-              // Preserve auth state
-              currentUser: get().currentUser,
-              isAuthenticated: get().isAuthenticated,
-            });
-          },
-          
-          resetStore: () => {
-            set(initialState);
-          },
-        }))
+            },
+            
+            resetStore: () => {
+              set(initialState);
+            },
+          };
+        })
       ),
       {
         name: 'catalyft-store',

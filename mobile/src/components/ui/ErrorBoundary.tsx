@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { theme } from '../../theme';
 import EmptyState from './EmptyState';
-import Button from './Button';
+import { Button } from './Button';
 
 interface Props {
   children: ReactNode;
@@ -137,7 +137,7 @@ const ErrorBoundaryFallback: React.FC<FallbackProps> = ({
         />
         
         {showDetails && error && (
-          <View style={[styles.errorDetails, { backgroundColor: colors.surfaceSecondary }]}>
+          <View style={[styles.errorDetails, { backgroundColor: colors.surface }]}>
             <Text style={[styles.errorTitle, { color: colors.error }]}>
               Error Details
             </Text>
@@ -206,33 +206,35 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: theme.spacing.s4,
+    padding: theme.spacing.md,
   },
   errorDetails: {
-    marginTop: theme.spacing.s6,
-    padding: theme.spacing.s4,
+    marginTop: theme.spacing.xl,
+    padding: theme.spacing.md,
     borderRadius: theme.borderRadius.lg,
   },
   errorTitle: {
-    ...theme.typography.styles.h5,
-    marginBottom: theme.spacing.s4,
+    fontSize: theme.typography.sizes.small,
+    fontWeight: theme.typography.weights.semibold,
+    marginBottom: theme.spacing.md,
   },
   errorSection: {
-    marginBottom: theme.spacing.s4,
+    marginBottom: theme.spacing.md,
   },
   errorLabel: {
-    ...theme.typography.styles.label,
-    marginBottom: theme.spacing.s2,
+    fontSize: theme.typography.sizes.small,
+    fontWeight: theme.typography.weights.semibold,
+    marginBottom: theme.spacing.sm,
   },
   errorText: {
-    ...theme.typography.styles.bodySmall,
-    fontFamily: theme.typography.families.mono,
+    fontSize: theme.typography.sizes.regular,
+    fontWeight: theme.typography.weights.regular,
   },
   stackTrace: {
     maxHeight: 150,
   },
   stackText: {
-    ...theme.typography.styles.mono,
+    fontFamily: 'monospace',
     fontSize: 10,
   },
 });

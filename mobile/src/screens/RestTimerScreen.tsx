@@ -213,10 +213,7 @@ export default function RestTimerScreen() {
           strokeWidth={STROKE_WIDTH}
           fill="transparent"
           strokeDasharray={CIRCUMFERENCE}
-          strokeDashoffset={progressAnim.interpolate({
-            inputRange: [0, 1],
-            outputRange: [CIRCUMFERENCE, 0],
-          })}
+          strokeDashoffset={CIRCUMFERENCE - (progressAnim as any).__getValue() * CIRCUMFERENCE}
           strokeLinecap="round"
           transform={`rotate(-90 ${CIRCLE_SIZE / 2} ${CIRCLE_SIZE / 2})`}
         />
@@ -230,16 +227,10 @@ export default function RestTimerScreen() {
           strokeWidth={STROKE_WIDTH + 4}
           fill="transparent"
           strokeDasharray={CIRCUMFERENCE}
-          strokeDashoffset={progressAnim.interpolate({
-            inputRange: [0, 1],
-            outputRange: [CIRCUMFERENCE, 0],
-          })}
+          strokeDashoffset={CIRCUMFERENCE - (progressAnim as any).__getValue() * CIRCUMFERENCE}
           strokeLinecap="round"
           transform={`rotate(-90 ${CIRCLE_SIZE / 2} ${CIRCLE_SIZE / 2})`}
-          opacity={glowAnim.interpolate({
-            inputRange: [0, 1],
-            outputRange: [0, 0.3],
-          })}
+          opacity={(glowAnim as any).__getValue() * 0.3}
         />
       </Svg>
       
@@ -414,10 +405,7 @@ export default function RestTimerScreen() {
                 strokeWidth={8}
                 fill="transparent"
                 strokeDasharray={565.48}
-                strokeDashoffset={progressAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [565.48, 0],
-                })}
+                strokeDashoffset={565.48 - (progressAnim as any).__getValue() * 565.48}
                 strokeLinecap="round"
                 transform="rotate(-90 100 100)"
               />

@@ -27,7 +27,7 @@ export const EngagementBar: React.FC<EngagementBarProps> = ({
   showCounts = true,
 }) => {
   const renderActionButton = (
-    icon: string,
+    icon: keyof typeof Ionicons.glyphMap,
     label: string,
     count: number,
     onPress: () => void,
