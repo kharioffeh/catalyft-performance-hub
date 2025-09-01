@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Svg, Circle, Rect, Line, Path, Text as SvgText } from 'react-native-svg';
+import { Svg, Circle, Rect, Line, Path, Text as SvgText, Defs, LinearGradient as SvgLinearGradient, Stop } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
 
@@ -181,24 +181,24 @@ const StrengthProgressScreen: React.FC = () => {
           ))}
           
           {/* Gradients */}
-          <defs>
-            <LinearGradient id="BenchGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#EF4444" />
-              <stop offset="100%" stopColor="#DC2626" />
-            </LinearGradient>
-            <LinearGradient id="SquatGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#F97316" />
-              <stop offset="100%" stopColor="#EA580C" />
-            </LinearGradient>
-            <LinearGradient id="DeadliftGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#22C55E" />
-              <stop offset="100%" stopColor="#16A34A" />
-            </LinearGradient>
-            <LinearGradient id="OverheadGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#3B82F6" />
-              <stop offset="100%" stopColor="#2563EB" />
-            </LinearGradient>
-          </defs>
+          <Defs>
+            <SvgLinearGradient id="BenchGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <Stop offset="0%" stopColor="#EF4444" />
+              <Stop offset="100%" stopColor="#DC2626" />
+            </SvgLinearGradient>
+            <SvgLinearGradient id="SquatGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <Stop offset="0%" stopColor="#F97316" />
+              <Stop offset="100%" stopColor="#EA580C" />
+            </SvgLinearGradient>
+            <SvgLinearGradient id="DeadliftGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <Stop offset="0%" stopColor="#22C55E" />
+              <Stop offset="100%" stopColor="#16A34A" />
+            </SvgLinearGradient>
+            <SvgLinearGradient id="OverheadGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <Stop offset="0%" stopColor="#3B82F6" />
+              <Stop offset="100%" stopColor="#2563EB" />
+            </SvgLinearGradient>
+          </Defs>
         </Svg>
       </View>
     </View>

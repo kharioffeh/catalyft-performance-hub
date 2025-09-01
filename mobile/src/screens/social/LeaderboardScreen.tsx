@@ -10,8 +10,8 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import LinearGradient from 'react-native-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../../store';
 import { LeaderboardEntry } from '../../types/social';
 import { formatNumber } from '../../utils/formatters';
@@ -54,7 +54,8 @@ export const LeaderboardScreen: React.FC = () => {
   }, [activeTab, timePeriod, category]);
 
   const navigateToProfile = (userId: string) => {
-    navigation.navigate('Profile', { userId });
+    // navigation.navigate('Profile', { userId });
+    console.log('Navigate to profile:', userId);
   };
 
   const renderLeaderboardItem = ({ item, index }: { item: LeaderboardEntry; index: number }) => {
@@ -74,7 +75,7 @@ export const LeaderboardScreen: React.FC = () => {
         <View style={styles.rankContainer}>
           {isTopThree ? (
             <View style={[styles.medalContainer, getMedalStyle(index)]}>
-              <Icon name="medal" size={24} color={getMedalColor(index)} />
+              <Ionicons name="medal" size={24} color={getMedalColor(index)} />
             </View>
           ) : (
             <Text style={styles.rankNumber}>#{item.rank}</Text>
@@ -92,7 +93,7 @@ export const LeaderboardScreen: React.FC = () => {
               {item.username}
             </Text>
             {item.isVerified && (
-              <Icon name="checkmark-circle" size={14} color="#4CAF50" />
+              <Ionicons name="checkmark-circle" size={14} color="#4CAF50" />
             )}
           </View>
           <Text style={styles.userStats}>
@@ -109,7 +110,7 @@ export const LeaderboardScreen: React.FC = () => {
 
         {item.change !== undefined && item.change !== 0 && (
           <View style={styles.changeContainer}>
-            <Icon
+            <Ionicons
               name={item.change > 0 ? 'arrow-up' : 'arrow-down'}
               size={16}
               color={item.change > 0 ? '#4CAF50' : '#F44336'}
@@ -194,7 +195,7 @@ export const LeaderboardScreen: React.FC = () => {
             style={[styles.topThreeItem, styles.firstPlace]}
             onPress={() => navigateToProfile(topThree[0].userId)}
           >
-            <Icon name="crown" size={32} color="#FFD700" style={styles.crown} />
+            <Ionicons name="star" size={32} color="#FFD700" style={styles.crown} />
             <View style={styles.goldMedal}>
               <Text style={styles.medalNumber}>1</Text>
             </View>
@@ -259,7 +260,7 @@ export const LeaderboardScreen: React.FC = () => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Leaderboard</Text>
         <TouchableOpacity style={styles.infoButton}>
-          <Icon name="information-circle-outline" size={24} color="#666" />
+          <Ionicons name="information-circle-outline" size={24} color="#666" />
         </TouchableOpacity>
       </View>
 
@@ -332,7 +333,7 @@ export const LeaderboardScreen: React.FC = () => {
               ]}
               onPress={() => setCategory(cat)}
             >
-              <Icon
+              <Ionicons
                 name={getCategoryIcon(cat)}
                 size={16}
                 color={category === cat ? 'white' : '#666'}
@@ -371,7 +372,7 @@ export const LeaderboardScreen: React.FC = () => {
             contentContainerStyle={styles.listContent}
             ListEmptyComponent={
               <View style={styles.emptyState}>
-                <Icon name="trophy-outline" size={64} color="#CCC" />
+                <Ionicons name="trophy-outline" size={64} color="#CCC" />
                 <Text style={styles.emptyText}>No rankings available</Text>
                 <Text style={styles.emptySubtext}>
                   {activeTab === 'friends' 
@@ -390,8 +391,8 @@ export const LeaderboardScreen: React.FC = () => {
   );
 };
 
-const getCategoryIcon = (category: string): string => {
-  const icons: { [key: string]: string } = {
+const getCategoryIcon = (category: string): keyof typeof Ionicons.glyphMap => {
+  const icons: { [key: string]: keyof typeof Ionicons.glyphMap } = {
     overall: 'trophy',
     workouts: 'fitness',
     calories: 'flame',
@@ -610,9 +611,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#4CAF50',
   },
-  topThreeItem: {
-    backgroundColor: '#FFF9E6',
-  },
+
   rankContainer: {
     width: 40,
     alignItems: 'center',
@@ -670,9 +669,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#333',
   },
-  topThreeScore: {
-    color: '#FFD700',
-  },
+
   changeContainer: {
     flexDirection: 'row',
     alignItems: 'center',

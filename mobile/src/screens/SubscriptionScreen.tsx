@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     lineHeight: theme.typography.lineHeights.relaxed,
   },
   freePlanButton: {
-    backgroundColor: theme.colors.light.neutral100,
+    backgroundColor: theme.colors.light.neutral.neutral100,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',

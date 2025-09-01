@@ -10,7 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 
 export const UnitsSettingsScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -99,7 +99,7 @@ export const UnitsSettingsScreen: React.FC = () => {
     >
       <View style={styles.unitOptionLeft}>
         <View style={styles.unitIcon}>
-          <Icon 
+          <Ionicons 
             name={category === 'weight' ? 'scale-outline' : 
                   category === 'height' ? 'resize-outline' :
                   category === 'distance' ? 'map-outline' : 'thermometer-outline'} 
@@ -117,7 +117,7 @@ export const UnitsSettingsScreen: React.FC = () => {
       </View>
       {currentUnit === unit.id && (
         <View style={styles.selectedIndicator}>
-          <Icon name="checkmark" size={20} color="#007AFF" />
+          <Ionicons name="checkmark" size={20} color="#007AFF" />
         </View>
       )}
     </TouchableOpacity>
@@ -141,7 +141,7 @@ export const UnitsSettingsScreen: React.FC = () => {
             onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
-            <Icon name="arrow-back" size={24} color="#007AFF" />
+            <Ionicons name="arrow-back" size={24} color="#007AFF" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Units & Measurements</Text>
           <View style={{ width: 40 }} />
@@ -156,7 +156,7 @@ export const UnitsSettingsScreen: React.FC = () => {
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="globe-outline" size={20} color="#007AFF" />
+                  <Ionicons name="globe-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Use Metric System</Text>
@@ -177,7 +177,7 @@ export const UnitsSettingsScreen: React.FC = () => {
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="location-outline" size={20} color="#007AFF" />
+                  <Ionicons name="location-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Auto-Detect Units</Text>
@@ -215,7 +215,7 @@ export const UnitsSettingsScreen: React.FC = () => {
           <View style={styles.sectionContent}>
             <View style={styles.conversionCard}>
               <View style={styles.conversionHeader}>
-                <Icon name="calculator-outline" size={20} color="#007AFF" />
+                <Ionicons name="calculator-outline" size={20} color="#007AFF" />
                 <Text style={styles.conversionTitle}>Quick Conversions</Text>
               </View>
               
@@ -251,7 +251,7 @@ export const UnitsSettingsScreen: React.FC = () => {
             <TouchableOpacity style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="sync-outline" size={20} color="#007AFF" />
+                  <Ionicons name="sync-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Sync with Device</Text>
@@ -260,13 +260,13 @@ export const UnitsSettingsScreen: React.FC = () => {
                   </Text>
                 </View>
               </View>
-              <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="help-circle-outline" size={20} color="#007AFF" />
+                  <Ionicons name="help-circle-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Unit Help</Text>
@@ -275,7 +275,7 @@ export const UnitsSettingsScreen: React.FC = () => {
                   </Text>
                 </View>
               </View>
-              <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
             </TouchableOpacity>
           </View>
         </View>

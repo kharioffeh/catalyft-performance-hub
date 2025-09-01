@@ -21,7 +21,7 @@ export const useStripeIntegration = () => {
         setCustomerId(stripeCustomerId);
       }
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
       setLoading(false);
     }
@@ -37,7 +37,7 @@ export const useStripeIntegration = () => {
       const result = await userLinking.createSubscription(user.id, priceId);
       return result;
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
       throw err;
     } finally {
       setLoading(false);

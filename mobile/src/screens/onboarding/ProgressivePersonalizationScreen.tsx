@@ -398,9 +398,9 @@ const ProgressivePersonalizationScreen: React.FC = () => {
 
         <View style={styles.footer}>
           <TouchableOpacity
-            style={[styles.continueButton, ABTestingService.getButtonColor() && {
+            style={[styles.continueButton, ABTestingService.getButtonColor() ? {
               backgroundColor: ABTestingService.getButtonColor(),
-            }]}
+            } : {}]}
             onPress={handleContinue}
           >
             <Text style={styles.continueButtonText}>

@@ -19,7 +19,7 @@ const createDefaultPrivacySettings = (): PrivacySettings => ({
   showNutritionDetails: false,
   showLocation: false,
   allowTagging: true,
-  allowMessages: 'followers',
+  allowMessages: 'following',
   blockedUsers: [],
   
   shareWorkoutStats: true,
@@ -80,7 +80,7 @@ export const mockDataGenerators = {
     showWorkoutStats: true,
     showNutritionStats: true,
     showAchievements: true,
-    allowMessages: 'followers',
+    allowMessages: 'following',
     
     privacySettings: overrides?.privacySettings || createDefaultPrivacySettings(),
     
@@ -96,7 +96,7 @@ export const mockDataGenerators = {
     showNutritionDetails: false,
     showLocation: false,
     allowTagging: true,
-    allowMessages: 'followers',
+    allowMessages: 'following',
     blockedUsers: [],
     
     shareWorkoutStats: true,

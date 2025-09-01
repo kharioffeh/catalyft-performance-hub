@@ -41,11 +41,11 @@ export const AriaChatScreen = () => {
       const response = await ariaService.chat(messageText);
       
       // Generate suggestions based on the response
-      const suggestions = generateSuggestions(response);
+      const suggestions = generateSuggestions(response || '');
       
       const ariaMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        text: response,
+        text: response || '',
         isUser: false,
         suggestions,
       };
@@ -99,7 +99,7 @@ export const AriaChatScreen = () => {
       return (
         <WelcomeMessage 
           onSuggestionPress={handleSuggestionPress}
-          userName={user?.fullName}
+          userName={user?.email || 'User'}
         />
       );
     }

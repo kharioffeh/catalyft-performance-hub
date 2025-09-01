@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 
 export const DataExportScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -67,7 +67,7 @@ export const DataExportScreen: React.FC = () => {
           styles.formatIcon,
           exportFormat === format.id && styles.selectedFormatIcon
         ]}>
-          <Icon 
+          <Ionicons 
             name={format.icon} 
             size={20} 
             color={exportFormat === format.id ? '#FFFFFF' : '#007AFF'} 
@@ -83,7 +83,7 @@ export const DataExportScreen: React.FC = () => {
       </View>
       {exportFormat === format.id && (
         <View style={styles.selectedFormatIndicator}>
-          <Icon name="checkmark" size={20} color="#007AFF" />
+          <Ionicons name="checkmark" size={20} color="#007AFF" />
         </View>
       )}
     </TouchableOpacity>
@@ -103,7 +103,7 @@ export const DataExportScreen: React.FC = () => {
           styles.dateRangeIcon,
           dateRange === range.id && styles.selectedDateRangeIcon
         ]}>
-          <Icon 
+          <Ionicons 
             name="calendar-outline" 
             size={20} 
             color={dateRange === range.id ? '#FFFFFF' : '#007AFF'} 
@@ -119,7 +119,7 @@ export const DataExportScreen: React.FC = () => {
       </View>
       {dateRange === range.id && (
         <View style={styles.selectedDateRangeIndicator}>
-          <Icon name="checkmark" size={20} color="#007AFF" />
+          <Ionicons name="checkmark" size={20} color="#007AFF" />
         </View>
       )}
     </TouchableOpacity>
@@ -144,7 +144,7 @@ export const DataExportScreen: React.FC = () => {
             onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
-            <Icon name="arrow-back" size={24} color="#007AFF" />
+            <Ionicons name="arrow-back" size={24} color="#007AFF" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Export Data</Text>
           <View style={{ width: 40 }} />
@@ -156,7 +156,7 @@ export const DataExportScreen: React.FC = () => {
         <View style={styles.overviewSection}>
           <View style={styles.overviewHeader}>
             <View style={styles.overviewIcon}>
-              <Icon name="download" size={32} color="#007AFF" />
+              <Ionicons name="download" size={32} color="#007AFF" />
             </View>
             <View style={styles.overviewInfo}>
               <Text style={styles.overviewTitle}>Export Your Fitness Data</Text>
@@ -191,7 +191,7 @@ export const DataExportScreen: React.FC = () => {
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="fitness-outline" size={20} color="#007AFF" />
+                  <Ionicons name="fitness-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Workout Data</Text>
@@ -212,7 +212,7 @@ export const DataExportScreen: React.FC = () => {
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="nutrition-outline" size={20} color="#007AFF" />
+                  <Ionicons name="nutrition-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Nutrition Data</Text>
@@ -233,7 +233,7 @@ export const DataExportScreen: React.FC = () => {
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="body-outline" size={20} color="#007AFF" />
+                  <Ionicons name="body-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Body Metrics</Text>
@@ -254,7 +254,7 @@ export const DataExportScreen: React.FC = () => {
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="trending-up-outline" size={20} color="#007AFF" />
+                  <Ionicons name="trending-up-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Progress Tracking</Text>
@@ -275,7 +275,7 @@ export const DataExportScreen: React.FC = () => {
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="people-outline" size={20} color="#007AFF" />
+                  <Ionicons name="people-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Social Data</Text>
@@ -318,7 +318,7 @@ export const DataExportScreen: React.FC = () => {
             <TouchableOpacity style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="mail-outline" size={20} color="#007AFF" />
+                  <Ionicons name="mail-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Email Export</Text>
@@ -327,13 +327,13 @@ export const DataExportScreen: React.FC = () => {
                   </Text>
                 </View>
               </View>
-              <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="cloud-upload-outline" size={20} color="#007AFF" />
+                  <Ionicons name="cloud-upload-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Cloud Storage</Text>
@@ -342,7 +342,7 @@ export const DataExportScreen: React.FC = () => {
                   </Text>
                 </View>
               </View>
-              <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
             </TouchableOpacity>
           </View>
         </View>
@@ -361,7 +361,7 @@ export const DataExportScreen: React.FC = () => {
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
               <>
-                <Icon name="download" size={24} color="#FFFFFF" />
+                <Ionicons name="download" size={24} color="#FFFFFF" />
                 <Text style={styles.exportButtonText}>Export Data</Text>
               </>
             )}
@@ -377,7 +377,7 @@ export const DataExportScreen: React.FC = () => {
         {/* Export Info */}
         <View style={styles.infoSection}>
           <View style={styles.infoHeader}>
-            <Icon name="information-circle" size={24} color="#007AFF" />
+            <Ionicons name="information-circle" size={24} color="#007AFF" />
             <Text style={styles.infoTitle}>Export Information</Text>
           </View>
           <Text style={styles.infoText}>

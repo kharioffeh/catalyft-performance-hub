@@ -21,8 +21,8 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { LinearGradient } from 'react-native-linear-gradient';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { useStore } from '../../store';
 import { ActivityPost, REACTION_EMOJIS } from '../../types/social';
 import { formatRelativeTime, formatNumber, formatCalories, formatDuration } from '../../utils/formatters';
@@ -175,7 +175,7 @@ export const FeedScreen: React.FC = () => {
             {post.user?.fullName || 'Unknown User'}
           </Text>
           {post.user?.isVerified && (
-            <Icon name="checkmark-circle" size={16} color="#4ECDC4" style={{ marginLeft: 6 }} />
+            <Ionicons name="checkmark-circle" size={16} color="#4ECDC4" style={{ marginLeft: 6 }} />
           )}
         </View>
         <Text style={{ color: '#888', fontSize: 13, marginTop: 2 }}>
@@ -183,7 +183,7 @@ export const FeedScreen: React.FC = () => {
         </Text>
       </View>
       <TouchableOpacity style={{ padding: 8 }}>
-        <Icon name="ellipsis-horizontal" size={20} color="#666" />
+        <Ionicons name="ellipsis-horizontal" size={20} color="#666" />
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -265,7 +265,7 @@ export const FeedScreen: React.FC = () => {
         borderColor: '#E9ECEF',
       }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-          <Icon name="restaurant" size={22} color="#4CAF50" />
+          <Ionicons name="restaurant" size={22} color="#4CAF50" />
           <Text style={{
             fontSize: 17,
             fontWeight: '600',
@@ -444,7 +444,7 @@ export const FeedScreen: React.FC = () => {
         }}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-          <Icon name="trophy" size={28} color="#FFD700" />
+          <Ionicons name="trophy" size={28} color="#FFD700" />
           <Text style={{
             fontSize: 18,
             fontWeight: 'bold',
@@ -542,7 +542,7 @@ export const FeedScreen: React.FC = () => {
         <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }}>
           {post.likesCount > 0 && (
             <>
-              <Icon name="heart" size={16} color="#FF6B6B" />
+                              <Ionicons name="heart" size={16} color="#FF6B6B" />
               <Text style={{ marginLeft: 6, fontSize: 13, color: '#666', fontWeight: '500' }}>
                 {formatNumber(post.likesCount)} likes
               </Text>
@@ -670,7 +670,7 @@ export const FeedScreen: React.FC = () => {
         paddingTop: 100,
         paddingHorizontal: 40,
       }}>
-        <Icon name="newspaper-outline" size={64} color="#CCC" />
+        <Ionicons name="newspaper-outline" size={64} color="#CCC" />
         <Text style={{
           fontSize: 18,
           fontWeight: '600',
@@ -728,7 +728,7 @@ export const FeedScreen: React.FC = () => {
               alignItems: 'center',
             }}
           >
-            <Icon name="add" size={24} color="white" />
+            <Ionicons name="add" size={24} color="white" />
           </TouchableOpacity>
         </View>
       </View>
@@ -785,7 +785,7 @@ export const FeedScreen: React.FC = () => {
       {selectedWorkoutId && (
         <ShareWorkoutModal
           visible={showShareModal}
-          workoutId={selectedWorkoutId}
+          workout={{ id: selectedWorkoutId, name: 'Selected Workout', duration: 0, caloriesBurned: 0, exercises: 0 }}
           onClose={() => {
             setShowShareModal(false);
             setSelectedWorkoutId(null);

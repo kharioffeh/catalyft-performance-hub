@@ -67,20 +67,20 @@ export const Skeleton: React.FC<SkeletonProps> = ({
       case 'text':
         return {
           width: width || '100%',
-          height: height || theme.dimensions.skeletonHeight,
-          borderRadius: borderRadius || theme.dimensions.skeletonRadius,
+          height: height || 20,
+          borderRadius: borderRadius || theme.borderRadius.sm,
         };
       case 'title':
         return {
           width: width || '60%',
-          height: height || theme.dimensions.skeletonHeight * 2,
-          borderRadius: borderRadius || theme.dimensions.skeletonRadius,
+          height: height || 80,
+          borderRadius: borderRadius || theme.borderRadius.lg,
         };
       case 'button':
         return {
           width: width || 120,
-          height: height || theme.dimensions.buttonHeight,
-          borderRadius: borderRadius || theme.borderRadius.button,
+          height: height || 48,
+          borderRadius: borderRadius || theme.borderRadius.md,
         };
       case 'avatar':
         const size = width || 48;
@@ -93,7 +93,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
         return {
           width: width || '100%',
           height: height || 120,
-          borderRadius: borderRadius || theme.borderRadius.card,
+          borderRadius: borderRadius || theme.borderRadius.lg,
         };
       case 'image':
         return {
@@ -105,8 +105,8 @@ export const Skeleton: React.FC<SkeletonProps> = ({
       default:
         return {
           width: width || '100%',
-          height: height || theme.dimensions.skeletonHeight,
-          borderRadius: borderRadius || theme.dimensions.skeletonRadius,
+          height: height || 200,
+          borderRadius: borderRadius || theme.borderRadius.lg,
         };
     }
   };
@@ -128,7 +128,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   
   // Base skeleton style
   const baseStyle: ViewStyle = {
-    backgroundColor: isDark ? colors.surfaceSecondary : colors.backgroundTertiary,
+    backgroundColor: isDark ? colors.surface : colors.background,
     overflow: 'hidden',
     width: dimensions.width as any,
     height: dimensions.height as any,
@@ -268,26 +268,26 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   textLine: {
-    marginTop: theme.spacing.s2,
+    marginTop: theme.spacing.sm,
   },
   listItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: theme.spacing.s4,
+    padding: theme.spacing.md,
     borderRadius: theme.borderRadius.lg,
-    marginBottom: theme.spacing.s3,
+    marginBottom: theme.spacing.md,
   },
   listItemContent: {
     flex: 1,
-    marginLeft: theme.spacing.s3,
+    marginLeft: theme.spacing.md,
   },
   listItemSubtitle: {
-    marginTop: theme.spacing.s2,
+    marginTop: theme.spacing.sm,
   },
   exerciseCard: {
-    padding: theme.spacing.s4,
-    borderRadius: theme.borderRadius.card,
-    marginBottom: theme.spacing.s3,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.lg,
+    marginBottom: theme.spacing.md,
   },
   exerciseCardHeader: {
     flexDirection: 'row',
@@ -295,18 +295,18 @@ const styles = StyleSheet.create({
   },
   exerciseCardInfo: {
     flex: 1,
-    marginLeft: theme.spacing.s3,
+    marginLeft: theme.spacing.md,
   },
   exerciseCardTags: {
     flexDirection: 'row',
-    gap: theme.spacing.s2,
-    marginTop: theme.spacing.s2,
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.sm,
   },
   exerciseCardStats: {
     flexDirection: 'row',
-    marginTop: theme.spacing.s4,
-    paddingTop: theme.spacing.s3,
-    borderTopWidth: theme.borderWidth.hairline,
+    marginTop: theme.spacing.md,
+    paddingTop: theme.spacing.md,
+    borderTopWidth: 1,
     borderTopColor: theme.colors.light.border,
   },
   exerciseCardStat: {

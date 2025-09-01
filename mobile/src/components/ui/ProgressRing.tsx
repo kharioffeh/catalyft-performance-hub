@@ -26,6 +26,7 @@ import Animated, {
   withSpring,
   interpolate,
   interpolateColor,
+  Easing,
 } from '../../utils/reanimated-mock';
 import { theme } from '../../theme';
 
@@ -80,9 +81,9 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
     if (animated) {
       animationProgress.value = withTiming(progress / 100, {
         duration,
-        easing: theme.animation.easing.easeOutCubic,
+        easing: Easing.out(Easing.cubic),
       });
-      scaleAnimation.value = withSpring(1, theme.animation.spring.bouncy);
+      scaleAnimation.value = withSpring(1, { tension: 100, friction: 8 });
     } else {
       animationProgress.value = progress / 100;
       scaleAnimation.value = 1;

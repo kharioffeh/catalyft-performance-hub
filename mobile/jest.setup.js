@@ -1,3 +1,6 @@
+// Define global variables before any imports
+global.__DEV__ = true;
+
 import '@testing-library/jest-native/extend-expect';
 
 // Mock React Native modules
@@ -96,4 +99,3 @@ jest.mock('./src/config/supabase', () => ({
 }));
 
 // Global test utilities
-global.__DEV__ = true;

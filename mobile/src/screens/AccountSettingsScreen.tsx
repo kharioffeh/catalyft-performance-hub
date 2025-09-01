@@ -11,7 +11,7 @@ import {
   Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 
 export const AccountSettingsScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -173,14 +173,14 @@ export const AccountSettingsScreen: React.FC = () => {
         >
           <View style={styles.profileItemLeft}>
             <View style={styles.profileItemIcon}>
-              <Icon name={item.icon} size={20} color="#007AFF" />
+              <Ionicons name={item.icon} size={20} color="#007AFF" />
             </View>
             <View style={styles.profileItemInfo}>
               <Text style={styles.profileItemLabel}>{item.label}</Text>
               <Text style={styles.profileItemValue}>{item.value}</Text>
             </View>
           </View>
-          <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+          <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
         </TouchableOpacity>
       ))}
     </View>
@@ -190,7 +190,7 @@ export const AccountSettingsScreen: React.FC = () => {
     <View key={item.id} style={styles.settingItem}>
       <View style={styles.settingLeft}>
         <View style={styles.settingIcon}>
-          <Icon name={item.icon} size={20} color="#007AFF" />
+          <Ionicons name={item.icon} size={20} color="#007AFF" />
         </View>
         <View style={styles.settingInfo}>
           <Text style={styles.settingTitle}>{item.label}</Text>
@@ -207,7 +207,7 @@ export const AccountSettingsScreen: React.FC = () => {
           ios_backgroundColor="#E5E5EA"
         />
       ) : (
-        <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+        <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
       )}
     </View>
   );
@@ -221,7 +221,7 @@ export const AccountSettingsScreen: React.FC = () => {
             onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
-            <Icon name="arrow-back" size={24} color="#007AFF" />
+            <Ionicons name="arrow-back" size={24} color="#007AFF" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Account Settings</Text>
           <View style={{ width: 40 }} />
@@ -234,17 +234,17 @@ export const AccountSettingsScreen: React.FC = () => {
           <View style={styles.profileHeader}>
             <View style={styles.avatarContainer}>
               <View style={styles.avatar}>
-                <Icon name="person" size={40} color="#FFFFFF" />
+                <Ionicons name="person" size={40} color="#FFFFFF" />
               </View>
               <TouchableOpacity style={styles.editAvatarButton}>
-                <Icon name="camera" size={16} color="#007AFF" />
+                <Ionicons name="camera" size={16} color="#007AFF" />
               </TouchableOpacity>
             </View>
             <View style={styles.profileInfo}>
               <Text style={styles.profileName}>John Doe</Text>
               <Text style={styles.profileEmail}>john.doe@example.com</Text>
               <View style={styles.premiumBadge}>
-                <Icon name="star" size={14} color="#FFD700" />
+                <Ionicons name="star" size={14} color="#FFD700" />
                 <Text style={styles.premiumText}>Premium Member</Text>
               </View>
             </View>
@@ -280,34 +280,34 @@ export const AccountSettingsScreen: React.FC = () => {
             <TouchableOpacity style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="download-outline" size={20} color="#007AFF" />
+                  <Ionicons name="download-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Export Data</Text>
                   <Text style={styles.settingSubtitle}>Download your fitness data</Text>
                 </View>
               </View>
-              <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="trash-outline" size={20} color="#FF3B30" />
+                  <Ionicons name="trash-outline" size={20} color="#FF3B30" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={[styles.settingTitle, styles.dangerText]}>Delete Account</Text>
                   <Text style={styles.settingSubtitle}>Permanently remove your account</Text>
                 </View>
               </View>
-              <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Logout Button */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Icon name="log-out-outline" size={20} color="#FF3B30" />
+          <Ionicons name="log-out-outline" size={20} color="#FF3B30" />
           <Text style={styles.logoutText}>Log Out</Text>
         </TouchableOpacity>
 

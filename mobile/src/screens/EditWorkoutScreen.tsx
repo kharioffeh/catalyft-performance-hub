@@ -50,13 +50,7 @@ export default function EditWorkoutScreen() {
   }, [workoutId, workoutHistory]);
 
   const handleAddExercise = () => {
-    navigation.navigate('ExerciseLibrary', { 
-      mode: 'select',
-      onSelect: (exercise: Exercise) => {
-        setSelectedExercises(prev => [...prev, exercise]);
-        navigation.goBack();
-      }
-    });
+    navigation.navigate('ExerciseLibrary');
   };
 
   const handleRemoveExercise = (index: number) => {
@@ -80,8 +74,8 @@ export default function EditWorkoutScreen() {
 
     try {
       // Update workout name
-      if (workout) {
-        await updateWorkout(workout.id, { name: workoutName });
+      if (workout && updateWorkout) {
+        await updateWorkout(workout.id, { ...workout, name: workoutName });
       }
       
       // Handle exercise changes
@@ -211,7 +205,7 @@ export default function EditWorkoutScreen() {
             <DraggableFlatList
               data={selectedExercises}
               onDragEnd={handleReorderExercises}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item: Exercise) => item.id}
               renderItem={renderExerciseItem}
               contentContainerStyle={styles.exerciseList}
             />

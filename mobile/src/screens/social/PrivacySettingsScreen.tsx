@@ -14,7 +14,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 import { useStore } from '../../store';
 import { PrivacySettings } from '../../types/social';
 
@@ -40,7 +40,7 @@ export const PrivacySettingsScreen: React.FC = () => {
     showNutritionDetails: false,
     showLocation: false,
     allowTagging: true,
-    allowMessages: 'followers',
+    allowMessages: 'following',
     blockedUsers: [],
     
     // Additional granular settings
@@ -381,7 +381,7 @@ export const PrivacySettingsScreen: React.FC = () => {
     <View style={styles.settingItem}>
       <View style={styles.settingLeft}>
         <View style={styles.settingIcon}>
-          <Icon name="shield-outline" size={20} color="#007AFF" />
+          <Ionicons name="shield-outline" size={20} color="#007AFF" />
         </View>
         <View style={styles.settingInfo}>
           <Text style={styles.settingTitle}>{setting.label}</Text>
@@ -408,7 +408,7 @@ export const PrivacySettingsScreen: React.FC = () => {
     <View style={styles.settingItem}>
       <View style={styles.settingLeft}>
         <View style={styles.settingIcon}>
-          <Icon name="options-outline" size={20} color="#007AFF" />
+          <Ionicons name="options-outline" size={20} color="#007AFF" />
         </View>
         <View style={styles.settingInfo}>
           <Text style={styles.settingTitle}>{setting.label}</Text>
@@ -421,7 +421,7 @@ export const PrivacySettingsScreen: React.FC = () => {
         <Text style={styles.selectValue}>
           {setting.options?.find((opt: any) => opt.value === value)?.label}
         </Text>
-        <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+        <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
       </View>
     </View>
   );
@@ -435,7 +435,7 @@ export const PrivacySettingsScreen: React.FC = () => {
             onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
-            <Icon name="arrow-back" size={24} color="#007AFF" />
+            <Ionicons name="arrow-back" size={24} color="#007AFF" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Privacy Settings</Text>
           {hasChanges && (
@@ -461,7 +461,7 @@ export const PrivacySettingsScreen: React.FC = () => {
               onPress={() => handleQuickPrivacy('public')}
               style={[styles.presetButton, styles.presetPublic]}
             >
-              <Icon name="earth" size={24} color="#4CAF50" />
+              <Ionicons name="earth" size={24} color="#4CAF50" />
               <Text style={[styles.presetText, styles.presetTextPublic]}>
                 Public
               </Text>
@@ -472,7 +472,7 @@ export const PrivacySettingsScreen: React.FC = () => {
               onPress={() => handleQuickPrivacy('friends')}
               style={[styles.presetButton, styles.presetFriends]}
             >
-              <Icon name="people" size={24} color="#FF9800" />
+              <Ionicons name="people" size={24} color="#FF9800" />
               <Text style={[styles.presetText, styles.presetTextFriends]}>
                 Friends
               </Text>
@@ -483,7 +483,7 @@ export const PrivacySettingsScreen: React.FC = () => {
               onPress={() => handleQuickPrivacy('private')}
               style={[styles.presetButton, styles.presetPrivate]}
             >
-              <Icon name="lock-closed" size={24} color="#F44336" />
+              <Ionicons name="lock-closed" size={24} color="#F44336" />
               <Text style={[styles.presetText, styles.presetTextPrivate]}>
                 Private
               </Text>
@@ -528,7 +528,7 @@ export const PrivacySettingsScreen: React.FC = () => {
         <TouchableOpacity style={styles.blockedUsersSection}>
           <View style={styles.settingLeft}>
             <View style={styles.settingIcon}>
-              <Icon name="ban" size={20} color="#FF3B30" />
+              <Ionicons name="ban" size={20} color="#FF3B30" />
             </View>
             <View style={styles.settingInfo}>
               <Text style={styles.settingTitle}>Blocked Users</Text>
@@ -537,13 +537,13 @@ export const PrivacySettingsScreen: React.FC = () => {
               </Text>
             </View>
           </View>
-          <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+          <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
         </TouchableOpacity>
 
         {/* Privacy Info */}
         <View style={styles.infoSection}>
           <View style={styles.infoHeader}>
-            <Icon name="information-circle" size={24} color="#007AFF" />
+            <Ionicons name="information-circle" size={24} color="#007AFF" />
             <Text style={styles.infoTitle}>Privacy First</Text>
           </View>
           <Text style={styles.infoText}>

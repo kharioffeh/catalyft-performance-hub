@@ -75,7 +75,7 @@ const ForgotPasswordScreen: React.FC = () => {
         >
           <View style={styles.successCard}>
             <View style={styles.successIconContainer}>
-              <Ionicons name="mail-check" size={48} color="#00FF88" />
+              <Ionicons name="mail" size={48} color="#00FF88" />
             </View>
             <Text style={styles.successTitle}>Check Your Email</Text>
             <Text style={styles.successMessage}>

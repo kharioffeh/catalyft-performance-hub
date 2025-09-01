@@ -13,7 +13,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Card, Input, CircularProgress, ProgressBar } from './index';
+import { Button, Card, Input, CircularProgress } from './index';
 import { theme } from '../../theme';
 
 export const DesignSystemDemo: React.FC = () => {
@@ -269,31 +269,30 @@ export const DesignSystemDemo: React.FC = () => {
         />
       </View>
       
-      {/* Progress Bars */}
+      {/* Progress Components */}
       <Text style={[styles.subsectionTitle, { color: colors.neutral.textBody }]}>
-        Progress Bars
+        Progress Components
       </Text>
-      <ProgressBar
+      <CircularProgress
         progress={progress}
-        showLabel
+        size="lg"
+        strokeWidth={8}
         label="Basic Progress"
-        style={styles.progressBar}
       />
       
-      <ProgressBar
+      <CircularProgress
         progress={progress}
-        showLabel
-        showValue
+        size="lg"
+        strokeWidth={8}
+        showPercentage
         label="With Value"
-        style={styles.progressBar}
       />
       
-      <ProgressBar
+      <CircularProgress
         progress={progress}
-        showLabel
+        size="lg"
+        strokeWidth={8}
         label="Gradient Progress"
-        progressGradient={[colors.brand.primaryBlue, colors.brand.primaryGreen]}
-        style={styles.progressBar}
       />
       
       {/* Interactive Progress */}
@@ -428,9 +427,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     marginBottom: theme.spacing.lg,
   },
-  progressBar: {
-    marginBottom: theme.spacing.md,
-  },
+
   progressControls: {
     flexDirection: 'row',
     gap: theme.spacing.sm,

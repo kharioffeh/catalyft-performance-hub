@@ -3,7 +3,7 @@
  * Interactive counter for tracking exercise repetitions
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, forwardRef, useCallback, useImperativeHandle } from 'react';
 import {
   View,
   Text,
@@ -11,10 +11,19 @@ import {
   TouchableOpacity,
   Animated,
   Dimensions,
+  useColorScheme,
+  ViewStyle,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
+import {
+  useSharedValue,
+  withSpring,
+  withSequence,
+  withTiming,
+  useAnimatedStyle,
+} from '../../utils/reanimated-mock';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
@@ -80,19 +89,19 @@ export const RepCounter = forwardRef<RepCounterRef, RepCounterProps>(({
     
     // Animate counter
     scale.value = withSequence(
-      withSpring(1.2, theme.animation.spring.bouncy),
-      withSpring(1, theme.animation.spring.bouncy)
+      withSpring(1.2, { tension: 100, friction: 8 }),
+      withSpring(1, { tension: 100, friction: 8 })
     );
     
     // Update progress
-    progressScale.value = withSpring(newCount / targetCount, theme.animation.spring.standard);
+    progressScale.value = withSpring(newCount / targetCount, { tension: 100, friction: 8 });
     
     // Check if set is complete
     if (newCount >= targetCount) {
       // HapticFeedback.trigger('notificationSuccess'); // Removed for compatibility
       celebrationScale.value = withSequence(
-        withSpring(1.5, theme.animation.spring.bouncy),
-        withSpring(0, { ...theme.animation.spring.standard, damping: 20 })
+        withSpring(1.5, { tension: 100, friction: 8 }),
+        withSpring(0, { tension: 100, friction: 8, damping: 20 })
       );
       
       // Add to completed sets
@@ -119,24 +128,24 @@ export const RepCounter = forwardRef<RepCounterRef, RepCounterProps>(({
       // Haptic feedback
       // HapticFeedback.trigger('impactLight'); // Removed for compatibility
       
-      // Animate counter
-      scale.value = withSequence(
-        withSpring(0.9, theme.animation.spring.snappy),
-        withSpring(1, theme.animation.spring.snappy)
-      );
-      
-      // Update progress
-      progressScale.value = withSpring(newCount / targetCount, theme.animation.spring.standard);
+              // Animate counter
+        scale.value = withSequence(
+          withSpring(0.9, { tension: 100, friction: 8 }),
+          withSpring(1, { tension: 100, friction: 8 })
+        );
+        
+        // Update progress
+        progressScale.value = withSpring(newCount / targetCount, { tension: 100, friction: 8 });
     }
   }, [count, targetCount, scale, progressScale, onCountChange]);
   
   // Reset counter
   const reset = useCallback(() => {
     setCount(initialCount);
-    progressScale.value = withSpring(0, theme.animation.spring.standard);
+    progressScale.value = withSpring(0, { tension: 100, friction: 8 });
     scale.value = withSequence(
       withTiming(0, { duration: 200 }),
-      withSpring(1, theme.animation.spring.bouncy)
+      withSpring(1, { tension: 100, friction: 8 })
     );
     rotation.value = withSequence(
       withTiming(360, { duration: 300 }),
@@ -151,7 +160,7 @@ export const RepCounter = forwardRef<RepCounterRef, RepCounterProps>(({
     if (currentSet < totalSets) {
       setCurrentSet(currentSet + 1);
       setCount(0);
-      progressScale.value = withSpring(0, theme.animation.spring.standard);
+      progressScale.value = withSpring(0, { tension: 100, friction: 8 });
       
       // Animate transition
       rotation.value = withSequence(
@@ -167,7 +176,7 @@ export const RepCounter = forwardRef<RepCounterRef, RepCounterProps>(({
   // Set count manually
   const setCountManual = useCallback((newCount: number) => {
     setCount(newCount);
-    progressScale.value = withSpring(newCount / targetCount, theme.animation.spring.standard);
+    progressScale.value = withSpring(newCount / targetCount, { tension: 100, friction: 8 });
   }, [targetCount, progressScale]);
   
   // Expose methods via ref
@@ -271,7 +280,7 @@ export const RepCounter = forwardRef<RepCounterRef, RepCounterProps>(({
       {/* Controls */}
       <View style={styles.controls}>
         <TouchableOpacity
-          style={[styles.controlButton, { backgroundColor: colors.surfaceSecondary }]}
+          style={[styles.controlButton, { backgroundColor: colors.surface }]}
           onPress={decrement}
           disabled={count === 0}
         >
@@ -279,14 +288,14 @@ export const RepCounter = forwardRef<RepCounterRef, RepCounterProps>(({
         </TouchableOpacity>
         
         <TouchableOpacity
-          style={[styles.controlButton, styles.resetButton, { backgroundColor: colors.surfaceSecondary }]}
+          style={[styles.controlButton, styles.resetButton, { backgroundColor: colors.surface }]}
           onPress={reset}
         >
           <Text style={[styles.controlButtonText, { color: colors.text }]}>↺</Text>
         </TouchableOpacity>
         
         <TouchableOpacity
-          style={[styles.controlButton, { backgroundColor: colors.surfaceSecondary }]}
+          style={[styles.controlButton, { backgroundColor: colors.surface }]}
           onPress={increment}
         >
           <Text style={[styles.controlButtonText, { color: colors.text }]}>+</Text>
@@ -322,19 +331,22 @@ RepCounter.displayName = 'RepCounter';
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    padding: theme.spacing.s4,
+    padding: theme.spacing.md,
   },
   setInfo: {
-    marginBottom: theme.spacing.s6,
+    marginBottom: theme.spacing.xl,
     alignItems: 'center',
   },
   setLabel: {
-    ...theme.typography.styles.overline,
-    marginBottom: theme.spacing.s2,
+    fontSize: theme.typography.sizes.h6,
+    fontWeight: theme.typography.weights.medium,
+    textTransform: 'uppercase',
+    letterSpacing: theme.typography.letterSpacing.wide,
+    marginBottom: theme.spacing.sm,
   },
   setIndicators: {
     flexDirection: 'row',
-    gap: theme.spacing.s2,
+    gap: theme.spacing.sm,
   },
   setIndicator: {
     width: 40,
@@ -346,14 +358,14 @@ const styles = StyleSheet.create({
     height: 200,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: theme.spacing.s8,
+    marginBottom: theme.spacing.xxl,
   },
   progressRing: {
     position: 'absolute',
     width: '100%',
     height: '100%',
     borderRadius: theme.borderRadius.full,
-    borderWidth: theme.borderWidth.thick,
+    borderWidth: 4,
     overflow: 'hidden',
   },
   progressFill: {
@@ -367,10 +379,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   countText: {
-    ...theme.typography.styles.counter,
+    fontSize: theme.typography.sizes.h1,
+    fontWeight: theme.typography.weights.bold,
   },
   targetText: {
-    ...theme.typography.styles.h4,
+    fontSize: theme.typography.sizes.h4,
+    fontWeight: theme.typography.weights.semibold,
   },
   celebration: {
     position: 'absolute',
@@ -380,7 +394,7 @@ const styles = StyleSheet.create({
   },
   controls: {
     flexDirection: 'row',
-    gap: theme.spacing.s4,
+    gap: theme.spacing.md,
   },
   controlButton: {
     width: 56,
@@ -390,30 +404,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   resetButton: {
-    marginHorizontal: theme.spacing.s2,
+    marginHorizontal: theme.spacing.sm,
   },
   controlButtonText: {
     fontSize: 24,
     fontWeight: theme.typography.weights.bold,
   },
   nextSetButton: {
-    marginTop: theme.spacing.s6,
-    paddingHorizontal: theme.spacing.s6,
-    paddingVertical: theme.spacing.s3,
+    marginTop: theme.spacing.xl,
+    paddingHorizontal: theme.spacing.xl,
+    paddingVertical: theme.spacing.md,
     borderRadius: theme.borderRadius.full,
   },
   nextSetButtonText: {
-    ...theme.typography.styles.button,
+    fontSize: theme.typography.sizes.h6,
+    fontWeight: theme.typography.weights.semibold,
   },
   completeMessage: {
     position: 'absolute',
-    bottom: -theme.spacing.s8,
-    paddingHorizontal: theme.spacing.s6,
-    paddingVertical: theme.spacing.s3,
+    bottom: -theme.spacing.xxl,
+    paddingHorizontal: theme.spacing.xl,
+    paddingVertical: theme.spacing.md,
     borderRadius: theme.borderRadius.full,
   },
   completeMessageText: {
-    ...theme.typography.styles.h5,
+    fontSize: theme.typography.sizes.h5,
+    fontWeight: theme.typography.weights.medium,
   },
 });
 

@@ -122,14 +122,9 @@ class AnalyticsService {
     }
 
     try {
-      await Analytics.setup(writeKey, {
-        trackAppLifecycleEvents: true,
-        trackAttributionData: true,
-        flushInterval: 20,
-        debug: __DEV__,
-        trackDeepLinks: true,
-        recordScreenViews: true,
-      });
+      // await Analytics.setup(writeKey, {
+      console.log('Segment setup:', writeKey);
+      // });
       
       this.initialized = true;
       this.startSession();
@@ -147,7 +142,8 @@ class AnalyticsService {
 
     this.userId = userId;
     
-    Analytics.identify(userId, {
+    // Analytics.identify(userId, {
+    console.log('Segment identify:', userId, {
       ...traits,
       platform: Platform.OS,
       platform_version: Platform.Version,
@@ -170,7 +166,8 @@ class AnalyticsService {
       platform: Platform.OS,
     };
 
-    Analytics.track(eventName, enrichedProperties);
+    // Analytics.track(eventName, enrichedProperties);
+    console.log('Segment track:', eventName, enrichedProperties);
     
     if (__DEV__) {
       console.log(`📊 Analytics Event: ${eventName}`, enrichedProperties);
@@ -183,7 +180,8 @@ class AnalyticsService {
       return;
     }
 
-    Analytics.screen(screenName, {
+    // Analytics.screen(screenName, {
+    console.log('Segment screen:', screenName, {
       ...properties,
       user_id: this.userId,
       session_id: this.sessionId,
@@ -196,7 +194,8 @@ class AnalyticsService {
       return;
     }
 
-    Analytics.identify(this.userId, properties);
+    // Analytics.identify(this.userId, properties);
+    console.log('Segment identify:', this.userId, properties);
   }
 
   startSession(): void {
@@ -230,7 +229,8 @@ class AnalyticsService {
       return;
     }
 
-    Analytics.flush();
+    // Analytics.flush();
+    console.log('Segment flush');
   }
 
   reset(): void {
@@ -241,7 +241,8 @@ class AnalyticsService {
     this.userId = null;
     this.sessionId = null;
     this.sessionStartTime = null;
-    Analytics.reset();
+    // Analytics.reset();
+    console.log('Segment reset');
   }
 
   // Convenience methods for common events

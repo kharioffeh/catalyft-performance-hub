@@ -18,8 +18,8 @@ import {
 } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { LinearGradient } from 'react-native-linear-gradient';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { useStore } from '../../store';
 import { UserProfile, ActivityPost, Achievement } from '../../types/social';
 import { formatNumber, formatDuration } from '../../utils/formatters';
@@ -178,7 +178,7 @@ export const ProfileScreen: React.FC = () => {
               borderRadius: 20,
               padding: 8,
             }}>
-              <Icon name="camera" size={20} color="white" />
+              <Ionicons name="camera" size={20} color="white" />
             </View>
           )}
         </LinearGradient>
@@ -232,7 +232,7 @@ export const ProfileScreen: React.FC = () => {
                   borderWidth: 2,
                   borderColor: 'white',
                 }}>
-                  <Icon name="camera" size={16} color="white" />
+                  <Ionicons name="camera" size={16} color="white" />
                 </View>
               )}
             </View>
@@ -281,7 +281,7 @@ export const ProfileScreen: React.FC = () => {
                     borderRadius: 8,
                   }}
                 >
-                  <Icon name="chatbubble-outline" size={20} color="#333" />
+                  <Ionicons name="chatbubble-outline" size={20} color="#333" />
                 </TouchableOpacity>
               </View>
             )}
@@ -295,7 +295,7 @@ export const ProfileScreen: React.FC = () => {
               {profile?.fullName || 'Unknown User'}
             </Text>
             {profile?.isVerified && (
-              <Icon name="checkmark-circle" size={20} color="#4ECDC4" />
+              <Ionicons name="checkmark-circle" size={20} color="#4ECDC4" />
             )}
           </View>
           <Text style={{ color: '#666', marginTop: 2 }}>
@@ -308,7 +308,7 @@ export const ProfileScreen: React.FC = () => {
           )}
           {profile?.location && (
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-              <Icon name="location-outline" size={16} color="#666" />
+              <Ionicons name="location-outline" size={16} color="#666" />
               <Text style={{ color: '#666', marginLeft: 4 }}>{profile.location}</Text>
             </View>
           )}
@@ -374,7 +374,7 @@ export const ProfileScreen: React.FC = () => {
               flexDirection: 'row',
               alignItems: 'center',
             }}>
-              <Icon name="flame" size={16} color="#FF6B6B" />
+              <Ionicons name="flame" size={16} color="#FF6B6B" />
               <Text style={{ marginLeft: 4, fontSize: 12, fontWeight: '600' }}>
                 {profile.currentStreak} day streak
               </Text>
@@ -387,7 +387,7 @@ export const ProfileScreen: React.FC = () => {
               flexDirection: 'row',
               alignItems: 'center',
             }}>
-              <Icon name="time" size={16} color="#2196F3" />
+              <Ionicons name="time" size={16} color="#2196F3" />
               <Text style={{ marginLeft: 4, fontSize: 12, fontWeight: '600' }}>
                 {formatDuration(profile.totalWorkoutTime || 0)}
               </Text>
@@ -400,7 +400,7 @@ export const ProfileScreen: React.FC = () => {
               flexDirection: 'row',
               alignItems: 'center',
             }}>
-              <Icon name="flash" size={16} color="#9C27B0" />
+              <Ionicons name="flash" size={16} color="#9C27B0" />
               <Text style={{ marginLeft: 4, fontSize: 12, fontWeight: '600' }}>
                 {formatNumber(profile.totalCaloriesBurned || 0)} cal
               </Text>
@@ -425,7 +425,7 @@ export const ProfileScreen: React.FC = () => {
             borderColor: activeTab === 'posts' ? '#FF6B6B' : 'transparent',
           }}
         >
-          <Icon
+          <Ionicons
             name="grid-outline"
             size={24}
             color={activeTab === 'posts' ? '#FF6B6B' : '#666'}
@@ -441,7 +441,7 @@ export const ProfileScreen: React.FC = () => {
             borderColor: activeTab === 'workouts' ? '#FF6B6B' : 'transparent',
           }}
         >
-          <Icon
+          <Ionicons
             name="barbell-outline"
             size={24}
             color={activeTab === 'workouts' ? '#FF6B6B' : '#666'}
@@ -457,7 +457,7 @@ export const ProfileScreen: React.FC = () => {
             borderColor: activeTab === 'achievements' ? '#FF6B6B' : 'transparent',
           }}
         >
-          <Icon
+          <Ionicons
             name="trophy-outline"
             size={24}
             color={activeTab === 'achievements' ? '#FF6B6B' : '#666'}
@@ -505,7 +505,7 @@ export const ProfileScreen: React.FC = () => {
                   padding: 8,
                 }}
               >
-                <Icon name="barbell" size={32} color="white" />
+                <Ionicons name="barbell" size={32} color="white" />
                 <Text style={{
                   color: 'white',
                   fontSize: 10,
@@ -526,7 +526,7 @@ export const ProfileScreen: React.FC = () => {
                 borderRadius: 12,
                 padding: 4,
               }}>
-                <Icon name="star" size={16} color="white" />
+                <Ionicons name="star" size={16} color="white" />
               </View>
             )}
           </TouchableOpacity>
@@ -584,7 +584,7 @@ export const ProfileScreen: React.FC = () => {
             paddingVertical: 40,
             alignItems: 'center',
           }}>
-            <Icon name="trophy-outline" size={48} color="#CCC" />
+            <Ionicons name="trophy-outline" size={48} color="#CCC" />
             <Text style={{ color: '#999', marginTop: 8 }}>
               No achievements yet
             </Text>
@@ -654,7 +654,7 @@ export const ProfileScreen: React.FC = () => {
                 Detailed Stats
               </Text>
               <TouchableOpacity onPress={() => setShowStatsModal(false)}>
-                <Icon name="close" size={24} color="#333" />
+                <Ionicons name="close" size={24} color="#333" />
               </TouchableOpacity>
             </View>
             

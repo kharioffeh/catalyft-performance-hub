@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Svg, Circle, Line, Path } from 'react-native-svg';
+import { Svg, Circle, Line, Path, Text as SvgText } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
 
@@ -337,7 +337,7 @@ const BodyMetricsScreen: React.FC = () => {
           
           {/* Week labels */}
           {data?.progressHistory.map((point, index) => (
-            <Text
+            <SvgText
               key={index}
               x={30 + index * 60}
               y={190}
@@ -346,7 +346,7 @@ const BodyMetricsScreen: React.FC = () => {
               fill="#666"
             >
               {point.date}
-            </Text>
+            </SvgText>
           ))}
         </Svg>
       </View>

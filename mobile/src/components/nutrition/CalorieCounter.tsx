@@ -70,10 +70,13 @@ export const CalorieCounter: React.FC<CalorieCounterProps> = ({
     return colors.success;
   };
   
-  const Container = onPress ? TouchableOpacity : View;
+  const containerProps = {
+    style: styles.container,
+    ...(onPress ? { onPress } : {})
+  };
   
-  return (
-    <Container style={styles.container} onPress={onPress}>
+  const renderContent = () => (
+    <>
       <Svg width={size} height={size} style={styles.svg}>
         <G rotation="-90" origin={`${size / 2}, ${size / 2}`}>
           {/* Background Circle */}
@@ -143,7 +146,21 @@ export const CalorieCounter: React.FC<CalorieCounterProps> = ({
           />
         </View>
       )}
-    </Container>
+    </>
+  );
+
+  if (onPress) {
+    return (
+      <TouchableOpacity {...containerProps}>
+        {renderContent()}
+      </TouchableOpacity>
+    );
+  }
+
+  return (
+    <View {...containerProps}>
+      {renderContent()}
+    </View>
   );
 };
 

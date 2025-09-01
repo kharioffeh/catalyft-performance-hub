@@ -10,25 +10,27 @@ import {
   Alert,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../types/navigation';
 import { useWorkoutStore } from '../store/slices/workoutSlice';
 import { theme } from '../theme';
 import { Workout, PersonalRecord } from '../types/workout';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { VictoryChart, VictoryLine, VictoryArea, VictoryAxis, VictoryBar, VictoryPie } from 'victory-native';
+import { VictoryChart, VictoryLine, VictoryArea, VictoryAxis, VictoryBar, VictoryPie } from 'victory';
 
 const { width, height } = Dimensions.get('window');
 
 export default function WorkoutSummaryScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute();
   const { workoutId } = route.params as { workoutId: string };
   
   const { workoutHistory, personalRecords, newPersonalRecords } = useWorkoutStore();
   
   const [workout, setWorkout] = useState<Workout | null>(null);
-  const [volumeData, setVolumeData] = useState([]);
-  const [muscleGroupData, setMuscleGroupData] = useState([]);
+  const [volumeData, setVolumeData] = useState<Array<{x: number, y: number, label: string}>>([]);
+  const [muscleGroupData, setMuscleGroupData] = useState<Array<{x: string, y: number}>>([]);
   const [fadeAnim] = useState(new Animated.Value(0));
   const [scaleAnim] = useState(new Animated.Value(0.8));
   const [celebrationVisible, setCelebrationVisible] = useState(false);
@@ -49,7 +51,9 @@ export default function WorkoutSummaryScreen() {
           Animated.spring(scaleAnim, {
             toValue: 1,
             useNativeDriver: true,
-            ...theme.animation.spring.bouncy,
+            // Animation configuration
+            tension: 100,
+            friction: 8,
           }),
         ]).start();
 
@@ -72,7 +76,7 @@ export default function WorkoutSummaryScreen() {
     setVolumeData(volumeTrend);
 
     // Generate muscle group distribution
-    const muscleGroups = {};
+    const muscleGroups: Record<string, number> = {};
     workout?.exercises.forEach(ex => {
       const group = ex.exercise.muscleGroup;
       muscleGroups[group] = (muscleGroups[group] || 0) + 1;
@@ -238,7 +242,7 @@ export default function WorkoutSummaryScreen() {
             theme.colors.light.info,
           ]}
           innerRadius={40}
-          labelRadius={({ innerRadius }) => innerRadius + 20}
+          labelRadius={({ innerRadius }: any) => (innerRadius || 0) + 20}
           style={{
             labels: {
               fill: theme.colors.light.text,
@@ -458,14 +462,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  shareButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: theme.colors.light.backgroundSecondary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+
   scrollView: {
     flex: 1,
   },

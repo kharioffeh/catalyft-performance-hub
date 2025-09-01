@@ -37,7 +37,7 @@ export default function ExerciseLibraryScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<ExerciseCategory | null>(null);
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<MuscleGroup | null>(null);
-  const [selectedEquipment, setSelectedEquipment] = null;
+  const [selectedEquipment, setSelectedEquipment] = useState<string | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(0));
@@ -105,13 +105,13 @@ export default function ExerciseLibraryScreen() {
       shoulders: theme.colors.light.warning,
       arms: theme.colors.light.error,
       core: theme.colors.light.info,
-      full_body: theme.colors.light.neutral600,
+      full_body: theme.colors.light.neutral.slate,
     };
-    return colors[muscleGroup] || theme.colors.light.neutral500;
+    return colors[muscleGroup] || theme.colors.light.neutral.slate;
   };
 
-  const getEquipmentIcon = (equipment: Equipment) => {
-    const icons = {
+  const getEquipmentIcon = (equipment: Equipment): keyof typeof Ionicons.glyphMap => {
+    const icons: { [key: string]: keyof typeof Ionicons.glyphMap } = {
       barbell: 'barbell-outline',
       dumbbell: 'fitness-outline',
       machine: 'settings-outline',
@@ -224,7 +224,7 @@ export default function ExerciseLibraryScreen() {
               
               <TouchableOpacity
                 style={styles.addButton}
-                onPress={() => navigation.navigate('AddToWorkout', { exerciseId: exercise.id })}
+                onPress={() => navigation.navigate('ExerciseDetail', { exerciseId: exercise.id })}
               >
                 <LinearGradient
                   colors={theme.gradients.primary}
@@ -347,7 +347,7 @@ export default function ExerciseLibraryScreen() {
         <Text style={styles.title}>Exercise Library</Text>
         <TouchableOpacity
           style={styles.createButton}
-          onPress={() => navigation.navigate('CreateExercise')}
+          onPress={() => navigation.navigate('CreateWorkout')}
         >
           <LinearGradient
             colors={theme.gradients.primary}

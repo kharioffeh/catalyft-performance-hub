@@ -95,8 +95,8 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
       legs: colors.success,
       shoulders: colors.warning,
       arms: colors.error,
-      core: colors.protein,
-      cardio: colors.heartRate,
+      core: colors.success,
+      cardio: colors.warning,
     };
     return muscleColors[muscle.toLowerCase()] || colors.primary;
   };
@@ -105,7 +105,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
   const toggleExpanded = useCallback(() => {
     const newExpanded = !expanded;
     setExpanded(newExpanded);
-    expandAnimation.value = withSpring(newExpanded ? 1 : 0, theme.animation.spring.standard);
+    expandAnimation.value = withSpring(newExpanded ? 1 : 0, { tension: 100, friction: 8 });
     
     if (newExpanded) {
       // HapticFeedback.trigger('impactLight'); // Removed haptic feedback
@@ -115,9 +115,9 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
   // Handle press
   const handlePress = useCallback(() => {
     if (onPress) {
-      scaleAnimation.value = withSpring(0.95, theme.animation.spring.snappy);
+      scaleAnimation.value = withSpring(0.95, { tension: 200, friction: 10 });
       setTimeout(() => {
-        scaleAnimation.value = withSpring(1, theme.animation.spring.snappy);
+        scaleAnimation.value = withSpring(1, { tension: 200, friction: 10 });
       }, 100);
       
       // HapticFeedback.trigger('impactLight'); // Removed haptic feedback
@@ -176,7 +176,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
           {exercise.image ? (
             <Image source={{ uri: exercise.image }} style={styles.image} />
           ) : (
-            <View style={[styles.imagePlaceholder, { backgroundColor: colors.surfaceSecondary }]}>
+            <View style={[styles.imagePlaceholder, { backgroundColor: colors.surface }]}>
               <Text style={[styles.imagePlaceholderText, { color: colors.textSecondary }]}>
                 {exercise.name.charAt(0)}
               </Text>
@@ -194,7 +194,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                 </Text>
               </View>
               {exercise.equipment && (
-                <View style={[styles.tag, { backgroundColor: colors.surfaceSecondary }]}>
+                <View style={[styles.tag, { backgroundColor: colors.surface }]}>
                   <Text style={[styles.tagText, { color: colors.textSecondary }]}>
                     {exercise.equipment}
                   </Text>
@@ -339,7 +339,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    padding: theme.spacing.s4,
+    padding: theme.spacing.md,
   },
   header: {
     flexDirection: 'row',
@@ -363,30 +363,31 @@ const styles = StyleSheet.create({
   },
   info: {
     flex: 1,
-    marginLeft: theme.spacing.s3,
+    marginLeft: theme.spacing.sm,
   },
   name: {
-    ...theme.typography.styles.h5,
-    marginBottom: theme.spacing.s1,
+    fontSize: theme.typography.sizes.h5,
+    fontWeight: theme.typography.weights.semibold,
+    marginBottom: theme.spacing.xs,
   },
   tags: {
     flexDirection: 'row',
-    gap: theme.spacing.s2,
+    gap: theme.spacing.sm,
   },
   tag: {
-    paddingHorizontal: theme.spacing.s2,
-    paddingVertical: theme.spacing.s1,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
     borderRadius: theme.borderRadius.full,
   },
   tagText: {
-    ...theme.typography.styles.caption,
+    fontSize: theme.typography.sizes.small,
     fontWeight: theme.typography.weights.medium,
   },
   quickStats: {
     flexDirection: 'row',
-    marginTop: theme.spacing.s4,
-    paddingTop: theme.spacing.s3,
-    borderTopWidth: theme.borderWidth.hairline,
+    marginTop: theme.spacing.md,
+    paddingTop: theme.spacing.sm,
+    borderTopWidth: 1,
     borderTopColor: theme.colors.light.border,
   },
   stat: {
@@ -394,67 +395,74 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statValue: {
-    ...theme.typography.styles.h5,
+    fontSize: theme.typography.sizes.h5,
+    fontWeight: theme.typography.weights.semibold,
   },
   statLabel: {
-    ...theme.typography.styles.caption,
-    marginTop: theme.spacing.s1,
+    fontSize: theme.typography.sizes.small,
+    fontWeight: theme.typography.weights.regular,
+    marginTop: theme.spacing.xs,
   },
   sets: {
-    marginTop: theme.spacing.s4,
+    marginTop: theme.spacing.md,
   },
   sectionTitle: {
-    ...theme.typography.styles.label,
-    marginBottom: theme.spacing.s2,
+    fontSize: theme.typography.sizes.small,
+    fontWeight: theme.typography.weights.semibold,
+    marginBottom: theme.spacing.sm,
   },
   setRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: theme.spacing.s3,
+    padding: theme.spacing.sm,
     borderRadius: theme.borderRadius.md,
-    marginBottom: theme.spacing.s2,
+    marginBottom: theme.spacing.sm,
   },
   selectedSet: {
     transform: [{ scale: 0.98 }],
   },
   setNumber: {
-    ...theme.typography.styles.caption,
+    fontSize: theme.typography.sizes.small,
+    fontWeight: theme.typography.weights.regular,
     width: 50,
   },
   setDetails: {
-    ...theme.typography.styles.bodyMedium,
+    fontSize: theme.typography.sizes.regular,
+    fontWeight: theme.typography.weights.regular,
     flex: 1,
   },
   checkmark: {
     fontSize: 20,
   },
   notes: {
-    marginTop: theme.spacing.s4,
+    marginTop: theme.spacing.md,
   },
   notesText: {
-    ...theme.typography.styles.bodySmall,
+    fontSize: theme.typography.sizes.small,
+    fontWeight: theme.typography.weights.regular,
   },
   actions: {
     flexDirection: 'row',
-    gap: theme.spacing.s3,
-    marginTop: theme.spacing.s4,
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.md,
   },
   actionButton: {
     flex: 1,
-    paddingVertical: theme.spacing.s3,
+    paddingVertical: theme.spacing.sm,
     borderRadius: theme.borderRadius.button,
     alignItems: 'center',
   },
   secondaryButton: {
     backgroundColor: 'transparent',
-    borderWidth: theme.borderWidth.thin,
+    borderWidth: 1,
   },
   actionButtonText: {
-    ...theme.typography.styles.button,
+    fontSize: theme.typography.sizes.regular,
+    fontWeight: theme.typography.weights.medium,
   },
   expandButton: {
     alignItems: 'center',
-    paddingTop: theme.spacing.s2,
+    paddingTop: theme.spacing.sm,
   },
   expandIcon: {
     fontSize: 12,

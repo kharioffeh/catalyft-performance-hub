@@ -10,7 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 
 export const AppearanceSettingsScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -133,10 +133,11 @@ export const AppearanceSettingsScreen: React.FC = () => {
     >
       <View style={[
         styles.accentColorCircle,
+        accentColor === colorOption.id && styles.selectedAccentColorCircle,
         { backgroundColor: colorOption.color }
       ]}>
         {accentColor === colorOption.id && (
-          <Icon name="checkmark" size={16} color="#FFFFFF" />
+          <Ionicons name="checkmark" size={16} color="#FFFFFF" />
         )}
       </View>
       <Text style={[
@@ -176,7 +177,7 @@ export const AppearanceSettingsScreen: React.FC = () => {
             onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
-            <Icon name="arrow-back" size={24} color="#007AFF" />
+            <Ionicons name="arrow-back" size={24} color="#007AFF" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Appearance</Text>
           <View style={{ width: 40 }} />
@@ -264,7 +265,7 @@ export const AppearanceSettingsScreen: React.FC = () => {
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="eye-outline" size={20} color="#007AFF" />
+                  <Ionicons name="eye-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Bold Text</Text>
@@ -283,7 +284,7 @@ export const AppearanceSettingsScreen: React.FC = () => {
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="move-outline" size={20} color="#007AFF" />
+                  <Ionicons name="move-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Reduce Motion</Text>
@@ -308,27 +309,27 @@ export const AppearanceSettingsScreen: React.FC = () => {
             <TouchableOpacity style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="grid-outline" size={20} color="#007AFF" />
+                  <Ionicons name="grid-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Grid Layout</Text>
                   <Text style={styles.settingSubtitle}>Choose between list and grid views</Text>
                 </View>
               </View>
-              <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.settingIcon}>
-                  <Icon name="image-outline" size={20} color="#007AFF" />
+                  <Ionicons name="image-outline" size={20} color="#007AFF" />
                 </View>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Image Quality</Text>
                   <Text style={styles.settingSubtitle}>Balance quality and performance</Text>
                 </View>
               </View>
-              <Icon name="chevron-forward" size={20} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
             </TouchableOpacity>
           </View>
         </View>
@@ -587,7 +588,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#E5E5EA',
   },
-  selectedAccentColor: {
+  selectedAccentColorCircle: {
     borderColor: '#007AFF',
     borderWidth: 3,
   },

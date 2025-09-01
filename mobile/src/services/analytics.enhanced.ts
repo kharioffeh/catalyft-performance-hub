@@ -53,12 +53,13 @@ class EnhancedAnalyticsService {
     try {
       // Initialize Segment
       if (AnalyticsConfig.segment.writeKey) {
-        await Analytics.setup(AnalyticsConfig.segment.writeKey, AnalyticsConfig.segment);
+        // await Analytics.setup(AnalyticsConfig.segment.writeKey, AnalyticsConfig.segment);
+        console.log('Segment setup:', AnalyticsConfig.segment.writeKey);
       }
 
       // Initialize Mixpanel
       if (AnalyticsConfig.mixpanel.token) {
-        this.mixpanel = new Mixpanel(AnalyticsConfig.mixpanel.token);
+        this.mixpanel = new Mixpanel(AnalyticsConfig.mixpanel.token, false);
         await this.mixpanel.init();
       }
 
@@ -101,7 +102,8 @@ class EnhancedAnalyticsService {
     this.userId = userId;
     
     // Segment identification
-    Analytics.identify(userId, traits);
+    // Analytics.identify(userId, traits);
+    console.log('Segment identify:', userId, traits);
     
     // Mixpanel identification
     if (this.mixpanel) {
@@ -141,7 +143,8 @@ class EnhancedAnalyticsService {
     const enrichedProperties = this.enrichProperties(properties);
 
     // Track in Segment
-    Analytics.track(eventName, enrichedProperties);
+    // Analytics.track(eventName, enrichedProperties);
+    console.log('Segment track:', eventName, enrichedProperties);
     
     // Track in Mixpanel
     if (this.mixpanel) {
@@ -228,7 +231,8 @@ class EnhancedAnalyticsService {
     this.screenStartTime = now;
     
     // Track in Segment
-    Analytics.screen(screenName, properties);
+    // Analytics.screen(screenName, properties);
+    console.log('Segment screen:', screenName, properties);
   }
 
   // Performance tracking
@@ -279,7 +283,7 @@ class EnhancedAnalyticsService {
     
     // Record in Crashlytics
     if (fatal) {
-      crashlytics().recordError(error, fatal);
+      crashlytics().recordError(error, fatal ? 'Fatal error occurred' : 'Non-fatal error occurred');
     } else {
       crashlytics().log(`Non-fatal error: ${error.message}`);
       crashlytics().recordError(error);
@@ -395,7 +399,8 @@ class EnhancedAnalyticsService {
     this.lastScreen = null;
     this.performanceMetrics.clear();
     
-    Analytics.reset();
+    // Analytics.reset();
+    console.log('Segment reset');
     if (this.mixpanel) {
       this.mixpanel.reset();
     }

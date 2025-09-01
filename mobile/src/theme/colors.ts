@@ -18,12 +18,42 @@ export interface ColorScheme {
     textHeading: string;
     textBody: string;
     textMuted: string;
+    neutral100: string;
+    neutral200: string;
+    neutral400: string;
+    neutral500: string;
+    neutral600: string;
   };
+  
+  // Extended color properties for screens
+  primary: string;
+  secondary: string;
+  success: string;
+  warning: string;
+  error: string;
+  info: string;
+  text: string;
+  textSecondary: string;
+  textTertiary: string;
+  textOnPrimary: string;
+  background: string;
+  backgroundSecondary: string;
+  surface: string;
+  shadow: string;
+  border: string;
+  borderLight: string;
 }
 
 export interface ColorPalette {
   light: ColorScheme;
   dark: ColorScheme;
+}
+
+export interface ThemeGradients {
+  primary: string[];
+  secondary: string[];
+  success: string[];
+  workout: string[];
 }
 
 export const colors: ColorPalette = {
@@ -41,8 +71,30 @@ export const colors: ColorPalette = {
       slate: "#2E2E2E",
       textHeading: "#2E2E2E",
       textBody: "#4F4F4F",
-      textMuted: "#9E9E9E"
-    }
+      textMuted: "#9E9E9E",
+      neutral100: "#F8F9FA",
+      neutral200: "#E9ECEF",
+      neutral400: "#CED4DA",
+      neutral500: "#ADB5BD",
+      neutral600: "#6C757D"
+    },
+    // Extended properties
+    primary: "#0057FF",
+    secondary: "#FF6B00",
+    success: "#00C853",
+    warning: "#FF9800",
+    error: "#FF1744",
+    info: "#2196F3",
+    text: "#2E2E2E",
+    textSecondary: "#4F4F4F",
+    textTertiary: "#9E9E9E",
+    textOnPrimary: "#FFFFFF",
+    background: "#FFFFFF",
+    backgroundSecondary: "#F5F7FA",
+    surface: "#F5F7FA",
+    shadow: "#000000",
+    border: "#E0E0E0",
+    borderLight: "#F0F0F0"
   },
   dark: {
     brand: {
@@ -58,8 +110,30 @@ export const colors: ColorPalette = {
       slate: "#E0E0E0",
       textHeading: "#FFFFFF",
       textBody: "#E0E0E0",
-      textMuted: "#9E9E9E"
-    }
+      textMuted: "#9E9E9E",
+      neutral100: "#1A1A1A",
+      neutral200: "#2A2A2A",
+      neutral400: "#4A4A4A",
+      neutral500: "#6A6A6A",
+      neutral600: "#8A8A8A"
+    },
+    // Extended properties
+    primary: "#4A9EFF",
+    secondary: "#FF8A65",
+    success: "#4CAF50",
+    warning: "#FFB74D",
+    error: "#FF5252",
+    info: "#64B5F6",
+    text: "#FFFFFF",
+    textSecondary: "#E0E0E0",
+    textTertiary: "#9E9E9E",
+    textOnPrimary: "#FFFFFF",
+    background: "#121212",
+    backgroundSecondary: "#1E1E1E",
+    surface: "#1E1E1E",
+    shadow: "#000000",
+    border: "#333333",
+    borderLight: "#444444"
   }
 };
 

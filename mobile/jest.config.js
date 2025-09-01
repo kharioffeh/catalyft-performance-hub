@@ -8,6 +8,7 @@ module.exports = {
   transformIgnorePatterns: [
     'node_modules/(?!(react-native|@react-native|@react-navigation|react-native-svg|react-native-gesture-handler|react-native-reanimated|react-native-screens|react-native-safe-area-context|@react-native-community|expo-.*|@expo/.*|react-native-app-intro-slider|react-native-onboarding-swiper)/)',
   ],
+  setupFiles: ['<rootDir>/jest.globals.js'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
@@ -27,7 +28,7 @@ module.exports = {
       statements: 60,
     },
   },
-  testEnvironment: 'jsdom',
+  testEnvironment: 'react-native',
   globals: {
     __DEV__: true,
   },

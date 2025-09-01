@@ -12,8 +12,8 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import LinearGradient from 'react-native-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../../store';
 import { PostCard, UserAvatar, ShareWorkoutModal } from '../../components/social';
 import { realtimeSocial } from '../../services/realtimeSocial';
@@ -116,9 +116,9 @@ export const SocialDemo: React.FC = () => {
   const createMockPosts = async () => {
     // Create sample posts
     const mockPosts = [
-      mockDataGenerators.createMockActivityPost({ type: 'workout' }),
-      mockDataGenerators.createMockActivityPost({ type: 'achievement' }),
-      mockDataGenerators.createMockActivityPost({ type: 'pr' }),
+      mockDataGenerators.createMockActivityPosts(1)[0],
+      mockDataGenerators.createMockActivityPosts(1)[0],
+      mockDataGenerators.createMockActivityPosts(1)[0],
     ];
 
     for (const post of mockPosts) {
@@ -240,20 +240,13 @@ export const SocialDemo: React.FC = () => {
 
   const testRealtimeUpdate = async () => {
     // Create a new post to trigger real-time update
-    const testPost = mockDataGenerators.createMockActivityPost({
-      type: 'text',
-      content: 'Testing real-time updates! 🚀',
-    });
+        const testPost = mockDataGenerators.createMockActivityPosts(1)[0];
     
     await createPost(testPost);
   };
 
   const handleShareWorkout = async (caption: string, privacy: string, shareToStory: boolean) => {
-    const workoutPost = mockDataGenerators.createMockActivityPost({
-      type: 'workout',
-      content: caption,
-      visibility: privacy as any,
-    });
+        const workoutPost = mockDataGenerators.createMockActivityPosts(1)[0];
     
     await createPost(workoutPost);
     Alert.alert('Success', 'Workout shared to your feed!');
@@ -275,17 +268,17 @@ export const SocialDemo: React.FC = () => {
         
         <View style={styles.statsRow}>
           <View style={styles.stat}>
-            <Icon name="people" size={24} color="white" />
+            <Ionicons name="people" size={24} color="white" />
             <Text style={styles.statValue}>{activityFeed.length}</Text>
             <Text style={styles.statLabel}>Posts</Text>
           </View>
           <View style={styles.stat}>
-            <Icon name="wifi" size={24} color="white" />
+            <Ionicons name="wifi" size={24} color="white" />
             <Text style={styles.statValue}>{realtimeStatus}</Text>
             <Text style={styles.statLabel}>Real-time</Text>
           </View>
           <View style={styles.stat}>
-            <Icon name="shield-checkmark" size={24} color="white" />
+            <Ionicons name="shield-checkmark" size={24} color="white" />
             <Text style={styles.statValue}>Active</Text>
             <Text style={styles.statLabel}>Privacy</Text>
           </View>
@@ -310,13 +303,13 @@ export const SocialDemo: React.FC = () => {
                 { backgroundColor: step.color },
               ]}
             >
-              <Icon name={step.icon} size={24} color="white" />
+              <Ionicons name={step.icon as keyof typeof Ionicons.glyphMap} size={24} color="white" />
             </View>
             <View style={styles.stepContent}>
               <Text style={styles.stepTitle}>{step.title}</Text>
               <Text style={styles.stepDescription}>{step.description}</Text>
             </View>
-            <Icon
+            <Ionicons
               name="chevron-forward"
               size={20}
               color={demoStep === index ? '#4CAF50' : '#CCC'}
@@ -350,7 +343,7 @@ export const SocialDemo: React.FC = () => {
             colors={['#4CAF50', '#45B545']}
             style={styles.actionGradient}
           >
-            <Icon name="add-circle" size={24} color="white" />
+            <Ionicons name="add-circle" size={24} color="white" />
             <Text style={styles.actionText}>Share Workout</Text>
           </LinearGradient>
         </TouchableOpacity>
@@ -363,7 +356,7 @@ export const SocialDemo: React.FC = () => {
             colors={['#FFD700', '#FFC107']}
             style={styles.actionGradient}
           >
-            <Icon name="trophy" size={24} color="white" />
+            <Ionicons name="trophy" size={24} color="white" />
             <Text style={styles.actionText}>Join Challenge</Text>
           </LinearGradient>
         </TouchableOpacity>

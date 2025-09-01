@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Svg, Circle, Path, Rect, Line } from 'react-native-svg';
+import { Svg, Circle, Path, Rect, Line, Text as SvgText } from 'react-native-svg';
 
 // Placeholder illustration component
 export const PlaceholderIllustration = ({ 
@@ -41,9 +41,9 @@ export const PlaceholderGoalIcon = ({
 }) => (
   <Svg width={64} height={64} viewBox="0 0 64 64">
     <Circle cx="32" cy="32" r="28" fill={`${color}20`} stroke={color} strokeWidth="2" />
-    <Text x="32" y="38" fontSize="24" fill={color} textAnchor="middle">
+    <SvgText x="32" y="38" fontSize="24" fill={color} textAnchor="middle">
       {name.charAt(0).toUpperCase()}
-    </Text>
+    </SvgText>
   </Svg>
 );
 

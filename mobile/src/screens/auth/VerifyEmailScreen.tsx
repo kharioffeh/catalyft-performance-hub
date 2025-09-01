@@ -10,7 +10,7 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { supabase } from '../../config/supabase';
+import { supabase } from '../../services/supabase';
 
 const VerifyEmailScreen: React.FC = () => {
   const navigation = useNavigation<any>();

@@ -36,7 +36,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     >
       <View style={[styles.inputBar, isFocused && styles.inputBarFocused]}>
         <TouchableOpacity style={styles.attachButton} activeOpacity={0.7}>
-          <Ionicons name="paperclip" size={20} color="#9E9E9E" />
+          <Ionicons name="attach" size={20} color="#9E9E9E" />
         </TouchableOpacity>
         
         <TextInput
@@ -46,7 +46,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           value={message}
           onChangeText={onMessageChange}
           multiline
-          maxHeight={100}
           editable={!isLoading}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
@@ -159,9 +158,9 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   loadingDot2: {
-    animationDelay: '0.1s',
+    backgroundColor: '#9E9E9E',
   },
   loadingDot3: {
-    animationDelay: '0.2s',
+    backgroundColor: '#9E9E9E',
   },
 });

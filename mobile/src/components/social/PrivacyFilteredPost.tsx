@@ -4,14 +4,14 @@
 
 import React from 'react';
 import { View, Text } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 import { ActivityPost, UserProfile } from '../../types/social';
 import { formatCalories, formatDuration } from '../../utils/formatters';
 import { usePrivacyCheck } from './PrivacyAwareContent';
 
 interface PrivacyFilteredPostProps {
   post: ActivityPost;
-  userProfile: UserProfile;
+  userProfile?: UserProfile;
   currentUserId?: string;
   isFollowing?: boolean;
 }
@@ -22,6 +22,22 @@ export const PrivacyFilteredPost: React.FC<PrivacyFilteredPostProps> = ({
   currentUserId,
   isFollowing = false,
 }) => {
+  // If no userProfile, show a basic post without privacy filtering
+  if (!userProfile) {
+    return (
+      <View style={{
+        padding: 16,
+        backgroundColor: '#F5F5F5',
+        borderRadius: 8,
+        margin: 12,
+      }}>
+        <Text style={{ color: '#999' }}>
+          Post content unavailable
+        </Text>
+      </View>
+    );
+  }
+  
   const privacySettings = userProfile.privacySettings;
   
   // Check various privacy settings
@@ -85,7 +101,7 @@ export const PrivacyFilteredPost: React.FC<PrivacyFilteredPostProps> = ({
           margin: 12,
         }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Icon name="lock-closed" size={20} color="#999" />
+            <Ionicons name="lock-closed" size={20} color="#999" />
             <Text style={{ marginLeft: 8, color: '#999' }}>
               Workout details are private
             </Text>
@@ -102,7 +118,7 @@ export const PrivacyFilteredPost: React.FC<PrivacyFilteredPostProps> = ({
         margin: 12,
       }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-          <Icon name="barbell" size={24} color="white" />
+          <Ionicons name="barbell" size={24} color="white" />
           <Text style={{
             color: 'white',
             fontSize: 18,
@@ -168,7 +184,7 @@ export const PrivacyFilteredPost: React.FC<PrivacyFilteredPostProps> = ({
           margin: 12,
         }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Icon name="restaurant" size={20} color="#999" />
+            <Ionicons name="restaurant" size={20} color="#999" />
             <Text style={{ marginLeft: 8, color: '#999' }}>
               Had a meal
             </Text>
@@ -185,7 +201,7 @@ export const PrivacyFilteredPost: React.FC<PrivacyFilteredPostProps> = ({
         padding: 12,
       }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-          <Icon name="restaurant" size={20} color="#4CAF50" />
+          <Ionicons name="restaurant" size={20} color="#4CAF50" />
           <Text style={{
             fontSize: 16,
             fontWeight: '600',
@@ -269,7 +285,7 @@ export const PrivacyIndicator: React.FC<{
       backgroundColor: '#F5F5F5',
       borderRadius: 12,
     }}>
-      <Icon name={getIcon()} size={12} color={getColor()} />
+      <Ionicons name={getIcon()} size={12} color={getColor()} />
       <Text style={{
         marginLeft: 4,
         fontSize: 10,

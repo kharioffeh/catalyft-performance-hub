@@ -556,6 +556,347 @@ export interface Database {
           created_at?: string
         }
       }
+      onboarding_progress: {
+        Row: {
+          id: string
+          user_id: string
+          current_step: string
+          completed_steps: string[]
+          goals: string[] | null
+          assessment_data: Json | null
+          time_spent_seconds: number | null
+          started_at: string
+          updated_at: string
+          completed: boolean
+          completed_at: string | null
+          selected_plan: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          current_step: string
+          completed_steps?: string[]
+          goals?: string[] | null
+          assessment_data?: Json | null
+          time_spent_seconds?: number | null
+          started_at?: string
+          updated_at?: string
+          completed?: boolean
+          completed_at?: string | null
+          selected_plan?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          current_step?: string
+          completed_steps?: string[]
+          goals?: string[] | null
+          assessment_data?: Json | null
+          time_spent_seconds?: number | null
+          started_at?: string
+          updated_at?: string
+          completed?: boolean
+          completed_at?: string | null
+          selected_plan?: string | null
+        }
+      }
+      analytics_events: {
+        Row: {
+          id: string
+          user_id: string | null
+          event_name: string
+          event_properties: Json | null
+          session_id: string | null
+          platform: string
+          app_version: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          event_name: string
+          event_properties?: Json | null
+          session_id?: string | null
+          platform: string
+          app_version: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          event_name?: string
+          event_properties?: Json | null
+          session_id?: string | null
+          platform?: string
+          app_version?: string
+          created_at?: string
+        }
+      }
+      user_profiles: {
+        Row: {
+          id: string
+          user_id: string
+          email: string | null
+          fitness_level: string | null
+          goals: string[] | null
+          workout_frequency: number | null
+          equipment: string[] | null
+          experience_years: number | null
+          height_cm: number | null
+          weight_kg: number | null
+          age: number | null
+          gender: string | null
+          timezone: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          email?: string | null
+          fitness_level?: string | null
+          goals?: string[] | null
+          workout_frequency?: number | null
+          equipment?: string[] | null
+          experience_years?: number | null
+          height_cm?: number | null
+          weight_kg?: number | null
+          age?: number | null
+          gender?: string | null
+          timezone?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          email?: string | null
+          fitness_level?: string | null
+          goals?: string[] | null
+          workout_frequency?: number | null
+          equipment?: string[] | null
+          experience_years?: number | null
+          height_cm?: number | null
+          weight_kg?: number | null
+          age?: number | null
+          gender?: string | null
+          timezone?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      ab_test_assignments: {
+        Row: {
+          id: string
+          user_id: string
+          test_id: string
+          variant: string
+          assigned_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          test_id: string
+          variant: string
+          assigned_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          test_id?: string
+          variant?: string
+          assigned_at?: string
+        }
+      }
+      workout_templates: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          description: string | null
+          exercises: Json | null
+          is_public: boolean
+          category: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          description?: string | null
+          exercises?: Json | null
+          is_public?: boolean
+          category?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          description?: string | null
+          exercises?: Json | null
+          is_public?: boolean
+          category?: string | null
+          created_at?: string
+        }
+      }
+      workout_exercises: {
+        Row: {
+          id: string
+          workout_id: string
+          exercise_id: string
+          order_index: number
+          notes: string | null
+          is_superset: boolean
+          superset_group: number | null
+        }
+        Insert: {
+          id?: string
+          workout_id: string
+          exercise_id: string
+          order_index?: number
+          notes?: string | null
+          is_superset?: boolean
+          superset_group?: number | null
+        }
+        Update: {
+          id?: string
+          workout_id?: string
+          exercise_id?: string
+          order_index?: number
+          notes?: string | null
+          is_superset?: boolean
+          superset_group?: number | null
+        }
+      }
+      sets: {
+        Row: {
+          id: string
+          workout_exercise_id: string
+          set_number: number
+          weight: number | null
+          reps: number | null
+          distance_meters: number | null
+          duration_seconds: number | null
+          rest_seconds: number | null
+          rpe: number | null
+          completed: boolean
+        }
+        Insert: {
+          id?: string
+          workout_exercise_id: string
+          set_number?: number
+          weight?: number | null
+          reps?: number | null
+          distance_meters?: number | null
+          duration_seconds?: number | null
+          rest_seconds?: number | null
+          rpe?: number | null
+          completed?: boolean
+        }
+        Update: {
+          id?: string
+          workout_exercise_id?: string
+          set_number?: number
+          weight?: number | null
+          reps?: number | null
+          distance_meters?: number | null
+          duration_seconds?: number | null
+          rest_seconds?: number | null
+          rpe?: number | null
+          completed?: boolean
+        }
+      }
+      personal_records: {
+        Row: {
+          id: string
+          user_id: string
+          exercise_id: string
+          weight: number
+          reps: number
+          one_rep_max: number
+          volume: number
+          achieved_at: string
+          workout_id: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          exercise_id: string
+          weight: number
+          reps: number
+          one_rep_max: number
+          volume: number
+          achieved_at?: string
+          workout_id: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          exercise_id?: string
+          weight?: number
+          reps?: number
+          one_rep_max?: number
+          volume?: number
+          achieved_at?: string
+          workout_id?: string
+        }
+      }
+      user_exercise_favorites: {
+        Row: {
+          id: string
+          user_id: string
+          exercise_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          exercise_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          exercise_id?: string
+          created_at?: string
+        }
+      }
+      workout_goals: {
+        Row: {
+          id: string
+          user_id: string
+          exercise_id: string | null
+          goal_type: string
+          target_value: number
+          current_value: number
+          deadline: Date | null
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          exercise_id?: string | null
+          goal_type: string
+          target_value: number
+          current_value: number
+          deadline?: Date | null
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          exercise_id?: string | null
+          goal_type?: string
+          target_value?: number
+          current_value?: number
+          deadline?: Date | null
+          notes?: string | null
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

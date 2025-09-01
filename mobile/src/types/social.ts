@@ -31,6 +31,10 @@ export interface UserProfile {
   totalCaloriesBurned: number;
   personalRecords: PersonalRecordSummary[];
   
+  // Body Stats
+  weight?: number;
+  bodyMeasurements?: any;
+  
   // Preferences
   showWorkoutStats: boolean;
   showNutritionStats: boolean;
@@ -39,6 +43,9 @@ export interface UserProfile {
   
   // Privacy Settings
   privacySettings?: PrivacySettings;
+  
+  // Social state
+  isFollowing?: boolean;
   
   createdAt: Date;
   updatedAt: Date;
@@ -269,6 +276,12 @@ export interface LeaderboardEntry {
   unit: string;
   change?: number; // Position change from last period
   trend?: 'up' | 'down' | 'same';
+  
+  // Additional properties for UI
+  profilePicture?: string;
+  username: string;
+  isVerified?: boolean;
+  score: number;
 }
 
 export interface LeaderboardFilter {
@@ -384,7 +397,7 @@ export interface PrivacySettings {
   showNutritionDetails: boolean;
   showLocation: boolean;
   allowTagging: boolean;
-  allowMessages: 'everyone' | 'followers' | 'none';
+  allowMessages: 'everyone' | 'following' | 'none';
   blockedUsers: string[];
   
   // Granular workout privacy

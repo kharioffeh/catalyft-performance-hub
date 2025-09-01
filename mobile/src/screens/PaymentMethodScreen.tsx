@@ -229,7 +229,7 @@ export const PaymentMethodScreen: React.FC = () => {
 
             <TouchableOpacity style={styles.saveCardButton} onPress={handleAddCard}>
               <LinearGradient
-                colors={theme.colors.light.gradients.primary}
+                colors={theme.gradients.primary}
                 style={styles.saveCardButtonGradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}

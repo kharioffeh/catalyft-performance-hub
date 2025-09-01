@@ -132,7 +132,13 @@ export { Easing };
 
 // Mock gesture handler
 export const Gesture = {
-  Pan: () => ({ enabled: () => {} }),
+  Pan: () => ({ 
+    enabled: () => ({ 
+      onUpdate: (callback: any) => ({ 
+        onEnd: (callback: any) => ({}) 
+      }) 
+    }) 
+  }),
   Tap: () => ({ enabled: () => {} }),
   Pinch: () => ({ enabled: () => {} }),
   Rotation: () => ({ enabled: () => {} }),
@@ -142,3 +148,5 @@ export const Gesture = {
 };
 
 export const GestureDetector = ({ children }: any) => children;
+
+export const GestureHandlerRootView = ({ children }: any) => children;

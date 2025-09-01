@@ -3,16 +3,24 @@
  * Advanced timer for workout sessions with multiple modes
  */
 
-import React, { useState, useEffect, useCallback, useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
+  Animated,
+  Dimensions,
+  Alert,
+  Platform,
   ViewStyle,
   useColorScheme,
 } from 'react-native';
-import Animated, {
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { theme } from '../../theme';
+import { Button } from './Button';
+import {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -22,9 +30,7 @@ import Animated, {
   interpolate,
   interpolateColor,
   Easing,
-} from '../../utils/reanimated-mock';
-import { theme } from '../../theme';
-import Button from './Button';
+} from 'react-native-reanimated';
 
 export type TimerMode = 'countdown' | 'stopwatch' | 'interval' | 'tabata';
 
@@ -227,9 +233,9 @@ export const WorkoutTimer = forwardRef<WorkoutTimerRef, WorkoutTimerProps>(({
   const getTimerColor = useCallback(() => {
     if (mode === 'interval' || mode === 'tabata') {
       if (currentInterval?.type === 'work') {
-        return colors.workout;
+        return theme.gradients.workout[0];
       } else if (currentInterval?.type === 'rest') {
-        return colors.rest;
+        return theme.gradients.rest[0];
       } else {
         return colors.warning;
       }
@@ -256,7 +262,7 @@ export const WorkoutTimer = forwardRef<WorkoutTimerRef, WorkoutTimerProps>(({
       const backgroundColor = interpolateColor(
         colorAnimation.value,
         [0, 1],
-        [colors.workout, colors.rest]
+        [theme.gradients.workout[0], theme.gradients.rest[0]]
       );
       return { backgroundColor };
     }
@@ -352,7 +358,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   timerContainer: {
-    padding: theme.spacing.s6,
+    padding: theme.spacing.xxl,
     borderRadius: theme.borderRadius.xl,
     alignItems: 'center',
   },
@@ -371,23 +377,34 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   intervalInfo: {
-    marginBottom: theme.spacing.s4,
+    marginBottom: theme.spacing.md,
     alignItems: 'center',
   },
   intervalName: {
-    ...theme.typography.styles.h4,
-    marginBottom: theme.spacing.s1,
+    fontSize: theme.typography.sizes.h5,
+    fontWeight: theme.typography.weights.semibold,
+    color: theme.colors.light.text,
+    textAlign: 'center',
+    marginBottom: theme.spacing.xs,
   },
   intervalType: {
-    ...theme.typography.styles.overline,
+    fontSize: theme.typography.sizes.h6,
+    fontWeight: theme.typography.weights.medium,
+    color: theme.colors.light.textSecondary,
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    letterSpacing: theme.typography.letterSpacing.wide,
   },
   timerText: {
-    ...theme.typography.styles.timer,
+    fontSize: theme.typography.sizes.h3,
+    fontWeight: theme.typography.weights.bold,
+    color: theme.colors.light.textOnPrimary,
+    textAlign: 'center',
   },
   controls: {
     flexDirection: 'row',
-    marginTop: theme.spacing.s6,
-    gap: theme.spacing.s3,
+    marginTop: theme.spacing.lg,
+    gap: theme.spacing.md,
   },
   controlButton: {
     minWidth: 100,

@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Svg, Circle, Rect, Line, Path } from 'react-native-svg';
+import { Svg, Circle, Rect, Line, Path, Text as SvgText, Defs, LinearGradient as SvgLinearGradient, Stop } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
 
@@ -146,30 +146,30 @@ const ProgressDashboardScreen: React.FC = () => {
           />
           
           {/* Labels */}
-          <Text x={50} y={200} fontSize={12} textAnchor="middle" fill="#666">Bench</Text>
-          <Text x={130} y={200} fontSize={12} textAnchor="middle" fill="#666">Squat</Text>
-          <Text x={210} y={200} fontSize={12} textAnchor="middle" fill="#666">Deadlift</Text>
-          <Text x={290} y={200} fontSize={12} textAnchor="middle" fill="#666">OHP</Text>
+          <SvgText x={50} y={200} fontSize={12} textAnchor="middle" fill="#666">Bench</SvgText>
+          <SvgText x={130} y={200} fontSize={12} textAnchor="middle" fill="#666">Squat</SvgText>
+          <SvgText x={210} y={200} fontSize={12} textAnchor="middle" fill="#666">Deadlift</SvgText>
+          <SvgText x={290} y={200} fontSize={12} textAnchor="middle" fill="#666">OHP</SvgText>
           
           {/* Gradients */}
-          <defs>
-            <LinearGradient id="benchGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#EF4444" />
-              <stop offset="100%" stopColor="#DC2626" />
-            </LinearGradient>
-            <LinearGradient id="squatGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#F97316" />
-              <stop offset="100%" stopColor="#EA580C" />
-            </LinearGradient>
-            <LinearGradient id="deadliftGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#22C55E" />
-              <stop offset="100%" stopColor="#16A34A" />
-            </LinearGradient>
-            <LinearGradient id="overheadGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#3B82F6" />
-              <stop offset="100%" stopColor="#2563EB" />
-            </LinearGradient>
-          </defs>
+          <Defs>
+            <SvgLinearGradient id="benchGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <Stop offset="0%" stopColor="#EF4444" />
+              <Stop offset="100%" stopColor="#DC2626" />
+            </SvgLinearGradient>
+            <SvgLinearGradient id="squatGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <Stop offset="0%" stopColor="#F97316" />
+              <Stop offset="100%" stopColor="#EA580C" />
+            </SvgLinearGradient>
+            <SvgLinearGradient id="deadliftGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <Stop offset="0%" stopColor="#22C55E" />
+              <Stop offset="100%" stopColor="#16A34A" />
+            </SvgLinearGradient>
+            <SvgLinearGradient id="overheadGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <Stop offset="0%" stopColor="#3B82F6" />
+              <Stop offset="100%" stopColor="#2563EB" />
+            </SvgLinearGradient>
+          </Defs>
         </Svg>
       </View>
     </View>
@@ -206,7 +206,7 @@ const ProgressDashboardScreen: React.FC = () => {
           
           {/* Week labels */}
           {data?.volumeProgress.map((week, index) => (
-            <Text
+            <SvgText
               key={index}
               x={35 + index * 50}
               y={200}
@@ -215,7 +215,7 @@ const ProgressDashboardScreen: React.FC = () => {
               fill="#666"
             >
               {week.week}
-            </Text>
+            </SvgText>
           ))}
         </Svg>
       </View>

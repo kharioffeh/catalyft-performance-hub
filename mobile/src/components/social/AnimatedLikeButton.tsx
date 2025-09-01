@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, Dimensions } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -140,7 +140,7 @@ export const AnimatedLikeButton: React.FC<AnimatedLikeButtonProps> = ({
         activeOpacity={0.7}
       >
         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-          <Icon
+          <Ionicons
             name={isLiked ? 'heart' : 'heart-outline'}
             size={iconSize}
             color={isLiked ? '#FF6B6B' : '#666'}
@@ -171,7 +171,7 @@ export const AnimatedLikeButton: React.FC<AnimatedLikeButtonProps> = ({
             },
           ]}
         >
-          <Icon name="heart" size={40} color="#FF6B6B" />
+          <Ionicons name="heart" size={40} color="#FF6B6B" />
         </Animated.View>
       )}
     </View>

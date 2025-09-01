@@ -19,21 +19,37 @@ import {
   Card,
   Modal,
   Toast,
-  ToastManager,
-  WorkoutTimer,
-  RepCounter,
-  MacroChart,
-  ProgressRing,
-  ExerciseCard,
-  Skeleton,
   SkeletonListItem,
   SkeletonExerciseCard,
   EmptyState,
-  ErrorBoundary,
+  withErrorBoundary,
   theme,
   type ToastRef,
-  type ExerciseData,
+  ProgressRing,
+  WorkoutTimer,
+  RepCounter,
+  MacroChart,
+  ExerciseCard,
 } from '../components/ui';
+
+// Define ExerciseData type
+type ExerciseData = {
+  id: string;
+  name: string;
+  category: string;
+  muscle: string;
+  equipment: string;
+  targetSets: number;
+  targetReps: number;
+  targetWeight: number;
+  restTime: number;
+  sets: Array<{
+    reps: number;
+    weight: number;
+    completed: boolean;
+  }>;
+  notes: string;
+};
 
 export const DesignSystemShowcase: React.FC = () => {
   const colorScheme = useColorScheme();
@@ -86,17 +102,16 @@ export const DesignSystemShowcase: React.FC = () => {
   );
   
   return (
-    <ErrorBoundary>
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.header}>
-            <Text style={[styles.title, { color: colors.text }]}>
-              Catalyft Design System
-            </Text>
-            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-              Component Showcase
-            </Text>
-          </View>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: colors.text }]}>
+            Catalyft Design System
+          </Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+            Component Showcase
+          </Text>
+        </View>
           
           {/* Theme Toggle */}
           <Section title="Theme">
@@ -136,8 +151,7 @@ export const DesignSystemShowcase: React.FC = () => {
             <Input
               label="With Error"
               placeholder="Enter email..."
-              error
-              errorMessage="Invalid email address"
+              error="Invalid email address"
             />
             <Input
               label="With Success"
@@ -167,7 +181,7 @@ export const DesignSystemShowcase: React.FC = () => {
               </Text>
             </Card>
             
-            <View style={{ marginTop: theme.spacing.s3 }}>
+            <View style={{ marginTop: theme.spacing.md }}>
               <Card variant="outlined">
                 <Text style={{ color: colors.text }}>Outlined Card</Text>
                 <Text style={{ color: colors.textSecondary }}>
@@ -176,7 +190,7 @@ export const DesignSystemShowcase: React.FC = () => {
               </Card>
             </View>
             
-            <View style={{ marginTop: theme.spacing.s3 }}>
+            <View style={{ marginTop: theme.spacing.md }}>
               <Card variant="filled">
                 <Text style={{ color: colors.text }}>Filled Card</Text>
                 <Text style={{ color: colors.textSecondary }}>
@@ -221,7 +235,7 @@ export const DesignSystemShowcase: React.FC = () => {
               <Text style={{ color: colors.text }}>
                 This is a {modalType} modal
               </Text>
-              <View style={{ marginTop: theme.spacing.s4 }}>
+              <View style={{ marginTop: theme.spacing.md }}>
                 <Button
                   title="Close Modal"
                   onPress={() => setModalVisible(false)}
@@ -309,7 +323,7 @@ export const DesignSystemShowcase: React.FC = () => {
               showPercentages
               showCalories
             />
-            <View style={{ marginTop: theme.spacing.s6 }}>
+            <View style={{ marginTop: theme.spacing.lg }}>
               <MacroChart
                 data={macroData}
                 variant="bars"
@@ -331,7 +345,7 @@ export const DesignSystemShowcase: React.FC = () => {
           <Section title="Loading States">
             <View style={styles.skeletonContainer}>
               <SkeletonListItem />
-              <View style={{ marginTop: theme.spacing.s3 }}>
+              <View style={{ marginTop: theme.spacing.md }}>
                 <SkeletonExerciseCard />
               </View>
             </View>
@@ -350,7 +364,6 @@ export const DesignSystemShowcase: React.FC = () => {
           <View style={{ height: 100 }} />
         </ScrollView>
       </SafeAreaView>
-    </ErrorBoundary>
   );
 };
 
@@ -359,22 +372,28 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    padding: theme.spacing.s6,
+    padding: theme.spacing.xxl,
     alignItems: 'center',
   },
   title: {
-    ...theme.typography.styles.h2,
-    marginBottom: theme.spacing.s2,
+    fontSize: theme.typography.sizes.h1,
+    fontWeight: theme.typography.weights.bold,
+    color: theme.colors.light.text,
+    marginBottom: theme.spacing.sm,
   },
   subtitle: {
-    ...theme.typography.styles.bodyLarge,
+    fontSize: theme.typography.sizes.h3,
+    fontWeight: theme.typography.weights.medium,
+    color: theme.colors.light.textSecondary,
   },
   section: {
-    padding: theme.spacing.s4,
+    padding: theme.spacing.md,
   },
   sectionTitle: {
-    ...theme.typography.styles.h5,
-    marginBottom: theme.spacing.s4,
+    fontSize: theme.typography.sizes.h5,
+    fontWeight: theme.typography.weights.semibold,
+    color: theme.colors.light.text,
+    marginBottom: theme.spacing.md,
   },
   row: {
     flexDirection: 'row',
@@ -384,17 +403,17 @@ const styles = StyleSheet.create({
   buttonGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: theme.spacing.s2,
+    gap: theme.spacing.sm,
   },
   progressGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
-    gap: theme.spacing.s4,
+    gap: theme.spacing.md,
   },
   skeletonContainer: {
-    padding: theme.spacing.s2,
+    padding: theme.spacing.sm,
   },
 });
 
-export default DesignSystemShowcase;
+export default withErrorBoundary(DesignSystemShowcase);

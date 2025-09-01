@@ -10,8 +10,8 @@ import {
   Image,
   Switch,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import LinearGradient from 'react-native-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { formatDuration, formatNumber } from '../../utils/formatters';
 
 interface ShareWorkoutModalProps {
@@ -56,7 +56,7 @@ export const ShareWorkoutModal: React.FC<ShareWorkoutModalProps> = ({
         <View style={styles.content}>
           <View style={styles.header}>
             <TouchableOpacity onPress={onClose}>
-              <Icon name="close" size={24} color="#333" />
+              <Ionicons name="close" size={24} color="#333" />
             </TouchableOpacity>
             <Text style={styles.title}>Share Workout</Text>
             <TouchableOpacity onPress={handleShare}>
@@ -73,24 +73,24 @@ export const ShareWorkoutModal: React.FC<ShareWorkoutModalProps> = ({
               end={{ x: 1, y: 1 }}
             >
               <View style={styles.workoutHeader}>
-                <Icon name="fitness" size={32} color="white" />
+                <Ionicons name="fitness" size={32} color="white" />
                 <Text style={styles.workoutName}>{workout.name}</Text>
               </View>
 
               {includeStats && (
                 <View style={styles.workoutStats}>
                   <View style={styles.stat}>
-                    <Icon name="time-outline" size={20} color="rgba(255,255,255,0.9)" />
+                    <Ionicons name="time-outline" size={20} color="rgba(255,255,255,0.9)" />
                     <Text style={styles.statValue}>{formatDuration(workout.duration)}</Text>
                     <Text style={styles.statLabel}>Duration</Text>
                   </View>
                   <View style={styles.stat}>
-                    <Icon name="flame-outline" size={20} color="rgba(255,255,255,0.9)" />
+                    <Ionicons name="flame-outline" size={20} color="rgba(255,255,255,0.9)" />
                     <Text style={styles.statValue}>{formatNumber(workout.caloriesBurned)}</Text>
                     <Text style={styles.statLabel}>Calories</Text>
                   </View>
                   <View style={styles.stat}>
-                    <Icon name="barbell-outline" size={20} color="rgba(255,255,255,0.9)" />
+                    <Ionicons name="barbell-outline" size={20} color="rgba(255,255,255,0.9)" />
                     <Text style={styles.statValue}>{workout.exercises}</Text>
                     <Text style={styles.statLabel}>Exercises</Text>
                   </View>
@@ -130,7 +130,7 @@ export const ShareWorkoutModal: React.FC<ShareWorkoutModalProps> = ({
                   style={[styles.privacyOption, privacy === 'public' && styles.privacyOptionActive]}
                   onPress={() => setPrivacy('public')}
                 >
-                  <Icon name="earth" size={20} color={privacy === 'public' ? '#4CAF50' : '#666'} />
+                  <Ionicons name="earth" size={20} color={privacy === 'public' ? '#4CAF50' : '#666'} />
                   <Text style={[styles.privacyText, privacy === 'public' && styles.privacyTextActive]}>
                     Public
                   </Text>
@@ -139,7 +139,7 @@ export const ShareWorkoutModal: React.FC<ShareWorkoutModalProps> = ({
                   style={[styles.privacyOption, privacy === 'followers' && styles.privacyOptionActive]}
                   onPress={() => setPrivacy('followers')}
                 >
-                  <Icon name="people" size={20} color={privacy === 'followers' ? '#4CAF50' : '#666'} />
+                  <Ionicons name="people" size={20} color={privacy === 'followers' ? '#4CAF50' : '#666'} />
                   <Text style={[styles.privacyText, privacy === 'followers' && styles.privacyTextActive]}>
                     Followers
                   </Text>
@@ -148,7 +148,7 @@ export const ShareWorkoutModal: React.FC<ShareWorkoutModalProps> = ({
                   style={[styles.privacyOption, privacy === 'private' && styles.privacyOptionActive]}
                   onPress={() => setPrivacy('private')}
                 >
-                  <Icon name="lock-closed" size={20} color={privacy === 'private' ? '#4CAF50' : '#666'} />
+                  <Ionicons name="lock-closed" size={20} color={privacy === 'private' ? '#4CAF50' : '#666'} />
                   <Text style={[styles.privacyText, privacy === 'private' && styles.privacyTextActive]}>
                     Private
                   </Text>
@@ -162,7 +162,7 @@ export const ShareWorkoutModal: React.FC<ShareWorkoutModalProps> = ({
               
               <View style={styles.option}>
                 <View style={styles.optionInfo}>
-                  <Icon name="stats-chart" size={20} color="#666" />
+                  <Ionicons name="stats-chart" size={20} color="#666" />
                   <Text style={styles.optionText}>Include workout stats</Text>
                 </View>
                 <Switch
@@ -175,7 +175,7 @@ export const ShareWorkoutModal: React.FC<ShareWorkoutModalProps> = ({
 
               <View style={styles.option}>
                 <View style={styles.optionInfo}>
-                  <Icon name="time-outline" size={20} color="#666" />
+                  <Ionicons name="time-outline" size={20} color="#666" />
                   <Text style={styles.optionText}>Share to story (24h)</Text>
                 </View>
                 <Switch

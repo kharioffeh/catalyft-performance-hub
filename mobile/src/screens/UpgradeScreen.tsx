@@ -297,7 +297,7 @@ export const UpgradeScreen: React.FC = () => {
       <View style={styles.floatingButtonContainer}>
         <TouchableOpacity style={styles.floatingButton} onPress={handleUpgrade}>
           <LinearGradient
-            colors={theme.colors.light.gradients.primary}
+            colors={theme.gradients.primary}
             style={styles.floatingButtonGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
