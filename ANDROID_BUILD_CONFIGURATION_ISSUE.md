@@ -174,8 +174,171 @@ android {
 - Ability to test on Android devices/emulators
 - CI/CD environment for validation
 
+## Agent Implementation Prompts
+
+### Phase 1: Gradle and Java Configuration
+**Agent Prompt:**
+```
+Implement Phase 1 of Android build configuration fixes. Update Gradle and Java configuration for React Native 0.74.5 compatibility.
+
+TASKS:
+1. Update android/gradle/wrapper/gradle-wrapper.properties:
+   - Change distributionUrl to use Gradle 8.10 or 8.11
+   - Example: distributionUrl=https\://services.gradle.org/distributions/gradle-8.10-bin.zip
+
+2. Update android/build.gradle:
+   - Add explicit Android Gradle Plugin version: classpath("com.android.tools.build:gradle:8.7.0")
+   - Add kotlinVersion = "1.9.10" to ext block
+   - Ensure buildToolsVersion = "34.0.0", compileSdkVersion = 34, targetSdkVersion = 34
+
+3. Update android/gradle.properties:
+   - Add org.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=512m
+   - Add org.gradle.parallel=true and org.gradle.daemon=true
+   - Ensure android.useAndroidX=true and android.enableJetifier=true
+
+4. Test after each change:
+   - Run: cd android && ./gradlew clean
+   - Run: cd android && ./gradlew build
+   - Verify no compilation errors
+
+SUCCESS CRITERIA:
+- Clean build succeeds without errors
+- No Java compilation issues
+- Gradle daemon starts successfully
+- All existing functionality preserved
+
+If any step fails, document the error and stop. Do not proceed to next phase.
+```
+
+### Phase 2: MMKV Integration and Packaging
+**Agent Prompt:**
+```
+Implement Phase 2 of Android build configuration fixes. Add MMKV-specific configuration and packaging options.
+
+TASKS:
+1. Update android/app/build.gradle:
+   - Add packagingOptions block with MMKV-specific configurations:
+   ```gradle
+   packagingOptions {
+       pickFirst '**/libc++_shared.so'
+       pickFirst '**/libjsc.so'
+       pickFirst '**/libfb.so'
+       pickFirst 'META-INF/LICENSE'
+       pickFirst 'META-INF/LICENSE.md'
+       pickFirst 'META-INF/LICENSE.txt'
+       pickFirst 'META-INF/NOTICE'
+       pickFirst 'META-INF/NOTICE.md'
+       pickFirst 'META-INF/NOTICE.txt'
+       pickFirst 'META-INF/DEPENDENCIES'
+       pickFirst 'META-INF/DEPENDENCIES.txt'
+       exclude 'META-INF/LGPL2.1'
+       exclude 'META-INF/AL2.0'
+   }
+   ```
+
+2. Update mobile/scripts/fix-android-build.js:
+   - Ensure script includes all MMKV packaging options
+   - Verify script handles META-INF conflicts properly
+
+3. Test MMKV integration:
+   - Run: cd mobile && npm run android:clean-prebuild
+   - Run: cd mobile && npm run android:run
+   - Verify MMKV storage works in app (check for any native linking errors)
+
+4. Test build process:
+   - Run: cd android && ./gradlew clean build
+   - Verify no packaging conflicts or duplicate file errors
+
+SUCCESS CRITERIA:
+- Android build completes without packaging errors
+- MMKV functionality works in the app
+- No duplicate META-INF file conflicts
+- All native libraries link correctly
+
+If MMKV functionality fails, document the specific error and investigate native linking.
+```
+
+### Phase 3: Standardization and Validation
+**Agent Prompt:**
+```
+Implement Phase 3 of Android build configuration fixes. Standardize configurations and perform comprehensive validation.
+
+TASKS:
+1. Standardize gradle.properties:
+   - Ensure android/gradle.properties and mobile/gradle.properties are consistent
+   - Add any missing properties from Phase 1
+   - Verify no conflicting configurations
+
+2. Update build scripts:
+   - Review and update mobile/scripts/fix-android-build.js if needed
+   - Ensure all build scripts work with new configuration
+   - Test: cd mobile && npm run fix:android-build
+
+3. Comprehensive testing:
+   - Clean build: cd android && ./gradlew clean build
+   - Debug build: cd mobile && npm run android:run
+   - Release build: cd mobile && npm run build:android:production (if available)
+   - Test on different architectures (if possible)
+
+4. CI/CD validation:
+   - Verify build works in CI environment
+   - Check build times are reasonable
+   - Ensure no new timeout issues
+
+5. Documentation:
+   - Document all changes made
+   - Create rollback instructions
+   - Update any relevant README files
+
+SUCCESS CRITERIA:
+- All build types succeed (debug, release)
+- Build times are acceptable (< 10 minutes for clean build)
+- No regressions in existing functionality
+- CI/CD builds pass
+- Documentation is complete
+
+FINAL VALIDATION:
+Run this complete test sequence:
+1. cd android && ./gradlew clean
+2. cd android && ./gradlew build
+3. cd mobile && npm run android:clean-prebuild
+4. cd mobile && npm run android:run
+5. Test MMKV functionality in the running app
+
+All steps must succeed for Phase 3 completion.
+```
+
+### Emergency Rollback Prompt
+**Agent Prompt:**
+```
+EMERGENCY ROLLBACK: Android build configuration changes have caused critical issues.
+
+TASKS:
+1. Revert android/gradle/wrapper/gradle-wrapper.properties to original Gradle version
+2. Revert android/build.gradle to original configuration
+3. Revert android/gradle.properties to original settings
+4. Revert android/app/build.gradle packagingOptions changes
+5. Clean all build artifacts:
+   - cd android && ./gradlew clean
+   - rm -rf android/.gradle
+   - rm -rf android/app/build
+6. Test original build works:
+   - cd android && ./gradlew build
+   - cd mobile && npm run android:run
+
+SUCCESS CRITERIA:
+- Original build configuration restored
+- Build succeeds with original settings
+- No broken functionality
+- Team can continue development
+
+Document what was reverted and why the changes failed.
+```
+
 ## Notes
 - This is infrastructure work, not code quality improvements
 - Focus on build system stability and compatibility
 - Ensure changes work in both local and CI environments
 - Document any breaking changes for team members
+- Use agent prompts in sequence - do not skip phases
+- Each phase must complete successfully before proceeding to next
