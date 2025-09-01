@@ -34,17 +34,23 @@ const mmkvStorage: StateStorage = {
   },
 };
 
-// Combined store type
-export type StoreState = Omit<UserSlice, 'achievements'> & WorkoutSlice & NutritionSlice & SocialSlice & {
-  // Override achievements to use the social slice version
+// Base slice types without conflicts
+type BaseUserSlice = Omit<UserSlice, 'achievements' | 'unreadNotificationCount'>;
+type BaseSocialSlice = Omit<SocialSlice, 'unreadNotificationCount'>;
+
+// Combined store type with proper conflict resolution
+export type StoreState = BaseUserSlice & WorkoutSlice & NutritionSlice & BaseSocialSlice & {
+  // Resolved conflicts - use social slice versions
   achievements: Achievement[];
-  // Override searchResults to be UserProfile[] for social compatibility
   searchResults: UserProfile[];
+  unreadNotificationCount: number; // From social slice
+  
   // Global state
   isOnline: boolean;
   isSyncing: boolean;
   lastSyncTime: Date | null;
   syncErrors: string[];
+  
   // Global actions
   setIsOnline: (isOnline: boolean) => void;
   setIsSyncing: (isSyncing: boolean) => void;
@@ -101,10 +107,11 @@ export const useStore = create<StoreState>()(
     persist(
       subscribeWithSelector(
         immer((set, get, api) => {
-          const userSlice = createUserSlice(set, get, api);
+          // Create slices with proper type casting
+          const userSlice = createUserSlice(set, get, api) as BaseUserSlice;
           const workoutSlice = createWorkoutSlice();
           const nutritionSlice = createNutritionSlice(set, get, api);
-          const socialSlice = createSocialSlice(set, get, api);
+          const socialSlice = createSocialSlice(set, get, api) as BaseSocialSlice;
           
           return {
             ...initialState,
@@ -115,8 +122,10 @@ export const useStore = create<StoreState>()(
             ...nutritionSlice,
             ...socialSlice,
             
-            // Override searchResults to resolve type conflicts
-            searchResults: [] as UserProfile[],
+            // Resolve type conflicts explicitly
+            achievements: socialSlice.achievements || [],
+            searchResults: socialSlice.searchResults || [],
+            unreadNotificationCount: socialSlice.unreadNotificationCount || 0,
             
             // Global actions
             setIsOnline: (isOnline: boolean) => set({ isOnline }),
