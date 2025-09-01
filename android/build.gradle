@@ -1,20 +1,27 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
+  ext {
+    buildToolsVersion = '34.0.0'
+    minSdkVersion = 21
+    compileSdkVersion = 34
+    targetSdkVersion = 34
+    ndkVersion = '25.1.8937393'
+    kotlinVersion = '1.9.10'
+  }
   repositories {
     google()
     mavenCentral()
   }
   dependencies {
-    classpath('com.android.tools.build:gradle')
-    classpath('com.facebook.react:react-native-gradle-plugin')
-    classpath('org.jetbrains.kotlin:kotlin-gradle-plugin')
+    classpath('com.android.tools.build:gradle:8.6.0')
+    classpath('org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.10')
   }
 }
 
 def reactNativeAndroidDir = new File(
   providers.exec {
-    workingDir(rootDir)
+    workingDir(rootDir.getParentFile().getAbsolutePath() + "/mobile")
     commandLine("node", "--print", "require.resolve('react-native/package.json')")
   }.standardOutput.asText.get().trim(),
   "../android"
@@ -33,5 +40,4 @@ allprojects {
   }
 }
 
-apply plugin: "expo-root-project"
-apply plugin: "com.facebook.react.rootproject"
+// apply plugin: "com.facebook.react.rootproject" // Commented out as plugin not available
