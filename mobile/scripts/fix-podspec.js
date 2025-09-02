@@ -6,7 +6,8 @@ const path = require('path');
 // Fix all podspec files with add_dependency issues
 const podspecFiles = [
   'expo-dev-launcher/expo-dev-launcher.podspec',
-  'expo-dev-menu/expo-dev-menu.podspec'
+  'expo-dev-menu/expo-dev-menu.podspec',
+  'expo-modules-core/ExpoModulesCore.podspec'
 ];
 
 let fixedCount = 0;
