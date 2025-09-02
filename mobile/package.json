@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
+    "postinstall": "node scripts/fix-podspec.js",
     "start": "expo start",
     "start:staging": "NODE_ENV=staging expo start",
     "start:production": "NODE_ENV=production expo start",

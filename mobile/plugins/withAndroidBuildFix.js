@@ -17,10 +17,10 @@ const withAndroidBuildFix = (config) => {
       // Fix Kotlin version to be compatible with React Native Gradle plugin
       buildGradle = buildGradle.replace(
         /classpath\('org\.jetbrains\.kotlin:kotlin-gradle-plugin'\)/,
-        "classpath('org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0')"
+        "classpath('org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.1')"
       );
       
-      // Remove React Native Gradle plugin classpath completely
+      // Remove React Native Gradle plugin classpath since we're using local version
       buildGradle = buildGradle.replace(
         /classpath\('com\.facebook\.react:react-native-gradle-plugin'\)/,
         ""
@@ -42,11 +42,11 @@ const withAndroidBuildFix = (config) => {
     if (config.modResults.language === 'groovy') {
       let appBuildGradle = config.modResults.contents;
       
-      // Keep React Native plugin
-      // appBuildGradle = appBuildGradle.replace(
-      //   /apply plugin: "com\.facebook\.react"/,
-      //   "// apply plugin: \"com.facebook.react\""
-      // );
+      // Remove React Native plugin
+      appBuildGradle = appBuildGradle.replace(
+        /apply plugin: "com\.facebook\.react"/,
+        "// apply plugin: \"com.facebook.react\""
+      );
       
       config.modResults.contents = appBuildGradle;
     }
