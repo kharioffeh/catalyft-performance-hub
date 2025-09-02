@@ -31,6 +31,8 @@
     },
     "plugins": [
       "./plugins/withModularHeaders",
+      "./plugins/withAndroidGradleConfig",
+      "./plugins/withAndroidPackagingOptions",
       "@react-native-firebase/app",
       "@react-native-firebase/crashlytics",
       [
@@ -43,7 +45,10 @@
           "android": {
             "compileSdkVersion": 34,
             "targetSdkVersion": 34,
-            "minSdkVersion": 23
+            "minSdkVersion": 23,
+            "gradleVersion": "8.8",
+            "buildToolsVersion": "34.0.0",
+            "kotlinVersion": "1.9.10"
           }
         }
       ]
