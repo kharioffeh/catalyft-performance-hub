@@ -1,4 +1,6 @@
 const { withProjectBuildGradle, withSettingsGradle, withAppBuildGradle, withGradleProperties } = require('@expo/config-plugins');
+const fs = require('fs');
+const path = require('path');
 
 const withAndroidBuildFix = (config) => {
   // Fix build.gradle for React Native 0.72.15 compatibility
@@ -15,13 +17,13 @@ const withAndroidBuildFix = (config) => {
       // Fix Kotlin version to be compatible with React Native Gradle plugin
       buildGradle = buildGradle.replace(
         /classpath\('org\.jetbrains\.kotlin:kotlin-gradle-plugin'\)/,
-        "classpath('org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10')"
+        "classpath('org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0')"
       );
       
-      // Keep React Native Gradle plugin classpath but use compatible version
+      // Remove React Native Gradle plugin classpath completely
       buildGradle = buildGradle.replace(
         /classpath\('com\.facebook\.react:react-native-gradle-plugin'\)/,
-        "classpath('com.facebook.react:react-native-gradle-plugin:0.72.11')"
+        ""
       );
       
       // Comment out rootproject plugin
@@ -56,23 +58,19 @@ const withAndroidBuildFix = (config) => {
     if (config.modResults.language === 'groovy') {
       let settingsGradle = config.modResults.contents;
       
-      // Keep React Native settings plugin
-      // settingsGradle = settingsGradle.replace(
-      //   /plugins \{ id\("com\.facebook\.react\.settings"\) \}/,
-      //   ""
-      // );
+      // Remove React Native settings plugin completely
+      settingsGradle = settingsGradle.replace(
+        /plugins \{ id\("com\.facebook\.react\.settings"\) \}/,
+        ""
+      );
       
-      // Keep includeBuild for React Native Gradle plugin
-      // settingsGradle = settingsGradle.replace(
-      //   /includeBuild\(new File\(\["node", "--print", "require\.resolve\('@react-native\/gradle-plugin\/package\.json'\)"\]\.execute\(null, rootDir\)\.text\.trim\(\)\)\.getParentFile\(\)\.toString\(\)\)/,
-      //   ""
-      // );
-      
-      // Keep the second includeBuild for React Native Gradle plugin
-      // settingsGradle = settingsGradle.replace(
-      //   /includeBuild\(new File\(\["node", "--print", "require\.resolve\('@react-native\/gradle-plugin\/package\.json', \{ paths: \[require\.resolve\('react-native\/package\.json'\)\] \}\)"\]\.execute\(null, rootDir\)\.text\.trim\(\)\)\.getParentFile\(\)\)/,
-      //   ""
-      // );
+      // Add includeBuild for React Native Gradle plugin to use local version
+      if (!settingsGradle.includes('includeBuild(new File([')) {
+        settingsGradle = settingsGradle.replace(
+          /rootProject\.name = .*/,
+          'rootProject.name = "Catalyft"\n\nincludeBuild(new File(["node", "--print", "require.resolve(\'@react-native/gradle-plugin/package.json\')"].execute(null, rootDir).text.trim()).getParentFile().toString())'
+        );
+      }
       
       // Comment out version catalog - find the entire block and comment it out
       const versionCatalogRegex = /dependencyResolutionManagement\s*\{[^}]*versionCatalogs\s*\{[^}]*reactAndroidLibs\s*\{[^}]*\}[^}]*\}[^}]*\}/s;
@@ -83,6 +81,21 @@ const withAndroidBuildFix = (config) => {
       }
       
       config.modResults.contents = settingsGradle;
+    }
+    return config;
+  });
+
+  // Fix Gradle wrapper version after prebuild
+  config = withGradleProperties(config, (config) => {
+    // This will run after prebuild, so we can fix the gradle wrapper
+    const gradleWrapperPath = path.join(config.modRequest.platformProjectRoot, 'gradle', 'wrapper', 'gradle-wrapper.properties');
+    if (fs.existsSync(gradleWrapperPath)) {
+      let gradleWrapper = fs.readFileSync(gradleWrapperPath, 'utf8');
+      gradleWrapper = gradleWrapper.replace(
+        /distributionUrl=https\\:\/\/services\.gradle\.org\/distributions\/gradle-[\d\.]+-all\.zip/,
+        'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.3-all.zip'
+      );
+      fs.writeFileSync(gradleWrapperPath, gradleWrapper);
     }
     return config;
   });

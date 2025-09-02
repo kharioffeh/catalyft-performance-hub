@@ -14,8 +14,8 @@
 		96905EF65AED1B983A6B3ABC /* libPods-Catalyft.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58EEBF8E8E6FB1BC6CAF49B5 /* libPods-Catalyft.a */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		63DE95AE74A14C36BBB579A4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FED26C828BD8405BB2E13859 /* GoogleService-Info.plist */; };
-		145E45562D6E4E549A307E73 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D0229BBFC9645C8B54FD9E9 /* noop-file.swift */; };
+		BE64A8AB9CCE4B4BB403211C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 481D053F52514E9BA356BD52 /* GoogleService-Info.plist */; };
+		86C950DEC50A435DA3A088A2 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66AE7A6D669F40E0BF7AB36C /* noop-file.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,9 +32,9 @@
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Catalyft/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		FED26C828BD8405BB2E13859 /* GoogleService-Info.plist */ = {isa = PBXFileReference; name = "GoogleService-Info.plist"; path = "Catalyft/GoogleService-Info.plist"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = text.plist.xml; explicitFileType = undefined; includeInIndex = 0; };
-		4D0229BBFC9645C8B54FD9E9 /* noop-file.swift */ = {isa = PBXFileReference; name = "noop-file.swift"; path = "Catalyft/noop-file.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
-		A045E8285C444CC4B3A0C0A3 /* Catalyft-Bridging-Header.h */ = {isa = PBXFileReference; name = "Catalyft-Bridging-Header.h"; path = "Catalyft/Catalyft-Bridging-Header.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		481D053F52514E9BA356BD52 /* GoogleService-Info.plist */ = {isa = PBXFileReference; name = "GoogleService-Info.plist"; path = "Catalyft/GoogleService-Info.plist"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = text.plist.xml; explicitFileType = undefined; includeInIndex = 0; };
+		66AE7A6D669F40E0BF7AB36C /* noop-file.swift */ = {isa = PBXFileReference; name = "noop-file.swift"; path = "Catalyft/noop-file.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
+		F3D25878C5A84220A01FCD70 /* Catalyft-Bridging-Header.h */ = {isa = PBXFileReference; name = "Catalyft-Bridging-Header.h"; path = "Catalyft/Catalyft-Bridging-Header.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,9 +59,9 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				FED26C828BD8405BB2E13859 /* GoogleService-Info.plist */,
-				4D0229BBFC9645C8B54FD9E9 /* noop-file.swift */,
-				A045E8285C444CC4B3A0C0A3 /* Catalyft-Bridging-Header.h */,
+				481D053F52514E9BA356BD52 /* GoogleService-Info.plist */,
+				66AE7A6D669F40E0BF7AB36C /* noop-file.swift */,
+				F3D25878C5A84220A01FCD70 /* Catalyft-Bridging-Header.h */,
 			);
 			name = Catalyft;
 			sourceTree = "<group>";
@@ -201,8 +201,8 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				63DE95AE74A14C36BBB579A4 /* GoogleService-Info.plist in Resources */,
-				EA9D1C4EAF2F47DDA0DB0F96 /* Catalyft-Bridging-Header.h in Resources */,
+				BE64A8AB9CCE4B4BB403211C /* GoogleService-Info.plist in Resources */,
+				3FBA9EB5081543398F5D40F1 /* Catalyft-Bridging-Header.h in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -278,7 +278,7 @@
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */,
-				145E45562D6E4E549A307E73 /* noop-file.swift in Sources */,
+				86C950DEC50A435DA3A088A2 /* noop-file.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
