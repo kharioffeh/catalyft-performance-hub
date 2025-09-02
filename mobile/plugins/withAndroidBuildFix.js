@@ -11,13 +11,13 @@ const withAndroidBuildFix = (config) => {
       // Fix Android Gradle Plugin version
       buildGradle = buildGradle.replace(
         /classpath\('com\.android\.tools\.build:gradle'\)/,
-        "classpath('com.android.tools.build:gradle:7.3.1')"
+        "classpath('com.android.tools.build:gradle:8.1.4')"
       );
       
       // Fix Kotlin version to be compatible with React Native Gradle plugin
       buildGradle = buildGradle.replace(
         /classpath\('org\.jetbrains\.kotlin:kotlin-gradle-plugin'\)/,
-        "classpath('org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0')"
+        "classpath('org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.20')"
       );
       
       // Remove React Native Gradle plugin classpath since we're using local version
@@ -37,15 +37,27 @@ const withAndroidBuildFix = (config) => {
     return config;
   });
 
-  // Fix app/build.gradle to remove React Native plugin
+  // Fix app/build.gradle to apply React Native plugin and fix version catalog references
   config = withAppBuildGradle(config, (config) => {
     if (config.modResults.language === 'groovy') {
       let appBuildGradle = config.modResults.contents;
       
-      // Remove React Native plugin
+      // Apply React Native plugin
       appBuildGradle = appBuildGradle.replace(
-        /apply plugin: "com\.facebook\.react"/,
-        "// apply plugin: \"com.facebook.react\""
+        /\/\/ apply plugin: "com\.facebook\.react"/,
+        "apply plugin: \"com.facebook.react\""
+      );
+      
+      // Replace version catalog references with hardcoded versions
+      appBuildGradle = appBuildGradle.replace(
+        /\$\{reactAndroidLibs\.versions\.fresco\.get\(\)\}/g,
+        "2.5.0"
+      );
+      
+      // Enable buildConfig feature
+      appBuildGradle = appBuildGradle.replace(
+        /android\s*\{/,
+        "android {\n    buildFeatures {\n        buildConfig true\n    }"
       );
       
       config.modResults.contents = appBuildGradle;
@@ -72,7 +84,7 @@ const withAndroidBuildFix = (config) => {
         );
       }
       
-      // Comment out version catalog - find the entire block and comment it out
+      // Comment out version catalog to avoid libs.versions.toml dependency
       const versionCatalogRegex = /dependencyResolutionManagement\s*\{[^}]*versionCatalogs\s*\{[^}]*reactAndroidLibs\s*\{[^}]*\}[^}]*\}[^}]*\}/s;
       if (versionCatalogRegex.test(settingsGradle)) {
         settingsGradle = settingsGradle.replace(versionCatalogRegex, (match) => {
@@ -99,6 +111,17 @@ const withAndroidBuildFix = (config) => {
     }
     return config;
   });
+
+  // Fix Gradle wrapper version after prebuild
+  const gradleWrapperPath = path.join(__dirname, '..', 'android', 'gradle', 'wrapper', 'gradle-wrapper.properties');
+  if (fs.existsSync(gradleWrapperPath)) {
+    let gradleWrapper = fs.readFileSync(gradleWrapperPath, 'utf8');
+    gradleWrapper = gradleWrapper.replace(
+      /distributionUrl=https\\:\/\/services\.gradle\.org\/distributions\/gradle-[\d\.]+-all\.zip/,
+      'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.2-all.zip'
+    );
+    fs.writeFileSync(gradleWrapperPath, gradleWrapper);
+  }
 
   return config;
 };

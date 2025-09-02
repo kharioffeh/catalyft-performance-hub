@@ -39,3 +39,18 @@ if (fixedCount > 0) {
 } else {
   console.log('ℹ️  No podspec files needed fixing');
 }
+
+// Also fix Gradle wrapper version
+const gradleWrapperPath = path.join(__dirname, '..', 'android', 'gradle', 'wrapper', 'gradle-wrapper.properties');
+if (fs.existsSync(gradleWrapperPath)) {
+  let gradleWrapper = fs.readFileSync(gradleWrapperPath, 'utf8');
+  const originalWrapper = gradleWrapper;
+  gradleWrapper = gradleWrapper.replace(
+    /distributionUrl=https\\:\/\/services\.gradle\.org\/distributions\/gradle-[\d\.]+-all\.zip/,
+    'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.2-all.zip'
+  );
+  if (gradleWrapper !== originalWrapper) {
+    fs.writeFileSync(gradleWrapperPath, gradleWrapper);
+    console.log('✅ Fixed Gradle wrapper version to 8.2');
+  }
+}
