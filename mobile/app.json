@@ -32,7 +32,7 @@
     "plugins": [
       "./plugins/withModularHeaders",
       "./plugins/withAndroidGradleConfig",
-      "./plugins/withMMKVAlternative",
+
       "./plugins/withAndroidPackagingOptions",
       "@react-native-firebase/app",
       "@react-native-firebase/crashlytics",
