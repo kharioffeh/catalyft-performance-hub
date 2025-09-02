@@ -48,9 +48,9 @@
             "compileSdkVersion": 34,
             "targetSdkVersion": 34,
             "minSdkVersion": 23,
-            "gradleVersion": "7.6.4",
+            "gradleVersion": "8.1",
             "buildToolsVersion": "33.0.2",
-            "kotlinVersion": "1.7.1"
+            "kotlinVersion": "1.7.10"
           }
         }
       ]

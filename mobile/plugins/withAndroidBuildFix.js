@@ -11,13 +11,13 @@ const withAndroidBuildFix = (config) => {
       // Fix Android Gradle Plugin version
       buildGradle = buildGradle.replace(
         /classpath\('com\.android\.tools\.build:gradle'\)/,
-        "classpath('com.android.tools.build:gradle:7.4.2')"
+        "classpath('com.android.tools.build:gradle:8.1.4')"
       );
       
       // Fix Kotlin version to be compatible with React Native Gradle plugin
       buildGradle = buildGradle.replace(
         /classpath\('org\.jetbrains\.kotlin:kotlin-gradle-plugin'\)/,
-        "classpath('org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.1')"
+        "classpath('org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10')"
       );
       
       // Remove React Native Gradle plugin classpath since we're using local version
@@ -118,7 +118,7 @@ const withAndroidBuildFix = (config) => {
     let gradleWrapper = fs.readFileSync(gradleWrapperPath, 'utf8');
     gradleWrapper = gradleWrapper.replace(
       /distributionUrl=https\\:\/\/services\.gradle\.org\/distributions\/gradle-[\d\.]+-all\.zip/,
-      'distributionUrl=https\\://services.gradle.org/distributions/gradle-7.6.4-all.zip'
+      'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.1-all.zip'
     );
     fs.writeFileSync(gradleWrapperPath, gradleWrapper);
   }
