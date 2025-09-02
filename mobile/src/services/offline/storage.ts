@@ -2,40 +2,40 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import LZString from 'lz-string';
 import CryptoJS from 'crypto-js';
 
-// Mock MMKV interface using AsyncStorage
-class MockMMKV {
+// AsyncStorage-based storage implementation
+class AsyncStorageWrapper {
   private prefix: string;
 
   constructor(config: { id: string; encryptionKey?: string }) {
     this.prefix = `${config.id}:`;
   }
 
-  set(key: string, value: string): void {
-    AsyncStorage.setItem(this.prefix + key, value);
+  async set(key: string, value: string): Promise<void> {
+    await AsyncStorage.setItem(this.prefix + key, value);
   }
 
-  getString(key: string): string | undefined {
-    // Return undefined for sync calls, will be handled async
-    return undefined;
+  async getString(key: string): Promise<string | null> {
+    return await AsyncStorage.getItem(this.prefix + key);
   }
 
-  delete(key: string): void {
-    AsyncStorage.removeItem(this.prefix + key);
+  async delete(key: string): Promise<void> {
+    await AsyncStorage.removeItem(this.prefix + key);
   }
 
-  clearAll(): void {
-    AsyncStorage.getAllKeys().then(keys => {
-      const prefixedKeys = keys.filter(key => key.startsWith(this.prefix));
-      AsyncStorage.multiRemove(prefixedKeys);
-    });
+  async clearAll(): Promise<void> {
+    const keys = await AsyncStorage.getAllKeys();
+    const prefixedKeys = keys.filter(key => key.startsWith(this.prefix));
+    await AsyncStorage.multiRemove(prefixedKeys);
   }
 
-  contains(key: string): boolean {
-    return true; // Assume it contains for now
+  async contains(key: string): Promise<boolean> {
+    const value = await AsyncStorage.getItem(this.prefix + key);
+    return value !== null;
   }
 
-  getAllKeys(): string[] {
-    return []; // Return empty for now
+  async getAllKeys(): Promise<string[]> {
+    const keys = await AsyncStorage.getAllKeys();
+    return keys.filter(key => key.startsWith(this.prefix)).map(key => key.substring(this.prefix.length));
   }
 }
 
@@ -62,7 +62,7 @@ export interface StorageStats {
 }
 
 export class OfflineStorage {
-  private storage: MockMMKV;
+  private storage: AsyncStorageWrapper;
   private config: StorageConfig;
   private readonly ENCRYPTION_KEY: string;
   private readonly MAX_CACHE_SIZE_BYTES: number;
@@ -79,7 +79,7 @@ export class OfflineStorage {
     this.ENCRYPTION_KEY = this.config.encryptionKey || 'catalyft-default-key-2024';
     this.MAX_CACHE_SIZE_BYTES = this.config.maxCacheSize * 1024 * 1024;
 
-    this.storage = new MockMMKV({
+    this.storage = new AsyncStorageWrapper({
       id: 'catalyft-offline',
       encryptionKey: this.ENCRYPTION_KEY
     });
@@ -90,9 +90,9 @@ export class OfflineStorage {
 
   private async initializeLRU(): Promise<void> {
     try {
-      const existing = await AsyncStorage.getItem('catalyft-offline:' + this.LRU_CACHE_KEY);
+      const existing = await this.storage.getString(this.LRU_CACHE_KEY);
       if (!existing) {
-        this.storage.set(this.LRU_CACHE_KEY, JSON.stringify({}));
+        await this.storage.set(this.LRU_CACHE_KEY, JSON.stringify({}));
       }
     } catch (error) {
       console.error('Error initializing LRU:', error);
@@ -128,8 +128,8 @@ export class OfflineStorage {
       // Check cache size before storing
       await this.ensureCacheSize(processedData.length);
 
-      this.storage.set(key, JSON.stringify(cachedItem));
-      this.updateLRU(key);
+      await this.storage.set(key, JSON.stringify(cachedItem));
+      await this.updateLRU(key);
     } catch (error) {
       console.error('Error storing data:', error);
       throw error;
@@ -138,14 +138,14 @@ export class OfflineStorage {
 
   async get<T>(key: string): Promise<T | null> {
     try {
-      const itemStr = await AsyncStorage.getItem('catalyft-offline:' + key);
+      const itemStr = await this.storage.getString(key);
       if (!itemStr) return null;
 
       const cachedItem: CachedItem<string> = JSON.parse(itemStr);
 
       // Check expiration
       if (this.isExpired(cachedItem.timestamp)) {
-        this.delete(key);
+        await this.delete(key);
         return null;
       }
 
@@ -162,7 +162,7 @@ export class OfflineStorage {
         data = LZString.decompressFromUTF16(data) || data;
       }
 
-      this.updateLRU(key);
+      await this.updateLRU(key);
       return JSON.parse(data) as T;
     } catch (error) {
       console.error('Error retrieving data:', error);
@@ -170,14 +170,14 @@ export class OfflineStorage {
     }
   }
 
-  delete(key: string): void {
-    this.storage.delete(key);
-    this.removeLRU(key);
+  async delete(key: string): Promise<void> {
+    await this.storage.delete(key);
+    await this.removeLRU(key);
   }
 
-  clear(): void {
-    this.storage.clearAll();
-    this.storage.set(this.LRU_CACHE_KEY, JSON.stringify({}));
+  async clear(): Promise<void> {
+    await this.storage.clearAll();
+    await this.storage.set(this.LRU_CACHE_KEY, JSON.stringify({}));
   }
 
   // Specific data storage methods
@@ -272,22 +272,22 @@ export class OfflineStorage {
   }
 
   // LRU Cache Management
-  private updateLRU(key: string): void {
-    const lruStr = this.storage.getString(this.LRU_CACHE_KEY) || '{}';
+  private async updateLRU(key: string): Promise<void> {
+    const lruStr = await this.storage.getString(this.LRU_CACHE_KEY) || '{}';
     const lruData = JSON.parse(lruStr);
     lruData[key] = Date.now();
-    this.storage.set(this.LRU_CACHE_KEY, JSON.stringify(lruData));
+    await this.storage.set(this.LRU_CACHE_KEY, JSON.stringify(lruData));
   }
 
-  private removeLRU(key: string): void {
-    const lruStr = this.storage.getString(this.LRU_CACHE_KEY) || '{}';
+  private async removeLRU(key: string): Promise<void> {
+    const lruStr = await this.storage.getString(this.LRU_CACHE_KEY) || '{}';
     const lruData = JSON.parse(lruStr);
     delete lruData[key];
-    this.storage.set(this.LRU_CACHE_KEY, JSON.stringify(lruData));
+    await this.storage.set(this.LRU_CACHE_KEY, JSON.stringify(lruData));
   }
 
   private async ensureCacheSize(newItemSize: number): Promise<void> {
-    const currentSize = this.getCacheSize();
+    const currentSize = await this.getCacheSize();
     
     if (currentSize + newItemSize > this.MAX_CACHE_SIZE_BYTES) {
       // Remove least recently used items
@@ -296,7 +296,8 @@ export class OfflineStorage {
   }
 
   private async evictLRU(bytesToFree: number): Promise<void> {
-    const lruData = JSON.parse(this.storage.getString(this.LRU_CACHE_KEY) || '{}');
+    const lruStr = await this.storage.getString(this.LRU_CACHE_KEY) || '{}';
+    const lruData = JSON.parse(lruStr);
     
     // Sort by access time (oldest first)
     const sortedKeys = Object.entries(lruData)
@@ -310,11 +311,11 @@ export class OfflineStorage {
       // Don't evict critical data
       if (this.isCriticalKey(key)) continue;
 
-      const itemStr = this.storage.getString(key);
+      const itemStr = await this.storage.getString(key);
       if (itemStr) {
         const item: CachedItem = JSON.parse(itemStr);
         freedBytes += item.size || itemStr.length;
-        this.delete(key);
+        await this.delete(key);
       }
     }
   }
@@ -330,12 +331,12 @@ export class OfflineStorage {
   }
 
   // Utility methods
-  getCacheSize(): number {
-    const keys = this.storage.getAllKeys();
+  async getCacheSize(): Promise<number> {
+    const keys = await this.storage.getAllKeys();
     let totalSize = 0;
 
     for (const key of keys) {
-      const value = this.storage.getString(key);
+      const value = await this.storage.getString(key);
       if (value) {
         totalSize += value.length;
       }
@@ -344,15 +345,15 @@ export class OfflineStorage {
     return totalSize;
   }
 
-  getStats(): StorageStats {
-    const keys = this.storage.getAllKeys();
+  async getStats(): Promise<StorageStats> {
+    const keys = await this.storage.getAllKeys();
     let oldestItem = Date.now();
     let newestItem = 0;
 
     for (const key of keys) {
       if (key === this.LRU_CACHE_KEY) continue;
       
-      const itemStr = this.storage.getString(key);
+      const itemStr = await this.storage.getString(key);
       if (itemStr) {
         try {
           const item: CachedItem = JSON.parse(itemStr);
@@ -363,7 +364,7 @@ export class OfflineStorage {
     }
 
     return {
-      totalSize: this.getCacheSize(),
+      totalSize: await this.getCacheSize(),
       itemCount: keys.length - 1, // Exclude LRU key
       oldestItem,
       newestItem
@@ -372,18 +373,18 @@ export class OfflineStorage {
 
   // Clean up expired items
   async cleanupExpired(): Promise<number> {
-    const keys = this.storage.getAllKeys();
+    const keys = await this.storage.getAllKeys();
     let removedCount = 0;
 
     for (const key of keys) {
       if (key === this.LRU_CACHE_KEY) continue;
       
-      const itemStr = this.storage.getString(key);
+      const itemStr = await this.storage.getString(key);
       if (itemStr) {
         try {
           const item: CachedItem = JSON.parse(itemStr);
           if (this.isExpired(item.timestamp)) {
-            this.delete(key);
+            await this.delete(key);
             removedCount++;
           }
         } catch {}
@@ -395,12 +396,12 @@ export class OfflineStorage {
 
   // Export/Import for backup
   async exportData(): Promise<string> {
-    const keys = this.storage.getAllKeys();
+    const keys = await this.storage.getAllKeys();
     const data: Record<string, any> = {};
 
     for (const key of keys) {
       if (key === this.LRU_CACHE_KEY) continue;
-      const value = this.storage.getString(key);
+      const value = await this.storage.getString(key);
       if (value) {
         data[key] = value;
       }
@@ -417,7 +418,7 @@ export class OfflineStorage {
       const data = JSON.parse(decompressed);
       
       for (const [key, value] of Object.entries(data)) {
-        this.storage.set(key, value as string);
+        await this.storage.set(key, value as string);
       }
     } catch (error) {
       console.error('Error importing data:', error);

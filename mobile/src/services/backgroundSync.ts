@@ -2,7 +2,7 @@
  * Background sync and offline queue management
  */
 
-import { MMKV } from 'react-native-mmkv';
+
 import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
 import { AppState, AppStateStatus, Platform } from 'react-native';
 import { supabaseService } from './supabase';

@@ -3,15 +3,12 @@
  */
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
-import { MMKV } from 'react-native-mmkv';
+
 import NetInfo from '@react-native-community/netinfo';
 import { Platform } from 'react-native';
 
-// Initialize MMKV for token storage
-const storage = new MMKV({
-  id: 'api-storage',
-  encryptionKey: 'catalyft-api-encryption-key', // In production, use a secure key
-});
+// Initialize AsyncStorage for token storage
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // API Configuration
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://api.catalyft.com';
@@ -23,34 +20,37 @@ export class TokenManager {
   private static REFRESH_TOKEN_KEY = 'refresh_token';
   private static TOKEN_EXPIRY_KEY = 'token_expiry';
 
-  static getAccessToken(): string | null {
-    return storage.getString(this.ACCESS_TOKEN_KEY) || null;
+  static async getAccessToken(): Promise<string | null> {
+    return await AsyncStorage.getItem(this.ACCESS_TOKEN_KEY);
   }
 
-  static getRefreshToken(): string | null {
-    return storage.getString(this.REFRESH_TOKEN_KEY) || null;
+  static async getRefreshToken(): Promise<string | null> {
+    return await AsyncStorage.getItem(this.REFRESH_TOKEN_KEY);
   }
 
-  static setTokens(accessToken: string, refreshToken?: string, expiresIn?: number) {
-    storage.set(this.ACCESS_TOKEN_KEY, accessToken);
+  static async setTokens(accessToken: string, refreshToken?: string, expiresIn?: number): Promise<void> {
+    await AsyncStorage.setItem(this.ACCESS_TOKEN_KEY, accessToken);
     if (refreshToken) {
-      storage.set(this.REFRESH_TOKEN_KEY, refreshToken);
+      await AsyncStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
     }
     if (expiresIn) {
       const expiryTime = Date.now() + expiresIn * 1000;
-      storage.set(this.TOKEN_EXPIRY_KEY, expiryTime);
+      await AsyncStorage.setItem(this.TOKEN_EXPIRY_KEY, expiryTime.toString());
     }
   }
 
-  static clearTokens() {
-    storage.delete(this.ACCESS_TOKEN_KEY);
-    storage.delete(this.REFRESH_TOKEN_KEY);
-    storage.delete(this.TOKEN_EXPIRY_KEY);
+  static async clearTokens(): Promise<void> {
+    await AsyncStorage.multiRemove([
+      this.ACCESS_TOKEN_KEY,
+      this.REFRESH_TOKEN_KEY,
+      this.TOKEN_EXPIRY_KEY
+    ]);
   }
 
-  static isTokenExpired(): boolean {
-    const expiry = storage.getNumber(this.TOKEN_EXPIRY_KEY);
-    if (!expiry) return true;
+  static async isTokenExpired(): Promise<boolean> {
+    const expiryStr = await AsyncStorage.getItem(this.TOKEN_EXPIRY_KEY);
+    if (!expiryStr) return true;
+    const expiry = parseInt(expiryStr);
     return Date.now() >= expiry;
   }
 }

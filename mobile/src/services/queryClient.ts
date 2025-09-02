@@ -3,29 +3,26 @@
  */
 
 import { QueryClient, MutationCache, QueryCache } from '@tanstack/react-query';
-import { MMKV } from 'react-native-mmkv';
+
 import NetInfo from '@react-native-community/netinfo';
 import { useStore } from '../store';
 import { ApiError } from './api';
 
-// Initialize MMKV for query cache persistence
-const cacheStorage = new MMKV({
-  id: 'query-cache',
-  encryptionKey: 'catalyft-query-cache-key', // In production, use a secure key
-});
+// Initialize AsyncStorage for query cache persistence
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Custom persister for React Query
-export const mmkvPersister = {
+export const asyncStoragePersister = {
   persistClient: async (client: any) => {
     const cache = {
       timestamp: Date.now(),
       buster: 'v1',
       clientState: client,
     };
-    cacheStorage.set('query-cache', JSON.stringify(cache));
+    await AsyncStorage.setItem('query-cache', JSON.stringify(cache));
   },
   restoreClient: async () => {
-    const cacheString = cacheStorage.getString('query-cache');
+    const cacheString = await AsyncStorage.getItem('query-cache');
     if (!cacheString) return undefined;
 
     try {
@@ -34,18 +31,18 @@ export const mmkvPersister = {
       // Check if cache is expired (24 hours)
       const maxAge = 24 * 60 * 60 * 1000;
       if (Date.now() - cache.timestamp > maxAge) {
-        cacheStorage.delete('query-cache');
+        await AsyncStorage.removeItem('query-cache');
         return undefined;
       }
 
       return cache.clientState;
     } catch {
-      cacheStorage.delete('query-cache');
+      await AsyncStorage.removeItem('query-cache');
       return undefined;
     }
   },
   removeClient: async () => {
-    cacheStorage.delete('query-cache');
+    await AsyncStorage.removeItem('query-cache');
   },
 };
 

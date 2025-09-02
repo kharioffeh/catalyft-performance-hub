@@ -1,5 +1,4 @@
 import { StateCreator, StoreMutatorIdentifier } from 'zustand';
-import { MMKV } from 'react-native-mmkv';
 import { offlineStorage } from '../../services/offline/storage';
 import { syncQueue } from '../../services/offline/syncQueue';
 import { networkMonitor } from '../../services/offline/networkMonitor';

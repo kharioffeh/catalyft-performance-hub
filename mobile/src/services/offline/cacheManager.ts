@@ -1,5 +1,5 @@
 import { offlineStorage } from './storage';
-import { MMKV } from 'react-native-mmkv';
+
 import { Platform } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 
