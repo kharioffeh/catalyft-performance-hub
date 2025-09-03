@@ -76,3 +76,24 @@ if (fs.existsSync(lottieBuildGradlePath)) {
     }
   }
 }
+
+// Fix stripe-react-native namespace issue for AGP 8.2.2
+const stripeBuildGradlePath = path.join(__dirname, '..', 'node_modules', '@stripe', 'stripe-react-native', 'android', 'build.gradle');
+if (fs.existsSync(stripeBuildGradlePath)) {
+  let stripeBuildGradle = fs.readFileSync(stripeBuildGradlePath, 'utf8');
+  const originalStripeContent = stripeBuildGradle;
+  
+  // Check if namespace is already specified
+  if (!stripeBuildGradle.includes('namespace =')) {
+    // Add namespace to android block
+    stripeBuildGradle = stripeBuildGradle.replace(
+      /android\s*\{/,
+      "android {\n    namespace = 'com.reactnativestripesdk'"
+    );
+    
+    if (stripeBuildGradle !== originalStripeContent) {
+      fs.writeFileSync(stripeBuildGradlePath, stripeBuildGradle, 'utf8');
+      console.log('✅ Fixed stripe-react-native namespace issue');
+    }
+  }
+}
