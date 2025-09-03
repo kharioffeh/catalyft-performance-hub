@@ -17,7 +17,7 @@ const withAndroidBuildFix = (config) => {
       // Fix Kotlin version to be compatible with React Native Gradle plugin
       buildGradle = buildGradle.replace(
         /classpath\('org\.jetbrains\.kotlin:kotlin-gradle-plugin'\)/,
-        "classpath('org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0')"
+        "classpath('org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0')"
       );
       
       // Remove React Native Gradle plugin classpath since we're using local version
