@@ -3,22 +3,22 @@ const fs = require('fs');
 const path = require('path');
 
 const withAndroidBuildFix = (config) => {
-  // Fix build.gradle for React Native 0.72.15 compatibility
+  // Fix project/build.gradle for React Native 0.72.15 compatibility
   config = withProjectBuildGradle(config, (config) => {
     if (config.modResults.language === 'groovy') {
       let buildGradle = config.modResults.contents;
       
-      // Fix Android Gradle Plugin version
-      buildGradle = buildGradle.replace(
-        /classpath\('com\.android\.tools\.build:gradle'\)/,
-        "classpath('com.android.tools.build:gradle:8.2.2')"
-      );
-      
-      // Fix Kotlin version to be compatible with React Native Gradle plugin
-      buildGradle = buildGradle.replace(
-        /classpath\('org\.jetbrains\.kotlin:kotlin-gradle-plugin'\)/,
-        "classpath('org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0')"
-      );
+                  // Fix Android Gradle Plugin version
+            buildGradle = buildGradle.replace(
+              /classpath\('com\.android\.tools\.build:gradle'\)/,
+              "classpath('com.android.tools.build:gradle:8.2.2')"
+            );
+
+            // Fix Kotlin version to be compatible with React Native Gradle plugin
+            buildGradle = buildGradle.replace(
+              /classpath\('org\.jetbrains\.kotlin:kotlin-gradle-plugin'\)/,
+              "classpath('org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10')"
+            );
       
       // Remove React Native Gradle plugin classpath since we're using local version
       buildGradle = buildGradle.replace(
@@ -97,31 +97,16 @@ const withAndroidBuildFix = (config) => {
     return config;
   });
 
-  // Fix Gradle wrapper version after prebuild
-  config = withGradleProperties(config, (config) => {
-    // This will run after prebuild, so we can fix the gradle wrapper
-    const gradleWrapperPath = path.join(config.modRequest.platformProjectRoot, 'gradle', 'wrapper', 'gradle-wrapper.properties');
-    if (fs.existsSync(gradleWrapperPath)) {
-      let gradleWrapper = fs.readFileSync(gradleWrapperPath, 'utf8');
-      gradleWrapper = gradleWrapper.replace(
-        /distributionUrl=https\\:\/\/services\.gradle\.org\/distributions\/gradle-[\d\.]+-all\.zip/,
-        'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.3-all.zip'
-      );
-      fs.writeFileSync(gradleWrapperPath, gradleWrapper);
-    }
-    return config;
-  });
-
-  // Fix Gradle wrapper version after prebuild
-  const gradleWrapperPath = path.join(__dirname, '..', 'android', 'gradle', 'wrapper', 'gradle-wrapper.properties');
-  if (fs.existsSync(gradleWrapperPath)) {
-    let gradleWrapper = fs.readFileSync(gradleWrapperPath, 'utf8');
-    gradleWrapper = gradleWrapper.replace(
-      /distributionUrl=https\\:\/\/services\.gradle\.org\/distributions\/gradle-[\d\.]+-all\.zip/,
-      'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.2-all.zip'
-    );
-    fs.writeFileSync(gradleWrapperPath, gradleWrapper);
-  }
+          // Fix Gradle wrapper version after prebuild
+        const gradleWrapperPath = path.join(__dirname, '..', 'android', 'gradle', 'wrapper', 'gradle-wrapper.properties');
+        if (fs.existsSync(gradleWrapperPath)) {
+          let gradleWrapper = fs.readFileSync(gradleWrapperPath, 'utf8');
+          gradleWrapper = gradleWrapper.replace(
+            /distributionUrl=https\\:\/\/services\.gradle\.org\/distributions\/gradle-[\d\.]+-all\.zip/,
+            'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.2-all.zip'
+          );
+          fs.writeFileSync(gradleWrapperPath, gradleWrapper);
+        }
 
   return config;
 };
