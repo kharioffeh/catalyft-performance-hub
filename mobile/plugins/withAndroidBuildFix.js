@@ -60,6 +60,16 @@ const withAndroidBuildFix = (config) => {
         "android {\n    buildFeatures {\n        buildConfig true\n    }"
       );
       
+      // Add dependency resolution to fix fbjni version conflict
+      if (!appBuildGradle.includes('configurations.all')) {
+        appBuildGradle = appBuildGradle.replace(
+          /android\s*\{[\s\S]*?\}/,
+          (match) => {
+            return match + '\n\nconfigurations.all {\n    resolutionStrategy {\n        force \'com.facebook.fbjni:fbjni:0.3.0\'\n    }\n}';
+          }
+        );
+      }
+      
       config.modResults.contents = appBuildGradle;
     }
     return config;

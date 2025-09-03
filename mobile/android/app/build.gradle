@@ -111,6 +111,12 @@ android {
     buildFeatures {
         buildConfig true
     }
+
+configurations.all {
+    resolutionStrategy {
+        force 'com.facebook.fbjni:fbjni:0.3.0'
+    }
+}
     packaging {
         resources {
             excludes += [
