@@ -48,10 +48,10 @@ if (fs.existsSync(gradleWrapperPath)) {
   const originalWrapper = gradleWrapper;
   gradleWrapper = gradleWrapper.replace(
     /distributionUrl=https\\:\/\/services\.gradle\.org\/distributions\/gradle-[\d\.]+-all\.zip/,
-    'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.1-all.zip'
+    'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.2-all.zip'
   );
   if (gradleWrapper !== originalWrapper) {
     fs.writeFileSync(gradleWrapperPath, gradleWrapper);
-    console.log('✅ Fixed Gradle wrapper version to 8.1');
+    console.log('✅ Fixed Gradle wrapper version to 8.2');
   }
 }
