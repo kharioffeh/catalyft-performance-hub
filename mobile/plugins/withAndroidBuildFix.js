@@ -1,4 +1,4 @@
-const { withProjectBuildGradle, withSettingsGradle, withAppBuildGradle, withGradleProperties } = require('@expo/config-plugins');
+const { withProjectBuildGradle, withSettingsGradle, withAppBuildGradle, withGradleProperties, withDangerousMod } = require('@expo/config-plugins');
 const fs = require('fs');
 const path = require('path');
 
@@ -107,6 +107,62 @@ const withAndroidBuildFix = (config) => {
           );
           fs.writeFileSync(gradleWrapperPath, gradleWrapper);
         }
+
+  // Enable buildConfig for all modules (including lottie-react-native)
+  config = withDangerousMod(config, [
+    'android',
+    async (config) => {
+      const androidDir = config.modRequest.platformProjectRoot;
+      
+      // Function to enable buildConfig in a build.gradle file
+      const enableBuildConfig = (buildGradlePath) => {
+        if (fs.existsSync(buildGradlePath)) {
+          let content = fs.readFileSync(buildGradlePath, 'utf8');
+          const originalContent = content;
+          
+          // Check if buildConfig is already enabled
+          if (!content.includes('buildConfig true')) {
+            // Add buildConfig feature to android block
+            content = content.replace(
+              /android\s*\{/,
+              "android {\n    buildFeatures {\n        buildConfig true\n    }"
+            );
+            
+            if (content !== originalContent) {
+              fs.writeFileSync(buildGradlePath, content, 'utf8');
+              console.log(`✅ Enabled buildConfig in ${buildGradlePath}`);
+            }
+          }
+        }
+      };
+      
+      // Enable buildConfig for all module build.gradle files
+      const findAndFixBuildGradleFiles = (dir) => {
+        if (!fs.existsSync(dir)) return;
+        
+        const items = fs.readdirSync(dir);
+        for (const item of items) {
+          const itemPath = path.join(dir, item);
+          const stat = fs.statSync(itemPath);
+          
+          if (stat.isDirectory()) {
+            // Check if this is a module directory (contains build.gradle)
+            const buildGradlePath = path.join(itemPath, 'build.gradle');
+            if (fs.existsSync(buildGradlePath)) {
+              enableBuildConfig(buildGradlePath);
+            }
+            // Recursively search subdirectories
+            findAndFixBuildGradleFiles(itemPath);
+          }
+        }
+      };
+      
+      // Start from the android directory
+      findAndFixBuildGradleFiles(androidDir);
+      
+      return config;
+    },
+  ]);
 
   return config;
 };

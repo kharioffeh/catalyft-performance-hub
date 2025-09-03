@@ -147,6 +147,9 @@ android {
             ]
         }
     }
+    buildFeatures {
+        buildConfig true
+    }
     ndkVersion rootProject.ext.ndkVersion
 
     buildToolsVersion rootProject.ext.buildToolsVersion

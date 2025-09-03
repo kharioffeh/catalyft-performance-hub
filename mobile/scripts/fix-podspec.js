@@ -55,3 +55,24 @@ if (fs.existsSync(gradleWrapperPath)) {
     console.log('✅ Fixed Gradle wrapper version to 8.2');
   }
 }
+
+// Fix lottie-react-native buildConfig issue
+const lottieBuildGradlePath = path.join(__dirname, '..', 'node_modules', 'lottie-react-native', 'android', 'build.gradle');
+if (fs.existsSync(lottieBuildGradlePath)) {
+  let lottieBuildGradle = fs.readFileSync(lottieBuildGradlePath, 'utf8');
+  const originalLottieContent = lottieBuildGradle;
+  
+  // Check if buildConfig is already enabled
+  if (!lottieBuildGradle.includes('buildConfig true')) {
+    // Add buildConfig feature to android block
+    lottieBuildGradle = lottieBuildGradle.replace(
+      /android\s*\{/,
+      "android {\n    buildFeatures {\n        buildConfig true\n    }"
+    );
+    
+    if (lottieBuildGradle !== originalLottieContent) {
+      fs.writeFileSync(lottieBuildGradlePath, lottieBuildGradle, 'utf8');
+      console.log('✅ Fixed lottie-react-native buildConfig issue');
+    }
+  }
+}
