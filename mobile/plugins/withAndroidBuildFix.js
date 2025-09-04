@@ -242,6 +242,21 @@ const withAndroidBuildFix = (config) => {
       // Start from the android directory
       findAndFixBuildGradleFiles(androidDir);
       
+      // Fix ExpoModulesCorePlugin.gradle to use Kotlin 1.7.10
+      const expoModulesCorePluginPath = path.join(__dirname, '..', 'node_modules', 'expo-modules-core', 'android', 'ExpoModulesCorePlugin.gradle');
+      if (fs.existsSync(expoModulesCorePluginPath)) {
+        let pluginContent = fs.readFileSync(expoModulesCorePluginPath, 'utf8');
+        const originalPluginContent = pluginContent;
+        
+        // Replace all hardcoded Kotlin 1.9.23 references with 1.7.10
+        pluginContent = pluginContent.replace(/1\.9\.23/g, '1.7.10');
+        
+        if (pluginContent !== originalPluginContent) {
+          fs.writeFileSync(expoModulesCorePluginPath, pluginContent, 'utf8');
+          console.log('✅ Fixed Kotlin version in ExpoModulesCorePlugin.gradle');
+        }
+      }
+      
       return config;
     },
   ]);
