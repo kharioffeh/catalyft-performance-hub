@@ -126,3 +126,35 @@ if (fs.existsSync(projectBuildGradlePath)) {
     console.log('✅ Fixed Kotlin version consistency in project build.gradle');
   }
 }
+
+// Force Kotlin version in all Expo modules to ensure consistency
+const expoModules = [
+  'expo-modules-core',
+  'expo-dev-launcher',
+  'expo-dev-menu',
+  'expo-splash-screen',
+  'expo-updates'
+];
+
+expoModules.forEach(moduleName => {
+  const moduleBuildGradlePath = path.join(__dirname, '..', 'node_modules', moduleName, 'android', 'build.gradle');
+  if (fs.existsSync(moduleBuildGradlePath)) {
+    let moduleBuildGradle = fs.readFileSync(moduleBuildGradlePath, 'utf8');
+    const originalModuleContent = moduleBuildGradle;
+    
+    // Force Kotlin version to 1.7.10 in all Expo modules
+    moduleBuildGradle = moduleBuildGradle.replace(
+      /implementation "org\.jetbrains\.kotlin:kotlin-stdlib[^"]*:\$\{kotlinVersion\(\)\}"/g,
+      'implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.10"'
+    );
+    moduleBuildGradle = moduleBuildGradle.replace(
+      /implementation "org\.jetbrains\.kotlin:kotlin-reflect:\$\{kotlinVersion\(\)\}"/g,
+      'implementation "org.jetbrains.kotlin:kotlin-reflect:1.7.10"'
+    );
+    
+    if (moduleBuildGradle !== originalModuleContent) {
+      fs.writeFileSync(moduleBuildGradlePath, moduleBuildGradle, 'utf8');
+      console.log(`✅ Fixed Kotlin version in ${moduleName}`);
+    }
+  }
+});

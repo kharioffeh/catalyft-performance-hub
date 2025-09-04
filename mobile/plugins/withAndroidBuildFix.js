@@ -194,7 +194,30 @@ const withAndroidBuildFix = (config) => {
         }
       };
       
-      // Enable buildConfig for all module build.gradle files
+      // Function to force Kotlin version in a build.gradle file
+      const forceKotlinVersion = (buildGradlePath) => {
+        if (fs.existsSync(buildGradlePath)) {
+          let content = fs.readFileSync(buildGradlePath, 'utf8');
+          const originalContent = content;
+          
+          // Force Kotlin version to 1.7.10
+          content = content.replace(
+            /implementation "org\.jetbrains\.kotlin:kotlin-stdlib[^"]*:\$\{kotlinVersion\(\)\}"/g,
+            'implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.10"'
+          );
+          content = content.replace(
+            /implementation "org\.jetbrains\.kotlin:kotlin-reflect:\$\{kotlinVersion\(\)\}"/g,
+            'implementation "org.jetbrains.kotlin:kotlin-reflect:1.7.10"'
+          );
+          
+          if (content !== originalContent) {
+            fs.writeFileSync(buildGradlePath, content, 'utf8');
+            console.log(`✅ Forced Kotlin version in ${buildGradlePath}`);
+          }
+        }
+      };
+      
+      // Enable buildConfig and force Kotlin version for all module build.gradle files
       const findAndFixBuildGradleFiles = (dir) => {
         if (!fs.existsSync(dir)) return;
         
@@ -208,6 +231,7 @@ const withAndroidBuildFix = (config) => {
             const buildGradlePath = path.join(itemPath, 'build.gradle');
             if (fs.existsSync(buildGradlePath)) {
               enableBuildConfig(buildGradlePath);
+              forceKotlinVersion(buildGradlePath);
             }
             // Recursively search subdirectories
             findAndFixBuildGradleFiles(itemPath);
