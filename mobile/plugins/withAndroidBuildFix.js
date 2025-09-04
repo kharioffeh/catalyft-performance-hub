@@ -137,17 +137,45 @@ const withAndroidBuildFix = (config) => {
     fs.writeFileSync(gradleWrapperPath, gradleWrapper);
   }
 
+  // Fix gradle.properties to force Kotlin version
+  const gradlePropertiesPath = path.join(__dirname, '..', 'android', 'gradle.properties');
+  if (fs.existsSync(gradlePropertiesPath)) {
+    let gradleProperties = fs.readFileSync(gradlePropertiesPath, 'utf8');
+    const originalGradleProperties = gradleProperties;
+    
+    // Force Kotlin version in gradle.properties
+    if (!gradleProperties.includes('kotlin.version=1.7.10')) {
+      gradleProperties += '\n# Force Kotlin version for consistency\nkotlin.version=1.7.10\n';
+    }
+    
+    // Also force Kotlin compiler version
+    if (!gradleProperties.includes('kotlin.compiler.execution.strategy=in-process')) {
+      gradleProperties += 'kotlin.compiler.execution.strategy=in-process\n';
+    }
+    
+    if (gradleProperties !== originalGradleProperties) {
+      fs.writeFileSync(gradlePropertiesPath, gradleProperties, 'utf8');
+      console.log('✅ Fixed Kotlin version in gradle.properties');
+    }
+  }
+
   // Fix Kotlin version in build.gradle to ensure consistency
   const projectBuildGradlePath = path.join(__dirname, '..', 'android', 'build.gradle');
   if (fs.existsSync(projectBuildGradlePath)) {
     let projectBuildGradle = fs.readFileSync(projectBuildGradlePath, 'utf8');
     const originalProjectContent = projectBuildGradle;
     
-    // Fix Kotlin version fallback to use 1.7.10 instead of 1.9.23
-    projectBuildGradle = projectBuildGradle.replace(
-      /kotlinVersion = findProperty\('android\.kotlinVersion'\) \?\: '1\.9\.23'/,
-      "kotlinVersion = findProperty('android.kotlinVersion') ?: '1.7.10'"
-    );
+            // Fix Kotlin version fallback to use 1.7.10 instead of 1.9.23
+        projectBuildGradle = projectBuildGradle.replace(
+          /kotlinVersion = findProperty\('android\.kotlinVersion'\) \?\: '1\.9\.23'/,
+          "kotlinVersion = findProperty('android.kotlinVersion') ?: '1.7.10'"
+        );
+        
+        // Also fix any other Kotlin version references
+        projectBuildGradle = projectBuildGradle.replace(
+          /kotlinVersion = findProperty\('android\.kotlinVersion'\) \?\: '[^']*'/,
+          "kotlinVersion = findProperty('android.kotlinVersion') ?: '1.7.10'"
+        );
     
     // Ensure Kotlin version is explicitly set in root project ext for Expo modules
     if (!projectBuildGradle.includes('rootProject.ext.kotlinVersion')) {
@@ -250,6 +278,9 @@ const withAndroidBuildFix = (config) => {
         
         // Replace all hardcoded Kotlin 1.9.23 references with 1.7.10
         pluginContent = pluginContent.replace(/1\.9\.23/g, '1.7.10');
+        
+        // Also force any other Kotlin version references to 1.7.10
+        pluginContent = pluginContent.replace(/kotlinVersion.*?:\s*"[^"]*"/g, 'kotlinVersion ?: "1.7.10"');
         
         if (pluginContent !== originalPluginContent) {
           fs.writeFileSync(expoModulesCorePluginPath, pluginContent, 'utf8');

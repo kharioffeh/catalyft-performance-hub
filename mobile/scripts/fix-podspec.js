@@ -168,8 +168,33 @@ if (fs.existsSync(expoModulesCorePluginPath)) {
   // Replace all hardcoded Kotlin 1.9.23 references with 1.7.10
   pluginContent = pluginContent.replace(/1\.9\.23/g, '1.7.10');
   
+  // Also force any other Kotlin version references to 1.7.10
+  pluginContent = pluginContent.replace(/kotlinVersion.*?:\s*"[^"]*"/g, 'kotlinVersion ?: "1.7.10"');
+  
   if (pluginContent !== originalPluginContent) {
     fs.writeFileSync(expoModulesCorePluginPath, pluginContent, 'utf8');
     console.log('✅ Fixed Kotlin version in ExpoModulesCorePlugin.gradle');
+  }
+}
+
+// Fix gradle.properties to force Kotlin version
+const gradlePropertiesPath = path.join(__dirname, '..', 'android', 'gradle.properties');
+if (fs.existsSync(gradlePropertiesPath)) {
+  let gradleProperties = fs.readFileSync(gradlePropertiesPath, 'utf8');
+  const originalGradleProperties = gradleProperties;
+  
+  // Force Kotlin version in gradle.properties
+  if (!gradleProperties.includes('kotlin.version=1.7.10')) {
+    gradleProperties += '\n# Force Kotlin version for consistency\nkotlin.version=1.7.10\n';
+  }
+  
+  // Also force Kotlin compiler version
+  if (!gradleProperties.includes('kotlin.compiler.execution.strategy=in-process')) {
+    gradleProperties += 'kotlin.compiler.execution.strategy=in-process\n';
+  }
+  
+  if (gradleProperties !== originalGradleProperties) {
+    fs.writeFileSync(gradlePropertiesPath, gradleProperties, 'utf8');
+    console.log('✅ Fixed Kotlin version in gradle.properties');
   }
 }
