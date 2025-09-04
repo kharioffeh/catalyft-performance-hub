@@ -126,16 +126,34 @@ const withAndroidBuildFix = (config) => {
     return config;
   });
 
-          // Fix Gradle wrapper version after prebuild
-        const gradleWrapperPath = path.join(__dirname, '..', 'android', 'gradle', 'wrapper', 'gradle-wrapper.properties');
-        if (fs.existsSync(gradleWrapperPath)) {
-          let gradleWrapper = fs.readFileSync(gradleWrapperPath, 'utf8');
-          gradleWrapper = gradleWrapper.replace(
-            /distributionUrl=https\\:\/\/services\.gradle\.org\/distributions\/gradle-[\d\.]+-all\.zip/,
-            'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.2-all.zip'
-          );
-          fs.writeFileSync(gradleWrapperPath, gradleWrapper);
-        }
+            // Fix Gradle wrapper version after prebuild
+  const gradleWrapperPath = path.join(__dirname, '..', 'android', 'gradle', 'wrapper', 'gradle-wrapper.properties');
+  if (fs.existsSync(gradleWrapperPath)) {
+    let gradleWrapper = fs.readFileSync(gradleWrapperPath, 'utf8');
+    gradleWrapper = gradleWrapper.replace(
+      /distributionUrl=https\\:\/\/services\.gradle\.org\/distributions\/gradle-[\d\.]+-all\.zip/,
+      'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.2-all.zip'
+    );
+    fs.writeFileSync(gradleWrapperPath, gradleWrapper);
+  }
+
+  // Fix Kotlin version in build.gradle to ensure consistency
+  const projectBuildGradlePath = path.join(__dirname, '..', 'android', 'build.gradle');
+  if (fs.existsSync(projectBuildGradlePath)) {
+    let projectBuildGradle = fs.readFileSync(projectBuildGradlePath, 'utf8');
+    const originalProjectContent = projectBuildGradle;
+    
+    // Fix Kotlin version fallback to use 1.7.10 instead of 1.9.23
+    projectBuildGradle = projectBuildGradle.replace(
+      /kotlinVersion = findProperty\('android\.kotlinVersion'\) \?\: '1\.9\.23'/,
+      "kotlinVersion = findProperty('android.kotlinVersion') ?: '1.7.10'"
+    );
+    
+    if (projectBuildGradle !== originalProjectContent) {
+      fs.writeFileSync(projectBuildGradlePath, projectBuildGradle, 'utf8');
+      console.log('✅ Fixed Kotlin version fallback in project build.gradle');
+    }
+  }
 
   // Enable buildConfig for all modules (including lottie-react-native)
   config = withDangerousMod(config, [
