@@ -32,6 +32,25 @@ const withAndroidBuildFix = (config) => {
         "// apply plugin: \"com.facebook.react.rootproject\""
       );
       
+      // Add dependency resolution at project level to fix fbjni version conflict
+      if (!buildGradle.includes('force \'com.facebook.fbjni:fbjni:0.3.0\'')) {
+        // Try to add to existing allprojects block first
+        if (buildGradle.includes('allprojects')) {
+          buildGradle = buildGradle.replace(
+            /allprojects\s*\{/,
+            "allprojects {\n    configurations.all {\n        resolutionStrategy {\n            force 'com.facebook.fbjni:fbjni:0.3.0'\n        }\n    }"
+          );
+        } else {
+          // Add new allprojects block if none exists
+          buildGradle = buildGradle.replace(
+            /buildscript\s*\{[\s\S]*?\}\s*$/,
+            (match) => {
+              return match + '\n\nallprojects {\n    configurations.all {\n        resolutionStrategy {\n            force \'com.facebook.fbjni:fbjni:0.3.0\'\n        }\n    }\n}';
+            }
+          );
+        }
+      }
+      
       config.modResults.contents = buildGradle;
     }
     return config;
