@@ -149,9 +149,20 @@ const withAndroidBuildFix = (config) => {
       "kotlinVersion = findProperty('android.kotlinVersion') ?: '1.7.10'"
     );
     
+    // Ensure Kotlin version is explicitly set in root project ext for Expo modules
+    if (!projectBuildGradle.includes('rootProject.ext.kotlinVersion')) {
+      // Add kotlinVersion to the ext block if it doesn't exist
+      if (!projectBuildGradle.includes('kotlinVersion = findProperty')) {
+        projectBuildGradle = projectBuildGradle.replace(
+          /ext\s*\{/,
+          "ext {\n        kotlinVersion = findProperty('android.kotlinVersion') ?: '1.7.10'"
+        );
+      }
+    }
+    
     if (projectBuildGradle !== originalProjectContent) {
       fs.writeFileSync(projectBuildGradlePath, projectBuildGradle, 'utf8');
-      console.log('✅ Fixed Kotlin version fallback in project build.gradle');
+      console.log('✅ Fixed Kotlin version consistency in project build.gradle');
     }
   }
 
