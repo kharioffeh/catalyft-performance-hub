@@ -110,7 +110,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = '17'
-        freeCompilerArgs += ['-Xjvm-default=all', '-Xno-param-assertions', '-Xno-call-assertions', '-Xno-receiver-assertions']
+        freeCompilerArgs += ['-Xjvm-default=all', '-Xno-param-assertions', '-Xno-call-assertions', '-Xno-receiver-assertions', '-Xno-optimize', '-Xno-inline', '-Xno-jsr305-annotations']
     }
     buildFeatures {
         buildConfig true

@@ -32,15 +32,15 @@ allprojects {
         }
     }
     
-    // Memory optimization settings
+    // Ultimate memory optimization settings
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         kotlinOptions {
             jvmTarget = "17"
-            freeCompilerArgs += ['-Xjvm-default=all', '-Xno-param-assertions', '-Xno-call-assertions', '-Xno-receiver-assertions', '-Xno-optimize', '-Xno-inline']
+            freeCompilerArgs += ['-Xjvm-default=all', '-Xno-param-assertions', '-Xno-call-assertions', '-Xno-receiver-assertions', '-Xno-optimize', '-Xno-inline', '-Xno-jsr305-annotations']
         }
-        // Reduce memory usage during compilation
-        maxHeapSize = "4g"
-        jvmArgs = ['-Xmx4g', '-XX:+UseG1GC']
+        // Maximum memory allocation per task
+        maxHeapSize = "8g"
+        jvmArgs = ['-Xmx8g', '-XX:+UseG1GC', '-XX:+UseStringDeduplication', '-XX:+UseCompressedOops', '-XX:+UseCompressedClassPointers']
     }
     repositories {
         maven {
