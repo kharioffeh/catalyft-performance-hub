@@ -36,8 +36,11 @@ allprojects {
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         kotlinOptions {
             jvmTarget = "17"
-            freeCompilerArgs += ['-Xjvm-default=all', '-Xno-param-assertions', '-Xno-call-assertions', '-Xno-receiver-assertions']
+            freeCompilerArgs += ['-Xjvm-default=all', '-Xno-param-assertions', '-Xno-call-assertions', '-Xno-receiver-assertions', '-Xno-optimize', '-Xno-inline']
         }
+        // Reduce memory usage during compilation
+        maxHeapSize = "4g"
+        jvmArgs = ['-Xmx4g', '-XX:+UseG1GC']
     }
     repositories {
         maven {
