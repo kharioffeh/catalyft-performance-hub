@@ -171,6 +171,10 @@ if (fs.existsSync(expoModulesCorePluginPath)) {
   // Also force any other Kotlin version references to 1.7.10
   pluginContent = pluginContent.replace(/kotlinVersion.*?:\s*"[^"]*"/g, 'kotlinVersion ?: "1.7.10"');
   
+  // Force all Kotlin version references to 1.7.10
+  pluginContent = pluginContent.replace(/kotlinVersion\s*=\s*"[^"]*"/g, 'kotlinVersion = "1.7.10"');
+  pluginContent = pluginContent.replace(/kotlinVersion\s*:\s*"[^"]*"/g, 'kotlinVersion: "1.7.10"');
+  
   if (pluginContent !== originalPluginContent) {
     fs.writeFileSync(expoModulesCorePluginPath, pluginContent, 'utf8');
     console.log('✅ Fixed Kotlin version in ExpoModulesCorePlugin.gradle');
@@ -191,6 +195,16 @@ if (fs.existsSync(gradlePropertiesPath)) {
   // Also force Kotlin compiler version
   if (!gradleProperties.includes('kotlin.compiler.execution.strategy=in-process')) {
     gradleProperties += 'kotlin.compiler.execution.strategy=in-process\n';
+  }
+  
+  // Force Kotlin compiler version to match
+  if (!gradleProperties.includes('kotlin.compiler.version=1.7.10')) {
+    gradleProperties += 'kotlin.compiler.version=1.7.10\n';
+  }
+  
+  // Force Kotlin stdlib version
+  if (!gradleProperties.includes('kotlin.stdlib.version=1.7.10')) {
+    gradleProperties += 'kotlin.stdlib.version=1.7.10\n';
   }
   
   if (gradleProperties !== originalGradleProperties) {
