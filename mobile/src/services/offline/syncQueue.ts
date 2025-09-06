@@ -1,4 +1,4 @@
-import { MMKV } from 'react-native-mmkv';
+
 import { v4 as uuidv4 } from 'uuid';
 
 export type OperationType = 'CREATE' | 'UPDATE' | 'DELETE';

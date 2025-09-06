@@ -1,39 +1,43 @@
 pluginManagement {
   def reactNativeGradlePlugin = new File(
     providers.exec {
-      workingDir(rootDir)
+      workingDir(rootDir.getParentFile().getAbsolutePath() + "/mobile")
       commandLine("node", "--print", "require.resolve('@react-native/gradle-plugin/package.json', { paths: [require.resolve('react-native/package.json')] })")
     }.standardOutput.asText.get().trim()
   ).getParentFile().absolutePath
   includeBuild(reactNativeGradlePlugin)
   
-  def expoPluginsPath = new File(
-    providers.exec {
-      workingDir(rootDir)
-      commandLine("node", "--print", "require.resolve('expo-modules-autolinking/package.json', { paths: [require.resolve('expo/package.json')] })")
-    }.standardOutput.asText.get().trim(),
-    "../android/expo-gradle-plugin"
-  ).absolutePath
-  includeBuild(expoPluginsPath)
+  // Expo plugins path - commented out as it may not exist in newer versions
+  // def expoPluginsPath = new File(
+  //   providers.exec {
+  //     workingDir(rootDir.getParentFile().getAbsolutePath() + "/mobile")
+  //     commandLine("node", "--print", "require.resolve('expo-modules-autolinking/package.json', { paths: [require.resolve('expo/package.json')] })")
+  //   }.standardOutput.asText.get().trim(),
+  //   "../android/expo-gradle-plugin"
+  // ).absolutePath
+  // includeBuild(expoPluginsPath)
 }
 
 plugins {
   id("com.facebook.react.settings")
-  id("expo-autolinking-settings")
+  // id("expo-autolinking-settings") // Commented out as expo plugin may not be available
 }
 
-extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
-  if (System.getenv('EXPO_USE_COMMUNITY_AUTOLINKING') == '1') {
-    ex.autolinkLibrariesFromCommand()
-  } else {
-    ex.autolinkLibrariesFromCommand(expoAutolinking.rnConfigCommand)
-  }
-}
-expoAutolinking.useExpoModules()
+// Simplified autolinking configuration
+// extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
+//   ex.autolinkLibrariesFromCommand()
+// }
 
 rootProject.name = 'vite_react_shadcn_ts'
 
-expoAutolinking.useExpoVersionCatalog()
-
 include ':app'
-includeBuild(expoAutolinking.reactNativeGradlePlugin)
+
+// Define React Native Gradle plugin path
+def reactNativeGradlePlugin = new File(
+  providers.exec {
+    workingDir(rootDir.getParentFile().getAbsolutePath() + "/mobile")
+    commandLine("node", "--print", "require.resolve('@react-native/gradle-plugin/package.json', { paths: [require.resolve('react-native/package.json')] })")
+  }.standardOutput.asText.get().trim()
+).getParentFile().absolutePath
+
+includeBuild(reactNativeGradlePlugin)

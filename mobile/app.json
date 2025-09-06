@@ -29,8 +29,12 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "./plugins/withModularHeaders",
+            "plugins": [
+          "./plugins/withModularHeaders",
+          "./plugins/withAndroidGradleConfig",
+          "./plugins/withAndroidBuildFix",
+          "./plugins/withAndroidPackagingOptions",
+          "./plugins/withIosPodfileFix",
       "@react-native-firebase/app",
       "@react-native-firebase/crashlytics",
       [
@@ -43,7 +47,10 @@
           "android": {
             "compileSdkVersion": 34,
             "targetSdkVersion": 34,
-            "minSdkVersion": 23
+            "minSdkVersion": 23,
+            "gradleVersion": "8.4",
+            "buildToolsVersion": "34.0.0",
+            "kotlinVersion": "1.9.24"
           }
         }
       ]

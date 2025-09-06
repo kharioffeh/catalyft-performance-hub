@@ -5,7 +5,7 @@
 import { create } from 'zustand';
 import { devtools, persist, subscribeWithSelector } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { MMKV } from 'react-native-mmkv';
+
 import { StateStorage } from 'zustand/middleware';
 import { UserSlice, createUserSlice } from './slices/userSlice';
 import { WorkoutSlice, createWorkoutSlice } from './slices/workoutSlice';

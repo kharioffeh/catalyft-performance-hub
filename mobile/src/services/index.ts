@@ -16,7 +16,7 @@ export {
   optimisticUpdates, 
   prefetchHelpers,
   invalidateHelpers,
-  mmkvPersister 
+  asyncStoragePersister 
 } from './queryClient';
 
 // Real-time services

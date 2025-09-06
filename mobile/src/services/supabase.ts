@@ -3,7 +3,7 @@
  */
 
 import { createClient, SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
-import { MMKV } from 'react-native-mmkv';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Database, Tables, Insertable, Updatable, RealtimePostgresChangesPayload } from '../types/database';
 import { 

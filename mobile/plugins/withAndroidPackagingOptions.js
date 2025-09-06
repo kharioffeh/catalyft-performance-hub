@@ -30,12 +30,19 @@ module.exports = function withAndroidPackagingOptions(config) {
             pickFirsts += [
                 'META-INF/LICENSE',
                 'META-INF/LICENSE.md',
+                'META-INF/LICENSE.txt',
                 'META-INF/NOTICE',
                 'META-INF/NOTICE.md',
+                'META-INF/NOTICE.txt',
+                'META-INF/DEPENDENCIES',
+                'META-INF/DEPENDENCIES.txt',
                 'lib/x86/libc++_shared.so',
                 'lib/x86_64/libc++_shared.so',
                 'lib/arm64-v8a/libc++_shared.so',
-                'lib/armeabi-v7a/libc++_shared.so'
+                'lib/armeabi-v7a/libc++_shared.so',
+                '**/libc++_shared.so',
+                '**/libjsc.so',
+                '**/libfb.so'
             ]
         }
     }`
