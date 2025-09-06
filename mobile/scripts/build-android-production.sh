@@ -21,18 +21,19 @@ rm -rf .expo
 echo "🔨 Running prebuild..."
 npx expo prebuild --platform android --clean
 
-# Set Gradle memory options
-export GRADLE_OPTS="-Xmx4096m -XX:MaxMetaspaceSize=1024m -XX:+HeapDumpOnOutOfMemoryError"
+# Set Gradle memory options - Maximum allocation
+export GRADLE_OPTS="-Xmx8192m -XX:MaxMetaspaceSize=2048m -XX:+HeapDumpOnOutOfMemoryError -XX:+UseG1GC"
 
 # Build the APK
 echo "📱 Building Android APK..."
 cd android
 
-# Use gradlew with conservative settings to avoid Kotlin compilation issues
+# Use gradlew with maximum memory allocation to handle Kotlin compilation
 ./gradlew assembleRelease \
-  -Xmx4096m \
-  -XX:MaxMetaspaceSize=1024m \
+  -Xmx8192m \
+  -XX:MaxMetaspaceSize=2048m \
   -XX:+UseG1GC \
+  -XX:+UseStringDeduplication \
   --no-daemon \
   --no-parallel \
   --no-build-cache \
