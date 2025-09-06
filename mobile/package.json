@@ -52,7 +52,10 @@
     "build:all:production": "./scripts/build-production.sh --all",
     "test:social": "node src/scripts/runSocialTests.js",
     "test:social:unit": "jest --testPathPattern=social --coverage",
-    "test:social:integration": "jest --testPathPattern=social.integration --coverage"
+    "test:social:integration": "jest --testPathPattern=social.integration --coverage",
+    "test:api-connections": "node src/scripts/test-api-connections.js",
+    "test:wearable-integration": "jest --testPathPattern=wearable --coverage",
+    "test:real-time-features": "jest --testPathPattern=realtime --coverage"
   },
   "dependencies": {
     "@amplitude/react-native": "^2.17.2",
@@ -75,6 +78,7 @@
     "@supabase/supabase-js": "^2.47.0",
     "ably": "^2.5.1",
     "amplitude-js": "^8.21.9",
+    "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
     "detox": "^20.29.2",
     "dotenv": "^16.4.7",
@@ -95,15 +99,21 @@
     "expo-web-browser": "~13.0.3",
     "firebase": "^11.1.0",
     "lottie-react-native": "6.7.0",
+    "lz-string": "^1.5.0",
     "mixpanel-react-native": "^3.0.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.48.2",
     "react-native": "0.74.5",
     "react-native-app-intro-slider": "^4.0.4",
+    "react-native-ble-plx": "^3.5.0",
     "react-native-config": "^1.5.3",
+    "react-native-device-info": "^14.0.4",
     "react-native-gesture-handler": "~2.16.1",
+    "react-native-google-fit": "^0.21.0",
+    "react-native-health": "^1.19.0",
     "react-native-onboarding-swiper": "^1.2.0",
+    "react-native-permissions": "^5.4.2",
     "react-native-reanimated": "~3.10.1",
     "react-native-safe-area-context": "4.10.5",
     "react-native-screens": "~3.31.1",
@@ -113,9 +123,7 @@
     "react-native-web": "~0.19.10",
     "react-redux": "^9.1.2",
     "zod": "^3.22.4",
-    "zustand": "^5.0.8",
-    "crypto-js": "^4.2.0",
-    "lz-string": "^1.5.0"
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
