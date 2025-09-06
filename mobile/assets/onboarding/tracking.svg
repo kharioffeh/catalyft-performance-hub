@@ -1,0 +1,6 @@
+<svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" fill="#F8FAFC"/>
+  <rect x="50" y="60" width="200" height="80" rx="10" fill="#8B5CF6" opacity="0.1"/>
+  <rect x="70" y="80" width="160" height="40" rx="5" fill="#8B5CF6" opacity="0.3"/>
+  <text x="150" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#64748B">Track Your Progress</text>
+</svg>
