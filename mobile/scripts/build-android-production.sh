@@ -28,13 +28,15 @@ export GRADLE_OPTS="-Xmx4096m -XX:MaxMetaspaceSize=1024m -XX:+HeapDumpOnOutOfMem
 echo "📱 Building Android APK..."
 cd android
 
-# Use gradlew with increased memory
+# Use gradlew with conservative settings to avoid Kotlin compilation issues
 ./gradlew assembleRelease \
   -Xmx4096m \
   -XX:MaxMetaspaceSize=1024m \
+  -XX:+UseG1GC \
   --no-daemon \
-  --parallel \
-  --build-cache
+  --no-parallel \
+  --no-build-cache \
+  -Dkotlin.compiler.execution.strategy=in-process
 
 echo "✅ Android build completed successfully!"
 echo "📦 APK location: android/app/build/outputs/apk/release/app-release.apk"
