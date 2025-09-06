@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Android Absolute Minimum Build Script
-# Uses the smallest possible memory allocation
+# Uses the absolute smallest possible memory allocation
 
 set -e
 
@@ -26,7 +26,7 @@ echo "🔨 Running prebuild..."
 npx expo prebuild --platform android --clean
 
 # Set absolute minimum Gradle memory options
-export GRADLE_OPTS="-Xmx2048m -XX:MaxMetaspaceSize=512m -XX:+UseG1GC"
+export GRADLE_OPTS="-Xmx256m -XX:MaxMetaspaceSize=64m -XX:+UseG1GC"
 
 # Build the APK with absolute minimum memory
 echo "📱 Building Android APK (absolute minimum)..."
@@ -34,8 +34,8 @@ cd android
 
 # Use gradlew with absolute minimum memory
 ./gradlew assembleRelease \
-  -Xmx2048m \
-  -XX:MaxMetaspaceSize=512m \
+  -Xmx256m \
+  -XX:MaxMetaspaceSize=64m \
   -XX:+UseG1GC \
   --no-daemon \
   --no-parallel \
