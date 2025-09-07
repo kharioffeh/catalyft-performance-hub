@@ -1,0 +1,63 @@
+{
+  "expo": {
+    "name": "Catalyft",
+    "slug": "catalyft-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "catalyft",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.catalyft.mobile",
+      "deploymentTarget": "15.0",
+      "infoPlist": {
+        "NSHealthShareUsageDescription": "This app reads health data to provide accurate calorie tracking and fitness insights.",
+        "NSHealthUpdateUsageDescription": "This app writes workout data to keep your health records synchronized."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.catalyft.mobile",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.ACTIVITY_RECOGNITION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.BODY_SENSORS",
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
+            "minSdkVersion": 23,
+            "gradleVersion": "8.4",
+            "buildToolsVersion": "34.0.0",
+            "kotlinVersion": "1.7.10"
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-eas-project-id"
+      }
+    }
+  }
+}
