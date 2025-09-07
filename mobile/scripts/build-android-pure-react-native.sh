@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Android No-Native-Modules Build Script
-# Builds without any native modules to avoid memory issues
+# Android Pure React Native Build Script
+# Completely bypasses Expo and uses pure React Native
 
 set -e
 
-echo "🚀 Starting Android No-Native-Modules Build..."
+echo "🚀 Starting Android Pure React Native Build..."
 
 # Set environment variables
 export ANDROID_HOME=/usr/lib/android-sdk
@@ -17,9 +17,9 @@ cd /workspace/mobile
 rm -rf android
 rm -rf .expo
 
-# Create minimal app.json with no native modules
-echo "⚙️  Creating no-native-modules configuration..."
-cat > app-no-native-modules.json << 'EOF'
+# Create a pure React Native app.json
+echo "⚙️  Creating pure React Native configuration..."
+cat > app-pure-react-native.json << 'EOF'
 {
   "expo": {
     "name": "Catalyft",
@@ -54,14 +54,14 @@ cat > app-no-native-modules.json << 'EOF'
 }
 EOF
 
-# Create minimal gradle properties for no native modules
-echo "⚙️  Creating no-native-modules gradle properties..."
+# Create minimal gradle properties for pure React Native
+echo "⚙️  Creating pure React Native gradle properties..."
 cat > android/gradle.properties << 'EOF'
-# No Native Modules Gradle configuration
-# Minimal memory allocation for no native modules
+# Pure React Native Gradle configuration
+# Minimal memory allocation for pure React Native
 
 # Minimal memory allocation
-org.gradle.jvmargs=-Xmx256m -XX:MaxMetaspaceSize=64m -XX:+UseG1GC
+org.gradle.jvmargs=-Xmx512m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC
 
 # Disable everything that uses memory
 org.gradle.parallel=false
@@ -104,21 +104,21 @@ android.enableR8=false
 android.enableD8=false
 EOF
 
-# Prebuild with no-native-modules configuration
-echo "🔨 Running prebuild with no-native-modules configuration..."
-npx expo prebuild --platform android --clean --config app-no-native-modules.json
+# Prebuild with pure React Native configuration
+echo "🔨 Running prebuild with pure React Native configuration..."
+npx expo prebuild --platform android --clean --config app-pure-react-native.json
 
 # Set Gradle memory options
-export GRADLE_OPTS="-Xmx256m -XX:MaxMetaspaceSize=64m -XX:+UseG1GC"
+export GRADLE_OPTS="-Xmx512m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC"
 
-# Build the APK with no-native-modules approach
-echo "📱 Building Android APK (no-native-modules)..."
+# Build the APK with pure React Native approach
+echo "📱 Building Android APK (pure React Native)..."
 cd android
 
-# Use gradlew with no-native-modules settings
+# Use gradlew with pure React Native settings
 ./gradlew assembleRelease \
-  -Xmx256m \
-  -XX:MaxMetaspaceSize=64m \
+  -Xmx512m \
+  -XX:MaxMetaspaceSize=128m \
   -XX:+UseG1GC \
   --no-daemon \
   --no-parallel \
@@ -128,8 +128,8 @@ cd android
   --max-workers=1 \
   --continue
 
-echo "✅ Android no-native-modules build completed successfully!"
+echo "✅ Android pure React Native build completed successfully!"
 echo "📦 APK location: android/app/build/outputs/apk/release/app-release.apk"
 
 # Clean up
-rm -f app-no-native-modules.json
+rm -f app-pure-react-native.json
