@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Android No-Native-At-All Build Script
-# Builds without any native modules to avoid memory issues
+# Android No-Gesture-Handler Build Script
+# Completely bypasses gesture handler and other problematic modules
 
 set -e
 
-echo "🚀 Starting Android No-Native-At-All Build..."
+echo "🚀 Starting Android No-Gesture-Handler Build..."
 
 # Set environment variables
 export ANDROID_HOME=/usr/lib/android-sdk
@@ -17,9 +17,9 @@ cd /workspace/mobile
 rm -rf android
 rm -rf .expo
 
-# Create minimal app.json with no native modules
-echo "⚙️  Creating no-native-at-all configuration..."
-cat > app-no-native-at-all.json << 'EOF'
+# Create minimal app.json with no problematic modules
+echo "⚙️  Creating no-gesture-handler configuration..."
+cat > app-no-gesture-handler.json << 'EOF'
 {
   "expo": {
     "name": "Catalyft",
@@ -58,15 +58,15 @@ EOF
 echo "⚙️  Applying ultimate minimum configuration..."
 cp android/gradle-ultimate-minimum.properties android/gradle.properties
 
-# Prebuild with no-native-at-all configuration
-echo "🔨 Running prebuild with no-native-at-all configuration..."
-npx expo prebuild --platform android --clean --config app-no-native-at-all.json
+# Prebuild with no-gesture-handler configuration
+echo "🔨 Running prebuild with no-gesture-handler configuration..."
+npx expo prebuild --platform android --clean --config app-no-gesture-handler.json
 
 # Set ultimate minimum Gradle memory options
 export GRADLE_OPTS="-Xmx128m -XX:MaxMetaspaceSize=32m -XX:+UseG1GC"
 
-# Build the APK with no-native-at-all approach
-echo "📱 Building Android APK (no-native-at-all)..."
+# Build the APK with no-gesture-handler approach
+echo "📱 Building Android APK (no-gesture-handler)..."
 cd android
 
 # Use gradlew with ultimate minimum memory
@@ -83,8 +83,8 @@ cd android
   --max-workers=1 \
   --continue
 
-echo "✅ Android no-native-at-all build completed successfully!"
+echo "✅ Android no-gesture-handler build completed successfully!"
 echo "📦 APK location: android/app/build/outputs/apk/release/app-release.apk"
 
 # Clean up
-rm -f app-no-native-at-all.json
+rm -f app-no-gesture-handler.json
