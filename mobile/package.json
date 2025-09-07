@@ -90,6 +90,8 @@
     "setup:multi-user-testing": "./scripts/setup-multi-user-testing.sh",
     "deploy:ios:app-store": "./scripts/deploy-ios-app-store.sh",
     "deploy:android:play-store": "./scripts/deploy-android-play-store.sh",
+    "test:ios:free": "./scripts/test-ios-free.sh",
+    "start:expo-go": "./scripts/start-expo-go.sh",
     "build:all:production": "./scripts/build-production.sh --all",
     "test:social": "node src/scripts/runSocialTests.js",
     "test:social:unit": "jest --testPathPattern=social --coverage",
