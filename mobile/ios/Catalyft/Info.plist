@@ -75,5 +75,9 @@
     <string>Light</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
+    <key>NSHealthShareUsageDescription</key>
+    <string>This app reads health data to provide accurate calorie tracking and fitness insights.</string>
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>This app writes workout data to keep your health records synchronized.</string>
   </dict>
 </plist>

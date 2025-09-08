@@ -1,0 +1,7 @@
+<svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" fill="#F8FAFC"/>
+  <circle cx="100" cy="80" r="25" fill="#EC4899" opacity="0.2"/>
+  <circle cx="150" cy="80" r="25" fill="#06B6D4" opacity="0.2"/>
+  <circle cx="200" cy="80" r="25" fill="#84CC16" opacity="0.2"/>
+  <text x="150" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#64748B">Join the Community</text>
+</svg>
