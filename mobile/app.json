@@ -15,7 +15,6 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.catalyft.mobile",
-      "deploymentTarget": "15.0",
       "googleServicesFile": "./firebase-config/GoogleService-Info.plist"
     },
     "android": {
