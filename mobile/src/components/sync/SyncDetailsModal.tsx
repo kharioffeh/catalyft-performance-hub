@@ -35,7 +35,7 @@ export const SyncDetailsModal: React.FC<SyncDetailsModalProps> = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [networkStatus, setNetworkStatus] = useState(networkMonitor.getStatus());
   const [syncStatus, setSyncStatus] = useState(syncEngine.getSyncStatus());
-  const [storageStats, setStorageStats] = useState(offlineStorage.getStats());
+  const [storageStats, setStorageStats] = useState<any>(null);
   const [backgroundSyncEnabled, setBackgroundSyncEnabled] = useState(true);
   const [wifiOnlySync, setWifiOnlySync] = useState(false);
   const insets = useSafeAreaInsets();
@@ -322,17 +322,17 @@ export const SyncDetailsModal: React.FC<SyncDetailsModalProps> = ({
           <View style={styles.statusRow}>
             <Text style={styles.statusLabel}>Cache Size:</Text>
             <Text style={styles.statusText}>
-              {(storageStats.totalSize / (1024 * 1024)).toFixed(2)} MB
+              {storageStats?.totalSize ? (storageStats.totalSize / (1024 * 1024)).toFixed(2) : '0.00'} MB
             </Text>
           </View>
           <View style={styles.statusRow}>
             <Text style={styles.statusLabel}>Items Cached:</Text>
-            <Text style={styles.statusText}>{storageStats.itemCount}</Text>
+            <Text style={styles.statusText}>{storageStats?.itemCount || 0}</Text>
           </View>
           <View style={styles.statusRow}>
             <Text style={styles.statusLabel}>Oldest Item:</Text>
             <Text style={styles.statusText}>
-              {storageStats.oldestItem
+              {storageStats?.oldestItem
                 ? formatDistanceToNow(storageStats.oldestItem, { addSuffix: true })
                 : 'N/A'}
             </Text>

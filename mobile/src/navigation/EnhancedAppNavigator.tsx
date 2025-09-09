@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import AnimatedTabBar from '../components/ui/AnimatedTabBar';
 import { useTabNavigation } from '../hooks/useTabNavigation';
 
@@ -116,10 +116,10 @@ function LoadingScreen() {
     <View style={styles.loadingContainer}>
       <View style={styles.logoContainer}>
         <View style={styles.logoIcon}>💪</View>
-        <View style={styles.logoText}>Catalyft</View>
+        <Text style={styles.logoText}>Catalyft</Text>
       </View>
       <ActivityIndicator size="large" color="#0057FF" style={styles.loader} />
-      <View style={styles.loadingText}>Loading...</View>
+      <Text style={styles.loadingText}>Loading...</Text>
     </View>
   );
 }
