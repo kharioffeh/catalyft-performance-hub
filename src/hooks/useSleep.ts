@@ -1,4 +1,6 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 export interface SleepStage {
@@ -41,62 +43,60 @@ const generateSleepStages = (sleepHours: number): SleepStage[] => {
   const totalMinutes = sleepHours * 60;
   let currentTime = new Date();
   currentTime.setHours(22, 30, 0); // Start at 10:30 PM
-  
-  // Typical sleep cycle patterns
+
   const cyclePatterns = [
     { stage: 'light' as const, ratio: 0.5 },
     { stage: 'deep' as const, ratio: 0.25 },
     { stage: 'rem' as const, ratio: 0.2 },
     { stage: 'awake' as const, ratio: 0.05 }
   ];
-  
+
   let remainingMinutes = totalMinutes;
-  
+
   while (remainingMinutes > 0) {
     for (const pattern of cyclePatterns) {
       if (remainingMinutes <= 0) break;
-      
+
       const duration = Math.min(
         Math.round((totalMinutes * pattern.ratio * (0.8 + Math.random() * 0.4)) / cyclePatterns.length),
         remainingMinutes
       );
-      
+
       if (duration > 0) {
         stages.push({
           time: currentTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
           stage: pattern.stage,
           duration
         });
-        
+
         currentTime.setMinutes(currentTime.getMinutes() + duration);
         remainingMinutes -= duration;
       }
     }
   }
-  
+
   return stages;
 };
 
-// Generate mock sleep data
+// Generate mock sleep data as fallback
 const generateMockSleepData = (): SleepSession[] => {
   const sessions: SleepSession[] = [];
-  
+
   for (let i = 0; i < 30; i++) {
     const date = new Date();
     date.setDate(date.getDate() - i);
-    
-    const sleepHours = 6.5 + Math.random() * 2.5; // 6.5-9 hours
-    const efficiency = 75 + Math.random() * 20; // 75-95%
+
+    const sleepHours = 6.5 + Math.random() * 2.5;
+    const efficiency = 75 + Math.random() * 20;
     const stages = generateSleepStages(sleepHours);
-    
-    // Calculate score based on duration, efficiency, and deep sleep
+
     const deepSleepRatio = stages.filter(s => s.stage === 'deep').reduce((sum, s) => sum + s.duration, 0) / (sleepHours * 60);
     const score = Math.round(
-      (sleepHours / 8) * 30 + // Duration score (30 pts)
-      (efficiency / 100) * 40 + // Efficiency score (40 pts)
-      deepSleepRatio * 30 // Deep sleep score (30 pts)
+      (sleepHours / 8) * 30 +
+      (efficiency / 100) * 40 +
+      deepSleepRatio * 30
     );
-    
+
     sessions.push({
       id: `sleep-${i}`,
       date: date.toISOString().split('T')[0],
@@ -115,22 +115,74 @@ const generateMockSleepData = (): SleepSession[] => {
       createdAt: date
     });
   }
-  
-  return sessions.reverse(); // Most recent first
+
+  return sessions.reverse();
 };
 
 export const useSleep = (): UseSleepReturn => {
   const { profile } = useAuth();
-  const [sessions] = useState<SleepSession[]>(generateMockSleepData());
-  const [isLoading] = useState(false);
+
+  const { data: sessions = [], isLoading } = useQuery({
+    queryKey: ['sleep-sessions', profile?.id],
+    queryFn: async (): Promise<SleepSession[]> => {
+      if (!profile?.id) return generateMockSleepData();
+
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split('T')[0];
+
+      const { data, error } = await supabase
+        .from('vw_sleep_daily')
+        .select('*')
+        .eq('athlete_uuid', profile.id)
+        .gte('day', thirtyDaysAgo)
+        .order('day', { ascending: true });
+
+      if (error || !data || data.length === 0) {
+        return generateMockSleepData();
+      }
+
+      return data.map((row: any, i: number) => {
+        const totalSleepHours = row.total_sleep_hours ?? 7;
+        const sleepEfficiency = row.sleep_efficiency ?? 85;
+        const avgHr = row.avg_sleep_hr ?? 58;
+        const hrv = row.hrv_rmssd ?? 0;
+
+        // Calculate score from duration + efficiency
+        const durationScore = Math.min(1, totalSleepHours / 8) * 40;
+        const efficiencyScore = (sleepEfficiency / 100) * 40;
+        const hrvBonus = hrv > 0 ? Math.min(20, (hrv / 100) * 20) : 10;
+        const score = Math.round(Math.max(0, Math.min(100, durationScore + efficiencyScore + hrvBonus)));
+
+        return {
+          id: `db-sleep-${i}`,
+          date: row.day,
+          bedtime: '22:30',
+          sleepTime: '23:00',
+          wakeTime: '07:00',
+          totalSleepHours: Math.round(totalSleepHours * 10) / 10,
+          sleepEfficiency: Math.round(sleepEfficiency),
+          stages: [], // Not available from real data
+          heartRate: {
+            avg: Math.round(avgHr),
+            min: Math.round(avgHr * 0.8),
+            max: Math.round(avgHr * 1.3),
+          },
+          score,
+          createdAt: new Date(row.day),
+        };
+      });
+    },
+    enabled: true,
+  });
 
   const getLastNightSleep = useCallback(() => {
     const today = new Date().toISOString().split('T')[0];
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toISOString().split('T')[0];
-    
-    return sessions.find(session => 
+
+    return sessions.find(session =>
       session.date === today || session.date === yesterdayStr
     ) || null;
   }, [sessions]);
@@ -145,13 +197,14 @@ export const useSleep = (): UseSleepReturn => {
   }, [getLastNightSleep]);
 
   const getAverageSleepHours = useCallback((days: number = 7) => {
-    const recentSessions = sessions.slice(0, days);
+    const recentSessions = sessions.slice(-days);
+    if (recentSessions.length === 0) return 0;
     const totalHours = recentSessions.reduce((sum, session) => sum + session.totalSleepHours, 0);
     return Math.round((totalHours / recentSessions.length) * 10) / 10;
   }, [sessions]);
 
   const getSleepEfficiencyTrend = useCallback((days: number = 7) => {
-    return sessions.slice(0, days).map(session => session.sleepEfficiency);
+    return sessions.slice(-days).map(session => session.sleepEfficiency);
   }, [sessions]);
 
   return {

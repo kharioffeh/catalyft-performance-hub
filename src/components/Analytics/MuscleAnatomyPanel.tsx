@@ -9,8 +9,42 @@ interface MuscleAnatomyPanelProps {
   // No props needed for solo athlete
 }
 
+// Map SVG muscle group names to possible DB muscle names
+const MUSCLE_NAME_MAP: Record<string, string[]> = {
+  shoulders: ['shoulder', 'shoulders', 'deltoid', 'deltoids'],
+  chest: ['chest', 'pectoralis', 'pecs', 'pectoral'],
+  core: ['core', 'abdominals', 'abs', 'obliques'],
+  quads: ['quads', 'quadriceps', 'quad'],
+  calves: ['calves', 'calf', 'gastrocnemius', 'soleus'],
+};
+
+// Returns RGBA fill and stroke based on load score
+const getMuscleColor = (loadScore: number | undefined): { fill: string; stroke: string; label: string } => {
+  if (loadScore === undefined) return { fill: 'rgba(156,163,175,0.2)', stroke: 'rgba(156,163,175,0.4)', label: 'text-gray-400' };
+  if (loadScore <= 20) return { fill: 'rgba(34,197,94,0.3)', stroke: 'rgba(34,197,94,0.6)', label: 'text-green-400' };
+  if (loadScore <= 40) return { fill: 'rgba(59,130,246,0.3)', stroke: 'rgba(59,130,246,0.6)', label: 'text-blue-400' };
+  if (loadScore <= 60) return { fill: 'rgba(234,179,8,0.3)', stroke: 'rgba(234,179,8,0.6)', label: 'text-yellow-400' };
+  if (loadScore <= 80) return { fill: 'rgba(239,68,68,0.4)', stroke: 'rgba(239,68,68,0.7)', label: 'text-red-400' };
+  return { fill: 'rgba(168,85,247,0.3)', stroke: 'rgba(168,85,247,0.6)', label: 'text-purple-400' };
+};
+
+// Build a lookup from muscle group → load score
+const buildMuscleMap = (muscleLoads: Array<{ muscle_name: string; load_score: number }>): Map<string, number> => {
+  const map = new Map<string, number>();
+  for (const [group, dbNames] of Object.entries(MUSCLE_NAME_MAP)) {
+    const match = muscleLoads.find(m => dbNames.some(n => m.muscle_name.toLowerCase().includes(n)));
+    if (match) map.set(group, match.load_score);
+  }
+  return map;
+};
+
 // Simple anatomical diagram component
-const AnatomyDiagram: React.FC = () => {
+const AnatomyDiagram: React.FC<{ muscleMap: Map<string, number> }> = ({ muscleMap }) => {
+  const shoulders = getMuscleColor(muscleMap.get('shoulders'));
+  const chest = getMuscleColor(muscleMap.get('chest'));
+  const core = getMuscleColor(muscleMap.get('core'));
+  const quads = getMuscleColor(muscleMap.get('quads'));
+  const calves = getMuscleColor(muscleMap.get('calves'));
   return (
     <div className="relative w-full h-full flex items-center justify-center">
       {/* Simplified human figure outline */}
@@ -36,31 +70,31 @@ const AnatomyDiagram: React.FC = () => {
         
         {/* Muscle group highlights */}
         {/* Shoulders */}
-        <circle cx="62" cy="70" r="8" fill="rgba(34, 197, 94, 0.3)" stroke="rgba(34, 197, 94, 0.6)" strokeWidth="1" />
-        <circle cx="138" cy="70" r="8" fill="rgba(34, 197, 94, 0.3)" stroke="rgba(34, 197, 94, 0.6)" strokeWidth="1" />
-        
+        <circle cx="62" cy="70" r="8" fill={shoulders.fill} stroke={shoulders.stroke} strokeWidth="1" />
+        <circle cx="138" cy="70" r="8" fill={shoulders.fill} stroke={shoulders.stroke} strokeWidth="1" />
+
         {/* Chest */}
-        <rect x="85" y="65" width="30" height="20" rx="3" fill="rgba(59, 130, 246, 0.3)" stroke="rgba(59, 130, 246, 0.6)" strokeWidth="1" />
-        
+        <rect x="85" y="65" width="30" height="20" rx="3" fill={chest.fill} stroke={chest.stroke} strokeWidth="1" />
+
         {/* Core */}
-        <rect x="85" y="90" width="30" height="25" rx="3" fill="rgba(234, 179, 8, 0.3)" stroke="rgba(234, 179, 8, 0.6)" strokeWidth="1" />
-        
+        <rect x="85" y="90" width="30" height="25" rx="3" fill={core.fill} stroke={core.stroke} strokeWidth="1" />
+
         {/* Quads */}
-        <rect x="87" y="140" width="11" height="35" rx="5" fill="rgba(239, 68, 68, 0.4)" stroke="rgba(239, 68, 68, 0.7)" strokeWidth="1" />
-        <rect x="102" y="140" width="11" height="35" rx="5" fill="rgba(239, 68, 68, 0.4)" stroke="rgba(239, 68, 68, 0.7)" strokeWidth="1" />
-        
+        <rect x="87" y="140" width="11" height="35" rx="5" fill={quads.fill} stroke={quads.stroke} strokeWidth="1" />
+        <rect x="102" y="140" width="11" height="35" rx="5" fill={quads.fill} stroke={quads.stroke} strokeWidth="1" />
+
         {/* Calves */}
-        <rect x="87" y="185" width="11" height="25" rx="5" fill="rgba(168, 85, 247, 0.3)" stroke="rgba(168, 85, 247, 0.6)" strokeWidth="1" />
-        <rect x="102" y="185" width="11" height="25" rx="5" fill="rgba(168, 85, 247, 0.3)" stroke="rgba(168, 85, 247, 0.6)" strokeWidth="1" />
+        <rect x="87" y="185" width="11" height="25" rx="5" fill={calves.fill} stroke={calves.stroke} strokeWidth="1" />
+        <rect x="102" y="185" width="11" height="25" rx="5" fill={calves.fill} stroke={calves.stroke} strokeWidth="1" />
       </svg>
       
       {/* Muscle group labels */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-[18%] left-[15%] text-xs text-green-400 font-medium">Shoulders</div>
-        <div className="absolute top-[22%] right-[25%] text-xs text-blue-400 font-medium">Chest</div>
-        <div className="absolute top-[30%] right-[25%] text-xs text-yellow-400 font-medium">Core</div>
-        <div className="absolute top-[45%] right-[25%] text-xs text-red-400 font-medium">Quadriceps</div>
-        <div className="absolute bottom-[25%] right-[25%] text-xs text-purple-400 font-medium">Calves</div>
+        <div className={`absolute top-[18%] left-[15%] text-xs font-medium ${shoulders.label}`}>Shoulders</div>
+        <div className={`absolute top-[22%] right-[25%] text-xs font-medium ${chest.label}`}>Chest</div>
+        <div className={`absolute top-[30%] right-[25%] text-xs font-medium ${core.label}`}>Core</div>
+        <div className={`absolute top-[45%] right-[25%] text-xs font-medium ${quads.label}`}>Quadriceps</div>
+        <div className={`absolute bottom-[25%] right-[25%] text-xs font-medium ${calves.label}`}>Calves</div>
       </div>
     </div>
   );
@@ -202,7 +236,8 @@ export const MuscleAnatomyPanel: React.FC<MuscleAnatomyPanelProps> = ({
   // No props needed for solo athlete
 }) => {
   const { period } = usePeriod();
-  const { loadACWR } = useEnhancedMetrics();
+  const { loadACWR, muscleLoads } = useEnhancedMetrics();
+  const muscleMap = buildMuscleMap(muscleLoads);
 
   // Get latest ACWR and training load
   const latestData = loadACWR[loadACWR.length - 1];
@@ -221,7 +256,7 @@ export const MuscleAnatomyPanel: React.FC<MuscleAnatomyPanelProps> = ({
             </div>
           </div>
           
-          <AnatomyDiagram />
+          <AnatomyDiagram muscleMap={muscleMap} />
           
           {/* Legend */}
           <div className="mt-4 pt-4 border-t border-white/10">

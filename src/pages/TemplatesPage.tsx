@@ -4,16 +4,27 @@ import { Button } from '@/components/ui/button';
 import { Plus, Dumbbell } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProgramTemplates } from '@/hooks/useProgramTemplates';
+import { useCreateProgramFromTemplate } from '@/hooks/useCreateProgramFromTemplate';
 import { GenerateProgramDialog } from '@/components/GenerateProgramDialog';
 import { TemplateCard } from '@/components/TemplateCard';
 import { TemplateModal } from '@/components/TemplateModal';
 import { useTemplateModal } from '@/store/useTemplateModal';
+import { useNavigate } from 'react-router-dom';
 
 const TemplatesPage: React.FC = () => {
   const { profile } = useAuth();
   const { data: templates = [], isLoading } = useProgramTemplates();
   const [isGenerateOpen, setIsGenerateOpen] = useState(false);
   const { tpl, close } = useTemplateModal();
+  const navigate = useNavigate();
+  const { mutate: createProgram, isPending: isCreating } = useCreateProgramFromTemplate();
+
+  const handleAssign = (template: { id: string }) => {
+    createProgram(
+      { templateId: template.id, athleteUuid: profile?.id },
+      { onSuccess: () => navigate('/training-plan') }
+    );
+  };
 
   // Solo users can view and generate templates but not assign them
   return (
@@ -44,7 +55,7 @@ const TemplatesPage: React.FC = () => {
             <TemplateCard 
               key={template.id} 
               template={template}
-              onAssign={() => {}} // No assignment for solo users
+              onAssign={handleAssign}
             />
           ))}
         </div>
@@ -76,7 +87,7 @@ const TemplatesPage: React.FC = () => {
           template={tpl}
           open={!!tpl}
           onOpenChange={(open) => !open && close()}
-          onAssign={() => {}} // No assignment for solo users
+          onAssign={handleAssign}
         />
       )}
     </div>

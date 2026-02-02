@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface StressReading {
   date: string;
@@ -24,102 +26,127 @@ export interface StressData {
   };
 }
 
+const getLevel = (stress: number): 'low' | 'moderate' | 'high' => {
+  if (stress <= 33) return 'low';
+  if (stress <= 66) return 'moderate';
+  return 'high';
+};
+
+// Generate mock intraday readings (not available from real data)
+const generateMockIntraday = () =>
+  Array.from({ length: 24 }, (_, hour) => {
+    let baseStress = 1.0;
+    if (hour >= 9 && hour <= 17) baseStress = 1.5 + Math.random() * 1.0;
+    else if (hour >= 18 && hour <= 22) baseStress = 1.0 + Math.random() * 0.8;
+    else baseStress = 0.2 + Math.random() * 0.6;
+    baseStress += (Math.random() - 0.5) * 0.3;
+    return {
+      time: `${hour.toString().padStart(2, '0')}:00`,
+      hour,
+      value: Math.max(0.1, Math.min(3.0, baseStress)),
+    };
+  });
+
+// Full mock fallback
+const generateMockStressData = (): StressData => {
+  const dailyReadings: StressReading[] = [];
+  const today = new Date();
+
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const baseStress = 35 + Math.random() * 30;
+    const dailyVariation = (Math.random() - 0.5) * 20;
+    const value = Math.max(0, Math.min(100, Math.round(baseStress + dailyVariation)));
+    dailyReadings.push({ date: formattedDate, value });
+  }
+
+  const current = dailyReadings[dailyReadings.length - 1].value;
+  const average7d = Math.round(dailyReadings.reduce((sum, r) => sum + r.value, 0) / dailyReadings.length);
+
+  const recent = dailyReadings.slice(-3).map(r => r.value);
+  const older = dailyReadings.slice(0, 4).map(r => r.value);
+  const recentAvg = recent.reduce((s, v) => s + v, 0) / recent.length;
+  const olderAvg = older.reduce((s, v) => s + v, 0) / older.length;
+  const trend: StressData['trend'] = recentAvg > olderAvg + 5 ? 'increasing' : recentAvg < olderAvg - 5 ? 'decreasing' : 'stable';
+
+  const intradayReadings = generateMockIntraday();
+  const lowZone = intradayReadings.filter(r => r.value <= 1.0).length;
+  const moderateZone = intradayReadings.filter(r => r.value > 1.0 && r.value <= 2.0).length;
+  const highZone = intradayReadings.filter(r => r.value > 2.0).length;
+  const dominant = lowZone > moderateZone && lowZone > highZone ? 'low' as const : moderateZone > highZone ? 'moderate' as const : 'high' as const;
+
+  return {
+    current,
+    level: getLevel(current),
+    average7d,
+    trend,
+    dailyReadings,
+    intradayReadings,
+    stressZones: { low: lowZone, moderate: moderateZone, high: highZone, dominant },
+  };
+};
+
 export const useStress = () => {
+  const { profile } = useAuth();
+
   return useQuery({
-    queryKey: ['stress-data'],
+    queryKey: ['stress-data', profile?.id],
     queryFn: async (): Promise<StressData> => {
-      // Generate mock stress data
-      const dailyReadings: StressReading[] = [];
-      const today = new Date();
-      
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - i);
-        const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        
-        // Generate realistic stress values (0-100)
-        const baseStress = 35 + Math.random() * 30; // 35-65 base range
-        const dailyVariation = (Math.random() - 0.5) * 20; // ±10 variation
-        const value = Math.max(0, Math.min(100, Math.round(baseStress + dailyVariation)));
-        
-        dailyReadings.push({
-          date: formattedDate,
-          value
-        });
+      if (!profile?.id) return generateMockStressData();
+
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+      // Query whoop_cycles for strain data (0-21 scale)
+      const { data: cycles, error: cyclesError } = await supabase
+        .from('whoop_cycles')
+        .select('strain, day')
+        .eq('user_id', profile.id)
+        .gte('day', sevenDaysAgo.split('T')[0])
+        .order('day', { ascending: true });
+
+      if (cyclesError || !cycles || cycles.length === 0) {
+        return generateMockStressData();
       }
-      
-      const current = dailyReadings[dailyReadings.length - 1].value;
-      const average7d = Math.round(dailyReadings.reduce((sum, reading) => sum + reading.value, 0) / dailyReadings.length);
-      
-      const getLevel = (stress: number): 'low' | 'moderate' | 'high' => {
-        if (stress <= 30) return 'low';
-        if (stress <= 60) return 'moderate';
-        return 'high';
-      };
-      
-      const getTrend = (): 'increasing' | 'decreasing' | 'stable' => {
-        const recent = dailyReadings.slice(-3).map(r => r.value);
-        const older = dailyReadings.slice(0, 3).map(r => r.value);
-        const recentAvg = recent.reduce((sum, val) => sum + val, 0) / recent.length;
-        const olderAvg = older.reduce((sum, val) => sum + val, 0) / older.length;
-        
-        if (recentAvg > olderAvg + 5) return 'increasing';
-        if (recentAvg < olderAvg - 5) return 'decreasing';
-        return 'stable';
-      };
-      
-      // Generate intraday readings for today (24 hours)
-      const intradayReadings = Array.from({ length: 24 }, (_, hour) => {
-        // Simulate realistic stress patterns throughout the day
-        let baseStress = 1.0;
-        
-        // Higher stress during work hours (9-17)
-        if (hour >= 9 && hour <= 17) {
-          baseStress = 1.5 + Math.random() * 1.0; // 1.5-2.5
-        }
-        // Moderate stress in evening (18-22)
-        else if (hour >= 18 && hour <= 22) {
-          baseStress = 1.0 + Math.random() * 0.8; // 1.0-1.8
-        }
-        // Low stress at night/early morning (23-8)
-        else {
-          baseStress = 0.2 + Math.random() * 0.6; // 0.2-0.8
-        }
-        
-        // Add some natural variation
-        baseStress += (Math.random() - 0.5) * 0.3;
-        
+
+      // Normalize strain (0-21) to 0-100
+      const dailyReadings: StressReading[] = cycles.map((c: any) => {
+        const strain = c.strain ?? 0;
+        const normalized = Math.round((strain / 21) * 100);
+        const date = new Date(c.day);
         return {
-          time: `${hour.toString().padStart(2, '0')}:00`,
-          hour,
-          value: Math.max(0.1, Math.min(3.0, baseStress)), // Clamp between 0.1-3.0
+          date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          value: Math.max(0, Math.min(100, normalized)),
         };
       });
 
-      // Calculate stress zones for today
+      const current = dailyReadings[dailyReadings.length - 1].value;
+      const average7d = Math.round(dailyReadings.reduce((sum, r) => sum + r.value, 0) / dailyReadings.length);
+
+      // Calculate trend: last 3 days avg vs prior days avg
+      const recentDays = dailyReadings.slice(-3);
+      const olderDays = dailyReadings.slice(0, Math.max(1, dailyReadings.length - 3));
+      const recentAvg = recentDays.reduce((s, r) => s + r.value, 0) / recentDays.length;
+      const olderAvg = olderDays.reduce((s, r) => s + r.value, 0) / olderDays.length;
+      const trend: StressData['trend'] = recentAvg > olderAvg + 5 ? 'increasing' : recentAvg < olderAvg - 5 ? 'decreasing' : 'stable';
+
+      // Intraday readings not available from real data — use mock
+      const intradayReadings = generateMockIntraday();
       const lowZone = intradayReadings.filter(r => r.value <= 1.0).length;
       const moderateZone = intradayReadings.filter(r => r.value > 1.0 && r.value <= 2.0).length;
       const highZone = intradayReadings.filter(r => r.value > 2.0).length;
-      
-      const dominantZone = lowZone > moderateZone && lowZone > highZone ? 'low' :
-                          moderateZone > highZone ? 'moderate' : 'high';
+      const dominant = lowZone > moderateZone && lowZone > highZone ? 'low' as const : moderateZone > highZone ? 'moderate' as const : 'high' as const;
 
-      console.log('Stress data generated:', { current, level: getLevel(current), average7d });
-      
       return {
         current,
         level: getLevel(current),
         average7d,
-        trend: getTrend(),
+        trend,
         dailyReadings,
         intradayReadings,
-        stressZones: {
-          low: lowZone,
-          moderate: moderateZone, 
-          high: highZone,
-          dominant: dominantZone
-        }
+        stressZones: { low: lowZone, moderate: moderateZone, high: highZone, dominant },
       };
-    }
+    },
   });
 };

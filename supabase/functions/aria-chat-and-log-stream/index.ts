@@ -83,7 +83,71 @@ serve(async (req) => {
       console.log('Created new thread:', threadId);
     }
 
-    // 2. Log user message to database
+    // 2. Fetch user context for system prompt
+    const adminClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    let contextBlock = '';
+    try {
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      const [readinessRes, acwrRes, sleepRes, strainRes, sessionsRes] = await Promise.all([
+        adminClient.from('readiness_scores').select('score, ts').eq('athlete_uuid', user.id).order('ts', { ascending: false }).limit(7),
+        adminClient.from('vw_load_acwr').select('acwr_7_28, daily_load, day').eq('athlete_uuid', user.id).order('day', { ascending: false }).limit(1),
+        adminClient.from('vw_sleep_daily').select('total_sleep_hours, sleep_efficiency, day').eq('athlete_uuid', user.id).order('day', { ascending: false }).limit(3),
+        adminClient.from('wearable_raw').select('value, ts').eq('athlete_uuid', user.id).eq('metric', 'strain').order('ts', { ascending: false }).limit(1),
+        adminClient.from('sessions').select('type, start_ts, notes').eq('athlete_uuid', user.id).order('start_ts', { ascending: false }).limit(5),
+      ]);
+
+      const parts: string[] = [];
+
+      if (readinessRes.data?.length) {
+        const latest = readinessRes.data[0];
+        const avg = Math.round(readinessRes.data.reduce((s, r) => s + (r.score ?? 0), 0) / readinessRes.data.length);
+        parts.push(`Readiness: latest ${latest.score}%, 7-day avg ${avg}%`);
+      }
+
+      if (acwrRes.data?.length) {
+        const d = acwrRes.data[0];
+        parts.push(`ACWR: ${d.acwr_7_28?.toFixed(2) ?? 'N/A'}, daily load ${d.daily_load ?? 'N/A'}`);
+      }
+
+      if (sleepRes.data?.length) {
+        const d = sleepRes.data[0];
+        parts.push(`Last sleep: ${d.total_sleep_hours?.toFixed(1) ?? '?'}h, efficiency ${d.sleep_efficiency ?? '?'}%`);
+      }
+
+      if (strainRes.data) {
+        parts.push(`Latest strain: ${strainRes.data.value}`);
+      }
+
+      if (sessionsRes.data?.length) {
+        const sessionSummary = sessionsRes.data.map(s => `${s.type} on ${s.start_ts?.split('T')[0] ?? '?'}${s.notes ? ` (${s.notes})` : ''}`).join('; ');
+        parts.push(`Recent sessions: ${sessionSummary}`);
+      }
+
+      if (parts.length > 0) {
+        contextBlock = parts.join('\n');
+      }
+    } catch (ctxErr) {
+      console.error('Non-fatal: failed to fetch user context for system prompt', ctxErr);
+    }
+
+    // Build system prompt with athlete context
+    const systemMessage = {
+      role: 'system',
+      content: `You are ARIA, an elite AI performance coach for Catalyft. You help athletes optimize training, recovery, and performance. Be concise, data-driven, and actionable in your responses. Reference the athlete's actual metrics when relevant.
+
+${contextBlock ? `Current athlete metrics:\n${contextBlock}` : 'No athlete metrics currently available — answer based on general coaching knowledge.'}`,
+    };
+
+    // Prepend system message to the conversation
+    const messagesWithContext = [systemMessage, ...(messages || [])];
+
+    // 3. Log user message to database
     const userMessage = messages[messages.length - 1];
     if (userMessage?.role === 'user') {
       const { error: msgError } = await supabaseClient
@@ -109,7 +173,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: ARIA_MODEL,
-        messages: messages || [],
+        messages: messagesWithContext,
         temperature: 0.7,
         max_tokens: 1000,
         stream: true,

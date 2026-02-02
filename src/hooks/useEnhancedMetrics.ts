@@ -30,6 +30,13 @@ interface LoadACWR {
   acwr_7_28: number;
 }
 
+interface MuscleLoad {
+  user_id: string;
+  muscle_name: string;
+  load_score: number;
+  date: string;
+}
+
 export const useEnhancedMetrics = () => {
   const { profile } = useAuth();
 
@@ -90,6 +97,25 @@ export const useEnhancedMetrics = () => {
     enabled: !!profile?.id
   });
 
+  // Muscle load data for heatmap
+  const { data: muscleLoads = [] } = useQuery({
+    queryKey: ['muscle-loads', profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return [];
+
+      const today = new Date().toISOString().split('T')[0];
+      const { data, error } = await supabase
+        .from('muscle_load_daily')
+        .select('*')
+        .eq('user_id', profile.id)
+        .eq('date', today);
+
+      if (error) throw error;
+      return data as MuscleLoad[];
+    },
+    enabled: !!profile?.id
+  });
+
   // Get latest strain data
   const { data: latestStrain } = useQuery({
     queryKey: ['latest-strain', profile?.id],
@@ -116,6 +142,7 @@ export const useEnhancedMetrics = () => {
     sleepDaily,
     loadACWR,
     latestStrain,
+    muscleLoads,
     isLoading: false // Since individual queries handle their own loading states
   };
 };
