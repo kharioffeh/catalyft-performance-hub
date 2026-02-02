@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useRef, ReactNode } from 'react';
 import { Exercise } from '@/types/exercise';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface WorkoutSet {
   id: string;
@@ -27,6 +28,7 @@ export interface WorkoutExercise {
 
 export interface ActiveWorkout {
   id: string;
+  dbSessionId?: string;
   name: string;
   startedAt: Date;
   exercises: WorkoutExercise[];
@@ -38,14 +40,14 @@ export interface ActiveWorkout {
 
 interface WorkoutContextType {
   activeWorkout: ActiveWorkout | null;
-  startWorkout: (exercises: Exercise[], workoutName?: string) => void;
+  startWorkout: (exercises: Exercise[], workoutName?: string) => Promise<void>;
   addExerciseToWorkout: (exercise: Exercise, targetSets?: number) => void;
   removeExerciseFromWorkout: (exerciseId: string) => void;
   completeSet: (exerciseId: string, setIndex: number, data: Partial<WorkoutSet>) => void;
   startRestTimer: (exerciseId: string, setIndex: number, duration: number) => void;
   moveToNextSet: () => void;
   moveToPreviousSet: () => void;
-  endWorkout: () => void;
+  endWorkout: () => Promise<void>;
   pauseWorkout: () => void;
   resumeWorkout: () => void;
   updateWorkoutTimer: () => void;
@@ -67,15 +69,21 @@ interface WorkoutProviderProps {
 
 export const WorkoutProvider: React.FC<WorkoutProviderProps> = ({ children }) => {
   const [activeWorkout, setActiveWorkout] = useState<ActiveWorkout | null>(null);
+  const workoutRef = useRef<ActiveWorkout | null>(null);
+
+  // Keep ref in sync with state so async callbacks can read current workout
+  React.useEffect(() => {
+    workoutRef.current = activeWorkout;
+  }, [activeWorkout]);
 
   const generateWorkoutId = () => `workout_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   const generateSetId = () => `set_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-  const startWorkout = (exercises: Exercise[], workoutName = 'Workout') => {
+  const startWorkout = async (exercises: Exercise[], workoutName = 'Workout') => {
     const workoutExercises: WorkoutExercise[] = exercises.map((exercise, index) => ({
       id: `exercise_${index}_${exercise.id}`,
       exercise,
-      targetSets: 3, // Default target sets
+      targetSets: 3,
       sets: Array.from({ length: 3 }, (_, setIndex) => ({
         id: generateSetId(),
         exerciseId: exercise.id,
@@ -85,8 +93,24 @@ export const WorkoutProvider: React.FC<WorkoutProviderProps> = ({ children }) =>
       completed: false,
     }));
 
+    // Create a DB session for persistence
+    let dbSessionId: string | undefined;
+    try {
+      const { data, error } = await supabase.functions.invoke('createWorkout', {
+        body: { notes: workoutName },
+      });
+      if (!error && data?.id) {
+        dbSessionId = data.id;
+      } else {
+        console.error('Failed to create workout session in DB:', error);
+      }
+    } catch (err) {
+      console.error('Error calling createWorkout:', err);
+    }
+
     const workout: ActiveWorkout = {
-      id: generateWorkoutId(),
+      id: dbSessionId || generateWorkoutId(),
+      dbSessionId,
       name: workoutName,
       startedAt: new Date(),
       exercises: workoutExercises,
@@ -133,12 +157,16 @@ export const WorkoutProvider: React.FC<WorkoutProviderProps> = ({ children }) =>
   const completeSet = (exerciseId: string, setIndex: number, data: Partial<WorkoutSet>) => {
     if (!activeWorkout) return;
 
+    // Find exercise name for DB logging
+    const exercise = activeWorkout.exercises.find(ex => ex.exercise.id === exerciseId);
+    const exerciseName = exercise?.exercise.name || exerciseId;
+
     setActiveWorkout(prev => {
       if (!prev) return null;
 
-      const updatedExercises = prev.exercises.map(exercise => {
-        if (exercise.exercise.id === exerciseId) {
-          const updatedSets = exercise.sets.map((set, index) => {
+      const updatedExercises = prev.exercises.map(ex => {
+        if (ex.exercise.id === exerciseId) {
+          const updatedSets = ex.sets.map((set, index) => {
             if (index === setIndex) {
               return {
                 ...set,
@@ -153,12 +181,12 @@ export const WorkoutProvider: React.FC<WorkoutProviderProps> = ({ children }) =>
           const allSetsCompleted = updatedSets.every(set => set.completed);
 
           return {
-            ...exercise,
+            ...ex,
             sets: updatedSets,
             completed: allSetsCompleted,
           };
         }
-        return exercise;
+        return ex;
       });
 
       return {
@@ -166,6 +194,22 @@ export const WorkoutProvider: React.FC<WorkoutProviderProps> = ({ children }) =>
         exercises: updatedExercises,
       };
     });
+
+    // Persist completed set to DB (fire-and-forget)
+    const dbSessionId = activeWorkout.dbSessionId;
+    if (dbSessionId && data.weight != null && data.reps != null) {
+      supabase.functions.invoke('logSet', {
+        body: {
+          session_id: dbSessionId,
+          exercise: exerciseName,
+          weight: data.weight,
+          reps: data.reps,
+          ...(data.rpe != null && { rpe: data.rpe }),
+        },
+      }).catch(err => {
+        console.error('Failed to persist set to DB:', err);
+      });
+    }
   };
 
   const startRestTimer = (exerciseId: string, setIndex: number, duration: number) => {
@@ -260,8 +304,17 @@ export const WorkoutProvider: React.FC<WorkoutProviderProps> = ({ children }) =>
     });
   };
 
-  const endWorkout = () => {
-    // Here you could save workout data to database
+  const endWorkout = async () => {
+    const current = workoutRef.current;
+    if (current?.dbSessionId) {
+      try {
+        await supabase.functions.invoke('endWorkout', {
+          body: { session_id: current.dbSessionId },
+        });
+      } catch (err) {
+        console.error('Failed to end workout session in DB:', err);
+      }
+    }
     setActiveWorkout(null);
   };
 

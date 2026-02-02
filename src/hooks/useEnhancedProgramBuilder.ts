@@ -80,6 +80,32 @@ export function useEnhancedProgramBuilder() {
     return sessions.filter(session => session.week === week && session.day === day);
   };
 
+  const addExerciseToSession = (sessionId: string, exercise: { id: string; name: string }) => {
+    setSessions(prev =>
+      prev.map(session => {
+        if (session.id !== sessionId) return session;
+        // Prevent duplicates
+        if (session.exercises.some(e => e.exercise_id === exercise.id)) return session;
+        const newExercise: ProgramExercise = {
+          id: `ex-${exercise.id}-${Date.now()}`,
+          exercise_id: exercise.id,
+          sets: 3,
+          reps: 10,
+        };
+        return { ...session, exercises: [...session.exercises, newExercise] };
+      })
+    );
+  };
+
+  const removeExerciseFromSession = (sessionId: string, exerciseEntryId: string) => {
+    setSessions(prev =>
+      prev.map(session => {
+        if (session.id !== sessionId) return session;
+        return { ...session, exercises: session.exercises.filter(e => e.id !== exerciseEntryId) };
+      })
+    );
+  };
+
   const isValid = () => {
     return meta.name.trim() !== '' && sessions.length > 0;
   };
@@ -95,6 +121,8 @@ export function useEnhancedProgramBuilder() {
     updateSession,
     removeSession,
     getSessionsForWeekDay,
+    addExerciseToSession,
+    removeExerciseFromSession,
     isValid,
     reset
   };

@@ -16,6 +16,7 @@ interface ProgramBlocksStepProps {
   sessions: ProgramSession[];
   setSessions: (sessions: ProgramSession[]) => void;
   addSession: (week: number, day: number) => void;
+  addExerciseToSession: (sessionId: string, exercise: { id: string; name: string }) => void;
   getSessionsForWeekDay: (week: number, day: number) => ProgramSession[];
   onPrev: () => void;
   onNext: () => void;
@@ -28,6 +29,7 @@ export const ProgramBlocksStep: React.FC<ProgramBlocksStepProps> = ({
   sessions,
   setSessions,
   addSession,
+  addExerciseToSession,
   getSessionsForWeekDay,
   onPrev,
   onNext
@@ -35,6 +37,7 @@ export const ProgramBlocksStep: React.FC<ProgramBlocksStepProps> = ({
   const [activeId, setActiveId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [targetSessionId, setTargetSessionId] = useState<string | null>(null);
   const { profile } = useAuth();
   const { toast } = useToast();
 
@@ -44,14 +47,40 @@ export const ProgramBlocksStep: React.FC<ProgramBlocksStepProps> = ({
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    
-    if (!over) {
+
+    if (!over || active.id === over.id) {
       setActiveId(null);
       return;
     }
 
-    // Handle session reordering logic here
+    const oldIndex = sessions.findIndex(s => s.id === active.id);
+    const newIndex = sessions.findIndex(s => s.id === over.id);
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+      setSessions(arrayMove(sessions, oldIndex, newIndex));
+    }
+
     setActiveId(null);
+  };
+
+  const handleExerciseSelect = (exercise: { id: string; name: string }) => {
+    if (!targetSessionId) {
+      toast({
+        title: "No session selected",
+        description: "Click a session card first, then select an exercise.",
+        variant: "destructive",
+      });
+      return;
+    }
+    addExerciseToSession(targetSessionId, exercise);
+    toast({
+      title: "Exercise added",
+      description: `${exercise.name} added to session.`,
+    });
+  };
+
+  const handleSessionClick = (sessionId: string) => {
+    setTargetSessionId(prev => prev === sessionId ? null : sessionId);
   };
 
   const handleAIGenerate = async () => {
@@ -158,7 +187,12 @@ export const ProgramBlocksStep: React.FC<ProgramBlocksStepProps> = ({
                       >
                         <SortableContext items={weekSessions.map(s => s.id)} strategy={verticalListSortingStrategy}>
                           {weekSessions.map(session => (
-                            <ProgramSessionCard key={session.id} session={session} />
+                            <ProgramSessionCard
+                              key={session.id}
+                              session={session}
+                              isSelected={targetSessionId === session.id}
+                              onClick={() => handleSessionClick(session.id)}
+                            />
                           ))}
                         </SortableContext>
                         
@@ -208,6 +242,7 @@ export const ProgramBlocksStep: React.FC<ProgramBlocksStepProps> = ({
       <ExerciseLibraryDrawer
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
+        onExerciseSelect={handleExerciseSelect}
       />
     </div>
   );

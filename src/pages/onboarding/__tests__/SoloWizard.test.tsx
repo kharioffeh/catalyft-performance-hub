@@ -124,11 +124,27 @@ describe('SoloWizard', () => {
     fireEvent.click(screen.getByLabelText('Dumbbells'));
     fireEvent.click(screen.getByText('Next'));
 
-    // Step 4: Summary and completion
+    // Step 4: Select training days
+    await waitFor(() => {
+      expect(screen.getByText('Which days can you train?')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Mon'));
+    fireEvent.click(screen.getByText('Wed'));
+    fireEvent.click(screen.getByText('Fri'));
+    fireEvent.click(screen.getByText('Next'));
+
+    // Step 5: Select program duration
+    await waitFor(() => {
+      expect(screen.getByText('Program duration')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByLabelText('8 Weeks'));
+    fireEvent.click(screen.getByText('Next'));
+
+    // Step 6: Summary and completion
     await waitFor(() => {
       expect(screen.getByText('Ready to start training!')).toBeInTheDocument();
     });
-    
+
     // Verify summary shows correct selections
     expect(screen.getByText('Strength')).toBeInTheDocument();
     expect(screen.getByText('Intermediate')).toBeInTheDocument();
@@ -145,7 +161,7 @@ describe('SoloWizard', () => {
         weeks: 8,
         availableDays: ['Monday', 'Wednesday', 'Friday'],
         equipment: ['barbell', 'dumbbells'],
-        prompt: 'Create a intermediate level strength training program with available equipment: barbell, dumbbells'
+        prompt: 'Create a intermediate level strength training program. Duration: 8 weeks. Training days: Monday, Wednesday, Friday. Available equipment: barbell, dumbbells'
       });
     });
 

@@ -44,6 +44,7 @@ export const EnhancedProgramBuilder: React.FC<EnhancedProgramBuilderProps> = ({
           sessions={builder.sessions}
           setSessions={builder.setSessions}
           addSession={builder.addSession}
+          addExerciseToSession={builder.addExerciseToSession}
           getSessionsForWeekDay={builder.getSessionsForWeekDay}
           onPrev={() => builder.setCurrentStep(0)}
           onNext={() => builder.setCurrentStep(2)}

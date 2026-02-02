@@ -6,7 +6,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Target, User, Dumbbell, Sparkles, Loader2 } from 'lucide-react';
+import { CheckCircle, Target, User, Dumbbell, Sparkles, Loader2, CalendarDays, Clock } from 'lucide-react';
 import { generateProgramWithAria } from '@catalyft/core';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,6 +16,8 @@ interface OnboardingData {
   goal: string;
   experience: string;
   equipment: string[];
+  availableDays: string[];
+  weeks: number;
 }
 
 const TRAINING_GOALS = [
@@ -40,13 +42,32 @@ const EQUIPMENT_OPTIONS = [
   { id: 'bodyweight', label: 'Bodyweight' }
 ];
 
+const DAYS_OF_WEEK = [
+  { id: 'Monday', label: 'Mon' },
+  { id: 'Tuesday', label: 'Tue' },
+  { id: 'Wednesday', label: 'Wed' },
+  { id: 'Thursday', label: 'Thu' },
+  { id: 'Friday', label: 'Fri' },
+  { id: 'Saturday', label: 'Sat' },
+  { id: 'Sunday', label: 'Sun' }
+];
+
+const DURATION_OPTIONS = [
+  { id: 4, label: '4 Weeks', description: 'Short focused block' },
+  { id: 6, label: '6 Weeks', description: 'Standard mesocycle' },
+  { id: 8, label: '8 Weeks', description: 'Full training block' },
+  { id: 12, label: '12 Weeks', description: 'Extended program' }
+];
+
 export const SoloWizard: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<OnboardingData>({
     goal: '',
     experience: '',
-    equipment: []
+    equipment: [],
+    availableDays: [],
+    weeks: 0
   });
   
   const navigate = useNavigate();
@@ -56,14 +77,23 @@ export const SoloWizard: React.FC = () => {
   const handleEquipmentChange = (equipmentId: string, checked: boolean) => {
     setData(prev => ({
       ...prev,
-      equipment: checked 
+      equipment: checked
         ? [...prev.equipment, equipmentId]
         : prev.equipment.filter(id => id !== equipmentId)
     }));
   };
 
+  const handleDayToggle = (dayId: string, checked: boolean) => {
+    setData(prev => ({
+      ...prev,
+      availableDays: checked
+        ? [...prev.availableDays, dayId]
+        : prev.availableDays.filter(id => id !== dayId)
+    }));
+  };
+
   const handleNext = () => {
-    if (currentStep < 4) {
+    if (currentStep < 6) {
       setCurrentStep(prev => prev + 1);
     }
   };
@@ -80,13 +110,17 @@ export const SoloWizard: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Generate program with ARIA
+      // Generate program with ARIA using user's selections
+      const sortedDays = DAYS_OF_WEEK
+        .filter(d => data.availableDays.includes(d.id))
+        .map(d => d.id);
+
       const result = await generateProgramWithAria({
         goal: data.goal,
-        weeks: 8, // Default 8-week program
-        availableDays: ['Monday', 'Wednesday', 'Friday'], // Default schedule
+        weeks: data.weeks,
+        availableDays: sortedDays,
         equipment: data.equipment,
-        prompt: `Create a ${data.experience} level ${data.goal} training program with available equipment: ${data.equipment.join(', ')}`
+        prompt: `Create a ${data.experience} level ${data.goal} training program. Duration: ${data.weeks} weeks. Training days: ${sortedDays.join(', ')}. Available equipment: ${data.equipment.join(', ')}`
       });
 
       // Mark onboarding as completed
@@ -119,23 +153,25 @@ export const SoloWizard: React.FC = () => {
       case 1: return data.goal !== '';
       case 2: return data.experience !== '';
       case 3: return data.equipment.length > 0;
-      case 4: return true;
+      case 4: return data.availableDays.length > 0;
+      case 5: return data.weeks > 0;
+      case 6: return true;
       default: return false;
     }
   };
 
   const renderStepIndicator = () => (
     <div className="flex items-center justify-center space-x-2 mb-8">
-      {[1, 2, 3, 4].map((step) => (
+      {[1, 2, 3, 4, 5, 6].map((step) => (
         <div key={step} className="flex items-center">
           <div className={`w-3 h-3 rounded-full ${
-            step === currentStep 
-              ? 'bg-brand-blue' 
-              : step < currentStep 
-                ? 'bg-brand-blue/60' 
+            step === currentStep
+              ? 'bg-brand-blue'
+              : step < currentStep
+                ? 'bg-brand-blue/60'
                 : 'bg-white/20'
           }`} />
-          {step < 4 && <div className="w-8 h-px bg-white/20 mx-2" />}
+          {step < 6 && <div className="w-8 h-px bg-white/20 mx-2" />}
         </div>
       ))}
     </div>
@@ -257,6 +293,78 @@ export const SoloWizard: React.FC = () => {
   const renderStep4 = () => (
     <Card className="bg-white/5 backdrop-blur-md border-white/10">
       <CardHeader className="text-center">
+        <CalendarDays className="w-12 h-12 text-brand-blue mx-auto mb-4" />
+        <CardTitle className="text-2xl text-white">Which days can you train?</CardTitle>
+        <p className="text-white/70">Select all days you're available</p>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-4 md:grid-cols-7 gap-3">
+          {DAYS_OF_WEEK.map((day) => {
+            const isSelected = data.availableDays.includes(day.id);
+            return (
+              <button
+                key={day.id}
+                type="button"
+                onClick={() => handleDayToggle(day.id, !isSelected)}
+                className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-all ${
+                  isSelected
+                    ? 'border-brand-blue bg-brand-blue/20 text-brand-blue'
+                    : 'border-white/20 bg-white/5 text-white hover:bg-white/10'
+                }`}
+              >
+                <span className="font-semibold text-sm">{day.label}</span>
+                {isSelected && <CheckCircle className="w-4 h-4 mt-1" />}
+              </button>
+            );
+          })}
+        </div>
+        {data.availableDays.length > 0 && (
+          <p className="text-white/60 text-sm text-center mt-4">
+            {data.availableDays.length} day{data.availableDays.length !== 1 ? 's' : ''} per week
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const renderStep5 = () => (
+    <Card className="bg-white/5 backdrop-blur-md border-white/10">
+      <CardHeader className="text-center">
+        <Clock className="w-12 h-12 text-brand-blue mx-auto mb-4" />
+        <CardTitle className="text-2xl text-white">Program duration</CardTitle>
+        <p className="text-white/70">How long should your training block be?</p>
+      </CardHeader>
+      <CardContent>
+        <RadioGroup value={data.weeks ? String(data.weeks) : ''} onValueChange={(value) => setData(prev => ({ ...prev, weeks: Number(value) }))}>
+          <div className="space-y-4">
+            {DURATION_OPTIONS.map((option) => (
+              <div key={option.id} className="relative">
+                <RadioGroupItem value={String(option.id)} id={`weeks-${option.id}`} className="sr-only" />
+                <Label
+                  htmlFor={`weeks-${option.id}`}
+                  className={`flex items-center p-4 rounded-lg border cursor-pointer transition-all ${
+                    data.weeks === option.id
+                      ? 'border-brand-blue bg-brand-blue/20 text-brand-blue'
+                      : 'border-white/20 bg-white/5 text-white hover:bg-white/10'
+                  }`}
+                >
+                  <div className="flex-1">
+                    <span className="font-semibold block">{option.label}</span>
+                    <span className="text-sm opacity-70">{option.description}</span>
+                  </div>
+                  {data.weeks === option.id && <CheckCircle className="w-5 h-5 ml-4" />}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </RadioGroup>
+      </CardContent>
+    </Card>
+  );
+
+  const renderStep6 = () => (
+    <Card className="bg-white/5 backdrop-blur-md border-white/10">
+      <CardHeader className="text-center">
         <Sparkles className="w-12 h-12 text-brand-blue mx-auto mb-4" />
         <CardTitle className="text-2xl text-white">Ready to start training!</CardTitle>
         <p className="text-white/70">We'll create your personalized program</p>
@@ -288,6 +396,24 @@ export const SoloWizard: React.FC = () => {
               })}
             </div>
           </div>
+          <div className="flex justify-between items-start">
+            <span className="text-white/70">Training days:</span>
+            <div className="flex flex-wrap gap-1 max-w-xs">
+              {DAYS_OF_WEEK
+                .filter(d => data.availableDays.includes(d.id))
+                .map((day) => (
+                  <Badge key={day.id} variant="outline" className="text-xs">
+                    {day.label}
+                  </Badge>
+                ))}
+            </div>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-white/70">Duration:</span>
+            <span className="text-white font-medium">
+              {DURATION_OPTIONS.find(d => d.id === data.weeks)?.label}
+            </span>
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -303,6 +429,8 @@ export const SoloWizard: React.FC = () => {
           {currentStep === 2 && renderStep2()}
           {currentStep === 3 && renderStep3()}
           {currentStep === 4 && renderStep4()}
+          {currentStep === 5 && renderStep5()}
+          {currentStep === 6 && renderStep6()}
         </div>
 
         <div className="flex justify-between">
@@ -314,8 +442,8 @@ export const SoloWizard: React.FC = () => {
           >
             Back
           </Button>
-          
-          {currentStep < 4 ? (
+
+          {currentStep < 6 ? (
             <Button
               onClick={handleNext}
               disabled={!canProceed() || isLoading}

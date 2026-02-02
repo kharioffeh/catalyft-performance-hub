@@ -8,9 +8,15 @@ import { GripVertical, Edit2 } from 'lucide-react';
 
 interface ProgramSessionCardProps {
   session: ProgramSession;
+  isSelected?: boolean;
+  onClick?: () => void;
 }
 
-export const ProgramSessionCard: React.FC<ProgramSessionCardProps> = ({ session }) => {
+export const ProgramSessionCard: React.FC<ProgramSessionCardProps> = ({
+  session,
+  isSelected = false,
+  onClick,
+}) => {
   const {
     attributes,
     listeners,
@@ -29,18 +35,23 @@ export const ProgramSessionCard: React.FC<ProgramSessionCardProps> = ({ session 
     <Card
       ref={setNodeRef}
       style={style}
-      className={`bg-white/10 border-white/20 mb-2 cursor-pointer hover:bg-white/15 transition-colors ${
+      onClick={onClick}
+      className={`mb-2 cursor-pointer transition-colors ${
         isDragging ? 'opacity-50' : ''
+      } ${
+        isSelected
+          ? 'bg-indigo-600/30 border-indigo-500/60 ring-1 ring-indigo-500/40'
+          : 'bg-white/10 border-white/20 hover:bg-white/15'
       }`}
     >
       <CardContent className="p-3">
         <div className="flex items-center justify-between">
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <h4 className="text-sm font-medium text-white truncate">
               {session.title}
             </h4>
             <p className="text-xs text-white/60">
-              {session.exercises.length} exercises
+              {session.exercises.length} exercise{session.exercises.length !== 1 ? 's' : ''}
             </p>
           </div>
           <div className="flex items-center gap-1">
@@ -51,6 +62,7 @@ export const ProgramSessionCard: React.FC<ProgramSessionCardProps> = ({ session 
               {...attributes}
               {...listeners}
               className="p-1 hover:bg-white/10 rounded cursor-grab active:cursor-grabbing"
+              onClick={(e) => e.stopPropagation()}
             >
               <GripVertical className="w-3 h-3 text-white/60" />
             </button>

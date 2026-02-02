@@ -73,7 +73,33 @@ verify_jwt = true
 [functions.getMyClubs]
 verify_jwt = true
 
-# Cron job to run session reminders every 15 minutes
-# [functions.sessionReminders.schedule]
-# cron = "*/15 * * * *"
-# timezone = "UTC"
+# Cron: session reminders every 15 minutes
+[functions.sessionReminders.schedule]
+cron = "*/15 * * * *"
+timezone = "UTC"
+
+# --- ARIA automation cron jobs ---
+
+[functions.aria_generate_insights]
+verify_jwt = false
+
+# Cron: daily insights at 6 AM UTC
+[functions.aria_generate_insights.schedule]
+cron = "0 6 * * *"
+timezone = "UTC"
+
+[functions.aria_weekly_summary]
+verify_jwt = false
+
+# Cron: weekly summary every Monday at 7 AM UTC
+[functions.aria_weekly_summary.schedule]
+cron = "0 7 * * 1"
+timezone = "UTC"
+
+[functions.aria-adjust-program]
+verify_jwt = false
+
+# Cron: auto-deload check daily at midnight UTC
+[functions.aria-adjust-program.schedule]
+cron = "0 0 * * *"
+timezone = "UTC"

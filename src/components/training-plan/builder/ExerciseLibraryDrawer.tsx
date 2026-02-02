@@ -6,11 +6,13 @@ import { ExerciseLibrary } from '@/components/ExerciseLibrary';
 interface ExerciseLibraryDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onExerciseSelect?: (exercise: { id: string; name: string }) => void;
 }
 
 export const ExerciseLibraryDrawer: React.FC<ExerciseLibraryDrawerProps> = ({
   open,
-  onOpenChange
+  onOpenChange,
+  onExerciseSelect
 }) => {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -18,11 +20,13 @@ export const ExerciseLibraryDrawer: React.FC<ExerciseLibraryDrawerProps> = ({
         <SheetHeader>
           <SheetTitle className="text-white">Exercise Library</SheetTitle>
           <SheetDescription className="text-white/70">
-            Drag exercises into your training sessions
+            {onExerciseSelect
+              ? 'Click an exercise to add it to the selected session'
+              : 'Browse available exercises'}
           </SheetDescription>
         </SheetHeader>
         <div className="mt-6">
-          <ExerciseLibrary />
+          <ExerciseLibrary onExerciseSelect={onExerciseSelect} />
         </div>
       </SheetContent>
     </Sheet>
