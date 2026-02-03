@@ -181,7 +181,7 @@ const LeaderboardScreen: React.FC = () => {
           </div>
 
           {/* Category Tabs */}
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full mb-8">
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="w-full mb-8">
             <TabsList className="grid w-full grid-cols-4 bg-white/10">
               <TabsTrigger value="distance" className="text-white/70 hover:text-white data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                 🏃‍♂️ Distance

@@ -113,7 +113,7 @@ const FollowingScreen: React.FC = () => {
           following: Math.floor(Math.random() * 800) + 50
         },
         recentActivity: Math.random() > 0.2 ? {
-          type: ['run', 'ride', 'swim', 'workout', 'hike'][Math.floor(Math.random() * 5)] as any,
+          type: (['run', 'ride', 'swim', 'workout', 'hike'] as const)[Math.floor(Math.random() * 5)],
           distance: Math.random() > 0.3 ? Math.floor(Math.random() * 100) + 10 : undefined,
           duration: Math.floor(Math.random() * 14400) + 3600,
           date: new Date(Date.now() - Math.random() * 3 * 24 * 60 * 60 * 1000).toISOString()
@@ -132,7 +132,7 @@ const FollowingScreen: React.FC = () => {
         isPremium: Math.random() > 0.6,
         lastSeen: new Date(Date.now() - Math.random() * 12 * 60 * 60 * 1000).toISOString(),
         followDate: new Date(Date.now() - Math.random() * 180 * 24 * 60 * 60 * 1000).toISOString(),
-        activityLevel: ['high', 'medium', 'low'][Math.floor(Math.random() * 3)] as any,
+        activityLevel: (['high', 'medium', 'low'] as const)[Math.floor(Math.random() * 3)],
         goals: Math.random() > 0.5 ? [
           'Complete Ironman',
           'Run 100 miles',

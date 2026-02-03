@@ -361,7 +361,7 @@ const CreateChallengeScreen: React.FC = () => {
 
                     <div className="space-y-2">
                       <Label htmlFor="difficulty" className="text-white">Difficulty</Label>
-                      <Select value={challengeDraft.difficulty} onValueChange={(value) => handleInputChange('difficulty', value as any)}>
+                      <Select value={challengeDraft.difficulty} onValueChange={(value) => handleInputChange('difficulty', value as ChallengeDraft['difficulty'])}>
                         <SelectTrigger className="bg-white/10 border-white/20 text-white">
                           <SelectValue />
                         </SelectTrigger>

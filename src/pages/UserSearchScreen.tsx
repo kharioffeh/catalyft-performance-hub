@@ -107,7 +107,7 @@ const UserSearchScreen: React.FC = () => {
           following: Math.floor(Math.random() * 300) + 5
         },
         recentActivity: Math.random() > 0.3 ? {
-          type: ['run', 'ride', 'swim', 'workout', 'hike'][Math.floor(Math.random() * 5)] as any,
+          type: (['run', 'ride', 'swim', 'workout', 'hike'] as const)[Math.floor(Math.random() * 5)],
           distance: Math.random() > 0.5 ? Math.floor(Math.random() * 50) + 5 : undefined,
           duration: Math.floor(Math.random() * 7200) + 1800,
           date: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()
@@ -232,7 +232,7 @@ const UserSearchScreen: React.FC = () => {
           </div>
 
           {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full mb-8">
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="w-full mb-8">
             <TabsList className="grid w-full grid-cols-4 bg-white/10">
               <TabsTrigger value="all" className="text-white/70 hover:text-white data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                 All Users
@@ -274,7 +274,7 @@ const UserSearchScreen: React.FC = () => {
               
               <select
                 value={filterActivity}
-                onChange={(e) => setFilterActivity(e.target.value as any)}
+                onChange={(e) => setFilterActivity(e.target.value as typeof filterActivity)}
                 className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Activities</option>

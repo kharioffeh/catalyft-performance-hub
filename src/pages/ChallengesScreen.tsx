@@ -77,10 +77,10 @@ const ChallengesScreen: React.FC = () => {
       // Enhance challenges with mock data for demo
       const enhancedChallenges: Challenge[] = (data?.challenges || []).map((challenge: any) => ({
         ...challenge,
-        category: ['distance', 'streak', 'social', 'speed', 'elevation'][Math.floor(Math.random() * 5)] as any,
+        category: (['distance', 'streak', 'social', 'speed', 'elevation'] as const)[Math.floor(Math.random() * 5)],
         goal: Math.random() > 0.5 ? 'Run 100km this month' : 'Work out 20 days in a row',
         reward: Math.random() > 0.7 ? 'Special Badge' : undefined,
-        difficulty: ['easy', 'medium', 'hard'][Math.floor(Math.random() * 3)] as any,
+        difficulty: (['easy', 'medium', 'hard'] as const)[Math.floor(Math.random() * 3)],
         color: ['from-blue-600 to-purple-600', 'from-green-600 to-teal-600', 'from-orange-600 to-red-600', 'from-purple-600 to-pink-600'][Math.floor(Math.random() * 4)],
         icon: ['🏃‍♂️', '🔥', '👥', '⚡', '⛰️'][Math.floor(Math.random() * 5)]
       }));
@@ -279,7 +279,7 @@ const ChallengesScreen: React.FC = () => {
           </div>
 
           {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full mb-8">
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="w-full mb-8">
             <TabsList className="grid w-full grid-cols-3 bg-white/10">
               <TabsTrigger value="all" className="text-white/70 hover:text-white data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                 All Challenges

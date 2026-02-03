@@ -596,7 +596,7 @@ const CreatePostScreen: React.FC = () => {
                   <Label className="text-white">Privacy</Label>
                   <Select
                     value={postDraft.privacy}
-                    onValueChange={(value) => setPostDraft(prev => ({ ...prev, privacy: value as any }))}
+                    onValueChange={(value) => setPostDraft(prev => ({ ...prev, privacy: value as PostDraft['privacy'] }))}
                   >
                     <SelectTrigger className="bg-white/10 border-white/20 text-white">
                       <SelectValue />

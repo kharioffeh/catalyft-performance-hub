@@ -280,7 +280,7 @@ const RecipeBuilderScreen: React.FC = () => {
                     <label className="text-sm font-medium text-slate-300 mb-2 block">Difficulty</label>
                     <select
                       value={recipe.difficulty}
-                      onChange={(e) => setRecipe({ ...recipe, difficulty: e.target.value as any })}
+                      onChange={(e) => setRecipe({ ...recipe, difficulty: e.target.value as Recipe['difficulty'] })}
                       className="w-full bg-white/10 border border-white/20 text-white rounded-md px-3 py-2"
                     >
                       <option value="Easy">Easy</option>

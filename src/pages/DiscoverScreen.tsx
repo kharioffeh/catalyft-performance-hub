@@ -129,8 +129,8 @@ const DiscoverScreen: React.FC = () => {
           shares: Math.floor(Math.random() * 100) + 10,
           comments: Math.floor(Math.random() * 200) + 20
         },
-        type: ['route', 'workout', 'achievement', 'challenge'][Math.floor(Math.random() * 4)] as any,
-        category: ['running', 'cycling', 'swimming', 'workout', 'hiking'][Math.floor(Math.random() * 5)] as any,
+        type: (['route', 'workout', 'achievement', 'challenge'] as const)[Math.floor(Math.random() * 4)],
+        category: (['running', 'cycling', 'swimming', 'workout', 'hiking'] as const)[Math.floor(Math.random() * 5)],
         image: undefined,
         location: [
           'Central Park, NYC',
@@ -140,7 +140,7 @@ const DiscoverScreen: React.FC = () => {
           'Home Gym',
           'Yosemite National Park'
         ][i % 6],
-        difficulty: ['easy', 'medium', 'hard'][Math.floor(Math.random() * 3)] as any,
+        difficulty: (['easy', 'medium', 'hard'] as const)[Math.floor(Math.random() * 3)],
         trending: Math.random() > 0.5 ? (Math.random() > 0.5 ? 'up' : 'down') : 'stable',
         isBookmarked: Math.random() > 0.7
       }));
@@ -170,8 +170,8 @@ const DiscoverScreen: React.FC = () => {
         ][i],
         distance: [6.2, 8.5, 15.3, 12.1, 18.7, 22.4, 9.8, 14.2][i],
         elevation: [45, 125, 450, 89, 1200, 234, 567, 890][i],
-        difficulty: ['easy', 'medium', 'hard'][Math.floor(Math.random() * 3)] as any,
-        category: ['running', 'cycling', 'hiking'][Math.floor(Math.random() * 3)] as any,
+        difficulty: (['easy', 'medium', 'hard'] as const)[Math.floor(Math.random() * 3)],
+        category: (['running', 'cycling', 'hiking'] as const)[Math.floor(Math.random() * 3)],
         location: [
           'New York, NY',
           'San Francisco, CA',
@@ -220,8 +220,8 @@ const DiscoverScreen: React.FC = () => {
         ][i],
         participants: Math.floor(Math.random() * 5000) + 500,
         daysLeft: Math.floor(Math.random() * 30) + 1,
-        category: ['distance', 'streak', 'speed', 'social'][Math.floor(Math.random() * 4)] as any,
-        difficulty: ['easy', 'medium', 'hard'][Math.floor(Math.random() * 3)] as any,
+        category: (['distance', 'streak', 'speed', 'social'] as const)[Math.floor(Math.random() * 4)],
+        difficulty: (['easy', 'medium', 'hard'] as const)[Math.floor(Math.random() * 3)],
         reward: Math.random() > 0.5 ? 'Special Badge' : undefined,
         image: undefined,
         isJoined: Math.random() > 0.7
@@ -359,7 +359,7 @@ const DiscoverScreen: React.FC = () => {
           </div>
 
           {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full mb-8">
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="w-full mb-8">
             <TabsList className="grid w-full grid-cols-3 bg-white/10">
               <TabsTrigger value="trending" className="text-white/70 hover:text-white data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                 <TrendingUp className="w-4 h-4 mr-2" />

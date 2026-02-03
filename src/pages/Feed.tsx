@@ -88,7 +88,7 @@ const Feed: React.FC = () => {
           calories: Math.floor(Math.random() * 800) + 200,
           pace: `${Math.floor(Math.random() * 8) + 4}:${Math.floor(Math.random() * 59).toString().padStart(2, '0')}`,
           elevation: Math.floor(Math.random() * 500) + 50,
-          type: ['run', 'ride', 'swim', 'workout', 'hike'][Math.floor(Math.random() * 5)] as any
+          type: (['run', 'ride', 'swim', 'workout', 'hike'] as const)[Math.floor(Math.random() * 5)]
         },
         location: ['Central Park, NYC', 'Golden Gate Bridge, SF', 'Lake Michigan, Chicago', 'Mount Rainier, WA'][Math.floor(Math.random() * 4)],
         route: Math.random() > 0.5 ? 'Custom Route' : undefined,

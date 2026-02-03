@@ -61,7 +61,7 @@ export const ActiveSessionScreen: React.FC = () => {
     getStrainRecommendations,
     getStrainPrediction,
   } = useEnhancedStrainCalculation({
-    sessionType: initialSession.type as any,
+    sessionType: initialSession.type as 'strength' | 'conditioning' | 'recovery' | 'technical' | 'hypertrophy',
     targetStrain: getTargetStrain(initialSession.type),
     sessionDuration: 0, // Will be updated with actual duration
     fitnessLevel: biometricProfile?.fitness_level || 'intermediate',

@@ -5,7 +5,7 @@ import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'rec
 import { Activity, Moon, Target, Zap, X } from 'lucide-react';
 import { format, subDays } from 'date-fns';
 import { chartTheme } from '@/lib/chartTheme';
-import { getMetricColor } from '@/lib/metricTokens';
+import { getMetricColor, MetricType } from '@/lib/metricTokens';
 
 interface KpiDrillModalProps {
   metric: 'readiness' | 'sleep' | 'load' | 'strain';
@@ -117,7 +117,7 @@ export const KpiDrillModal: React.FC<KpiDrillModalProps> = ({
   
   const Icon = getMetricIcon(metric);
   const unit = getMetricUnit(metric);
-  const color = getMetricColor(metric as any, 'primary');
+  const color = getMetricColor(metric as MetricType, 'primary');
   
   const chartData = {
     datasets: [{

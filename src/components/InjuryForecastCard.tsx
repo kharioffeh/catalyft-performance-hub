@@ -42,18 +42,19 @@ export const InjuryForecastCard: React.FC = () => {
       if (error) throw error;
 
       return (data ?? []).map(item => {
-        const probs = item.probabilities as any;
+        const probs = item.probabilities as Record<string, unknown> | null;
+        const athletes = item.athletes as { name?: string } | null;
         return {
           id: item.id,
           athlete_uuid: item.athlete_uuid,
           probabilities: {
-            risk_level: probs.risk_level || 'low',
-            risk_score: probs.risk_score || 0,
-            body_part: probs.body_part || 'General',
-            recommendation: probs.recommendation || 'Continue monitoring'
+            risk_level: (probs?.risk_level as string) || 'low',
+            risk_score: (probs?.risk_score as number) || 0,
+            body_part: (probs?.body_part as string) || 'General',
+            recommendation: (probs?.recommendation as string) || 'Continue monitoring'
           },
           created_at: item.created_at,
-          athlete_name: (item.athletes as any)?.name,
+          athlete_name: athletes?.name,
         };
       });
     },

@@ -101,7 +101,7 @@ const FollowersScreen: React.FC = () => {
           following: Math.floor(Math.random() * 300) + 5
         },
         recentActivity: Math.random() > 0.3 ? {
-          type: ['run', 'ride', 'swim', 'workout', 'hike'][Math.floor(Math.random() * 5)] as any,
+          type: (['run', 'ride', 'swim', 'workout', 'hike'] as const)[Math.floor(Math.random() * 5)],
           distance: Math.random() > 0.5 ? Math.floor(Math.random() * 50) + 5 : undefined,
           duration: Math.floor(Math.random() * 7200) + 1800,
           date: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()

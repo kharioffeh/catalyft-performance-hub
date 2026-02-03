@@ -2,7 +2,7 @@
 import React from 'react';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Activity, Moon, Target, Zap } from 'lucide-react';
-import { getMetricColor } from '@/lib/metricTokens';
+import { getMetricColor, MetricType } from '@/lib/metricTokens';
 import { useDisclosure } from '@/lib/hooks/useDisclosure';
 import { KpiDrillModal } from '../analytics/KpiDrillModal';
 
@@ -45,7 +45,7 @@ export const InsightStrip: React.FC<InsightStripProps> = ({
   // Safe color getter with fallback
   const safeGetMetricColor = (metric: string, type: 'primary' | 'bg') => {
     try {
-      return getMetricColor(metric as any, type);
+      return getMetricColor(metric as MetricType, type);
     } catch (error) {
       console.warn(`Failed to get color for metric ${metric}:`, error);
       return type === 'primary' ? '#6366f1' : 'rgba(99, 102, 241, 0.1)';

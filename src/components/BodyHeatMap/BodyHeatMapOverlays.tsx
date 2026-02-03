@@ -6,9 +6,9 @@ interface OverlaysProps {
   svg: string | null;
   isLoading: boolean;
   isError: boolean;
-  error: any;
+  error: unknown;
   athleteId: string;
-  data: any[] | null;
+  data: unknown[] | null;
 }
 
 export const BodyHeatMapOverlays: React.FC<OverlaysProps> = ({
@@ -23,11 +23,12 @@ export const BodyHeatMapOverlays: React.FC<OverlaysProps> = ({
   const friendlyErrorMessage = () => {
     if (!error) return "";
     if (typeof error === "object" && error !== null) {
-      if ("message" in error) return String((error as any).message);
-      if ("error" in error) return String((error as any).error);
+      const errObj = error as Record<string, unknown>;
+      if ("message" in errObj) return String(errObj.message);
+      if ("error" in errObj) return String(errObj.error);
       try {
         return JSON.stringify(error);
-      } catch (e) {
+      } catch {
         return String(error);
       }
     }

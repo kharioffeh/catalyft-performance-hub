@@ -578,7 +578,7 @@ export const DeviceSettingsScreen: React.FC = () => {
                   </label>
                   <select
                     value={syncFrequency}
-                    onChange={(e) => setSyncFrequency(e.target.value as any)}
+                    onChange={(e) => setSyncFrequency(e.target.value as typeof syncFrequency)}
                     className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="realtime">Real-time</option>
@@ -594,7 +594,7 @@ export const DeviceSettingsScreen: React.FC = () => {
                   </label>
                   <select
                     value={dataRetention}
-                    onChange={(e) => setDataRetention(e.target.value as any)}
+                    onChange={(e) => setDataRetention(e.target.value as typeof dataRetention)}
                     className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="30days">30 days</option>

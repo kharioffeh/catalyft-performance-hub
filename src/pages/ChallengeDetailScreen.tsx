@@ -474,7 +474,7 @@ const ChallengeDetailScreen: React.FC = () => {
           )}
 
           {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="mb-8">
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="mb-8">
             <TabsList className="grid w-full grid-cols-4 bg-white/10 border border-white/20">
               <TabsTrigger value="overview" className="text-white data-[state=active]:bg-blue-600">Overview</TabsTrigger>
               <TabsTrigger value="participants" className="text-white data-[state=active]:bg-blue-600">Participants</TabsTrigger>

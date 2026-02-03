@@ -17,7 +17,7 @@ import {
   Target,
   Zap
 } from 'lucide-react';
-import { useNotificationPreferences } from '@/hooks/useNotificationPreferences';
+import { useNotificationPreferences, NotificationPreferences } from '@/hooks/useNotificationPreferences';
 import { toast } from '@/hooks/use-toast';
 
 interface NotificationSetting {
@@ -141,7 +141,7 @@ export const NotificationSettingsScreen: React.FC = () => {
         await updatePreferences({
           ...preferences!,
           [key]: enabled
-        } as any);
+        } as NotificationPreferences);
       } else {
         // For new settings, show a toast (in a real app, these would be saved to the database)
         toast({
