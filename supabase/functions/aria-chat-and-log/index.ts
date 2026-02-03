@@ -32,11 +32,22 @@ serve(async (req) => {
       }
     );
 
+    // Validate and extract Bearer token
+    const authHeader = req.headers.get('Authorization') ?? '';
+    const bearerMatch = authHeader.match(/^Bearer\s+([A-Za-z0-9\-_\.]+)$/);
+
+    if (!bearerMatch) {
+      return new Response(
+        JSON.stringify({ error: "Invalid authorization header format" }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const token = bearerMatch[1];
+
     // Verify user is authenticated
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(
-      req.headers.get('Authorization')?.replace('Bearer ', '') ?? ''
-    );
-    
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
+
     if (authError || !user) {
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),

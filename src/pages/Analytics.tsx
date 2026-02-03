@@ -12,6 +12,7 @@ import { useEnhancedMetrics } from '@/hooks/useEnhancedMetrics';
 import { useSleep } from '@/hooks/useSleep';
 import { useStress } from '@/hooks/useStress';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { ShareUIProvider } from '@/context/ShareUIContext';
 import { ShareSheet } from '@/components/ShareSheet';
 import { AnalyticsControls } from '@/components/Analytics/AnalyticsControls';
@@ -21,6 +22,7 @@ import { ConnectWearableModal } from '@/components/Analytics/ConnectWearableModa
 import { MuscleAnatomyPanel } from '@/components/Analytics/MuscleAnatomyPanel';
 import { TonnageCard, E1RMCard, VelocityFatigueCard, MuscleLoadCard } from '@/components/Analytics/ChartCards';
 import { useAnalyticsData } from '@/hooks/useAnalyticsData';
+import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -171,6 +173,7 @@ const AnalyticsPageContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState('strength');
   const { period } = usePeriod();
   const { profile } = useAuth();
+  const navigate = useNavigate();
 
   // Convert period to days for existing hooks
   const periodDays = periodToDays(period);
@@ -211,11 +214,30 @@ const AnalyticsPageContent: React.FC = () => {
     }, 0);
   };
   
-  // Placeholder send handler (integrate with POST /api/aria/insights logic)
-  const sendInsight = (e: React.FormEvent) => {
+  // Send message to ARIA for insights
+  const [isAriaLoading, setIsAriaLoading] = useState(false);
+  const sendInsight = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: POST to /api/aria/insights
-    setAriaInput('');
+    if (!ariaInput.trim() || isAriaLoading) return;
+
+    setIsAriaLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('aria-chat-and-log', {
+        body: {
+          messages: [{ role: 'user', content: ariaInput }]
+        }
+      });
+
+      if (error) throw error;
+
+      // The response is handled by ARIAInputSection or could show a toast
+      console.log('ARIA response:', data);
+    } catch (error) {
+      console.error('ARIA insights error:', error);
+    } finally {
+      setIsAriaLoading(false);
+      setAriaInput('');
+    }
   };
 
   // New handlers for empty state CTAs
@@ -224,8 +246,7 @@ const AnalyticsPageContent: React.FC = () => {
   };
 
   const handleLogWorkout = () => {
-    // TODO: Open workout logging dialog
-    console.log('Log workout clicked');
+    navigate('/training/log-workout');
   };
 
   // Use real data with fallback to mock data
@@ -563,7 +584,7 @@ const AnalyticsPageContent: React.FC = () => {
 
       {/* Connect Wearable Modal */}
       <ConnectWearableModal
-        isOpen={showConnectModal}
+        open={showConnectModal}
         onClose={() => setShowConnectModal(false)}
       />
 

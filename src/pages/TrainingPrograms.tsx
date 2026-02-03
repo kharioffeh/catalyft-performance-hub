@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useProgramTemplates } from '@/hooks/useProgramTemplates';
+import { useProgramTemplates, useDeleteTemplate } from '@/hooks/useProgramTemplates';
 import { useWorkoutTemplates } from '@/hooks/useWorkoutTemplates';
 import { useExercises } from '@/hooks/useExercises';
 import { useNavigate } from 'react-router-dom';
@@ -25,6 +25,7 @@ const TrainingPrograms = () => {
 
   // Data hooks - now using program_templates as primary
   const { data: programs = [], refetch: refetchPrograms } = useProgramTemplates();
+  const deleteTemplate = useDeleteTemplate();
   const { data: workoutTemplates = [] } = useWorkoutTemplates();
   const { data: exercises = [] } = useExercises();
 
@@ -41,17 +42,20 @@ const TrainingPrograms = () => {
   };
 
   const handleDeleteProgram = async (programId: string) => {
+    if (!window.confirm('Are you sure you want to delete this program? This action cannot be undone.')) {
+      return;
+    }
+
     try {
-      // TODO: Implement delete for program_templates
-      refetchPrograms();
+      await deleteTemplate.mutateAsync(programId);
       toast({
         title: "Program Deleted",
         description: "Program has been deleted successfully",
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Delete Failed",
-        description: "Failed to delete program. Please try again.",
+        description: error.message || "Failed to delete program. Please try again.",
         variant: "destructive",
       });
     }
@@ -99,7 +103,7 @@ const TrainingPrograms = () => {
           workoutTemplates={workoutTemplates}
           isCoach={isCoach}
           isSolo={isSolo}
-          deleteLoading={false}
+          deleteLoading={deleteTemplate.isPending}
           onView={handleViewProgram}
           onEdit={handleEditProgram}
           onDelete={handleDeleteProgram}

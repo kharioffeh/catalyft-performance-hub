@@ -3,7 +3,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Camera, Plus, Filter, Star, Clock, Zap } from 'lucide-react';
+import { Search, Camera, Plus, Filter, Star, Clock, Zap, Check } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 interface FoodItem {
   id: string;
@@ -112,14 +113,30 @@ const FoodSearchScreen: React.FC = () => {
     { id: 'snacks', name: 'Snacks', icon: '🍿' }
   ];
 
+  const [addedFoods, setAddedFoods] = useState<Set<string>>(new Set());
+
   const handleAddFood = (food: FoodItem) => {
-    console.log('Adding food:', food);
-    // TODO: Implement add to meal logic
+    // Add to local state to show visual feedback
+    setAddedFoods(prev => new Set(prev).add(food.id));
+
+    // Show success toast
+    toast({
+      title: 'Food Added',
+      description: `${food.name} (${food.calories} kcal) added to your meal`,
+    });
+
+    // In a full implementation, this would save to the database
+    // For now, just log it
+    console.log('Added food:', food);
   };
 
   const handleScanBarcode = () => {
-    console.log('Opening barcode scanner');
-    // TODO: Open barcode scanner
+    // Barcode scanning requires native camera access
+    // Show informative toast for web users
+    toast({
+      title: 'Barcode Scanner',
+      description: 'Barcode scanning is available in the mobile app. Please use manual search for now.',
+    });
   };
 
   const filteredResults = searchQuery 
@@ -203,9 +220,18 @@ const FoodSearchScreen: React.FC = () => {
                           <Button
                             size="sm"
                             onClick={() => handleAddFood(food)}
-                            className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-3 py-1"
+                            disabled={addedFoods.has(food.id)}
+                            className={`rounded-full px-3 py-1 ${
+                              addedFoods.has(food.id)
+                                ? 'bg-green-600 text-white'
+                                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                            }`}
                           >
-                            <Plus className="w-4 h-4" />
+                            {addedFoods.has(food.id) ? (
+                              <Check className="w-4 h-4" />
+                            ) : (
+                              <Plus className="w-4 h-4" />
+                            )}
                           </Button>
                         </div>
                         
@@ -271,20 +297,29 @@ const FoodSearchScreen: React.FC = () => {
                               <Button
                                 size="sm"
                                 onClick={() => handleAddFood(food)}
-                                className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-3 py-1"
+                                disabled={addedFoods.has(food.id)}
+                                className={`rounded-full px-3 py-1 ${
+                                  addedFoods.has(food.id)
+                                    ? 'bg-green-600 text-white'
+                                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                                }`}
                               >
-                                <Plus className="w-4 h-4" />
+                                {addedFoods.has(food.id) ? (
+                                  <Check className="w-4 h-4" />
+                                ) : (
+                                  <Plus className="w-4 h-4" />
+                                )}
                               </Button>
                             </div>
                           </div>
-                          
+
                           <div className="flex items-center gap-4 text-sm">
                             <span className="text-white font-medium">{food.calories} kcal</span>
                             <span className="text-red-400">{food.protein}g protein</span>
                             <span className="text-yellow-400">{food.carbs}g carbs</span>
                             <span className="text-green-400">{food.fat}g fat</span>
                           </div>
-                          
+
                           <div className="mt-2">
                             <span className="text-xs text-slate-400">{food.servingSize}</span>
                           </div>

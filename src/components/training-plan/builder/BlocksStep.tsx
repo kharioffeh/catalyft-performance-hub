@@ -3,7 +3,9 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BuilderMeta, BuilderSession, useTemplateBuilder } from '@/hooks/useTemplateBuilder';
-import { Plus, Sparkles } from 'lucide-react';
+import { Plus, Sparkles, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { SessionCard } from './SessionCard';
@@ -32,6 +34,7 @@ export const BlocksStep: React.FC<BlocksStepProps> = ({
 }) => {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isAutoFilling, setIsAutoFilling] = useState(false);
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -50,8 +53,62 @@ export const BlocksStep: React.FC<BlocksStepProps> = ({
   };
 
   const handleAIAutoFill = async () => {
-    // TODO: Call edge function to generate template structure
-    console.log('AI Auto-Fill triggered for:', meta);
+    if (isAutoFilling) return;
+
+    setIsAutoFilling(true);
+    try {
+      // Default training days (Mon, Wed, Fri, Sat) if weeks > 3, else (Mon, Wed, Fri)
+      const defaultDays = meta.weeks > 3 ? [0, 2, 4, 5] : [0, 2, 4];
+
+      const { data, error } = await supabase.functions.invoke('aria-generate-program', {
+        body: {
+          goal: meta.goal,
+          daysPerWeek: defaultDays,
+          equipment: ['barbell', 'dumbbell', 'cable', 'machine'],
+          experience: 'intermediate',
+        }
+      });
+
+      if (error) throw error;
+
+      // Transform the generated program into BuilderSession format
+      if (data?.blocks && Array.isArray(data.blocks)) {
+        const generatedSessions: BuilderSession[] = data.blocks.map((block: any, index: number) => {
+          const dayOffset = block.dayOffset ?? index;
+          const week = Math.floor(dayOffset / 7) + 1;
+          const day = dayOffset % 7;
+
+          return {
+            id: `ai-session-${index}-${Date.now()}`,
+            title: `Session ${index + 1}`,
+            day,
+            week: Math.min(week, meta.weeks),
+            exercises: (block.exercises || []).map((ex: any, exIndex: number) => ({
+              id: `ai-ex-${index}-${exIndex}-${Date.now()}`,
+              exercise_id: ex.name?.toLowerCase().replace(/\s+/g, '-') || `exercise-${exIndex}`,
+              sets: ex.sets || 3,
+              reps: typeof ex.reps === 'string' ? parseInt(ex.reps) || 10 : ex.reps || 10,
+              notes: ex.name,
+            })),
+          };
+        });
+
+        setSessions(generatedSessions);
+        toast({
+          title: 'Program Generated',
+          description: `ARIA created ${generatedSessions.length} training sessions for your ${meta.goal} program`,
+        });
+      }
+    } catch (err) {
+      console.error('AI Auto-Fill error:', err);
+      toast({
+        title: 'Generation Failed',
+        description: 'Could not generate program. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsAutoFilling(false);
+    }
   };
 
   return (
@@ -64,10 +121,15 @@ export const BlocksStep: React.FC<BlocksStepProps> = ({
         <div className="flex gap-3">
           <Button
             onClick={handleAIAutoFill}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white"
+            disabled={isAutoFilling}
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white disabled:opacity-50"
           >
-            <Sparkles className="w-4 h-4 mr-2" />
-            AI Auto-Fill
+            {isAutoFilling ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Sparkles className="w-4 h-4 mr-2" />
+            )}
+            {isAutoFilling ? 'Generating...' : 'AI Auto-Fill'}
           </Button>
           <Button
             onClick={() => setDrawerOpen(true)}

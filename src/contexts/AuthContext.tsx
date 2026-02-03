@@ -18,6 +18,7 @@ interface AuthContextType {
   user: User | null
   profile: Profile | null
   loading: boolean
+  error: string | null
   signOut: () => Promise<void>
 }
 
@@ -41,23 +42,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string): Promise<Profile | null> => {
     try {
-      const { data, error } = await supabase
+      setError(null)
+      const { data, error: fetchError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single()
 
-      if (error) {
-        console.error('Error fetching profile:', error)
+      if (fetchError) {
+        console.error('Error fetching profile:', fetchError)
+        // Don't set error for "not found" - profile may need to be created
+        if (fetchError.code !== 'PGRST116') {
+          setError(`Failed to load profile: ${fetchError.message}`)
+        }
         return null
       }
 
       return data as Profile
-    } catch (error) {
-      console.error('Error fetching profile:', error)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error'
+      console.error('Error fetching profile:', err)
+      setError(`Failed to load profile: ${message}`)
       return null
     }
   }
@@ -74,14 +83,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('🔐 Auth state changed:', event, session?.user?.email)
         setSession(session)
         setUser(session?.user ?? null)
-        
+        setError(null)
+
         // Defer profile fetching to avoid blocking auth state updates
         if (session?.user) {
           setTimeout(() => {
-            fetchProfile(session.user.id).then((profileData) => {
-              setProfile(profileData)
-              setLoading(false)
-            })
+            fetchProfile(session.user.id)
+              .then((profileData) => {
+                setProfile(profileData)
+                setLoading(false)
+              })
+              .catch((err) => {
+                console.error('🔐 Profile fetch error:', err)
+                setError('Failed to load user profile')
+                setLoading(false)
+              })
           }, 0)
         } else {
           setProfile(null)
@@ -92,21 +108,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // THEN check for existing session
     console.log('🔐 Checking for existing session...');
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('🔐 Initial session check result:', session ? 'Found session' : 'No session');
-      setSession(session)
-      setUser(session?.user ?? null)
-      
-      if (session?.user) {
-        fetchProfile(session.user.id).then((profileData) => {
-          setProfile(profileData)
+    supabase.auth.getSession()
+      .then(({ data: { session }, error: sessionError }) => {
+        if (sessionError) {
+          console.error('🔐 Session error:', sessionError)
+          setError('Failed to restore session')
           setLoading(false)
-        })
-      } else {
-        setProfile(null)
+          return
+        }
+
+        console.log('🔐 Initial session check result:', session ? 'Found session' : 'No session');
+        setSession(session)
+        setUser(session?.user ?? null)
+
+        if (session?.user) {
+          fetchProfile(session.user.id)
+            .then((profileData) => {
+              setProfile(profileData)
+              setLoading(false)
+            })
+            .catch((err) => {
+              console.error('🔐 Profile fetch error:', err)
+              setError('Failed to load user profile')
+              setLoading(false)
+            })
+        } else {
+          setProfile(null)
+          setLoading(false)
+        }
+      })
+      .catch((err) => {
+        console.error('🔐 getSession error:', err)
+        setError('Failed to check authentication status')
         setLoading(false)
-      }
-    })
+      })
 
     return () => subscription.unsubscribe()
   }, [])
@@ -116,6 +151,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     profile,
     loading,
+    error,
     signOut,
   }
 
