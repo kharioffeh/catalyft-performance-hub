@@ -36,7 +36,7 @@ export const useSessionFinisher = (sessionId: string | null) => {
     queryFn: async () => {
       if (!sessionId) return null;
       
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('session_finishers')
         .select(`
           *,

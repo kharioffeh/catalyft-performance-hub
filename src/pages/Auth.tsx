@@ -11,10 +11,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from '@/hooks/use-toast';
 import { User } from '@supabase/supabase-js';
 
+// Validation helpers
+const validateEmail = (email: string): string | null => {
+  if (!email) return 'Email is required';
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) return 'Please enter a valid email address';
+  return null;
+};
+
+const validatePassword = (password: string, isSignUp: boolean): string | null => {
+  if (!password) return 'Password is required';
+  if (password.length < 6) return 'Password must be at least 6 characters';
+  if (isSignUp && !/\d/.test(password)) return 'Password must contain at least one number';
+  return null;
+};
+
 const Auth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,13 +59,29 @@ const Auth = () => {
 
   const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setLoading(true);
 
     const formData = new FormData(event.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
     const fullName = formData.get('fullName') as string;
     const role = formData.get('role') as string;
+
+    // Client-side validation
+    const newErrors: Record<string, string> = {};
+    const emailError = validateEmail(email);
+    const passwordError = validatePassword(password, true);
+
+    if (emailError) newErrors.signupEmail = emailError;
+    if (passwordError) newErrors.signupPassword = passwordError;
+    if (!fullName?.trim()) newErrors.signupName = 'Full name is required';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
+    setLoading(true);
 
     try {
       const { error } = await supabase.auth.signUp({
@@ -96,11 +128,26 @@ const Auth = () => {
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setLoading(true);
 
     const formData = new FormData(event.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
+
+    // Client-side validation
+    const newErrors: Record<string, string> = {};
+    const emailError = validateEmail(email);
+    const passwordError = validatePassword(password, false);
+
+    if (emailError) newErrors.signinEmail = emailError;
+    if (passwordError) newErrors.signinPassword = passwordError;
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
+    setLoading(true);
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -229,7 +276,10 @@ const Auth = () => {
                     type="email"
                     placeholder="Enter your email"
                     required
+                    className={errors.signinEmail ? 'border-red-500' : ''}
+                    onChange={() => setErrors(e => ({ ...e, signinEmail: '' }))}
                   />
+                  {errors.signinEmail && <p className="text-sm text-red-500">{errors.signinEmail}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signin-password">Password</Label>
@@ -239,7 +289,10 @@ const Auth = () => {
                     type="password"
                     placeholder="Enter your password"
                     required
+                    className={errors.signinPassword ? 'border-red-500' : ''}
+                    onChange={() => setErrors(e => ({ ...e, signinPassword: '' }))}
                   />
+                  {errors.signinPassword && <p className="text-sm text-red-500">{errors.signinPassword}</p>}
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? 'Signing in...' : 'Sign In'}
@@ -257,7 +310,10 @@ const Auth = () => {
                     type="text"
                     placeholder="Enter your full name"
                     required
+                    className={errors.signupName ? 'border-red-500' : ''}
+                    onChange={() => setErrors(e => ({ ...e, signupName: '' }))}
                   />
+                  {errors.signupName && <p className="text-sm text-red-500">{errors.signupName}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-role">Role</Label>
@@ -278,7 +334,10 @@ const Auth = () => {
                     type="email"
                     placeholder="Enter your email"
                     required
+                    className={errors.signupEmail ? 'border-red-500' : ''}
+                    onChange={() => setErrors(e => ({ ...e, signupEmail: '' }))}
                   />
+                  {errors.signupEmail && <p className="text-sm text-red-500">{errors.signupEmail}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-password">Password</Label>
@@ -286,10 +345,13 @@ const Auth = () => {
                     id="signup-password"
                     name="password"
                     type="password"
-                    placeholder="Create a password"
+                    placeholder="Create a password (min 6 chars, include a number)"
                     required
                     minLength={6}
+                    className={errors.signupPassword ? 'border-red-500' : ''}
+                    onChange={() => setErrors(e => ({ ...e, signupPassword: '' }))}
                   />
+                  {errors.signupPassword && <p className="text-sm text-red-500">{errors.signupPassword}</p>}
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? 'Creating account...' : 'Create Account'}

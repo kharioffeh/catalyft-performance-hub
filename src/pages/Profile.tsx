@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -63,6 +65,7 @@ interface Achievement {
 const Profile: React.FC = () => {
   const { profile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'workouts' | 'achievements' | 'stats'>('overview');
   const [formData, setFormData] = useState({
     full_name: profile?.full_name || '',
@@ -149,10 +152,36 @@ const Profile: React.FC = () => {
     }
   ]);
 
-  const handleSave = () => {
-    // TODO: Implement profile update functionality
-    console.log('Saving profile:', formData);
-    setIsEditing(false);
+  const handleSave = async () => {
+    if (!profile?.id) return;
+
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: formData.full_name,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', profile.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Profile Updated',
+        description: 'Your profile has been saved successfully.',
+      });
+      setIsEditing(false);
+    } catch (err) {
+      console.error('Profile update error:', err);
+      toast({
+        title: 'Update Failed',
+        description: 'Could not save profile. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -306,10 +335,10 @@ const Profile: React.FC = () => {
                 <div className="flex items-center space-x-3 pt-4">
                   {isEditing ? (
                     <>
-                      <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white">
-                        Save Changes
+                      <Button onClick={handleSave} disabled={isSaving} className="bg-blue-600 hover:bg-blue-700 text-white">
+                        {isSaving ? 'Saving...' : 'Save Changes'}
                       </Button>
-                      <Button onClick={handleCancel} variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                      <Button onClick={handleCancel} disabled={isSaving} variant="outline" className="border-white/20 text-white hover:bg-white/10">
                         Cancel
                       </Button>
                     </>

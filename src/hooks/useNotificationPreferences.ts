@@ -34,7 +34,7 @@ export const useNotificationPreferences = () => {
       if (error) throw error;
       
       // Safe type casting with validation
-      const prefs = data?.notification_prefs as any;
+      const prefs = data?.notification_prefs as Record<string, unknown> | null;
       if (prefs && typeof prefs === 'object' && !Array.isArray(prefs)) {
         return {
           daily_summary: Boolean(prefs.daily_summary ?? true),

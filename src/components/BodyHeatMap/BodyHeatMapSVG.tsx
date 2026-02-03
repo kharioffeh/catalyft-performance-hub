@@ -70,10 +70,17 @@ export const BodyHeatMapSVG: React.FC<BodyHeatMapSVGProps> = ({
       const el = svgEl.querySelector<SVGElement>(`#${muscleId}`);
       if (el) {
         el.style.cursor = "pointer";
-        
-        // Mouse events
-        el.onmouseenter = () => setHoveredMuscle(muscleId);
-        el.onmouseleave = () => setHoveredMuscle(null);
+        const originalOpacity = el.style.opacity || "0.9";
+
+        // Mouse events with hover effects
+        el.onmouseenter = () => {
+          setHoveredMuscle(muscleId);
+          el.style.opacity = "1";
+        };
+        el.onmouseleave = () => {
+          setHoveredMuscle(null);
+          el.style.opacity = originalOpacity;
+        };
         
         // Touch events for mobile
         el.ontouchstart = (e) => {
@@ -150,7 +157,7 @@ export const BodyHeatMapSVG: React.FC<BodyHeatMapSVGProps> = ({
             // Use existing ACWR-based coloring
             color = colorScale(row.acwr);
             opacity = "0.9";
-            
+
             // Enhanced color for high-risk muscles with better contrast
             if (row.acwr > 1.5) {
               color = "#DC2626"; // Stronger red for high risk
@@ -159,15 +166,10 @@ export const BodyHeatMapSVG: React.FC<BodyHeatMapSVGProps> = ({
             }
           }
         }
-        
-        // Add hover effects
-        const hoverColor = row ? (typeof row.load === 'number' ? 
-          getLoadColor(Math.min(100, row.load + 10)) : 
-          color) : "#9ca3af";
-        
-        return `id="${id}" style="fill:${color};opacity:${opacity};transition:all 300ms ease-out;cursor:pointer;" 
-                onmouseover="this.style.fill='${hoverColor}';this.style.opacity='1';" 
-                onmouseout="this.style.fill='${color}';this.style.opacity='${opacity}';"`;
+
+        // Only use CSS styles (no inline JS handlers to avoid XSS and DOMPurify stripping)
+        // Hover effects are handled via useEffect event listeners
+        return `id="${id}" style="fill:${color};opacity:${opacity};transition:all 300ms ease-out;cursor:pointer;"`;
       }
     );
   }

@@ -3,6 +3,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { Session, SetLog, SessionExercise } from '@/types/training';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Type-safe helper to extract exercises from session payload
+interface PayloadWithExercises {
+  exercises?: SessionExercise[];
+}
+
+const getExercisesFromPayload = (payload: unknown): SessionExercise[] => {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    return [];
+  }
+  const p = payload as PayloadWithExercises;
+  return Array.isArray(p.exercises) ? p.exercises : [];
+};
+
 export const useSessions = (athleteUuid?: string) => {
   const { profile } = useAuth();
   
@@ -31,7 +44,7 @@ export const useSessions = (athleteUuid?: string) => {
         program_id: session.id,
         planned_at: session.start_ts,
         title: getSessionTitle(session.type),
-        exercises: Array.isArray(session.payload) ? [] : (session.payload as any)?.exercises || []
+        exercises: Array.isArray(session.payload) ? [] : getExercisesFromPayload(session.payload)
       })) as Session[];
     },
     enabled: !!(athleteUuid || profile?.id), // Only run query if we have a user
@@ -75,7 +88,7 @@ export const useSession = (id: string) => {
         program_id: data.id,
         planned_at: data.start_ts,
         title: getSessionTitle(data.type),
-        exercises: Array.isArray(data.payload) ? [] : (data.payload as any)?.exercises || []
+        exercises: Array.isArray(data.payload) ? [] : getExercisesFromPayload(data.payload)
       } as Session;
     },
     enabled: !!id,
@@ -113,7 +126,7 @@ export const useCreateSession = () => {
         program_id: data.id,
         planned_at: data.start_ts,
         title: getSessionTitle(data.type),
-        exercises: Array.isArray(data.payload) ? [] : (data.payload as any)?.exercises || []
+        exercises: Array.isArray(data.payload) ? [] : getExercisesFromPayload(data.payload)
       } as Session;
     },
     onSuccess: () => {
@@ -127,15 +140,15 @@ export const useUpdateSession = () => {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Session> & { id: string }) => {
-      const updateData: any = {};
-      
+      const updateData: Record<string, unknown> = {};
+
       if (updates.status) updateData.status = updates.status;
       if (updates.notes) updateData.notes = updates.notes;
       if (updates.rpe) updateData.rpe = updates.rpe;
       if (updates.load) updateData.load = updates.load;
       if (updates.start_ts) updateData.start_ts = updates.start_ts;
       if (updates.end_ts) updateData.end_ts = updates.end_ts;
-      if (updates.exercises) updateData.payload = JSON.parse(JSON.stringify({ exercises: updates.exercises }));
+      if (updates.exercises) updateData.payload = { exercises: updates.exercises };
         
       const { data, error } = await supabase
         .from('sessions')
@@ -153,7 +166,7 @@ export const useUpdateSession = () => {
         program_id: data.id,
         planned_at: data.start_ts,
         title: getSessionTitle(data.type),
-        exercises: Array.isArray(data.payload) ? [] : (data.payload as any)?.exercises || []
+        exercises: Array.isArray(data.payload) ? [] : getExercisesFromPayload(data.payload)
       } as Session;
     },
     onSuccess: (data) => {

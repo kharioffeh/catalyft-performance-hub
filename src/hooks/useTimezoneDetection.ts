@@ -10,9 +10,8 @@ export const useTimezoneDetection = () => {
     const detectAndUpdateTimezone = async () => {
       if (!profile?.id) return;
 
-      // Skip if timezone is already set - check if profile has timezone property
-      const profileTimezone = (profile as any).timezone;
-      if (profileTimezone) return;
+      // Skip if timezone is already set
+      if (profile.timezone) return;
 
       try {
         // Get browser timezone
@@ -42,6 +41,6 @@ export const useTimezoneDetection = () => {
   }, [profile]);
 
   return {
-    timezone: (profile as any)?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+    timezone: profile?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
   };
 };

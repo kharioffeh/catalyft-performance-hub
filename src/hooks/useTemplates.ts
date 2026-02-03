@@ -135,7 +135,7 @@ export const useUpdateTemplateBlock = () => {
         .from('template_block')
         .upsert({
           ...block,
-          exercises: block.exercises as unknown as any
+          exercises: JSON.parse(JSON.stringify(block.exercises))
         })
         .select()
         .single();

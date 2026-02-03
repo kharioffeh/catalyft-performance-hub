@@ -3,7 +3,20 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useGlassToast } from '@/hooks/useGlassToast';
-import { Session } from '@/types/training';
+import { Session, SessionExercise } from '@/types/training';
+
+// Type-safe helper to extract exercises from session payload
+interface PayloadWithExercises {
+  exercises?: SessionExercise[];
+}
+
+const getExercisesFromPayload = (payload: unknown): SessionExercise[] => {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    return [];
+  }
+  const p = payload as PayloadWithExercises;
+  return Array.isArray(p.exercises) ? p.exercises : [];
+};
 
 interface Profile {
   id: string;
@@ -68,11 +81,11 @@ export const useSessionsData = (profile: Profile | null) => {
         program_id: session.id,
         planned_at: session.start_ts,
         title: getSessionTitle(session.type),
-        exercises: Array.isArray(session.payload) ? [] : (session.payload as any)?.exercises || [],
+        exercises: getExercisesFromPayload(session.payload),
         // Add demo color-coding data
         loadPercent: Math.floor(Math.random() * 100), // Random load 0-100%
         isPR: index % 5 === 0 // Every 5th session is a PR for demo
-      })) as any[];
+      })) as Session[];
     },
     enabled: !!profile?.id, // Only run query if we have a user profile
   });

@@ -30,7 +30,7 @@ export const useProgramInstances = (athleteId?: string) => {
       return data.map(item => ({
         ...item,
         user_uuid: item.athlete_uuid
-      })) as any[];
+      })) as ProgramInstance[];
     },
   });
 };
@@ -57,7 +57,7 @@ export const useProgramInstance = (id: string) => {
       return {
         ...data,
         user_uuid: data.athlete_uuid
-      } as any;
+      } as ProgramInstance;
     },
     enabled: !!id,
   });

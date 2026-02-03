@@ -11,6 +11,8 @@ interface Profile {
   updated_at: string
   weekly_summary_opt_in?: boolean
   has_completed_onboarding?: boolean
+  timezone?: string | null
+  notification_prefs?: Record<string, boolean> | null
 }
 
 interface AuthContextType {

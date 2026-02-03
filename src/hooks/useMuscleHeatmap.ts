@@ -19,7 +19,7 @@ export function useMuscleHeatmap(athleteId: string, window_days = 7) {
     queryKey: ["muscleHeatmap", athleteId, window_days],
     queryFn: async () => {
       // Run the Supabase RPC which returns a single JSONB, not a set of rows.
-      const { data, error } = await (supabase as any).rpc("get_muscle_heatmap", {
+      const { data, error } = await supabase.rpc("get_muscle_heatmap", {
         athlete_id_in: athleteId,
         window_days,
       });
