@@ -31,7 +31,6 @@ const demoFoods = [
 
 export const EnhancedDesignDemo: React.FC = () => {
   const handleDelete = (foodId: string) => {
-    console.log(`Deleting food: ${foodId}`);
   };
 
   return (

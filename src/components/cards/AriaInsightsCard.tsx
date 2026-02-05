@@ -33,7 +33,6 @@ export const AriaInsightsCard: React.FC<AriaInsightsCardProps> = ({ data, loadin
     if (!ariaInput.trim()) return;
     
     // TODO: Integrate with ARIA insights API
-    console.log('Submitting ARIA query:', ariaInput);
     setAriaInput('');
   };
 

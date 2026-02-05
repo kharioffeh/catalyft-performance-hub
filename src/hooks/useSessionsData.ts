@@ -105,7 +105,6 @@ export const useSessionsData = (profile: Profile | null) => {
           filter: `athlete_uuid=eq.${profile.id}` // Only listen to current user's sessions
         },
         (payload) => {
-          console.log('Session change detected:', payload);
           
           // Invalidate and refetch sessions data
           queryClient.invalidateQueries({ queryKey: ['sessions'] });

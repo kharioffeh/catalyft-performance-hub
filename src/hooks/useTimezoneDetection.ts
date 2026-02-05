@@ -18,7 +18,6 @@ export const useTimezoneDetection = () => {
         const detectedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         
         if (detectedTimezone) {
-          console.log('Detected timezone:', detectedTimezone);
           
           // Update user's timezone in database
           const { error } = await supabase
@@ -29,7 +28,6 @@ export const useTimezoneDetection = () => {
           if (error) {
             console.error('Error updating timezone:', error);
           } else {
-            console.log('Timezone updated successfully');
           }
         }
       } catch (error) {

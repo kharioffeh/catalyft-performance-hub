@@ -6,18 +6,15 @@ interface WeekTableProps {
 }
 
 export default function WeekTable({ week }: WeekTableProps) {
-  console.log('WeekTable received week:', week);
   
   // Handle the case where week might be an object with sessions property
   let sessions = week?.sessions || week;
   
   // Ensure sessions is an array
   if (!Array.isArray(sessions)) {
-    console.warn('WeekTable: sessions is not an array', sessions);
     sessions = [];
   }
 
-  console.log('WeekTable processed sessions:', sessions);
 
   // Check if there are any exercises to display
   const hasExercises = sessions.some((session: any) => 

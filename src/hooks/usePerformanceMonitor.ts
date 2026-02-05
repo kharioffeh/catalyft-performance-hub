@@ -9,7 +9,6 @@ export const usePerformanceMonitor = () => {
       entries.forEach((entry) => {
         if (entry.entryType === 'navigation') {
           const navEntry = entry as PerformanceNavigationTiming;
-          console.log('🚀 Performance Metrics:', {
             'First Paint': navEntry.responseStart - navEntry.requestStart,
             'DOM Content Loaded': navEntry.domContentLoadedEventEnd - navEntry.domContentLoadedEventStart,
             'Load Complete': navEntry.loadEventEnd - navEntry.loadEventStart,
@@ -37,7 +36,6 @@ export const usePerformanceMonitor = () => {
         const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
         
         if (fps < 55) {
-          console.warn(`⚠️ Low FPS detected: ${fps}fps`);
         }
         
         frameCount = 0;

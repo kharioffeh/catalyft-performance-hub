@@ -22,7 +22,6 @@ const AppLayout: React.FC = () => {
   const location = useLocation();
 
   // Debug logging
-  console.log('AppLayout render:', { 
     user: !!user, 
     profile: !!profile, 
     loading, 
@@ -39,7 +38,6 @@ const AppLayout: React.FC = () => {
       const currentPath = location.pathname;
       if (currentPath === '/' || currentPath === '/home') {
         // All users redirect to dashboard
-        console.log('Redirecting user to dashboard from:', currentPath);
         navigate('/dashboard', { replace: true });
       }
     }
@@ -57,30 +55,25 @@ const AppLayout: React.FC = () => {
 
   // Loading state - show skeleton instead of spinner
   if (loading) {
-    console.log('AppLayout: Loading state');
     return <LoadingState variant={getLayoutVariant()} />;
   }
 
   // Not authenticated - ProtectedRoute will handle redirect
   if (!session) {
-    console.log('AppLayout: No session');
     return null;
   }
 
   // Profile not found - show error with retry option
   if (!profile) {
-    console.log('AppLayout: No profile found');
     return <ProfileError variant={getLayoutVariant()} />;
   }
 
   // Check onboarding completion for new users
   if (profile.has_completed_onboarding === false) {
-    console.log('AppLayout: User needs onboarding, redirecting to wizard');
     navigate('/onboarding/solo', { replace: true });
     return null;
   }
 
-  console.log('AppLayout: Rendering main layout');
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>

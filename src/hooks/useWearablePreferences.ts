@@ -270,7 +270,6 @@ export const useWearablePreferences = (): UseWearablePreferencesReturn => {
       switch (device) {
         case 'whoop':
           // Would call WHOOP disconnect API
-          console.log('WHOOP disconnect not implemented yet');
           return false;
 
         case 'healthkit':

@@ -26,7 +26,6 @@ export const InsightStrip: React.FC<InsightStripProps> = ({
   const loadModal = useDisclosure();
   const strainModal = useDisclosure();
 
-  console.log('InsightStrip values:', { readiness, sleepHours, stress, strain });
 
   const formatValue = (value: number | null, unit: string = '', decimals: number = 0) => {
     if (value === null || value === undefined) return '--';
@@ -46,8 +45,7 @@ export const InsightStrip: React.FC<InsightStripProps> = ({
   const safeGetMetricColor = (metric: string, type: 'primary' | 'bg') => {
     try {
       return getMetricColor(metric as MetricType, type);
-    } catch (error) {
-      console.warn(`Failed to get color for metric ${metric}:`, error);
+    } catch {
       return type === 'primary' ? '#6366f1' : 'rgba(99, 102, 241, 0.1)';
     }
   };

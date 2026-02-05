@@ -17,7 +17,6 @@ export async function ariaStream(
   options: AriaChatOptions = {}
 ): Promise<{ thread_id: string; content: string }> {
   try {
-    console.log('Making ARIA stream request:', { messages: messages.length, threadId, options });
     
     const { data, error } = await supabase.functions.invoke('aria-chat-and-log-stream', {
       body: {
@@ -47,7 +46,6 @@ export async function ariaStream(
             const { value, done } = await reader.read();
             
             if (done) {
-              console.log('Stream completed');
               resolve({ 
                 thread_id: extractedThreadId || '', 
                 content: fullContent 

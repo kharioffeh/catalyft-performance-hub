@@ -307,7 +307,6 @@ export const DeviceSettingsScreen: React.FC = () => {
 
   const handleSaveSettings = () => {
     // Save settings logic here
-    console.log('Saving settings:', settings);
   };
 
   const handleResetSettings = () => {

@@ -35,7 +35,6 @@ const FinishSignup: React.FC = () => {
     }
 
     setIsSubmitting(true);
-    console.log('Completing solo signup:', { name, userId: session.user.id });
 
     try {
       const { error } = await supabase
@@ -51,7 +50,6 @@ const FinishSignup: React.FC = () => {
         throw error;
       }
 
-      console.log('Profile updated successfully');
 
       toast({
         title: "Welcome!",

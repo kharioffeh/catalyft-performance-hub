@@ -27,7 +27,6 @@ class DatastoreService {
       this.db = await Datastore.open(this.DB_NAME);
       await this.createTables();
       
-      console.log('Median Datastore database initialized');
     } catch (error) {
       console.error('Error initializing Median Datastore database:', error);
       throw error;
@@ -153,7 +152,6 @@ class DatastoreService {
         )
       `);
 
-      console.log('All tables created successfully');
     } catch (error) {
       console.error('Error creating tables:', error);
       throw error;
@@ -162,7 +160,6 @@ class DatastoreService {
 
   async addPendingSet(set: PendingSet): Promise<void> {
     if (!this.db) {
-      console.warn('Median Datastore not available, skipping local storage');
       return;
     }
 
@@ -183,7 +180,6 @@ class DatastoreService {
         ]
       );
 
-      console.log('Added pending set to local database:', set.id);
     } catch (error) {
       console.error('Error adding pending set:', error);
       throw error;
@@ -218,7 +214,6 @@ class DatastoreService {
 
     try {
       await this.db.execute('DELETE FROM pending_sets WHERE id = ?', [id]);
-      console.log('Removed pending set from local database:', id);
     } catch (error) {
       console.error('Error removing pending set:', error);
       throw error;
@@ -230,7 +225,6 @@ class DatastoreService {
 
     try {
       await this.db.execute('DELETE FROM pending_sets');
-      console.log('Cleared all pending sets from local database');
     } catch (error) {
       console.error('Error clearing pending sets:', error);
       throw error;

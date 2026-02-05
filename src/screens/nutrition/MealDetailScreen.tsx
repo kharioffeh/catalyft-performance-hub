@@ -109,7 +109,6 @@ const MealDetailScreen: React.FC = () => {
 
   const toggleIngredientExpansion = (ingredientId: string) => {
     // In a real app, you'd update the state here
-    console.log('Toggle ingredient:', ingredientId);
   };
 
   const getDifficultyColor = (difficulty: string) => {

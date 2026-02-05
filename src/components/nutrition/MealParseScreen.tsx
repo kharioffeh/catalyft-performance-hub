@@ -147,7 +147,6 @@ export const MealParseScreen: React.FC = () => {
 
   const handleSwapFood = (foodId: string) => {
     // TODO: Open food search/selection modal
-    console.log('Swap food:', foodId);
     // This could open a modal to search and replace the food item
   };
 

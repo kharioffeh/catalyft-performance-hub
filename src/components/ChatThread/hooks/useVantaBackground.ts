@@ -22,7 +22,6 @@ export function useVantaBackground(ref: React.RefObject<HTMLDivElement>) {
         spacing: 20,
       });
     } catch (error) {
-      console.warn('Vanta.js failed to initialize:', error);
     }
     
     return () => vantaRef.current?.destroy?.();

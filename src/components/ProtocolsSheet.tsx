@@ -30,7 +30,6 @@ export const ProtocolsSheet: React.FC<ProtocolsSheetProps> = ({
           sessionId,
           protocolId: protocol.id
         });
-        console.log('Finisher assigned successfully');
       } catch (error) {
         console.error('Error assigning finisher:', error);
       }

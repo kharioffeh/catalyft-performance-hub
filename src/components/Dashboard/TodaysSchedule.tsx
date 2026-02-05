@@ -33,7 +33,7 @@ export const TodaysSchedule: React.FC<TodaysScheduleProps> = ({ todaySessions })
             <SessionCard 
               key={session.id} 
               session={session}
-              onViewDetails={() => console.log('View details for session:', session.id)}
+              onViewDetails={() => {}}
             />
           ))}
         </div>

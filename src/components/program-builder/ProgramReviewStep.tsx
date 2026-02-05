@@ -24,7 +24,6 @@ export const ProgramReviewStep: React.FC<ProgramReviewStepProps> = ({
   const weeklyVolume = Math.round(totalExercises / meta.weeks);
 
   const handleReOptimize = () => {
-    console.log('Re-optimize program');
   };
 
   return (

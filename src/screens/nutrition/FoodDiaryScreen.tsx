@@ -163,7 +163,6 @@ const FoodDiaryScreen: React.FC = () => {
 
   const openFoodSearch = () => {
     // TODO: Implement food search functionality
-    console.log('Opening food search...');
   };
 
   return (

@@ -41,7 +41,6 @@ export const AddMealDialog: React.FC<AddMealDialogProps> = ({
   });
 
   const handleScan = (result: { data: string }) => {
-    console.log('Barcode scanned:', result.data);
     // Additional handling can be added here if needed
   };
 

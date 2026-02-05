@@ -261,7 +261,6 @@ class HealthKitService {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
-      console.log(`Syncing HealthKit data for last ${days} days...`);
 
       // Get data from HealthKit
       const [dailyData, workoutData] = await Promise.all([
@@ -332,7 +331,6 @@ class HealthKitService {
       }
 
       const result = await response.json();
-      console.log('HealthKit sync completed:', result);
 
       return true;
     } catch (error) {
@@ -350,7 +348,6 @@ class HealthKitService {
     }
 
     try {
-      console.log('Setting up HealthKit background observers...');
       
       // In a real React Native app, you'd set up background observers:
       /*
@@ -377,7 +374,6 @@ class HealthKitService {
             return;
           }
           
-          console.log(`HealthKit observer triggered for ${dataType}`);
           
           // Debounced sync to prevent excessive API calls
           this.debouncedSync();
@@ -389,7 +385,6 @@ class HealthKitService {
       
       // Register background task
       BackgroundTask.define(() => {
-        console.log('Background task executing HealthKit sync...');
         this.syncWithBackend(1).finally(() => {
           BackgroundTask.finish();
         });
@@ -399,7 +394,6 @@ class HealthKitService {
       // Setup debounced sync function
       this.setupDebouncedSync();
 
-      console.log('Background HealthKit sync observers set up successfully');
       return true;
     } catch (error) {
       console.error('Failed to setup background sync:', error);
@@ -421,7 +415,6 @@ class HealthKitService {
       
       this.syncTimeout = setTimeout(async () => {
         try {
-          console.log('Executing debounced HealthKit sync...');
           await this.syncWithBackend(1); // Sync last day
         } catch (error) {
           console.error('Debounced sync error:', error);
@@ -437,7 +430,6 @@ class HealthKitService {
    */
   async triggerBackgroundSync(): Promise<boolean> {
     try {
-      console.log('Manual background sync triggered');
       return await this.syncWithBackend(2); // Sync last 2 days
     } catch (error) {
       console.error('Manual background sync error:', error);

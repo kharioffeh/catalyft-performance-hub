@@ -29,6 +29,5 @@ supabase
     if (error) {
       console.error('Supabase connectivity error:', error)
     } else {
-      console.log('Supabase connected successfully')
     }
   });

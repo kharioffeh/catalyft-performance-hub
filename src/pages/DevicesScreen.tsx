@@ -227,7 +227,6 @@ export const DevicesScreen: React.FC = () => {
     if (device) {
       try {
         // This would call the actual connect function
-        console.log(`Connecting to ${device.name}`);
       } catch (error) {
         console.error('Connection failed:', error);
       }
@@ -239,7 +238,6 @@ export const DevicesScreen: React.FC = () => {
     if (device) {
       try {
         // This would call the actual disconnect function
-        console.log(`Disconnecting from ${device.name}`);
       } catch (error) {
         console.error('Disconnection failed:', error);
       }
@@ -248,7 +246,6 @@ export const DevicesScreen: React.FC = () => {
 
   const handleSettings = (deviceId: string) => {
     // Navigate to device settings
-    console.log(`Opening settings for device ${deviceId}`);
   };
 
   if (isLoading) {

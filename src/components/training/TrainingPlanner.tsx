@@ -79,7 +79,6 @@ export const TrainingPlanner: React.FC<TrainingPlannerProps> = ({
   };
 
   const handleSessionClick = (session: Session) => {
-    console.log('Session clicked:', session);
   };
 
   if (isLoading) {
@@ -221,7 +220,7 @@ export const TrainingPlanner: React.FC<TrainingPlannerProps> = ({
           <div className="space-y-4">
             <AgendaHeader 
               selectedDate={currentWeek}
-              onDatePickerOpen={() => console.log('Date picker opened')}
+              onDatePickerOpen={() => {}}
             />
             <AgendaList 
               sessions={sessions}

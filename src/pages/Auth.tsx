@@ -189,7 +189,6 @@ const Auth = () => {
         options: { redirectTo: window.location.origin },
       });
       if (error) {
-        console.warn(`OAuth ${provider} failed — ensure the provider is enabled in Supabase Dashboard > Authentication > Providers.`);
         toast({
           title: `${provider === 'google' ? 'Google' : 'Apple'} sign-in failed`,
           description: error.message,

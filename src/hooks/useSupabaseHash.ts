@@ -8,7 +8,6 @@ export function useSupabaseHash() {
   
   useEffect(() => {
     if (window.location.hash.startsWith('#access_token=')) {
-      console.log('Processing hash token...');
       
       (async () => {
         try {
@@ -26,7 +25,6 @@ export function useSupabaseHash() {
             return;
           }
 
-          console.log('Session established from hash:', session.user.email);
 
           // Fetch profile to determine redirect
           const { data: profile } = await supabase
@@ -35,16 +33,13 @@ export function useSupabaseHash() {
             .eq('id', session.user.id)
             .single();
 
-          console.log('Profile data:', profile);
 
           // New invitee has null role → go to finish-signup page
           if (!profile?.role) {
-            console.log('No role found, redirecting to finish-signup');
             return navigate('/finish-signup', { replace: true });
           }
 
           // Everyone gets redirected to dashboard now
-          console.log('Redirecting to dashboard');
           navigate('/dashboard', { replace: true });
 
         } catch (err) {

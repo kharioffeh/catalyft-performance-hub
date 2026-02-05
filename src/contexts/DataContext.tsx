@@ -30,7 +30,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       try {
         await datastoreService.initializeDB();
         setDatastoreReady(true);
-        console.log('✓ Median Datastore initialized successfully');
       } catch (error) {
         console.error('Failed to initialize Median Datastore:', error);
         // Still mark as ready to not block the app

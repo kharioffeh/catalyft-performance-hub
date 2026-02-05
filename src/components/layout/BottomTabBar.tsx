@@ -26,7 +26,6 @@ export const BottomTabBar: React.FC = () => {
     path: item.path
   }));
 
-  console.log('BottomTabBar: Current location:', location.pathname);
 
   const isTabActive = (tabPath: string) => {
     if (tabPath === '/dashboard') {
@@ -36,7 +35,6 @@ export const BottomTabBar: React.FC = () => {
   };
 
   const handleTabPress = (path: string) => {
-    console.log('BottomTabBar: Navigating to:', path);
     navigate(path);
   };
 

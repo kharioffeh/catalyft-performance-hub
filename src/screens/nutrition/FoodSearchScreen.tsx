@@ -127,7 +127,6 @@ const FoodSearchScreen: React.FC = () => {
 
     // In a full implementation, this would save to the database
     // For now, just log it
-    console.log('Added food:', food);
   };
 
   const handleScanBarcode = () => {

@@ -122,7 +122,6 @@ export const InsightStack: React.FC = () => {
 
   const handleSwipeLeft = (cardIndex: number) => {
     // Just dismiss the card locally
-    console.log('Dismissed insight:', insights[cardIndex]?.id);
   };
 
   const handleSwipeRight = async (cardIndex: number) => {
@@ -132,7 +131,6 @@ export const InsightStack: React.FC = () => {
     try {
       await saveInsight(insight.id);
       toast.success('Insight saved!');
-      console.log('Saved insight:', insight.id);
     } catch (error) {
       console.error('Failed to save insight:', error);
       toast.error('Failed to save insight');
@@ -144,7 +142,6 @@ export const InsightStack: React.FC = () => {
   };
 
   const handleSwipedAll = () => {
-    console.log('All insights swiped');
   };
 
   if (!insights || insights.length === 0) {

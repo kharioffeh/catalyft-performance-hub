@@ -17,11 +17,9 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  console.log('🎨 ThemeProvider component mounting...');
   const [theme, setThemeState] = useState<Theme>(() => {
     // Get theme from localStorage or default to system
     const stored = localStorage.getItem('theme') as Theme;
-    console.log('🎨 Initial theme from localStorage:', stored);
     return stored || 'system';
   });
 
@@ -53,14 +51,12 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
         resolved = theme;
       }
       
-      console.log('🎨 Theme resolved to:', resolved);
       setResolvedTheme(resolved);
-      
+
       // Apply theme class to html element
       const htmlElement = document.documentElement;
       htmlElement.classList.remove('light', 'dark');
       htmlElement.classList.add(resolved);
-      console.log('🎨 Applied theme class to html:', resolved);
     };
 
     updateResolvedTheme();

@@ -110,7 +110,6 @@ export const EnhancedProgramBuilder: React.FC<EnhancedProgramBuilderProps> = ({
         // Invalidate calendar query to refresh the UI
         queryClient.invalidateQueries({ queryKey: ['sessions'] });
       } catch (calendarError) {
-        console.warn('Failed to create calendar sessions:', calendarError);
         // Don't fail the entire save process if calendar creation fails
       }
 

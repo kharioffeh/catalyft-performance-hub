@@ -12,7 +12,6 @@ if (import.meta.env.PROD) {
 
 // Note: Service worker registration removed to fix loading issues
 
-console.log('🏁 Starting React app render...');
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App />

@@ -20,8 +20,6 @@ export default function InlineTable({ week, weekIdx, editable, onEdit }: InlineT
   // Ensure week is always an array of sessions
   const sessions = Array.isArray(week) ? week : [];
   
-  console.log('InlineTable week data:', week);
-  console.log('InlineTable sessions:', sessions);
 
   // Check if there are any exercises to display
   const hasExercises = sessions.some((session: any) => 

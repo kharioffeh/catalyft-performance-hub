@@ -56,7 +56,6 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
 
         // Always generate mock data for consistency
         const mockData = generateReadinessData(athleteId, periodDays);
-        console.log('Readiness mock data generated:', mockData.length, 'items');
         return mockData.map(item => ({
           athlete_uuid: athleteId,
           day: item.day,
@@ -98,7 +97,6 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
 
         // Always generate mock data for consistency
         const mockData = generateSleepData(athleteId, periodDays);
-        console.log('Sleep mock data generated:', mockData.length, 'items');
         return mockData.map(item => ({
           athlete_uuid: athleteId,
           day: item.day,
@@ -140,7 +138,6 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
 
         // Always generate mock data for consistency
         const mockData = generateLoadData(athleteId, periodDays);
-        console.log('Load mock data generated:', mockData.length, 'items');
         return mockData.map(item => ({
           athlete_uuid: athleteId,
           day: item.day,
@@ -184,7 +181,6 @@ export const useEnhancedMetricsWithAthlete = (athleteId?: string) => {
 
         // Always generate mock data for consistency
         const mockStrain = generateLatestStrain(athleteId);
-        console.log('Strain mock data generated:', mockStrain);
         return mockStrain;
       } catch (error) {
         console.error('Error fetching strain data:', error);

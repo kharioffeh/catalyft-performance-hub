@@ -25,7 +25,6 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
 
   const handleReOptimize = () => {
     // TODO: Call ARIA optimization
-    console.log('Re-optimize template');
   };
 
   return (

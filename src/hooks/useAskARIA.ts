@@ -57,7 +57,6 @@ export const useAskARIA = () => {
         return false;
       }
 
-      console.log('Documents seeded:', data);
       return true;
     } catch (err) {
       console.error('Error seeding documents:', err);

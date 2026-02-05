@@ -47,7 +47,6 @@ class BackgroundTaskManager {
    */
   async initialize(config?: Partial<BackgroundSyncConfig>): Promise<boolean> {
     if (Platform.OS !== 'ios') {
-      console.log('Background task manager only available on iOS');
       return false;
     }
 
@@ -67,7 +66,6 @@ class BackgroundTaskManager {
       await this.registerBackgroundTasks();
 
       this.isInitialized = true;
-      console.log('Background task manager initialized successfully');
       return true;
     } catch (error) {
       console.error('Failed to initialize background task manager:', error);
@@ -89,7 +87,6 @@ class BackgroundTaskManager {
    * Handle app state changes
    */
   private async handleAppStateChange(nextAppState: AppStateStatus): Promise<void> {
-    console.log(`App state changed to: ${nextAppState}`);
 
     switch (nextAppState) {
       case 'active':
@@ -141,7 +138,6 @@ class BackgroundTaskManager {
       });
       */
 
-      console.log('Background tasks registered successfully');
     } catch (error) {
       console.error('Failed to register background tasks:', error);
     }
@@ -156,7 +152,6 @@ class BackgroundTaskManager {
     }
 
     try {
-      console.log('Triggering foreground HealthKit sync...');
       await this.executeSync(2); // Sync last 2 days
     } catch (error) {
       console.error('Foreground sync error:', error);
@@ -168,14 +163,12 @@ class BackgroundTaskManager {
    */
   private async triggerBackgroundSync(): Promise<void> {
     try {
-      console.log('Triggering background HealthKit sync...');
       
       // In React Native, you'd start a background task:
       /*
       const BackgroundTask = require('react-native-background-task');
       
       BackgroundTask.define(() => {
-        console.log('Background task executing...');
         this.executeSync(1).finally(() => {
           BackgroundTask.finish();
         });
@@ -196,7 +189,6 @@ class BackgroundTaskManager {
    */
   private async executeSync(days: number, retryCount: number = 0): Promise<boolean> {
     if (this.syncInProgress) {
-      console.log('Sync already in progress, skipping...');
       return false;
     }
 
@@ -208,7 +200,6 @@ class BackgroundTaskManager {
       if (success) {
         this.lastSyncTime = new Date();
         await this.saveLastSyncTime();
-        console.log(`HealthKit sync completed successfully (${days} days)`);
         return true;
       } else {
         throw new Error('Sync returned false');
@@ -217,7 +208,6 @@ class BackgroundTaskManager {
       console.error(`Sync attempt ${retryCount + 1} failed:`, error);
       
       if (retryCount < this.config.maxRetries) {
-        console.log(`Retrying sync in 30 seconds... (attempt ${retryCount + 2}/${this.config.maxRetries + 1})`);
         
         setTimeout(() => {
           this.executeSync(days, retryCount + 1);
@@ -248,7 +238,6 @@ class BackgroundTaskManager {
    * Manual sync trigger (e.g., from UI)
    */
   async manualSync(days: number = 7): Promise<boolean> {
-    console.log('Manual sync requested');
     return await this.executeSync(days);
   }
 
@@ -302,7 +291,6 @@ class BackgroundTaskManager {
         await AsyncStorage.setItem('healthkit_last_sync', this.lastSyncTime.toISOString());
         */
         
-        console.log(`Last sync time saved: ${this.lastSyncTime.toISOString()}`);
       }
     } catch (error) {
       console.error('Failed to save last sync time:', error);
@@ -323,7 +311,6 @@ class BackgroundTaskManager {
     BackgroundJob.stop({ jobKey: 'healthkit-sync' });
     */
     
-    console.log('Background task manager destroyed');
   }
 }
 

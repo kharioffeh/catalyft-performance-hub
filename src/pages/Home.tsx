@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Activity, Shield, Calendar, BarChart3, Zap, Brain } from 'lucide-react';
 
 const Home: React.FC = () => {
-  console.log('🏠 Home component rendering...');
   
   // Vanta background ref - disabled temporarily to fix loading issues
   const vantaRef = useRef<HTMLDivElement>(null);

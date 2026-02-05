@@ -183,7 +183,6 @@ export const CalendarScreen: React.FC = () => {
 
   const handleSessionPress = (session: Session) => {
     // Handle session press - could navigate to session details
-    console.log('Session pressed:', session.title);
   };
 
   const handlePrevious = () => {

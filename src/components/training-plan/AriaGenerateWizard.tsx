@@ -73,7 +73,6 @@ export const AriaGenerateWizard: React.FC<AriaGenerateWizardProps> = ({
     setIsGenerating(true);
 
     try {
-      console.log('Generating program with:', {
         goal,
         weeks,
         available_days: availableDays,
@@ -87,7 +86,6 @@ export const AriaGenerateWizard: React.FC<AriaGenerateWizardProps> = ({
         equipment
       });
 
-      console.log('Generation result:', result);
 
       toast({
         title: "Program Generated!",

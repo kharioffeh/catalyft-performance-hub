@@ -17,8 +17,6 @@ export default function EditableWeekTable({ blockJson, editable, onChange }: Edi
   // Ensure we always have an array for weeks
   const weeks = Array.isArray(blockJson?.weeks) ? blockJson.weeks : [];
 
-  console.log('EditableWeekTable blockJson:', blockJson);
-  console.log('EditableWeekTable weeks:', weeks);
 
   const updateCell = (weekIdx: number, sessIdx: number, exIdx: number, field: string, value: any) => {
     const clone = JSON.parse(JSON.stringify(blockJson));

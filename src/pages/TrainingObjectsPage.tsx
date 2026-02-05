@@ -54,7 +54,6 @@ const TrainingObjectsPage: React.FC = () => {
     if (!templateToDelete) return;
 
     try {
-      console.log('Deleting template:', templateToDelete);
       await deleteTemplate.mutateAsync(templateToDelete);
       toast({
         title: "Template Deleted",

@@ -83,16 +83,13 @@ class GoogleFitService {
         });
         */
         
-        console.log('Google Fit service initialized for Android');
         this.isInitialized = true;
         return true;
       } else if (Platform.OS === 'web') {
         // Web implementation uses OAuth redirect flow
-        console.log('Google Fit service initialized for Web');
         this.isInitialized = true;
         return true;
       } else {
-        console.log('Google Fit not available on iOS (use HealthKit instead)');
         return false;
       }
     } catch (error) {
@@ -135,7 +132,6 @@ class GoogleFitService {
           
           // In a real app, you'd set up deep link handling to catch the redirect
           // For now, return true and expect user to complete auth manually
-          console.log('Google Fit OAuth opened in browser');
           return true;
         } else {
           throw new Error('Cannot open OAuth URL');
@@ -260,7 +256,6 @@ class GoogleFitService {
         return false;
       }
 
-      console.log('Google Fit access token refreshed successfully');
       return true;
     } catch (error) {
       console.error('Token refresh error:', error);
@@ -278,7 +273,6 @@ class GoogleFitService {
         throw new Error('User not authenticated');
       }
 
-      console.log(`Starting Google Fit sync for ${days} days...`);
 
       const { data, error } = await supabase.functions.invoke('sync-google-fit-data', {
         body: {
@@ -291,7 +285,6 @@ class GoogleFitService {
         throw new Error(`Sync failed: ${error.message}`);
       }
 
-      console.log('Google Fit sync completed:', data);
       return true;
     } catch (error) {
       console.error('Google Fit sync error:', error);
@@ -419,7 +412,6 @@ class GoogleFitService {
       }
 
       this.hasPermissions = false;
-      console.log('Google Fit disconnected successfully');
       return true;
     } catch (error) {
       console.error('Google Fit disconnect error:', error);
@@ -432,7 +424,6 @@ class GoogleFitService {
    */
   async setupBackgroundSync(): Promise<boolean> {
     if (Platform.OS !== 'android') {
-      console.log('Background sync only available on Android');
       return false;
     }
 
@@ -461,7 +452,6 @@ class GoogleFitService {
       });
       */
 
-      console.log('Google Fit background sync setup completed');
       return true;
     } catch (error) {
       console.error('Failed to setup Google Fit background sync:', error);
@@ -474,7 +464,6 @@ class GoogleFitService {
    */
   async triggerBackgroundSync(): Promise<boolean> {
     try {
-      console.log('Manual Google Fit background sync triggered');
       return await this.syncWithBackend(2); // Sync last 2 days
     } catch (error) {
       console.error('Manual Google Fit background sync error:', error);

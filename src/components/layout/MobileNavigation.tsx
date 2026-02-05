@@ -111,7 +111,6 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({
             open={protocolsOpen}
             onClose={() => setProtocolsOpen(false)}
             onProtocolSelect={(protocol) => {
-              console.log('Selected protocol:', protocol);
               // TODO: Navigate to protocol detail screen
             }}
           />

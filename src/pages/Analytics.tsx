@@ -190,7 +190,6 @@ const AnalyticsPageContent: React.FC = () => {
   // Get analytics data for the new chart cards
   const { data: analyticsData, isLoading: analyticsLoading } = useAnalyticsData();
   
-  console.log('Analytics: Data loaded -', { 
     readinessCount: readinessRolling.length, 
     sleepCount: sleepDaily.length, 
     loadCount: loadACWR.length,
@@ -231,7 +230,6 @@ const AnalyticsPageContent: React.FC = () => {
       if (error) throw error;
 
       // The response is handled by ARIAInputSection or could show a toast
-      console.log('ARIA response:', data);
     } catch (error) {
       console.error('ARIA insights error:', error);
     } finally {

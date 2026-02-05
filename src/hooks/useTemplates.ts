@@ -159,7 +159,6 @@ export const useDeleteTemplate = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      console.log('Attempting to delete template:', id);
       
       // First, delete associated template blocks
       const { error: blocksError } = await supabase
@@ -193,10 +192,8 @@ export const useDeleteTemplate = () => {
         throw new Error(`Failed to delete template: ${templateError.message}`);
       }
 
-      console.log('Template deleted successfully:', id);
     },
     onSuccess: () => {
-      console.log('Template deletion successful, invalidating queries');
       queryClient.invalidateQueries({ queryKey: ['templates'] });
     },
     onError: (error) => {

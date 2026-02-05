@@ -163,7 +163,6 @@ const CreatePostScreen: React.FC = () => {
     
     // Simulate API call
     setTimeout(() => {
-      console.log('Post submitted:', postDraft);
       setIsSubmitting(false);
       navigate('/feed');
     }, 2000);

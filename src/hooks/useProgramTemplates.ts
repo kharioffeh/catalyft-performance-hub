@@ -77,7 +77,6 @@ export const useDeleteTemplate = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      console.log('Attempting to delete program template:', id);
       
       const { error } = await supabase
         .from('program_templates')
@@ -98,10 +97,8 @@ export const useDeleteTemplate = () => {
         throw new Error(`Failed to delete program: ${error.message}`);
       }
 
-      console.log('Program template deleted successfully:', id);
     },
     onSuccess: () => {
-      console.log('Program deletion successful, invalidating queries');
       queryClient.invalidateQueries({ queryKey: ['program-templates'] });
     },
     onError: (error) => {

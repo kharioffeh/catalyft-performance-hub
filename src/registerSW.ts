@@ -15,15 +15,12 @@ if ('serviceWorker' in navigator) {
             }
           },
           onOfflineReady() {
-            console.log('App ready to work offline');
           },
         });
       })
       .catch(() => {
-        console.log('PWA not available in this environment');
       });
   } catch (error) {
-    console.log('PWA registration failed:', error);
   }
 }
 

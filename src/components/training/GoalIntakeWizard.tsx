@@ -92,7 +92,6 @@ export const GoalIntakeWizard: React.FC<GoalIntakeWizardProps> = ({
       });
       
       if (response.ok) {
-        console.log('Goal submitted successfully:', goalData);
         onOpenChange(false);
         setCurrentStep(1);
         setGoalData({

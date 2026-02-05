@@ -607,7 +607,7 @@ const ParseScreen: React.FC = () => {
         <FoodListEditor
           foods={foods}
           onChange={setFoods}
-          onSwapFood={(foodId) => console.log('Swap food:', foodId)}
+          onSwapFood={() => {}}
         />
 
         {/* Action Buttons */}

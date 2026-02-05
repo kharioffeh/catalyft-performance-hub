@@ -191,7 +191,6 @@ export const useHealthKitSync = (): UseHealthKitSyncReturn => {
 
   const handleAppStateChange = useCallback(async (nextAppState: AppStateStatus) => {
     if (nextAppState === 'active' && status.hasPermissions && !status.isSyncing) {
-      console.log('App became active, triggering background sync...');
       await syncNow(2); // Sync last 2 days when app becomes active
     }
   }, [status.hasPermissions, status.isSyncing]);

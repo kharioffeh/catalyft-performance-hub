@@ -388,7 +388,7 @@ const Nutrition: React.FC = () => {
                       onDelete={removeMeal}
                       onEdit={(meal) => {
                         // TODO: Implement edit functionality
-                        console.log('Edit meal:', meal);
+                        {};
                       }}
                     />
                   ))}

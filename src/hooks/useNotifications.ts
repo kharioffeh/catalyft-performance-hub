@@ -91,7 +91,6 @@ export const useNotifications = () => {
         },
         (payload) => {
           const newNotification = payload.new as Notification;
-          console.log('New notification received:', newNotification);
           
           // Show glass toast notification for new notifications
           if (newNotification.type === 'abnormal_readiness') {

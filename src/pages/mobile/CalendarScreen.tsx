@@ -43,7 +43,6 @@ const SessionCard: React.FC<SessionCardProps> = ({ session }) => {
     if (session.status === 'planned' || session.status === 'active') {
       // In a real app, you would navigate to the ActiveSessionScreen
       // For web, you might open a modal or navigate to a session page
-      console.log('Navigate to session:', session.id);
       // Example: router.push(`/session/${session.id}`);
     }
   };

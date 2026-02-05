@@ -15,7 +15,6 @@ export async function ariaChat(
   options: AriaChatOptions = {}
 ): Promise<AriaChatResponse> {
   try {
-    console.log('Making ARIA chat request:', { messages: messages.length, threadId, options });
     
     const { data, error } = await supabase.functions.invoke('aria-chat-and-log', {
       body: {
@@ -33,7 +32,6 @@ export async function ariaChat(
       throw new Error(`ARIA chat failed: ${error.message}`);
     }
 
-    console.log('ARIA chat response received');
     return data as AriaChatResponse;
   } catch (error) {
     console.error('Error in ariaChat:', error);
