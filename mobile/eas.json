@@ -4,7 +4,14 @@
     "promptToConfigurePushNotifications": false
   },
   "build": {
+    "base": {
+      "node": "20.11.0",
+      "env": {
+        "EXPO_NO_TELEMETRY": "1"
+      }
+    },
     "development": {
+      "extends": "base",
       "developmentClient": true,
       "distribution": "internal",
       "android": {
@@ -17,6 +24,7 @@
       }
     },
     "preview": {
+      "extends": "base",
       "distribution": "internal",
       "android": {
         "buildType": "apk",
@@ -31,13 +39,16 @@
       }
     },
     "production": {
+      "extends": "base",
+      "autoIncrement": true,
       "android": {
         "buildType": "app-bundle",
         "gradleCommand": ":app:bundleRelease"
       },
       "ios": {
         "buildConfiguration": "Release",
-        "simulator": false
+        "simulator": false,
+        "autoIncrement": "buildNumber"
       },
       "env": {
         "NODE_ENV": "production"

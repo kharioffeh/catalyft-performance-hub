@@ -81,7 +81,10 @@ jobs:
 
       - name: Pod install
         working-directory: mobile/ios
-        run: npx pod-install
+        run: |
+          pod install --repo-update
+          pod deintegrate || true
+          pod install
 
       - name: Build for Simulator
         working-directory: mobile/ios
