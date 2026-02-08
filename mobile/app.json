@@ -29,13 +29,13 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-            "plugins": [
-          "./plugins/withModularHeaders",
-          "./plugins/withJsinspectorFix",
-          "./plugins/withAndroidGradleConfig",
-          "./plugins/withAndroidBuildFix",
-          "./plugins/withAndroidPackagingOptions",
-          "./plugins/withIosPodfileFix",
+    "plugins": [
+      "./plugins/withModularHeaders",
+      "./plugins/withJsinspectorFix",
+      "./plugins/withAndroidGradleConfig",
+      "./plugins/withAndroidBuildFix",
+      "./plugins/withAndroidPackagingOptions",
+      "./plugins/withIosPodfileFix",
       "@react-native-firebase/app",
       "@react-native-firebase/crashlytics",
       [
@@ -55,6 +55,11 @@
           }
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "c7ff9894-6bcf-4541-9b2e-5f6270f88357"
+      }
+    }
   }
 }
