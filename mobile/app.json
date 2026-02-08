@@ -35,11 +35,18 @@
     "plugins": [
       "./plugins/withModularHeaders",
       "./plugins/withJsinspectorFix",
+      "./plugins/withSentryProfilingFix",
       "./plugins/withAndroidGradleConfig",
       "./plugins/withAndroidBuildFix",
       "./plugins/withAndroidPackagingOptions",
       "./plugins/withIosPodfileFix",
-      "@sentry/react-native/expo",
+      [
+        "@sentry/react-native/expo",
+        {
+          "organization": "catalyft",
+          "project": "catalyft-mobile"
+        }
+      ],
       "@react-native-firebase/app",
       "@react-native-firebase/crashlytics",
       [
