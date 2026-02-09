@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.catalyft.mobile",
-      "deploymentTarget": "15.0",
+      "deploymentTarget": "15.1",
       "googleServicesFile": "./firebase-config/GoogleService-Info.plist",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
@@ -45,7 +45,7 @@
         "expo-build-properties",
         {
           "ios": {
-            "deploymentTarget": "15.0",
+            "deploymentTarget": "15.1",
             "useFrameworks": "static"
           },
           "android": {
