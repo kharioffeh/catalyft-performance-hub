@@ -4,7 +4,7 @@ const path = require('path');
 
 /**
  * This plugin fixes the jsinspector-modern header not found issue
- * that occurs with Expo SDK 51 + React Native 0.74.x
+ * by modifying the Podfile to add header search paths
  */
 
 function withJsinspectorFix(config) {
@@ -18,47 +18,30 @@ function withJsinspectorFix(config) {
         const originalContent = podfileContent;
 
         // Check if our fix is already present
-        if (!podfileContent.includes('jsinspector_fix')) {
-          // Add a post_integrate hook to create the symlink after pod install
-          const symlinkFix = `
-# jsinspector_fix - Create symlink for jsinspector-modern headers
-post_integrate do |installer|
-  pods_dir = installer.sandbox.root
-  public_headers = pods_dir + 'Headers/Public'
-  private_headers = pods_dir + 'Headers/Private'
-
-  # Create symlink for jsinspector-modern -> React-jsinspector
-  ['Public', 'Private'].each do |type|
-    headers_dir = pods_dir + "Headers/#{type}"
-    source = headers_dir + 'React-jsinspector'
-    target = headers_dir + 'jsinspector-modern'
-
-    if source.exist? && !target.exist?
-      FileUtils.ln_sf('React-jsinspector', target.to_s)
-      Pod::UI.puts "Created symlink: #{target} -> React-jsinspector".green
+        if (!podfileContent.includes('jsinspector header search paths fix')) {
+          // Add header search paths in the post_install block
+          const headerFix = `
+    # jsinspector header search paths fix
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |build_config|
+        build_config.build_settings['HEADER_SEARCH_PATHS'] ||= ['$(inherited)']
+        unless build_config.build_settings['HEADER_SEARCH_PATHS'].include?('jsinspector')
+          build_config.build_settings['HEADER_SEARCH_PATHS'] << '"$(PODS_ROOT)/Headers/Public/React-jsinspector"'
+        end
+      end
     end
-  end
-rescue => e
-  Pod::UI.warn "jsinspector symlink fix failed: #{e.message}"
-end
-
 `;
 
-          // Insert after the target block and before post_install
-          if (podfileContent.includes('post_install do |installer|')) {
+          // Find the post_install block and add our fix after react_native_post_install
+          const postInstallRegex = /(react_native_post_install\([^)]+\))/;
+          if (postInstallRegex.test(podfileContent)) {
             podfileContent = podfileContent.replace(
-              /^(.*post_install do \|installer\|)/m,
-              `${symlinkFix}\n$1`
-            );
-          } else {
-            // If no post_install, add at the end before the final 'end'
-            podfileContent = podfileContent.replace(
-              /(end\s*)$/,
-              `${symlinkFix}\n$1`
+              postInstallRegex,
+              `$1\n${headerFix}`
             );
           }
 
-          // Also ensure we're not using ccache_enabled which can cause issues
+          // Remove ccache_enabled if present (can cause issues)
           podfileContent = podfileContent.replace(
             /:ccache_enabled\s*=>\s*podfile_properties\['apple\.ccacheEnabled'\]\s*==\s*'true',?\s*/g,
             ''
@@ -67,7 +50,7 @@ end
 
         if (podfileContent !== originalContent) {
           fs.writeFileSync(podfilePath, podfileContent);
-          console.log('✅ Added jsinspector symlink fix to Podfile');
+          console.log('✅ Added jsinspector header search paths fix to Podfile');
         }
       }
 
