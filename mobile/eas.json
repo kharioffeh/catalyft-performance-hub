@@ -30,6 +30,10 @@
         "buildConfiguration": "Debug"
       }
     },
+    "development-local": {
+      "extends": "development",
+      "prebuildCommand": "node scripts/fix-podspec.js"
+    },
     "preview": {
       "extends": "base",
       "distribution": "internal",
