@@ -15,8 +15,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.catalyft.mobile",
-      "deploymentTarget": "15.0",
-      "googleServicesFile": "./firebase-config/GoogleService-Info.plist"
+      "deploymentTarget": "15.1",
+      "googleServicesFile": "./firebase-config/GoogleService-Info.plist",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -31,21 +34,35 @@
     },
     "plugins": [
       "./plugins/withModularHeaders",
+      "./plugins/withJsinspectorFix",
+      "./plugins/withAndroidGradleConfig",
+      "./plugins/withAndroidBuildFix",
+      "./plugins/withAndroidPackagingOptions",
+      "./plugins/withIosPodfileFix",
       "@react-native-firebase/app",
+      "@react-native-firebase/crashlytics",
       [
         "expo-build-properties",
         {
           "ios": {
-            "deploymentTarget": "15.0",
+            "deploymentTarget": "15.1",
             "useFrameworks": "static"
           },
           "android": {
             "compileSdkVersion": 34,
             "targetSdkVersion": 34,
-            "minSdkVersion": 23
+            "minSdkVersion": 23,
+            "gradleVersion": "8.4",
+            "buildToolsVersion": "34.0.0",
+            "kotlinVersion": "1.9.24"
           }
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "c7ff9894-6bcf-4541-9b2e-5f6270f88357"
+      }
+    }
   }
 }

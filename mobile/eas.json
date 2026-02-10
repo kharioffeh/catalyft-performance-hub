@@ -8,14 +8,16 @@
     "base": {
       "node": "20.11.0",
       "ios": {
-        "image": "latest"
+        "image": "latest",
+        "cocoapods": "1.15.2"
       },
       "android": {
         "image": "latest"
       },
       "env": {
         "EXPO_NO_TELEMETRY": "1"
-      }
+      },
+      "prebuildCommand": "node scripts/fix-podspec.js"
     },
     "development": {
       "extends": "base",
@@ -31,8 +33,7 @@
       }
     },
     "development-local": {
-      "extends": "development",
-      "prebuildCommand": "node scripts/fix-podspec.js"
+      "extends": "development"
     },
     "preview": {
       "extends": "base",
