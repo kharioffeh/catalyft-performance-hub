@@ -16,8 +16,7 @@
       },
       "env": {
         "EXPO_NO_TELEMETRY": "1"
-      },
-      "prebuildCommand": "node scripts/fix-podspec.js"
+      }
     },
     "development": {
       "extends": "base",

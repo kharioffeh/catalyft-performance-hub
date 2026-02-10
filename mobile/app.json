@@ -35,9 +35,6 @@
     "plugins": [
       "./plugins/withModularHeaders",
       "./plugins/withJsinspectorFix",
-      "./plugins/withAndroidGradleConfig",
-      "./plugins/withAndroidBuildFix",
-      "./plugins/withAndroidPackagingOptions",
       "./plugins/withIosPodfileFix",
       "@react-native-firebase/app",
       "@react-native-firebase/crashlytics",
